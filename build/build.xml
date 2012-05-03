@@ -26,7 +26,7 @@
         <tstamp />
         <compileScripts version="DEVELOPMENT SNAPSHOT (${TODAY})" extension="" level="simple">
         	<args>
-        		   <define name="window['XMOT'].version" value="@{version}"/>
+        		   <define name="XMOT.version" value="@{version}"/>
         	</args>
         </compileScripts>
     </target>
