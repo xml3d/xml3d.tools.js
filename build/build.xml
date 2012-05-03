@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ======================================================================
+     project    xml3d.js
+     description
+     Deploy script that prepares a single xml3d.js script file
+
+     Author: Kristian Sons
+     ====================================================================== -->
+<project name="script-merge" default="develop">
+	<description>
+           Merge all the single scripts to one global xml3d.js
+    </description>
+
+	<import file="build-master.xml"/>
+
+	<filelist dir="../src" id="sourceFiles">
+		<file name="interfaces.js" />
+	</filelist>
+
+	<target name="develop" depends="init">
+		<tstamp />
+		<concatScripts version="DEVELOPMENT SNAPSHOT (${TODAY})"/>
+	</target>
+
+    <target name="develop-min" depends="init">
+        <tstamp />
+        <compileScripts version="DEVELOPMENT SNAPSHOT (${TODAY})" extension="" level="simple">
+        	<args>
+        		   <define name="window['XMOT'].version" value="@{version}"/>
+        	</args>
+        </compileScripts>
+    </target>
+
+   <target name="init-properties">
+        <property name="buildDir" value="output"/>
+       <property name="script.start" value="xml3d-motion"/>
+   </target>
+
+
+</project>
