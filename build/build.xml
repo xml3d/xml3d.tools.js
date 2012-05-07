@@ -15,6 +15,8 @@
 
 	<filelist dir="../src" id="sourceFiles">
 		<file name="interfaces.js" />
+		<file name="ClientMoveable.js" />
+		<file name="ClientMotionFactory.js" />
 	</filelist>
 
 	<target name="develop" depends="init">
