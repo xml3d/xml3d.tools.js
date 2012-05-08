@@ -55,7 +55,13 @@
     /**
      * Translate the object by the given values.
      */
-    p.translate = function(){};
+    p.translate = function(x,y,z){
+		this.position[0] += x;
+		this.position[1] += y;
+		this.position[2] += z;
+
+		this.transform.translation.set(this.transform.translation.add(new XML3DVec3(x,y,z)));
+    };
 
     /**
      * Rotate the object by the given values.
