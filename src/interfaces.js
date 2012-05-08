@@ -30,6 +30,7 @@ XMOT.version = '%VERSION%';
     p.setOrientation = function(){};
     p.translate = function(){};
     p.rotate = function(){};
+    p.checkCollision = function(){};
 
     //export to namespace
     XMOT.MotionFactory = MotionFactory;
