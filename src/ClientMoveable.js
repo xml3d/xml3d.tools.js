@@ -6,19 +6,6 @@
      * @implements{Moveable}
      */
     function ClientMoveable(object, transform, collisionimage) {
-    	//TODO: need internal data and transform as well as object?
-		//vec3
-		this.position = new Array(3);
-		this.position[0] = transform.translation.x;
-		this.position[1] = transform.translation.y;
-		this.position[2] = transform.translation.z;
-		//quaternion
-		this.orientation = new Array(4);
-		this.orientation[0] = transform.rotation;
-		this.orientation[1] = transform.rotation;
-		this.orientation[2] = transform.rotation;
-		this.orientation[3] = transform.rotation;
-
 		//oject
 		this.object = object;
 
@@ -42,13 +29,8 @@
      */
     p.setPosition = function(x,y,z){
 		if(this.checkCollision(x, y, z)){
-			//alert("collision at x: " + x + " z: " + z);
 			return;
 		}
-    	this.position[0] = x;
-		this.position[1] = y;
-		this.position[2] = z;
-
 		//object data
 		this.transform.translation.set(x,y,z);
     };
@@ -57,11 +39,6 @@
 	 * Set the absolute orientation.
 	 */
 	p.setOrientation = function(x,y,z,s){
-		//TODO: set internal data
-		//this.orientation[0] = transform.rotation;
-		//this.orientation[1] = transform.rotation;
-		//this.orientation[2] = transform.rotation;
-		//this.orientation[3] = transform.rotation;
 		this.transform.rotation.setQuaternion(new XML3DVec3(x,y,z), s);
     };
 
@@ -70,13 +47,8 @@
      */
     p.translate = function(x,y,z){
 		if(this.checkCollision(x, y, z)){
-			//alert("collision at x: " + x + " z: " + z);
 			return;
 		}
-		this.position[0] += x;
-		this.position[1] += y;
-		this.position[2] += z;
-
 		this.transform.translation.set(this.transform.translation.add(new XML3DVec3(x,y,z)));
     };
 
