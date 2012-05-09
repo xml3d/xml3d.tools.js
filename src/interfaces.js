@@ -10,29 +10,95 @@ XMOT.version = '%VERSION%';
      * A MotionFactory.
      * @interface
      */
-    var MotionFactory = function() {
-    };
+    var MotionFactory = function() {};
     var m = MotionFactory.prototype;
 
-    //functions
-    m.createMoveable = function(){};
+    /**
+     * Creates a Moveable out of the given object
+     * @param {Object} object base for the Moveable
+     * @return {Moveable} created Moveable
+     */
+    m.createMoveable = function(object){};
 
     /**
      * A Moveable.
      * @interface
      */
-    var Moveable = function() {
-    };
+    var Moveable = function() {};
     var p = Moveable.prototype;
 
-    //functions
-    p.setPosition = function(){};
-    p.setOrientation = function(){};
-    p.translate = function(){};
-    p.rotate = function(){};
-    p.checkCollision = function(){};
+    /**
+     * Sets the absolute position of the Moveable in local space.
+     * @param {Array.<number>} position position as 3d vector in local space
+     */
+    p.setPosition = function(position){};
 
-    //export to namespace
-    XMOT.MotionFactory = MotionFactory;
-    XMOT.Moveable = Moveable;
+    /**
+     * Sets the absolute orientation of the Movebale in local space.
+     * @param {Array.<number>} orientation orientation as quaternion in local space
+     */
+    p.setOrientation = function(orientation){};
+
+    /**
+     * Translate the Moveable by a given Vector.
+     * @param {Array.<number>} translation 3d Vector
+     */
+    p.translate = function(translation){};
+
+    /**
+     * Rotates the Moveable by a given Quaternion.
+     * @param {Array.<number>} rotation Quaternion
+     */
+    p.rotate = function(rotation){};
+
+    /**
+     * Interpolated translation over time to position in local space.
+     * @param {Array.<number>} position local space
+     * @param {number} time when to reach the position, in milliseconds
+     * @param {Object=} options Interpolationalgorithm as string; Callback, as soon as position is reached;  all values are optional
+     */
+    p.moveTo = function(position, time, opt){};
+
+    /**
+     * Sets a constraint for the Moveable. The constraint is checked
+     * @param {Constraint} constraint Set a constraint to the Moveable
+     */
+    p.setContraint = function(constraint){};
+
+    /**
+     * A Animatable
+     * @interface
+     */
+    var Animatable = function(){};
+    var a = Animatable.prototype;
+    //TODO define functions of the Animatable
+
+    /**
+     * A Humanoid
+     * @interface
+     */
+    var Humanoid = function(){};
+    var h = Humanoid.prototype;
+    //TODO define functions of the Humanoid
+
+    /**
+     * A Constraint
+     * @interface
+     */
+    var Constraint = function(){};
+    var c = Constraint.prototype;
+
+    /**
+     * Checks if a rotation operation is valid
+     * @param {Array.<number>} rotation Quaternion
+     * @return {boolean} returns true if the operation is valid, false otherwise
+     */
+    c.constrainRotation = function(rotation){};
+
+    /**
+     * Checks if a translation operation is valid
+     * @param {Array.<number>} translation 3d Vector
+     * @return {boolean} returns true if the operation is valid, false otherwise
+     */
+    c.constrainTranslation = function(translation){};
 }());
