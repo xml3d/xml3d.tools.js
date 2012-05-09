@@ -8,7 +8,7 @@
      ====================================================================== -->
 <project name="script-merge" default="develop">
 	<description>
-           Merge all the single scripts to one global xml3d.js
+           Merge all the single scripts to one global xml3d-motion.js
     </description>
 
 	<import file="build-master.xml"/>
@@ -17,6 +17,7 @@
 		<file name="interfaces.js" />
 		<file name="ClientMoveable.js" />
 		<file name="ClientMotionFactory.js" />
+		<file name="CollisionConstraint.js" />
 	</filelist>
 
 	<target name="develop" depends="init">
