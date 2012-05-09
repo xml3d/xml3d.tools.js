@@ -5,21 +5,13 @@
      * A Moveable implementation.
      * @implements{Moveable}
      */
-    function ClientMoveable(object, transform, collisionimage) {
+    function ClientMoveable(object, transform, constraint) {
 		//oject
 		this.object = object;
-
 		//transform
 		this.transform = transform;
-
-		// binary 2d map for collision check
-		var img = new Image();
-		img.src = "collision.png";//collisionimage;
-		var element = document.getElementById("canvas");
-		this.context = element.getContext("2d");
-		this.context.drawImage(img, 0, 0);
-		this.imgWidth = element.width;
-		this.imgHeight = element.height;
+		//constraint
+		this.constraint = constraint;
     };
 
     var p = ClientMoveable.prototype;
@@ -27,49 +19,46 @@
     /**
      * Set the absolute position.
      */
-    p.setPosition = function(x,y,z){
-		if(this.checkCollision(x, y, z)){
-			return;
-		}
-		//object data
-		this.transform.translation.set(x,y,z);
+    p.setPosition = function(position){
+    	if(this.constraint.constrainTranslation(position))
+    		this.transform.translation.set(position[0],position[1],position[2]);
     };
 
 	/**
 	 * Set the absolute orientation.
 	 */
-	p.setOrientation = function(x,y,z,s){
-		this.transform.rotation.setQuaternion(new XML3DVec3(x,y,z), s);
+	p.setOrientation = function(orientation){
+		if(this.constraint.constrainRotation(orientation))
+			this.transform.rotation.setQuaternion(new XML3DVec3(orientation[0],orientation[1],orientation[2]), orientation[3]);
     };
 
     /**
      * Translate the object by the given values.
      */
-    p.translate = function(x,y,z){
-		if(this.checkCollision(x, y, z)){
-			return;
-		}
-		this.transform.translation.set(this.transform.translation.add(new XML3DVec3(x,y,z)));
+    p.translate = function(translation){
+		var destination = this.transform.translation.add( new XML3DRotation.setQuaternion(XML3DVec3(translation[0],translation[1],translation[2])) );
+		if(this.constraint.constrainTranslation(destination))
+			is.transform.translation.set(destination);
     };
 
     /**
      * Rotate the object by the given values.
      */
-    p.rotate = function(){};
+    p.rotate = function(orientation){
+		//TODO: check how the rotate should really work oO
+		var modifier = new XML3DRotation();
+		modifier.setQuaternion( new XML3DVec3(orientation[0],orientation[1],orientation[2]), orientation[3] );
+		var destination = this.transform.rotation.multiply( modifier );
+		if(this.constraint.constrainRotation(orientation))
+			this.transform.rotation.setQuaternion(destination);
+    };
 
-    /**
-     * Simple Method to check if a given position is allowed as a new position for the object.
-     * Returns true if a collision is detected.
-     */
-    p.checkCollision = function(x,y,z){
-		//z coord of the scene is y coord of the map
-		if(x<0 || y< 0 || y<0) return true; // its forbidden to move away from the plane
-		var checkAtX = x/5*this.imgWidth;
-		var checkAtY = z/5*this.imgHeight;
-		//TODO: check rotationssymmetrische dingsda, also z achse der szene = -y des bildes?
-		var data = this.context.getImageData(checkAtX,checkAtY,1,1).data;
-		alert("atX: " + checkAtX + "atY: " + checkAtY + " R " + data[0] + " G " + data[1] + " B " + data[2]);
-		return !(data[0] || data[1] || data[2]);
+    p.moveTo = function(position, time, opt){
+		//TODO
+    };
+
+    p.setConstraint = function(constraint){
+		this.constraint = constraint;
     };
 
     //export
