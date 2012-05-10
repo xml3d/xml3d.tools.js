@@ -43,10 +43,7 @@ function translateCube()
 function moveCubeTo()
 {
 	document.getElementById("notification").innerHTML = "Moving the Cube To ...";
-	if(muh%2)
-		moveable.moveTo([2.0, 0.0, 2.0],2000).moveTo([3.0, 0.0, 3.0],2000);
-	else
-		moveable.moveTo([3.0, 0.0, 3.0],2000).moveTo([0.0,1.0,2.0],500);
+	moveable.moveTo([1.0, 0.0, 1.0],500).moveTo([4.0, 0.0, 1.0],1000).moveTo([4.0, 0.0, 4.0],1500).moveTo([1.0, 0.0, 4.0],2000).moveTo([1.0, 0.0, 1.0,], 2500);
 	muh++;
 	document.getElementById("notification").innerHTML = "Ehm... Cube should have moved";
 	animate();
