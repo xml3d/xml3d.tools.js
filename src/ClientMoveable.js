@@ -38,7 +38,7 @@
     p.translate = function(translation){
 		var destination = this.transform.translation.add( new XML3DRotation.setQuaternion(XML3DVec3(translation[0],translation[1],translation[2])) );
 		if(this.constraint.constrainTranslation(destination))
-			is.transform.translation.set(destination);
+			this.transform.translation.set(destination);
     };
 
     /**
@@ -55,6 +55,8 @@
 
     p.moveTo = function(position, time, opt){
 		//TODO
+    	var tween = new Tween();
+    	TWEEN._tweens.add(tween);
     };
 
     p.setConstraint = function(constraint){
