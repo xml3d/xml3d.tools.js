@@ -30,24 +30,28 @@ XMOT.version = '%VERSION%';
     /**
      * Sets the absolute position of the Moveable in local space.
      * @param {Array.<number>} position position as 3d vector in local space
+     * @return {Moveable} the Moveable
      */
     p.setPosition = function(position){};
 
     /**
      * Sets the absolute orientation of the Movebale in local space.
      * @param {Array.<number>} orientation orientation as quaternion in local space
+     * @return {Moveable} the Moveable
      */
     p.setOrientation = function(orientation){};
 
     /**
      * Translate the Moveable by a given Vector.
      * @param {Array.<number>} translation 3d Vector
+     * @return {Moveable} the Moveable
      */
     p.translate = function(translation){};
 
     /**
      * Rotates the Moveable by a given Quaternion.
      * @param {Array.<number>} rotation Quaternion
+     * @return {Moveable} the Moveable
      */
     p.rotate = function(rotation){};
 
@@ -57,12 +61,13 @@ XMOT.version = '%VERSION%';
      * @param {Array.<number>} position local space
      * @param {number} time when to reach the position, in milliseconds
      * @param {Object=} options Interpolationalgorithm as string; Callback, as soon as position is reached;  all values are optional
+     * @return {Moveable} the Moveable
      */
     p.moveTo = function(position, time, opt){};
 
     /**
      * Stops the current (moveTo) animation.
-     * @return {Moveable} returns the Moveable
+     * @return {Moveable} the Moveable
      */
     p.stop = function(){};
 
@@ -96,14 +101,14 @@ XMOT.version = '%VERSION%';
     var c = Constraint.prototype;
 
     /**
-     * Checks if a rotation operation is valid
+     * Checks if a rotation operation is valid.
      * @param {Array.<number>} rotation Quaternion
      * @return {boolean} returns true if the operation is valid, false otherwise
      */
     c.constrainRotation = function(rotation){};
 
     /**
-     * Checks if a translation operation is valid
+     * Checks if a translation operation is valid.
      * @param {Array.<number>} translation 3d Vector
      * @return {boolean} returns true if the operation is valid, false otherwise
      */
