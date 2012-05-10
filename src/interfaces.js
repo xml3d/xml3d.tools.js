@@ -53,11 +53,18 @@ XMOT.version = '%VERSION%';
 
     /**
      * Interpolated translation over time to position in local space.
+     * The animation is put into a fifo-queue and will be eventually executed.
      * @param {Array.<number>} position local space
      * @param {number} time when to reach the position, in milliseconds
      * @param {Object=} options Interpolationalgorithm as string; Callback, as soon as position is reached;  all values are optional
      */
     p.moveTo = function(position, time, opt){};
+
+    /**
+     * Stops the current (moveTo) animation.
+     * @return {Moveable} returns the Moveable
+     */
+    p.stop = function(){};
 
     /**
      * Sets a constraint for the Moveable. The constraint is checked
