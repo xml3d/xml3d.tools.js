@@ -18,6 +18,7 @@
 		<file name="ClientMoveable.js" />
 		<file name="ClientMotionFactory.js" />
 		<file name="CollisionConstraint.js" />
+		<file name="contrib/Tween.js" />
 	</filelist>
 
 	<target name="develop" depends="init">
