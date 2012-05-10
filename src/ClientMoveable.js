@@ -18,34 +18,26 @@
 
     var p = ClientMoveable.prototype;
 
-    /**
-     * Set the absolute position.
-     */
+    /** @inheritDoc */
     p.setPosition = function(position){
     	if(this.constraint.constrainTranslation(position))
     		this.transform.translation.set(position[0],position[1],position[2]);
     };
 
-	/**
-	 * Set the absolute orientation.
-	 */
+    /** @inheritDoc */
 	p.setOrientation = function(orientation){
 		if(this.constraint.constrainRotation(orientation))
 			this.transform.rotation.setQuaternion(new XML3DVec3(orientation[0],orientation[1],orientation[2]), orientation[3]);
     };
 
-    /**
-     * Translate the object by the given values.
-     */
+    /** @inheritDoc */
     p.translate = function(translation){
 		var destination = this.transform.translation.add( new XML3DRotation.setQuaternion(XML3DVec3(translation[0],translation[1],translation[2])) );
 		if(this.constraint.constrainTranslation(destination))
 			this.transform.translation.set(destination);
     };
 
-    /**
-     * Rotate the object by the given values.
-     */
+    /** @inheritDoc */
     p.rotate = function(orientation){
 		//TODO: check how the rotate should really work oO
 		var modifier = new XML3DRotation();
@@ -55,6 +47,7 @@
 			this.transform.rotation.setQuaternion(destination);
     };
 
+    /** @inheritDoc */
     p.moveTo = function(position, time, opt){
 		var dest_position = {x:position[0], y:position[1], z:position[2]};
 		this.currentPosition.x = this.transform.translation.x;
@@ -69,6 +62,7 @@
 		return this;
     };
 
+    /** @inheritDoc */
     p.setConstraint = function(constraint){
 		this.constraint = constraint;
     };

@@ -25,21 +25,13 @@
 	};
 	var c = CollisionConstraint.prototype;
 
-    /**
-     * Checks if a rotation operation is valid
-     * @param {Array.<number>} rotation Quaternion
-     * @return {boolean} returns true if the operation is valid, false otherwise
-     */
+	/** @inheritDoc */
     c.constrainRotation = function(rotation){
 		//TODO: imeplement something useful
 		return false;
     };
 
-    /**
-     * Checks if a translation operation is valid
-     * @param {Array.<number>} translation 3d Vector
-     * @return {boolean} returns true if the operation is valid, false otherwise
-     */
+    /** @inheritDoc */
     c.constrainTranslation = function(translation){
 		//TODO: check rotationssymmetrische dingsda, also z achse der szene = -y des bildes?
 		//TODO: check normal

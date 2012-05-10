@@ -9,6 +9,8 @@
 	};
 
 	var m = ClientMotionFactory.prototype;
+
+	/** @inheritDoc */
 	m.createMoveable = function(obj, constraint){
 		var t = XML3D.URIResolver.resolve(obj.transform, obj.ownerDocument);
 		if (!t) {
