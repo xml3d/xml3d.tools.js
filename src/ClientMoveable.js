@@ -12,6 +12,8 @@
 		this.transform = transform;
 		//constraint
 		this.constraint = constraint;
+		//current position; needed ONLY for the tween callback, not updated in other functions
+		this.currentPosition = {x:this.transform.translation.x, y:this.transform.translation.y, z:this.transform.translation.z};
     };
 
     var p = ClientMoveable.prototype;
@@ -54,9 +56,17 @@
     };
 
     p.moveTo = function(position, time, opt){
-		//TODO
-    	var tween = new Tween();
-    	TWEEN._tweens.add(tween);
+		var dest_position = {x:position[0], y:position[1], z:position[2]};
+		this.currentPosition.x = this.transform.translation.x;
+		this.currentPosition.y = this.transform.translation.y;
+		this.currentPosition.z = this.transform.translation.z;
+		var tween = new TWEEN.Tween(this.currentPosition).to(dest_position, time);
+		var that = this;
+		tween.onUpdate( function() {
+			that.setPosition([that.currentPosition.x,that.currentPosition.y,that.currentPosition.z]);
+		} );
+		tween.start();
+		return this;
     };
 
     p.setConstraint = function(constraint){
