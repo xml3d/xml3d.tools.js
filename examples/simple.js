@@ -39,3 +39,20 @@ function translateCube()
 	muh++;
 	document.getElementById("notification").innerHTML = "Translated the Cube ...";
 }
+
+function moveCubeTo()
+{
+	document.getElementById("notification").innerHTML = "Moving the Cube To ...";
+	if(muh%2)
+		moveable.moveTo([2.0, 0.0, 2.0],2000).moveTo([3.0, 0.0, 3.0],2000);
+	else
+		moveable.moveTo([3.0, 0.0, 3.0],2000).moveTo([0.0,1.0,2.0],500);
+	muh++;
+	document.getElementById("notification").innerHTML = "Ehm... Cube should have moved";
+	animate();
+}
+
+function animate(){
+	window.requestAnimFrame(animate);
+	TWEEN.update();
+}
