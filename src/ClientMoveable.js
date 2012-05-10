@@ -10,7 +10,8 @@
 		this.transform = transform;
 		this.constraint = constraint;
 		//movement queue
-		this.queue = undefined; ?//TODO: implement movement queue
+		this.motionQueue = new Array();
+		this.endLastMotion = undefined;
     };
 
     var p = ClientMoveable.prototype;
@@ -51,13 +52,37 @@
     /** @inheritDoc */
     p.moveTo = function(position, time, opt){
 		var dest_position = {x:position[0], y:position[1], z:position[2]};
-		var currentPosition = {x:this.transform.translation.x, y:this.transform.translation.y, z:this.transform.translation.z};
+		var currentPosition = undefined;
+		//start of the chained motion is end of the the one before, if there is one before
+		if( this.motionQueue.length != 0)
+			currentPosition = this.endLastMotion;
+		else
+			currentPosition	=  {x:this.transform.translation.x, y:this.transform.translation.y, z:this.transform.translation.z};
 		var tween = new TWEEN.Tween(currentPosition).to(dest_position, time);
+		this.endLastMotion = dest_position;
+
 		var that = this;
+		//update callback
 		tween.onUpdate( function() {
 			that.setPosition([currentPosition.x, currentPosition.y, currentPosition.z]);
 		} );
-		tween.start();
+
+		//callback on complete
+		tween.onComplete( function(){
+			//last motion step, just in case
+			that.setPosition([currentPosition.x, currentPosition.y, currentPosition.z]);
+			//remove finished tween from the end of the queue
+			that.motionQueue.pop();
+			//start next tween (end of the queue), if there is any in the queue
+			if(that.motionQueue.length != 0)
+				that.motionQueue[that.motionQueue.length-1].start();
+		});
+
+		//push tween to the beginning of the queue and start if queue was empty
+		this.motionQueue.unshift(tween);
+		if( this.motionQueue.length-1 == 0)
+			tween.start();
+
 		return this;
     };
 
