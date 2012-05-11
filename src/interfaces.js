@@ -101,13 +101,10 @@ XMOT.version = '%VERSION%';
 
     /**
      * Add an Animation to the Animatable
-     * @param {string} name
-     * @param {string} type Rotation or Position
      * @param {KeyframeAnimation} keyframeAnimation Keyframeanimation
-     * @param {Object=} opt options: {number} duration (in ms): default 1000; {boolean} loop: default: false
      * @return {Animatable} the Animatable
      */
-    a.addAnimation = function(name, type, keyframeAnimation, opt){};
+    a.addAnimation = function(keyframeAnimation){};
 
     /**
      * Starts an animation
@@ -131,6 +128,15 @@ XMOT.version = '%VERSION%';
     var KeyframeAnimation = function(){};
     var k = KeyframeAnimation.prototype;
     //TODO define functions for the KeyFrameAnimation
+
+    /**
+     * Creates a new KeyframeAnimation out of a given dom element
+     * @param {string} name
+     * @param {string} type "rotation" or "translation"
+     * @param {Object} element DOM element in which the keyframe animation is stored
+     * @param {Object=} opt options: {number} duration (in ms): default 1000; {boolean} loop: default: false
+     */
+    k.createKeyframeAnimation = function(name, type, element, opt){};
 
     /**
      * A Humanoid

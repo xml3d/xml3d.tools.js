@@ -101,10 +101,10 @@
 
   function createAnimatable() {
       var c = factory.createAnimatable(document.getElementById("shape_d1e22"));
-      var a1 = factory.createKeyframeAnimation(document.getElementById("animation01"));
-      var a2 = factory.createKeyframeAnimation(document.getElementById("animation02"));
-      c.addAnimation("a1", "translation", a1);
-      c.addAnimation("a2", "rotation", a2, {duration: 5, loop: true});
+      var a1 = factory.createKeyframeAnimation("a1", "translation", document.getElementById("animation01"), {duration: 2000, loop:false});
+      var a2 = factory.createKeyframeAnimation("a2", "rotataion", document.getElementById("animation02"));
+      c.addAnimation(a1);
+      c.addAnimation(a2, {duration: 5000, loop: true});
       return c;
   }
 </script>
