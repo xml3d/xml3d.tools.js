@@ -21,6 +21,20 @@ XMOT.version = '%VERSION%';
     m.createMoveable = function(object){};
 
     /**
+     * Creates an Animatable out of the given object
+     * @param {Obvject} object base for the Animatable
+     * @return {Animatable} created Animatable
+     */
+    m.createAnimatable = function(object){};
+
+    /**
+     * Creates a KeyframeAnimation
+     * @param {Object} KeyframeAnimation, keyframes and corresponding positions or orientations
+     * @return {KeyFrameAnimation} created KeyFrameAnimation
+     */
+    m.createKeyframeAnimation = function(object){};
+
+    /**
      * A Moveable.
      * @interface
      */
@@ -60,7 +74,7 @@ XMOT.version = '%VERSION%';
      * The animation is put into a fifo-queue and will be eventually executed.
      * @param {Array.<number>} position local space
      * @param {number} time when to reach the position, in milliseconds
-     * @param {Object=} options Interpolationalgorithm as string; Callback, as soon as position is reached;  all values are optional
+     * @param {Object=} opt options: {string} Interpolationalgorithm: default: linear; {function} Callback;
      * @return {Moveable} the Moveable
      */
     p.moveTo = function(position, time, opt){};
@@ -78,12 +92,44 @@ XMOT.version = '%VERSION%';
     p.setContraint = function(constraint){};
 
     /**
-     * A Animatable
+     * An Animatable
      * @interface
      */
     var Animatable = function(){};
     var a = Animatable.prototype;
-    //TODO define functions of the Animatable
+
+    /**
+     * Add an Animation to the Animatable
+     * @param {string} name
+     * @param {string} type Rotation or Position
+     * @param {KeyframeAnimation} keyframeAnimation Keyframeanimation
+     * @param {Object=} opt options: {number} duration (in ms): default 1000; {boolean} loop: default: false
+     * @return {Animatable} the Animatable
+     */
+    a.addAnimation = function(name, type, keyframeAnimation, opt){};
+
+    /**
+     * Starts an animation
+     * @param {string} name animation, that will be started
+     * @param {Object=} opt options: {number} duration (in ms); {boolean} loop; {string} id;
+     * @return {Animatable} the Animatable
+     */
+    a.startAnimation = function(name, opt){};
+
+    /**
+     * Stops an animation
+     * @param {string} id Animation ID
+     * @return {Animatable} the Animatable
+     */
+    a.stopAnimation = function(id){};
+
+    /**
+     * A KeyframeAnimation
+     * @interface
+     */
+    var KeyframeAnimation = function(){};
+    var k = KeyframeAnimation.prototype;
+    //TODO define functions for the KeyFrameAnimation
 
     /**
      * A Humanoid

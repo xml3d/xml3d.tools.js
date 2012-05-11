@@ -72,7 +72,7 @@
       if(!aobj)  {
           aobj = movObjects.cube = createAnimatable();
       }
-      aobj.startAnimation("a1", {duration: 3});
+      aobj.startAnimation("a1", {duration: 3, id="id12"});
   }
 
   function startOrientationAnimation()
@@ -82,7 +82,6 @@
           aobj = movObjects.cube = createAnimatable();
       }
       aobj.startAnimation("a2");
-      //aobj.stopAnimation("a2");
   }
 
   function startTwoAnimations()  {
@@ -97,7 +96,7 @@
       var aobj;
       if(!(aobj = movObjects.cube)) 
           return;
-      aobj.stop();
+      aobj.stopAnimation("id12");
   }
 
   function createAnimatable() {
