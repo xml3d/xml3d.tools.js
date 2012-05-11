@@ -26,19 +26,19 @@
 	var c = CollisionConstraint.prototype;
 
 	/** @inheritDoc */
-    c.constrainRotation = function(rotation){
+    c.constrainRotation = function(rotation, moveable){
 		//TODO: imeplement something useful
-		return false;
+		return true;
     };
 
     /** @inheritDoc */
-    c.constrainTranslation = function(translation){
+    c.constrainTranslation = function(translation, moveable){
 		//TODO: check rotationssymmetrische dingsda, also z achse der szene = -y des bildes?
 		//TODO: check normal
-		var checkAtX = translation[0] / this.sceneWidth * this.img.width;
-		var checkAtY = translation[2] / this.sceneDepth * this.img.height;
+		var checkAtX = (moveable.transform.translation.x + translation[0] ) / this.sceneWidth * this.img.width;
+		var checkAtY = (moveable.transform.translation.z + translation[2] ) / this.sceneDepth * this.img.height;
 		var data = this.context.getImageData(checkAtX,checkAtY,1,1).data;
-		return !!(data[0] || data[1] || data[2]); //convert to boolean?
+		return (data[0] || data[1] || data[2]);
     };
 
     //export

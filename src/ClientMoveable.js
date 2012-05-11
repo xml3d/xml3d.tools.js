@@ -18,23 +18,21 @@
 
     /** @inheritDoc */
     p.setPosition = function(position){
-    	if(this.constraint.constrainTranslation(position))
-    		this.transform.translation.set(position[0],position[1],position[2]);
-    	return this;
+		//make the setPosition a translation in order to work with the constraint
+		return this.translate([position[0]-this.transform.translation.x, position[1]-this.transform.translation.y, position[2]-this.transform.translation.z]);
     };
 
     /** @inheritDoc */
 	p.setOrientation = function(orientation){
-		if(this.constraint.constrainRotation(orientation))
+		if(this.constraint.constrainRotation(orientation, this))
 			this.transform.rotation.setQuaternion(new XML3DVec3(orientation[0],orientation[1],orientation[2]), orientation[3]);
 		return this;
     };
 
     /** @inheritDoc */
     p.translate = function(translation){
-		var destination = this.transform.translation.add( new XML3DRotation.setQuaternion(XML3DVec3(translation[0],translation[1],translation[2])) );
-		if(this.constraint.constrainTranslation(destination))
-			this.transform.translation.set(destination);
+		if(this.constraint.constrainTranslation(translation, this))
+			this.transform.translation.set(this.transform.translation.add( new XML3DVec3(translation[0],translation[1],translation[2]) ));
 		return this;
     };
 
@@ -44,7 +42,7 @@
 		var modifier = new XML3DRotation();
 		modifier.setQuaternion( new XML3DVec3(orientation[0],orientation[1],orientation[2]), orientation[3] );
 		var destination = this.transform.rotation.multiply( modifier );
-		if(this.constraint.constrainRotation(orientation))
+		if(this.constraint.constrainRotation(orientation, this))
 			this.transform.rotation.setQuaternion(destination);
 		return this;
     };

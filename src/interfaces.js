@@ -149,14 +149,16 @@ XMOT.version = '%VERSION%';
     /**
      * Checks if a rotation operation is valid.
      * @param {Array.<number>} rotation Quaternion
+     * @param {Moveable} moveable Moveable
      * @return {boolean} returns true if the operation is valid, false otherwise
      */
-    c.constrainRotation = function(rotation){};
+    c.constrainRotation = function(rotation, moveable){};
 
     /**
      * Checks if a translation operation is valid.
      * @param {Array.<number>} translation 3d Vector
+     * @param {Moveable} moveable Moveable
      * @return {boolean} returns true if the operation is valid, false otherwise
      */
-    c.constrainTranslation = function(translation){};
+    c.constrainTranslation = function(translation, moveable){};
 }());
