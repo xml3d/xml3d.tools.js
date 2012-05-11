@@ -63,6 +63,11 @@ function controller() {
     }
 }
 
+//TODO: Moved this method to the library ... fix gamepad somehow
+//function animate(){
+//	if(window.Gamepad)
+//	    controller();
+//}
 function stop()
 {
 	moveable.stop();

@@ -82,6 +82,7 @@
 		this.motionQueue.unshift(tween);
 		if( this.motionQueue.length-1 == 0){
 			tween.start();
+			animate();
 		}
 		return this;
     };
@@ -95,6 +96,17 @@
     /** @inheritDoc */
     p.setConstraint = function(constraint){
 		this.constraint = constraint;
+    };
+
+    /**
+     * Updates all the Tweens until all animations are finished
+     */
+    animate = function(){
+		if(TWEEN.getAll().length) {
+
+			window.requestAnimFrame(animate);
+			TWEEN.update();
+		}
     };
 
     //export
