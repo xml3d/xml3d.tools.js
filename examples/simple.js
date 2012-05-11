@@ -5,6 +5,7 @@ function initMoveable(){
 	var factory = new XMOT.ClientMotionFactory;
 	var constraint = new XMOT.CollisionConstraint(5.0, 5.0, [0,1,0], "collision.png");
 	moveable = factory.createMoveable(cube, constraint);
+	animate();
 };
 
 function rotateCube()
@@ -49,7 +50,23 @@ function moveCubeTo()
 	animate();
 }
 
+function controller() {
+    var sensitvity = 0.1;
+    var pads = Gamepad.getStates();
+    for ( var i = 0; i < pads.length; ++i) {
+        var pad = pads[i];
+        console.log(pads);
+        if (pad) {
+            var x = (pad.leftStickY < -0.15 || pad.leftStickY > 0.15) ? pad.leftStickY : 0;
+            var z = (pad.leftStickX < -0.15 || pad.leftStickX > 0.15) ? pad.leftStickX : 0;
+            moveable.translate([-x*sensitvity, 0, z*sensitvity]);
+        }
+    }
+}
+
 function animate(){
 	window.requestAnimFrame(animate);
+	if(window.Gamepad)
+	    controller();
 	TWEEN.update();
 }
