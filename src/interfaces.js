@@ -93,6 +93,7 @@ XMOT.version = '%VERSION%';
 
     /**
      * An Animatable
+     * @extends Moveable
      * @interface
      */
     var Animatable = function(){};
@@ -133,6 +134,7 @@ XMOT.version = '%VERSION%';
 
     /**
      * A Humanoid
+     * @extends Animatable
      * @interface
      */
     var Humanoid = function(){};
