@@ -47,7 +47,6 @@ function moveCubeTo()
 	moveable.moveTo([1.0, 0.0, 1.0],500).moveTo([4.0, 0.0, 1.0],1000).moveTo([4.0, 0.0, 4.0],1500).moveTo([1.0, 0.0, 4.0],2000).moveTo([1.0, 0.0, 1.0,], 2500);
 	muh++;
 	document.getElementById("notification").innerHTML = "Ehm... Cube should have moved";
-	animate();
 }
 
 function controller() {
@@ -64,9 +63,7 @@ function controller() {
     }
 }
 
-function animate(){
-	window.requestAnimFrame(animate);
-	if(window.Gamepad)
-	    controller();
-	TWEEN.update();
+function stop()
+{
+	moveable.stop();
 }

@@ -66,7 +66,7 @@ XMOT.version = '%VERSION%';
     p.moveTo = function(position, time, opt){};
 
     /**
-     * Stops the current (moveTo) animation.
+     * Stops the current movement and cancels every queued movement.
      * @return {Moveable} the Moveable
      */
     p.stop = function(){};

@@ -80,10 +80,16 @@
 
 		//push tween to the beginning of the queue and start if queue was empty
 		this.motionQueue.unshift(tween);
-		if( this.motionQueue.length-1 == 0)
+		if( this.motionQueue.length-1 == 0){
 			tween.start();
-
+		}
 		return this;
+    };
+
+    /**@inheritDoc */
+    p.stop = function(){
+		this.motionQueue.pop().stop();
+		this.motionQueue = []; //clear array
     };
 
     /** @inheritDoc */
