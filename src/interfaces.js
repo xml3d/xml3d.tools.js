@@ -29,10 +29,13 @@ XMOT.version = '%VERSION%';
 
     /**
      * Creates a KeyframeAnimation
-     * @param {Object} KeyframeAnimation, keyframes and corresponding positions or orientations
-     * @return {KeyFrameAnimation} created KeyFrameAnimation
+     * @param {string} name name
+     * @param {string} type "Position" or "Orientation"
+     * @param {Object} element KeyframeAnimation, keyframes and corresponding positions or orientations
+     * @param {Object=} opt Options: {number} Duration in ms; {Boolean} Loop;
+     * @return {KeyframeAnimation} created KeyFrameAnimation
      */
-    m.createKeyframeAnimation = function(object){};
+    m.createKeyframeAnimation = function(name, type, element, opt){};
 
     /**
      * A Moveable.
@@ -127,16 +130,17 @@ XMOT.version = '%VERSION%';
      */
     var KeyframeAnimation = function(){};
     var k = KeyframeAnimation.prototype;
-    //TODO define functions for the KeyFrameAnimation
 
     /**
-     * Creates a new KeyframeAnimation out of a given dom element
-     * @param {string} name
-     * @param {string} type "rotation" or "translation"
-     * @param {Object} element DOM element in which the keyframe animation is stored
-     * @param {Object=} opt options: {number} duration (in ms): default 1000; {boolean} loop: default: false
+     * Starts the Animation, allows to add additional options for this certain animation.
+     * @param {Object=} opt Options: {number} duration in ms; {boolean} loop
      */
-    k.createKeyframeAnimation = function(name, type, element, opt){};
+    k.start = function(opt){};
+
+    /**
+     * Stops the animation.
+     */
+    k.stop = function(){};
 
     /**
      * A Humanoid
