@@ -4,7 +4,7 @@
 	 * An implementation of Animatable
 	 * @implements Animatable
 	 */
-	var Animatable = function(obj, transform, constraint){
+	var ClientAnimatable = function(obj, transform, constraint){
 		this.object = object;
 		this.transform = transform;
 		this.constraint = constraint;
@@ -13,7 +13,7 @@
 		//stores active animations by their id, if they have an id
 		this.activeAnimations = {};
 	};
-    var a = Animatable.prototype;
+    var a = ClientAnimatable.prototype;
 
     /** @inheritDoc */
     a.addAnimation = function(animation){
@@ -35,6 +35,6 @@
     };
 
     //export
-	XMOT.Animatable = Animatable;
+	XMOT.ClientAnimatable = ClientAnimatable;
 
 }());
