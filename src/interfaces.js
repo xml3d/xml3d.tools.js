@@ -37,6 +37,8 @@ XMOT.version = '%VERSION%';
      */
     m.createKeyframeAnimation = function(name, type, element, opt){};
 
+
+
     /**
      * A Moveable.
      * @interface
@@ -94,6 +96,8 @@ XMOT.version = '%VERSION%';
      */
     p.setContraint = function(constraint){};
 
+
+
     /**
      * An Animatable
      * @extends Moveable
@@ -124,6 +128,8 @@ XMOT.version = '%VERSION%';
      */
     a.stopAnimation = function(id){};
 
+
+
     /**
      * A KeyframeAnimation
      * @interface
@@ -142,6 +148,8 @@ XMOT.version = '%VERSION%';
      */
     k.stop = function(){};
 
+
+
     /**
      * A Humanoid
      * @extends Animatable
@@ -150,6 +158,8 @@ XMOT.version = '%VERSION%';
     var Humanoid = function(){};
     var h = Humanoid.prototype;
     //TODO define functions of the Humanoid
+
+
 
     /**
      * A Constraint
@@ -173,4 +183,5 @@ XMOT.version = '%VERSION%';
      * @return {boolean} returns true if the operation is valid, false otherwise
      */
     c.constrainTranslation = function(translation, moveable){};
+
 }());
