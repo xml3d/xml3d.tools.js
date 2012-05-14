@@ -19,6 +19,7 @@
 		<file name="ClientMotionFactory.js" />
 		<file name="CollisionConstraint.js" />
 		<file name="ClientAnimatable.js" />
+		<file name="ClientKeyframeAnimation.js" />
 		<file name="contrib/Tween.js" />
 	</filelist>
 
