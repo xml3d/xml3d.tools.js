@@ -4,7 +4,10 @@
 	 * An implementation of Animatable
 	 * @implements Animatable
 	 */
-	var Animatable = function(){
+	var Animatable = function(obj, transform, constraint){
+		this.object = object;
+		this.transform = transform;
+		this.constraint = constraint;
 		//stores available animations by their name
 		this.availableAnimations = {};
 		//stores active animations by their id, if they have an id
