@@ -16,16 +16,18 @@ XMOT.version = '%VERSION%';
     /**
      * Creates a Moveable out of the given object
      * @param {Object} object base for the Moveable
+     * @param {Constraint} constraint Constrain movement
      * @return {Moveable} created Moveable
      */
-    m.createMoveable = function(object){};
+    m.createMoveable = function(object, constraint){};
 
     /**
      * Creates an Animatable out of the given object
-     * @param {Obvject} object base for the Animatable
+     * @param {Object} object base for the Animatable
+     * @param {Constraint} constraint Constrain movement
      * @return {Animatable} created Animatable
      */
-    m.createAnimatable = function(object){};
+    m.createAnimatable = function(object, constraint){};
 
     /**
      * Creates a KeyframeAnimation
