@@ -99,9 +99,8 @@
     /**
      * Updates all the Tweens until all animations are finished
      */
-    animate = function(){
+    function animate(){
 		if(TWEEN.getAll().length) {
-
 			window.requestAnimFrame(animate);
 			TWEEN.update();
 		}
