@@ -141,14 +141,16 @@ XMOT.version = '%VERSION%';
 
     /**
      * Starts the Animation, allows to add additional options for this certain animation.
+     * @param {Animatable} animatable the animatable, which will be animated
      * @param {Object=} opt Options: {number} duration in ms; {boolean} loop
      */
-    k.start = function(opt){};
+    k.start = function(animatable, opt){};
 
     /**
      * Stops the animation.
+     * @param {Animatable} animatable the animatable, whose animation will be stopped
      */
-    k.stop = function(){};
+    k.stop = function(animatable){};
 
 
 

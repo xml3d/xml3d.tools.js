@@ -4,7 +4,7 @@
 	 * An implementation of Animatable
 	 * @implements Animatable
 	 */
-	var ClientAnimatable = function(obj, transform){
+	var ClientAnimatable = function(obj, transform, constraint){
 		this.object = obj;
 		this.transform = transform;
 		this.constraint = constraint;
@@ -23,14 +23,14 @@
     /** @inheritDoc */
     a.startAnimation = function(name, opt){
 		var toStart = this.availableAnimations[name];
-		toStart.start(opt);
+		toStart.start(this, opt);
 		return this;
     };
 
     /** @inheritDoc */
     a.stopAnimation = function(id){
-		var toStop = activeAnimations[id];
-		if(toStop) toStop.stop();
+		var toStop = this.activeAnimations[id];
+		if(toStop) toStop.stop(this);
 		return this;
     };
 
