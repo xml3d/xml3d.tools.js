@@ -23,6 +23,10 @@
 		<file name="contrib/Tween.js" />
 	</filelist>
 
+	<filelist dir="../src" id="externs">
+			<file name="externs.js" />
+	</filelist>
+
 	<target name="develop" depends="init">
 		<tstamp />
 		<concatScripts version="DEVELOPMENT SNAPSHOT (${TODAY})"/>

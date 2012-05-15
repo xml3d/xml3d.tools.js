@@ -74,6 +74,8 @@
 				generateexports="yes" debug="false"
 				output="${buildDir}/${script.start}@{extension}.js">
 				<args/>
+				<externs refid="externs">
+				</externs>
 				<sources refid="sourceFiles">
 				</sources>
 			</jscomp>
