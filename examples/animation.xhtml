@@ -65,7 +65,8 @@
       <div id="footer"/>
 
 <script type="text/javascript">
-  var movObjects = {}, factory = XMOT.ClientMotionFactory;
+  var movObjects = {}, factory = new XMOT.ClientMotionFactory;
+  var constraint = new XMOT.CollisionConstraint(5,5,[0,1,0],"collision.png");
 
   function startPositionAnimation() {
       var aobj = movObjects.cube;
@@ -100,9 +101,9 @@
   }
 
   function createAnimatable() {
-      var c = factory.createAnimatable(document.getElementById("shape_d1e22"), null);
+      var c = factory.createAnimatable(document.getElementById("shape_d1e22"), constraint);
       var a1 = factory.createKeyframeAnimation("a1", "translation", document.getElementById("animation01"), {duration: 2000, loop:false});
-      var a2 = factory.createKeyframeAnimation("a2", "rotataion", document.getElementById("animation02"));
+      var a2 = factory.createKeyframeAnimation("a2", "rotation", document.getElementById("animation02"));
       c.addAnimation(a1);
       c.addAnimation(a2, {duration: 5000, loop: true});
       return c;

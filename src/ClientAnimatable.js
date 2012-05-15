@@ -4,8 +4,8 @@
 	 * An implementation of Animatable
 	 * @implements Animatable
 	 */
-	var ClientAnimatable = function(obj, transform, constraint){
-		this.object = object;
+	var ClientAnimatable = function(obj, transform){
+		this.object = obj;
 		this.transform = transform;
 		this.constraint = constraint;
 		//stores available animations by their name
