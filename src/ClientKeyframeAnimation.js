@@ -8,9 +8,7 @@
 		this.name = name;
 		this.type = type;
 		this.keys = keys;
-		console.log(this.keys);
 		this.values = values;
-		console.log(this.values);
 		
 		//options
 		this.loop = false;
@@ -21,7 +19,6 @@
 			if(opt.duration)
 				this.duration = opt.duration;
 		}
-		
 	};
 
 	var k = ClientKeyframeAnimation.prototype;
