@@ -1,16 +1,40 @@
-
 (function() {
 
     /**
      * A Moveable implementation.
+     * @constructor
      * @implements{Moveable}
      */
     function ClientMoveable(object, transform, constraint) {
+    	/**
+		 * Object which shall be moveable
+		 * @protected
+		 * @type {Object}
+		 */
 		this.object = object;
+		/**
+		 * Transform coords of the object and the Moveable
+		 * @protected
+		 * @type {}
+		 */
 		this.transform = transform;
+		/**
+		 * Constraint of the movement
+		 * @protected
+		 * @type {Constraint}
+		 */
 		this.constraint = constraint;
-		//movement queue
+		/**
+		 * Queue of movements
+		 * @private
+		 * @type {Array.<tween>}
+		 */
 		this.motionQueue = new Array();
+		/**
+		 * Where the last motion ended
+		 * @private
+		 * @type {Object} {x:number, y:number, z:number}
+		 */
 		this.endLastMotion = undefined;
     };
 

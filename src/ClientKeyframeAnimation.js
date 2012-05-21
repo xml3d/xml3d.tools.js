@@ -1,10 +1,11 @@
-
 (function(){
 	/**
 	 * ClientKeyframeAnimation implementation
+	 * @constructor
 	 * @implements{MotionFactory}
 	 */
 	function ClientKeyframeAnimation(name, type, keys, values, opt){
+
 		this.name = name;
 		this.type = type;
 		this.keys = keys;
@@ -24,13 +25,12 @@
 	var k = ClientKeyframeAnimation.prototype;
 
 	/** @inheritDoc */
-    k.start = function(opt){
-    	
+    k.start = function(animatable, opt){
     };
 
 	/** @inheritDoc */
-    k.stop = function(){
-    	
+    k.stop = function(animatable){
+		//TODO: queuing of animatons or make animations run at the same time on the same object -> strange  stuff might happen :D
     };
 
 	//export

@@ -1,6 +1,7 @@
 (function(){
 	/**
 	 * CollisionConstraint
+	 * @constructor
 	 * @param {number} sceneWidth width of the scene to which the map applies
 	 * @param {number} sceneDepth depth of the scene to which the map applies
 	 * @param {Array.<number>} normal normal of the plane to the which the map applies
@@ -8,17 +9,46 @@
 	 * @implements {Constraint}
 	 */
 	var CollisionConstraint = function(sceneWidth, sceneDepth, normal, collisionMap){
+		/**
+		 * Width of the scene
+		 * @private
+		 * @type {number}
+		 */
 		this.sceneWidth = sceneWidth;
+		/**
+		 * Depth (or height) of the scene
+		 * @private
+		 * @type {number}
+		 */
 		this.sceneDepth = sceneDepth;
+		/**
+		 * Normal of the plan related to the collisionMap
+		 * @private
+		 * @type {Array.<number>}
+		 */
 		this.normal = normal;
 
 		//draw the map to a canvas to be able to get pixel data
-		//TODO: clean up object member?
+		/**
+		 * Collisionmap
+		 * @private
+		 * @type {Image}
+		 */
 		this.img = new Image();
 		this.img.src = collisionMap;
+		/**
+		 * Canvas, the image painted on this canvas in order to be able to address single pixels
+		 * @private
+		 * @type {Canvas}
+		 */
 		this.canvas = document.createElement("canvas");
 		this.canvas.setAttribute("width", this.img.width);
 		this.canvas.setAttribute("height", this.img.height);
+		/**
+		 * Context of the canvas
+		 * @private
+		 * @type {Context}
+		 */
 		this.context = this.canvas.getContext("2d");
 		this.context.drawImage(this.img, 0, 0);
 
@@ -27,7 +57,8 @@
 
 	/** @inheritDoc */
     c.constrainRotation = function(rotation, moveable){
-		//TODO: imeplement something useful
+		//TODO: implement something useful
+    	//COMMENT(rryk): How about coding rotation constraints in the RGB color? Just a crazy idea...
 		return true;
     };
 

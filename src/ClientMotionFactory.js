@@ -1,11 +1,11 @@
-
 (function(){
 	/**
 	 * ClientMotionFactory implementation
+	 * @constructor
 	 * @implements{MotionFactory}
 	 */
 	function ClientMotionFactory(){
-		this.sync = undefined;
+		//TODO: sync with server - sirikata
 	};
 
 	var m = ClientMotionFactory.prototype;

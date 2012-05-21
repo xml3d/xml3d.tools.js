@@ -1,18 +1,42 @@
+goog.require("goog.inherits");
+goog.require("goog.base");
+
 (function(){
 
 	/**
 	 * An implementation of Animatable
+	 * @constructor
 	 * @implements Animatable
+	 * @extends ClientMoveable
 	 */
 	var ClientAnimatable = function(obj, transform, constraint){
-		this.object = obj;
-		this.transform = transform;
-		this.constraint = constraint;
-		//stores available animations by their name
+
+		//call parent constructor here
+		goog.base(this ,obj, transform, constraint);
+
+		/**
+		 * List of KeyframeAnimations
+		 * @private
+		 * @type {Array.<KeyframeAnimation>}
+		 */
 		this.availableAnimations = {};
-		//stores active animations by their id, if they have an id
+		/**
+		 * List of active KeyframeAnimations
+		 * @private
+		 * @type {number}
+		 */
 		this.activeAnimations = {};
+		/**
+		 * Number of currently active Animations
+		 * @private
+		 * @type {number}
+		 */
+		this.activeAnimationsCount = 0;
 	};
+
+	//inheritence is done here
+	goog.inherits(ClientAnimatable, XMOT.ClientMoveable);
+
     var a = ClientAnimatable.prototype;
 
     /** @inheritDoc */
