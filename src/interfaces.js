@@ -81,7 +81,7 @@ XMOT.version = '%VERSION%';
      * The animation is put into a fifo-queue and will be eventually executed.
      * @param {Array.<number>} position local space
      * @param {number} time when to reach the position, in milliseconds
-     * @param {Object=} opt options: {string} Interpolationalgorithm: default: linear; {function} Callback;
+     * @param {Object=} opt options: {string} Interpolationalgorithm: default: linear; {function} Callback at the end of the movement;
      * @return {Moveable} the Moveable
      */
     p.moveTo = function(position, time, opt){};
@@ -118,8 +118,8 @@ XMOT.version = '%VERSION%';
     /**
      * Starts an animation
      * @param {string} name animation, that will be started
-     * @param {Object=} opt options: {number} duration (in ms); {boolean} loop; {string} id;
-     * @return {Animatable} the Animatable
+     * @param {Object=} opt options: {number} duration (in ms); {boolean} loop;
+     * @return {number} id id of the animation, which was started. The id is valid until the end of the animation
      */
     a.startAnimation = function(name, opt){};
 
