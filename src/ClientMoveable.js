@@ -31,11 +31,11 @@
 		 */
 		this.motionQueue = new Array();
 		/**
-		 * Where the last motion ended
+		 * Destination Orientation and position of the last motion in the queue
 		 * @private
-		 * @type {Object} {x:number, y:number, z:number}
+		 * @type {Object} {pos_x:number, pos_y:number, pos_z:number, ori_x:number, ori_y:number, ori_z:number, ori_a:number}
 		 */
-		this.endLastMotion = undefined;
+		this.endMotionData = undefined;
     };
 
     var p = ClientMoveable.prototype;
@@ -72,27 +72,33 @@
     };
 
     /** @inheritDoc */
-    p.moveTo = function(position, time, opt){
-		var dest_position = {x:position[0], y:position[1], z:position[2]};
-		var currentPosition = undefined;
+    p.moveTo = function(position, orientation, time, opt){
+    	//TODO: opt!
+    	//TODO: rotation shows some strange behaviour!
+		var destData = {pos_x:position[0], pos_y:position[1], pos_z:position[2], ori_x:orientation[0], ori_y:orientation[1], ori_z:orientation[2], ori_a:orientation[3]};
+		var currentData = undefined;
 		//start of the chained motion is end of the the one before, if there is one before
 		if( this.motionQueue.length != 0)
-			currentPosition = this.endLastMotion;
+			currentData = this.endMotionData;
 		else
-			currentPosition	=  {x:this.transform.translation.x, y:this.transform.translation.y, z:this.transform.translation.z};
-		var tween = new TWEEN.Tween(currentPosition).to(dest_position, time);
-		this.endLastMotion = dest_position;
+			currentData	=  {pos_x:this.transform.translation.x, pos_y:this.transform.translation.y, pos_z:this.transform.translation.z,
+				ori_x:this.transform.rotation._axis.x, ori_y:this.transform.rotation._axis.y, ori_z:this.transform.rotation._axis.z, ori_a:this.transform.rotation._angle};
+				//TODO: is there a better way to address the data of the rotation?
+		var tween = new TWEEN.Tween(currentData).to(destData, time);
+		this.endMotionData = destData;
 
 		var that = this;
 		//update callback
 		tween.onUpdate( function() {
-			that.setPosition([currentPosition.x, currentPosition.y, currentPosition.z]);
+			that.setPosition([currentData.pos_x, currentData.pos_y, currentData.pos_z]);
+			that.setOrientation([currentData.ori_x, currentData.ori_y, currentData.ori_z, currentData.ori_a]);
 		} );
 
 		//callback on complete
 		tween.onComplete( function(){
 			//last motion step, just in case
-			that.setPosition([currentPosition.x, currentPosition.y, currentPosition.z]);
+			that.setPosition([currentData.pos_x, currentData.pos_y, currentData.pos_z]);
+			that.setOrientation([currentData.ori_x, currentData.ori_y, currentData.ori_z, currentData.ori_a]);
 			//remove finished tween from the end of the queue
 			that.motionQueue.pop();
 			//start next tween (end of the queue), if there is any in the queue
