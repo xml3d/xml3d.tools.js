@@ -1,18 +1,52 @@
 (function(){
 	/**
 	 * ClientKeyframeAnimation implementation
+	 * @param{string} name name of the animation
+	 * @param{Array.<number>} keys keys
+	 * @param{Array.<number>|undefined} positionValues
+	 * @param{Array.<number>|undefined} orientationValues
 	 * @constructor
 	 * @implements{MotionFactory}
 	 */
-	function ClientKeyframeAnimation(name, type, keys, values, opt){
+	function ClientKeyframeAnimation(name, keys, positionValues, orientationValues, opt){
 
+		/**
+		 * name of animation
+		 * @private
+		 * @type {string}
+		 */
 		this.name = name;
-		this.type = type;
+		/**
+		 * Array of the keys
+		 * @private
+		 * @type{Array.<number>}
+		 */
 		this.keys = keys;
-		this.values = values;
+		/**
+		 * Array fo the position values
+		 * @private
+		 * @type{Array.<number>|undefined}
+		 */
+		this.positionValues = positionValues;
+		/**
+		 * Array of the orientation values
+		 * @private
+		 * @type{Array.<number>|undefined}
+		 */
+		this.orientationValues = orientationValues;
 		
 		//options
+		/**
+		 * loop
+		 * @private
+		 * @type {Boolean}
+		 */
 		this.loop = false;
+		/**
+		 * Duration of the animation
+		 * @private
+		 * @type {number}
+		 */
 		this.duration = 1000;
 		if(opt){
 			if(opt.loop)
@@ -26,6 +60,30 @@
 
 	/** @inheritDoc */
     k.start = function(animatable, opt){
+		var duration = this.duration;
+		if(opt && opt.duration) duration = opt.duration;
+		var i=0;
+		var start_time = 0;
+		var dest_time = 0;
+		for(i=0; i<this.keys.length; i++){
+			dest_time = duration * this.keys[i];
+			var durationStep = dest_time - start_time;
+			if(durationStep == 0) durationStep++; //duration of one animation step must not be 0. this will lead to exceptions due to tweening
+			if(this.orientationValues == undefined){ //position only
+				var dest_pos = [this.positionValues[i], this.positionValues[i+1], this.positionValues[i+2]];
+				animatable.moveTo(dest_pos, undefined, durationStep);
+			}
+			else if(this.positionValues == undefined){ //orientation only
+				var dest_ori = [this.orientationValues[i], this.orientationValues[i+1], this.orientationValues[i+2], this.orientationValues[i+3]];
+				animatable.moveTo(undefined, dest_ori, durationStep);
+			}
+			else{ //both
+				var dest_pos = [this.positionValues[i], this.positionValues[i+1], this.positionValues[i+2]];
+				var dest_ori = [this.orientationValues[i], this.orientationValues[i+1], this.orientationValues[i+2], this.orientationValues[i+3]];
+				animatable.moveTo(dest_pos, dest_ori, durationStep);
+			}
+			start_time = dest_time;
+		}
     };
 
 	/** @inheritDoc */
