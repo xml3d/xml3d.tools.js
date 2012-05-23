@@ -75,16 +75,16 @@
     p.moveTo = function(position, orientation, time, opt){
     	//TODO: opt!
     	//TODO: rotation shows some strange behaviour!
-
+    	//console.log("moveTo:" + (new Date()).getSeconds() );
 		//no movement needed
 		if(position == undefined && orientation == undefined) return this;
 
 		//check wether we have to use the current values for position or orientation
 		var destData = undefined;
-		if(orientation == undefined){
+		if(orientation === undefined){
 			var rot = this.transform.rotation;
 			destData = {pos_x:position[0], pos_y:position[1], pos_z:position[2], ori_x:rot._axis.x, ori_y:rot._axis.y, ori_z:rot._axis.z, ori_a:rot._angle};
-		}else if(position == undefined){
+		}else if(position === undefined){
 			var trans = this.transform.translation;
 			destData = {pos_x:trans.x, pos_y:trans.y, pos_z:trans.z, ori_x:orientation[0], ori_y:orientation[1], ori_z:orientation[2], ori_a:orientation[3]};
 		}
@@ -112,14 +112,17 @@
 
 		//callback on complete
 		tween.onComplete( function(){
+			//console.log("animation ended:" + (new Date()).getSeconds() );
 			//last motion step, just in case
 			that.setPosition([currentData.pos_x, currentData.pos_y, currentData.pos_z]);
 			that.setOrientation([currentData.ori_x, currentData.ori_y, currentData.ori_z, currentData.ori_a]);
 			//remove finished tween from the end of the queue
 			that.motionQueue.pop();
 			//start next tween (end of the queue), if there is any in the queue
-			if(that.motionQueue.length != 0)
+			if(that.motionQueue.length != 0){
 				that.motionQueue[that.motionQueue.length-1].start();
+				//console.log("animation started:" + (new Date()).getSeconds() );
+			}
 		});
 
 		//push tween to the beginning of the queue and start if queue was empty

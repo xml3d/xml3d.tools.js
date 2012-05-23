@@ -43,11 +43,11 @@
 			throw "Object is not a valid keyframe animation";
 			return null;
 		}
-		if(type == "Position")
+		if(type === "Position")
 			return new XMOT.ClientKeyframeAnimation(name, keys, values, undefined, opt);
-		else if(type == "Orientation")
+		else if(type === "Orientation")
 			return new XMOT.ClientKeyframeAnimation(name, keys, undefined, values, opt);
-		else if(type == "Both"){
+		else if(type === "Both"){
 			child = child.nextElementSibling;
 			var secondValues = child.value;
 			if(!secondValues){

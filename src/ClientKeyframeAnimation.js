@@ -69,11 +69,11 @@
 			dest_time = duration * this.keys[i];
 			var durationStep = dest_time - start_time;
 			if(durationStep == 0) durationStep++; //duration of one animation step must not be 0. this will lead to exceptions due to tweening
-			if(this.orientationValues == undefined){ //position only
+			if(this.orientationValues === undefined){ //position only
 				var dest_pos = [this.positionValues[i], this.positionValues[i+1], this.positionValues[i+2]];
 				animatable.moveTo(dest_pos, undefined, durationStep);
 			}
-			else if(this.positionValues == undefined){ //orientation only
+			else if(this.positionValues === undefined){ //orientation only
 				var dest_ori = [this.orientationValues[i], this.orientationValues[i+1], this.orientationValues[i+2], this.orientationValues[i+3]];
 				animatable.moveTo(undefined, dest_ori, durationStep);
 			}
