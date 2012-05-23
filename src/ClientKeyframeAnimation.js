@@ -70,16 +70,20 @@
 			var durationStep = dest_time - start_time;
 			if(durationStep == 0) durationStep++; //duration of one animation step must not be 0. this will lead to exceptions due to tweening
 			if(this.orientationValues === undefined){ //position only
-				var dest_pos = [this.positionValues[i], this.positionValues[i+1], this.positionValues[i+2]];
+				var arrayPos = i*3;
+				var dest_pos = [this.positionValues[arrayPos], this.positionValues[arrayPos+1], this.positionValues[arrayPos+2]];
 				animatable.moveTo(dest_pos, undefined, durationStep);
 			}
 			else if(this.positionValues === undefined){ //orientation only
-				var dest_ori = [this.orientationValues[i], this.orientationValues[i+1], this.orientationValues[i+2], this.orientationValues[i+3]];
+				var arrayPos = i*4;
+				var dest_ori = [this.orientationValues[arrayPos], this.orientationValues[arrayPos+1], this.orientationValues[arrayPos+2], this.orientationValues[arrayPos+3]];
 				animatable.moveTo(undefined, dest_ori, durationStep);
 			}
 			else{ //both
-				var dest_pos = [this.positionValues[i], this.positionValues[i+1], this.positionValues[i+2]];
-				var dest_ori = [this.orientationValues[i], this.orientationValues[i+1], this.orientationValues[i+2], this.orientationValues[i+3]];
+				var arrayPos = i*3;
+				var dest_pos = [this.positionValues[arrayPos], this.positionValues[arrayPos+1], this.positionValues[arrayPos+2]];
+				arrayPos = i*4;
+				var dest_ori = [this.orientationValues[arrayPos], this.orientationValues[arrayPos+1], this.orientationValues[arrayPos+2], this.orientationValues[arrayPos+3]];
 				animatable.moveTo(dest_pos, dest_ori, durationStep);
 			}
 			start_time = dest_time;
