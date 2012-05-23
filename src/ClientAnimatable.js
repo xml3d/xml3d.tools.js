@@ -21,17 +21,20 @@ goog.require("goog.base");
 		 */
 		this.availableAnimations = {};
 		/**
-		 * List of active KeyframeAnimations
+		 * Map of active KeyframeAnimations
+		 * Note: This works since the IDs are only numbers.
+		 * Those numbers are turned into strings  and those are used as keys.
 		 * @private
 		 * @type {number}
 		 */
 		this.activeAnimations = {};
 		/**
-		 * Number of currently active Animations
+		 * Counter of IDs for active animations
+		 * Attention: this might turn to infinity
 		 * @private
 		 * @type {number}
 		 */
-		this.activeAnimationsCount = 0;
+		this.idCounter = 0;
 	};
 
 	//inheritence is done here
@@ -47,14 +50,18 @@ goog.require("goog.base");
     /** @inheritDoc */
     a.startAnimation = function(name, opt){
 		var toStart = this.availableAnimations[name];
+		var id = this.idCounter;
+		this.idCounter++;
+		this.activeAnimations[id] = toStart;
 		toStart.start(this, opt);
-		return this;
+		return id;
     };
 
     /** @inheritDoc */
     a.stopAnimation = function(id){
 		var toStop = this.activeAnimations[id];
-		if(toStop) toStop.stop(this);
+		//TODO: this stops every(!) animation not just the one with id
+		if(toStop) this.stop();
 		return this;
     };
 
