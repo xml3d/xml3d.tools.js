@@ -75,14 +75,30 @@
     p.moveTo = function(position, orientation, time, opt){
     	//TODO: opt!
     	//TODO: rotation shows some strange behaviour!
-		var destData = {pos_x:position[0], pos_y:position[1], pos_z:position[2], ori_x:orientation[0], ori_y:orientation[1], ori_z:orientation[2], ori_a:orientation[3]};
+
+		//no movement needed
+		if(position == undefined && orientation == undefined) return this;
+
+		//check wether we have to use the current values for position or orientation
+		var destData = undefined;
+		if(orientation == undefined){
+			var rot = this.transform.rotation;
+			destData = {pos_x:position[0], pos_y:position[1], pos_z:position[2], ori_x:rot._axis.x, ori_y:rot._axis.y, ori_z:rot._axis.z, ori_a:rot._angle};
+		}else if(position == undefined){
+			var trans = this.transform.translation;
+			destData = {pos_x:trans.x, pos_y:trans.y, pos_z:trans.z, ori_x:orientation[0], ori_y:orientation[1], ori_z:orientation[2], ori_a:orientation[3]};
+		}
+		else
+			destData = {pos_x:position[0], pos_y:position[1], pos_z:position[2], ori_x:orientation[0], ori_y:orientation[1], ori_z:orientation[2], ori_a:orientation[3]};
 		var currentData = undefined;
 		//start of the chained motion is end of the the one before, if there is one before
 		if( this.motionQueue.length != 0)
 			currentData = this.endMotionData;
-		else
-			currentData	=  {pos_x:this.transform.translation.x, pos_y:this.transform.translation.y, pos_z:this.transform.translation.z,
-				ori_x:this.transform.rotation._axis.x, ori_y:this.transform.rotation._axis.y, ori_z:this.transform.rotation._axis.z, ori_a:this.transform.rotation._angle};
+		else{
+			var trans = this.transform.translation;
+			var rot = this.transform.rotation;
+			currentData	=  {pos_x:trans.x, pos_y:trans.y, pos_z:trans.z, ori_x:rot._axis.x, ori_y:rot._axis.y, ori_z:rot._axis.z, ori_a:rot._angle};
+		}
 				//TODO: is there a better way to address the data of the rotation?
 		var tween = new TWEEN.Tween(currentData).to(destData, time);
 		this.endMotionData = destData;
