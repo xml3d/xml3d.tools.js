@@ -75,7 +75,6 @@
 
     /** @inheritDoc */
     p.moveTo = function(position, orientation, time, opt){
-    	//TODO: opt!
     	//TODO: rotation shows some strange behaviour!
 		//no movement needed
 		if(position == undefined && orientation == undefined) return this;
@@ -142,6 +141,9 @@
 				that.motionQueue[that.motionQueue.length-1].start();
 				//console.log("animation started:" + (new Date()).getSeconds() );
 			}
+			//callback after the movement finished
+			if(opt && opt.callback && typeof(opt.callback) === "function")
+				opt.callback();
 		});
 
 		//push tween to the beginning of the queue and start if queue was empty
