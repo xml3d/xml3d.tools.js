@@ -48,11 +48,20 @@
 		 * @type {number}
 		 */
 		this.duration = 1000;
+		/**
+		 * Interpolationalgorithm used between two steps
+		 * @private
+		 * @type {string}
+		 */
+		this.interpolationalgorithm = "linear";
+		/**
+		 * Callback, executed as soon as the animation ended
+		 * @private
+		 * @type {function}
+		 */
+		this.callback = function(){};
 		if(opt){
-			if(opt.loop)
-				this.loop = opt.loop;
-			if(opt.duration)
-				this.duration = opt.duration;
+			this.setOptions(opt);
 		}
 	};
 
@@ -60,6 +69,7 @@
 
 	/** @inheritDoc */
     k.start = function(id, animatable, opt){
+    	//TODO: handle opts
 		var duration = this.duration;
 		if(opt && opt.duration) duration = opt.duration;
 		var i=0;
@@ -88,6 +98,18 @@
 			}
 			start_time = dest_time;
 		}
+    };
+
+    /** @inheritDoc */
+    k.setOptions = function(opt){
+		if(opt.loop)
+			this.loop = opt.loop;
+		if(opt.duration)
+			this.duration = opt.duration;
+		if(opt.interpolationalgorithm)
+			this.interpolationalgorithm = opt.interpolationalgorithm;
+		if(opt.callback && typeof(opt.callback) === "function")
+			this.callback = opt.callback;
     };
 
 	//export

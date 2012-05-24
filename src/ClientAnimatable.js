@@ -43,7 +43,8 @@ goog.require("goog.base");
     var a = ClientAnimatable.prototype;
 
     /** @inheritDoc */
-    a.addAnimation = function(animation){
+    a.addAnimation = function(animation, opt){
+    	if(opt) animation.setOptions(opt);
 		this.availableAnimations[animation.name] = animation;
     };
 
@@ -72,6 +73,8 @@ goog.require("goog.base");
     /** @inheritDoc
      * We need to override the moveTo function of the Moveable in order to be able to stop single animations
      * and have more than one animation at a single time.
+     * Name might not be that good?
+     * good idea to override?
      */
     a.moveTo = function(animationID, position, orientation, time, opt){
     	//TODO: opt!
@@ -143,6 +146,11 @@ goog.require("goog.base");
 			if(queue.length != 0){
 				queue[queue.length-1].start();
 				//console.log("animation started:" + (new Date()).getSeconds() );
+			}
+			else{
+				//callback after the last tween -> at the end of the animation!
+				if(opt && opt.callback && typeof(opt.callback) === "function")
+					opt.callback();
 			}
 		});
 

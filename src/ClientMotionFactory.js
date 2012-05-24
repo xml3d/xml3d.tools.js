@@ -34,7 +34,7 @@
     m.createKeyframeAnimation = function(name, type, element, opt){
 		//TODO: this works with WebGL only?
 		//TODO: error handling?
-    	//TODO: provide better code :)
+
 		var child = element.firstElementChild;
 		var keys = child.value;
 		child = child.nextElementSibling;
@@ -43,6 +43,8 @@
 			throw "Object is not a valid keyframe animation";
 			return null;
 		}
+
+		// opt is just passed to the constructor and not further handled here
 		if(type === "Position")
 			return new XMOT.ClientKeyframeAnimation(name, keys, values, undefined, opt);
 		else if(type === "Orientation")
