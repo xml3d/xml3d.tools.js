@@ -35,7 +35,9 @@
 		 * @private
 		 * @type {Object} {pos_x:number, pos_y:number, pos_z:number, ori_x:number, ori_y:number, ori_z:number, ori_a:number}
 		 */
-		this.endMotionData = undefined;
+		var trans = this.transform.translation;
+		var rot = this.transform.rotation;
+		this.endMotionData	=  {pos_x:trans.x, pos_y:trans.y, pos_z:trans.z, ori_x:rot._axis.x, ori_y:rot._axis.y, ori_z:rot._axis.z, ori_a:rot._angle};
     };
 
     var p = ClientMoveable.prototype;
@@ -75,37 +77,52 @@
     p.moveTo = function(position, orientation, time, opt){
     	//TODO: opt!
     	//TODO: rotation shows some strange behaviour!
-    	//console.log("moveTo:" + (new Date()).getSeconds() );
 		//no movement needed
 		if(position == undefined && orientation == undefined) return this;
 
-		//check wether we have to use the current values for position or orientation
-		var destData = undefined;
-		if(orientation === undefined){
-			var rot = this.transform.rotation;
-			destData = {pos_x:position[0], pos_y:position[1], pos_z:position[2], ori_x:rot._axis.x, ori_y:rot._axis.y, ori_z:rot._axis.z, ori_a:rot._angle};
-		}else if(position === undefined){
+		/*Some Debug output
+		if(orientation === undefined)
+			console.log("moveTo: now: " + (new Date()).getSeconds() + "pos: " + position[0] + " " + position[1]+ " " +position[2] + " ori: undefined" + " time: " + time );
+		else if(position === undefined)
+			console.log("moveTo: now: " + (new Date()).getSeconds() + "pos undefined ori: " + orientation[0]+ " " +orientation[1]+ " " +orientation[2]+ " " +orientation[3]+ " time: " + time );
+		else
+			console.log("moveTo: now: " + (new Date()).getSeconds() + "pos: " + position[0] + " " + position[1]+ " " +position[2] + " ori: " + orientation[0]+ " " +orientation[1]+ " " +orientation[2]+ " " +orientation[3]+ " time: " + time );
+		 */
+		//endMotionData = data where the last motion ended; if the queue is empty, this is where we are
+		if( this.motionQueue.length == 0){
 			var trans = this.transform.translation;
-			destData = {pos_x:trans.x, pos_y:trans.y, pos_z:trans.z, ori_x:orientation[0], ori_y:orientation[1], ori_z:orientation[2], ori_a:orientation[3]};
+			var rot = this.transform.rotation;
+			this.endMotionData	=  {pos_x:trans.x, pos_y:trans.y, pos_z:trans.z, ori_x:rot._axis.x, ori_y:rot._axis.y, ori_z:rot._axis.z, ori_a:rot._angle};
+		}
+		//start of the chained motion is end of the the one before, if there is one before
+    	//var currentData = this.endMotionData; need copyconstructor
+		var currentData = {pos_x:this.endMotionData.pos_x, pos_y:this.endMotionData.pos_y, pos_z:this.endMotionData.pos_z, ori_x:this.endMotionData.ori_x, ori_y:this.endMotionData.ori_y, ori_z:this.endMotionData.ori_z, ori_a:this.endMotionData.ori_a};
+
+		//if undefined keep old values
+		var destData = {pos_x:this.endMotionData.pos_x, pos_y:this.endMotionData.pos_y, pos_z:this.endMotionData.pos_z, ori_x:this.endMotionData.ori_x, ori_y:this.endMotionData.ori_y, ori_z:this.endMotionData.ori_z, ori_a:this.endMotionData.ori_a};
+		if(orientation === undefined){
+			destData.pos_x = position[0];
+			destData.pos_y = position[1];
+			destData.pos_z = position[2];
+		}else if(position === undefined){
+			//TODO: is there a better way to address the data of the rotation?
+			destData.ori_x = orientation[0];
+			destData.ori_y = orientation[1];
+			destData.ori_z = orientation[2];
+			destData.ori_a = orientation[3];
 		}
 		else
 			destData = {pos_x:position[0], pos_y:position[1], pos_z:position[2], ori_x:orientation[0], ori_y:orientation[1], ori_z:orientation[2], ori_a:orientation[3]};
-		var currentData = undefined;
-		//start of the chained motion is end of the the one before, if there is one before
-		if( this.motionQueue.length != 0)
-			currentData = this.endMotionData;
-		else{
-			var trans = this.transform.translation;
-			var rot = this.transform.rotation;
-			currentData	=  {pos_x:trans.x, pos_y:trans.y, pos_z:trans.z, ori_x:rot._axis.x, ori_y:rot._axis.y, ori_z:rot._axis.z, ori_a:rot._angle};
-		}
-				//TODO: is there a better way to address the data of the rotation?
+
 		var tween = new TWEEN.Tween(currentData).to(destData, time);
-		this.endMotionData = destData;
+
+		//this.endMotionData = destData;
+		this.endMotionData = {pos_x:destData.pos_x, pos_y:destData.pos_y, pos_z:destData.pos_z, ori_x:destData.ori_x, ori_y:destData.ori_y, ori_z:destData.ori_z, ori_a:destData.ori_a};
 
 		var that = this;
 		//update callback
 		tween.onUpdate( function() {
+			//console.log("animation update! " + (new Date()).getSeconds() );
 			that.setPosition([currentData.pos_x, currentData.pos_y, currentData.pos_z]);
 			that.setOrientation([currentData.ori_x, currentData.ori_y, currentData.ori_z, currentData.ori_a]);
 		} );
@@ -129,6 +146,7 @@
 		this.motionQueue.unshift(tween);
 		if( this.motionQueue.length-1 == 0){
 			tween.start();
+			//console.log("animation started:" + (new Date()).getSeconds() );
 			animate();
 		}
 		return this;
