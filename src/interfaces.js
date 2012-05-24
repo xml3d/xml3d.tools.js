@@ -159,12 +159,6 @@ XMOT.version = '%VERSION%';
      */
     k.start = function(animatable, opt){};
 
-    /**
-     * Stops the animation.
-     * @param {Animatable} animatable the animatable, whose animation will be stopped
-     */
-    k.stop = function(animatable){};
-
 
 
     /**

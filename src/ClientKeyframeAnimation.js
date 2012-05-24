@@ -90,11 +90,6 @@
 		}
     };
 
-	/** @inheritDoc */
-    k.stop = function(animatable){
-		//TODO: queuing of animatons or make animations run at the same time on the same object -> strange  stuff might happen :D
-    };
-
 	//export
 	XMOT.ClientKeyframeAnimation = ClientKeyframeAnimation;
 }());
