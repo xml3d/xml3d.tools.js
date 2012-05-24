@@ -142,7 +142,7 @@ XMOT.version = '%VERSION%';
      * @param {Object=} opt options: {string} Interpolationalgorithm: default: linear; {function} Callback at the end of the movement;
      * @return {Moveable} the Moveable
      */
-    p.moveTo = function(id, position, orientation, time, opt){};
+    a.moveTo = function(id, position, orientation, time, opt){};
 
 
     /**
