@@ -12,7 +12,7 @@ goog.require("goog.base");
 	var ClientAnimatable = function(obj, transform, constraint){
 
 		//call parent constructor here
-		goog.base(this ,obj, transform, constraint);
+		goog.base(this, obj, transform, constraint);
 
 		/**
 		 * List of KeyframeAnimations
