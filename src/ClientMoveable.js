@@ -98,7 +98,7 @@
     	//var currentData = this.endMotionData; need copyconstructor
 		var currentData = {pos_x:this.endMotionData.pos_x, pos_y:this.endMotionData.pos_y, pos_z:this.endMotionData.pos_z, ori_x:this.endMotionData.ori_x, ori_y:this.endMotionData.ori_y, ori_z:this.endMotionData.ori_z, ori_a:this.endMotionData.ori_a};
 
-		//if undefined keep old values
+		//if undefined keep old values, which are not handled anyway
 		var destData = {pos_x:this.endMotionData.pos_x, pos_y:this.endMotionData.pos_y, pos_z:this.endMotionData.pos_z, ori_x:this.endMotionData.ori_x, ori_y:this.endMotionData.ori_y, ori_z:this.endMotionData.ori_z, ori_a:this.endMotionData.ori_a};
 		if(orientation === undefined){
 			destData.pos_x = position[0];
@@ -123,8 +123,10 @@
 		//update callback
 		tween.onUpdate( function() {
 			//console.log("animation update! " + (new Date()).getSeconds() );
-			that.setPosition([currentData.pos_x, currentData.pos_y, currentData.pos_z]);
-			that.setOrientation([currentData.ori_x, currentData.ori_y, currentData.ori_z, currentData.ori_a]);
+			if(position != undefined)
+				that.setPosition([currentData.pos_x, currentData.pos_y, currentData.pos_z]);
+			if(orientation != undefined)
+				that.setOrientation([currentData.ori_x, currentData.ori_y, currentData.ori_z, currentData.ori_a]);
 		} );
 
 		//callback on complete
@@ -168,11 +170,12 @@
      */
     function animate(){
 		if(TWEEN.getAll().length) {
-			window.requestAnimFrame(animate);
+			window.requestAnimFrame(XMOT.animate);
 			TWEEN.update();
 		}
     };
 
     //export
     XMOT.ClientMoveable = ClientMoveable;
+    XMOT.animate = animate;
 }());
