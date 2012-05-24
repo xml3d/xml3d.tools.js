@@ -37,7 +37,6 @@
             <view position="0 0 10"/>
             <group id="root">
                <group>
-                  <group id="TRANS" transform="#t_TRANS">
                      <group id="shape_d1e22" shader="#s_d1e23" transform="#t_TRANS">
                         <mesh type="triangles" id="m_d1e25">
                            <int name="index">0 1 2 2 3 0 4 7 5 5 7 6 8 9 10 10 11 8 12 14 13 14 12 15 16 17 18 18 19 16 20 22 21 22 20 23 </int>
@@ -46,7 +45,6 @@
                            <float2 name="texcoord">1.0 0.0 1.0 1.0 0.0 1.0 0.0 0.0 0.0 0.0 0.0 1.0 1.0 1.0 1.0 0.0 0.0 0.0 1.0 0.0 1.0 1.0 0.0 1.0 1.0 0.0 0.0 0.0 0.0 1.0 1.0 1.0 0.0 1.0 0.0 0.0 1.0 0.0 1.0 1.0 0.0 0.0 0.0 1.0 1.0 1.0 1.0 0.0 </float2>
                         </mesh>
                      </group>
-                  </group>
                </group>
             </group>
          </xml3d>
@@ -56,10 +54,10 @@
         <button onclick="startPositionAnimation()">Animate position</button>
          </div>
          <div>
-            <button onclick="testSomething()">Test Something</button>
+            <button onclick="startOrientationAnimation()">Animate orientation</button>
          </div>
          <div>
-            <button onclick="startOrientationAnimation()">Animate orientation</button>
+            <button onclick="startTwoAnimations()">Animate both</button>
          </div>
          <div>
             <button onclick="stopAnimations()">Stop Position animation</button>
@@ -77,7 +75,7 @@
       if(!aobj)  {
           aobj = movObjects.cube = createAnimatable();
       }
-      id = aobj.startAnimation("a1", {duration: 30000});
+      id = aobj.startAnimation("a1", {duration: 3000});
   }
 
   function startOrientationAnimation()
@@ -94,7 +92,8 @@
       if(!aobj) {
           aobj = movObjects.cube = createAnimatable();
       }
-      aobj.startAnimation("a2").startAnimation("a1");
+      aobj.startAnimation("a2")
+      aobj.startAnimation("a1");
   }
 
   function stopAnimations() {
@@ -111,10 +110,6 @@
       c.addAnimation(a1);
       c.addAnimation(a2, {duration: 5000, loop: true});
       return c;
-  }
-  function testSomething(){
-  	var m = factory.createMoveable(document.getElementById("shape_d1e22"), constraint);
-  	m.moveTo([0,0,0], undefined, 1000).moveTo([-5,0,0], undefined, 1000).moveTo([0,0,0], undefined, 1000).moveTo([5,0,0], undefined, 1000).moveTo([0,-5,0], undefined, 1000).moveTo([0,0,0], undefined, 1000).moveTo([0,5,0], undefined, 1000).moveTo([0,0,0], undefined, 1000).moveTo([0,0,-5], undefined, 1000).moveTo([0,0,0], undefined, 1000).moveTo([0,0,5], undefined, 1000).moveTo([0,0,0], undefined, 1000);
   }
 </script>
       <br/>
