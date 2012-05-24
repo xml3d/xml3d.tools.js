@@ -67,7 +67,7 @@
 
 <script type="text/javascript">
   var movObjects = {}, factory = new XMOT.ClientMotionFactory;
-  var constraint = new XMOT.CollisionConstraint(5,5,[0,1,0],"collision.png");
+  var constraint = new XMOT.SimpleConstraint(true);
   var id = 0;
 
   function startPositionAnimation() {
