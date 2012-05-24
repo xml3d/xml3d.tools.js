@@ -59,7 +59,7 @@
 	var k = ClientKeyframeAnimation.prototype;
 
 	/** @inheritDoc */
-    k.start = function(animatable, opt){
+    k.start = function(id, animatable, opt){
 		var duration = this.duration;
 		if(opt && opt.duration) duration = opt.duration;
 		var i=0;
@@ -72,19 +72,19 @@
 			if(this.orientationValues === undefined){ //position only
 				var arrayPos = i*3;
 				var dest_pos = [this.positionValues[arrayPos], this.positionValues[arrayPos+1], this.positionValues[arrayPos+2]];
-				animatable.moveTo(dest_pos, undefined, durationStep);
+				animatable.moveTo(id, dest_pos, undefined, durationStep);
 			}
 			else if(this.positionValues === undefined){ //orientation only
 				var arrayPos = i*4;
 				var dest_ori = [this.orientationValues[arrayPos], this.orientationValues[arrayPos+1], this.orientationValues[arrayPos+2], this.orientationValues[arrayPos+3]];
-				animatable.moveTo(undefined, dest_ori, durationStep);
+				animatable.moveTo(id, undefined, dest_ori, durationStep);
 			}
 			else{ //both
 				var arrayPos = i*3;
 				var dest_pos = [this.positionValues[arrayPos], this.positionValues[arrayPos+1], this.positionValues[arrayPos+2]];
 				arrayPos = i*4;
 				var dest_ori = [this.orientationValues[arrayPos], this.orientationValues[arrayPos+1], this.orientationValues[arrayPos+2], this.orientationValues[arrayPos+3]];
-				animatable.moveTo(dest_pos, dest_ori, durationStep);
+				animatable.moveTo(id, dest_pos, dest_ori, durationStep);
 			}
 			start_time = dest_time;
 		}

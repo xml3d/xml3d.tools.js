@@ -132,6 +132,17 @@ XMOT.version = '%VERSION%';
      */
     a.stopAnimation = function(id){};
 
+    /**
+     * Interpolated translation over time to position in local space.
+     * The animation is put into a fifo-queue and will be eventually executed.
+     * @param {number} id Animation ID
+     * @param {Array.<number>|undefined} position local space Vector
+     * @param {Array.<number>|undefined} orientation orientation Quaternion
+     * @param {number} time when to reach the position, in milliseconds
+     * @param {Object=} opt options: {string} Interpolationalgorithm: default: linear; {function} Callback at the end of the movement;
+     * @return {Moveable} the Moveable
+     */
+    p.moveTo = function(id, position, orientation, time, opt){};
 
 
     /**
