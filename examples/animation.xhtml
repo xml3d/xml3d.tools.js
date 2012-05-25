@@ -75,7 +75,7 @@
       if(!aobj)  {
           aobj = movObjects.cube = createAnimatable();
       }
-      id = aobj.startAnimation("a1", {duration: 3000});
+      id = aobj.startAnimation("a1", {duration: 500, loop: 3});
   }
 
   function startOrientationAnimation()
@@ -92,8 +92,8 @@
       if(!aobj) {
           aobj = movObjects.cube = createAnimatable();
       }
-      aobj.startAnimation("a2", {duration: 5000, loop: true})
-      id = aobj.startAnimation("a1", {duration: 5000, loop: true});
+      aobj.startAnimation("a2", {duration: 5000, loop: 12})
+      id = aobj.startAnimation("a1", {duration: 5000, loop: 3});
   }
 
   function stopAnimations() {
@@ -105,10 +105,10 @@
 
   function createAnimatable() {
       var c = factory.createAnimatable(document.getElementById("shape_d1e22"), constraint);
-      var a1 = factory.createKeyframeAnimation("a1", "Position", document.getElementById("animation01"), {duration: 2000, loop:false});
+      var a1 = factory.createKeyframeAnimation("a1", "Position", document.getElementById("animation01"), {duration: 2000, loop:1});
       var a2 = factory.createKeyframeAnimation("a2", "Orientation", document.getElementById("animation02"));
       c.addAnimation(a1);
-      c.addAnimation(a2, {duration: 5000, loop: true});
+      c.addAnimation(a2, {duration: 5000, loop: 5});
       return c;
   }
 </script>
