@@ -15,9 +15,9 @@ goog.require("goog.base");
 		goog.base(this, obj, transform, constraint);
 
 		/**
-		 * List of KeyframeAnimations
+		 * Map of KeyframeAnimations
 		 * @private
-		 * @type {Array.<KeyframeAnimation>}
+		 * @type {string, {animation: KeyframeAnimation, opt: Object=}}
 		 */
 		this.availableAnimations = {};
 		/**
@@ -25,7 +25,7 @@ goog.require("goog.base");
 		 * Note: This works since the IDs are only numbers.
 		 * Those numbers are turned into strings  and those are used as keys.
 		 * @private
-		 * @type {number}
+		 * @type {number, {animation: KeyframeAnimation, queue: Array.<tween>, opt: Object=}}
 		 */
 		this.activeAnimations = {};
 		/**
@@ -44,18 +44,24 @@ goog.require("goog.base");
 
     /** @inheritDoc */
     a.addAnimation = function(animation, opt){
-    	if(opt) animation.setOptions(opt);
-		this.availableAnimations[animation.name] = animation;
+		//do not change optons of the animation, store options of the animation of this animatable
+		//same animation might have different options on another animatable
+		this.availableAnimations[animation.name] = new Object();
+		var tmp = this.availableAnimations[animation.name];
+		tmp.opt = opt;
+		tmp.animation = animation;
     };
 
     /** @inheritDoc */
     a.startAnimation = function(name, opt){
-		var toStart = this.availableAnimations[name];
 		var id = this.idCounter;
 		this.idCounter++;
-		this.activeAnimations[id] = toStart;
-		this.activeAnimations[id].queue = [];
-		toStart.start(id, this, opt);
+		this.activeAnimations[id] = new Object();
+		var tmp = this.activeAnimations[id];
+		tmp.animation = this.availableAnimations[name].animation;
+		tmp.queue = [];
+		tmp.opt = opt;
+		tmp.animation.start(id, this);
 		return id;
     };
 
@@ -77,7 +83,6 @@ goog.require("goog.base");
      * good idea to override?
      */
     a.moveTo = function(animationID, position, orientation, time, opt){
-    	//TODO: opt!
     	//TODO: rotation shows some strange behaviour!
 		//no movement needed
 		if(position == undefined && orientation == undefined) return this;
@@ -119,6 +124,7 @@ goog.require("goog.base");
 		else
 			destData = {pos_x:position[0], pos_y:position[1], pos_z:position[2], ori_x:orientation[0], ori_y:orientation[1], ori_z:orientation[2], ori_a:orientation[3]};
 
+		//TODO: var algo = this.checkOption("interpolationalgorithm", animationID);
 		var tween = new TWEEN.Tween(currentData).to(destData, time);
 
 		//this.endMotionData = destData;
@@ -136,21 +142,38 @@ goog.require("goog.base");
 
 		//callback on complete
 		tween.onComplete( function(){
-			//console.log("animation ended:" + (new Date()).getSeconds() );
+			console.log("movement ended:" + (new Date()).getSeconds() );
 			//last motion step, just in case
 			that.setPosition([currentData.pos_x, currentData.pos_y, currentData.pos_z]);
 			that.setOrientation([currentData.ori_x, currentData.ori_y, currentData.ori_z, currentData.ori_a]);
 			//remove finished tween from the end of the queue
 			queue.pop();
 			//start next tween (end of the queue), if there is any in the queue
-			if(queue.length != 0){
+			if(queue.length > 0){
 				queue[queue.length-1].start();
-				//console.log("animation started:" + (new Date()).getSeconds() );
+				console.log("movement started:" + (new Date()).getSeconds() );
 			}
 			else{
-				//callback after the last tween -> at the end of the animation!
-				if(opt && opt.callback && typeof(opt.callback) === "function")
-					opt.callback();
+				//animation ended -> callback or loop
+				console.log("animation ended:" + (new Date()).getSeconds() );
+				var numberOfLoops = that.checkOption("loop", animationID);
+				if(isFinite(numberOfLoops)){
+					if( numberOfLoops > 1 ){ //we must loop again
+						var currentAnimation = that.activeAnimations[id];
+						currentAnimation.opt.loop = numberOfLoops - 1;
+						currentAnimation.queue = []; //reset array
+						currentAnimation.animation.start(id, that);
+						//TODO: loop is bug
+					}else {
+						//no more loops, we are finished and now the callback
+						var cb = that.checkOption("callback", animationID);
+						if(typeof(cb) === "function") cb();
+					}
+				}
+				else{
+					//infinite loops
+					that.start(that.activeAnimations[id].animation.name, that.activeAnimations[id].opt);
+				}
 			}
 		});
 
@@ -163,6 +186,28 @@ goog.require("goog.base");
 		}
 		return this;
     };
+
+	/**
+	 * Checks for a single options and returns the correct value according to the hierachy of different opts
+	 * @param {string} name name of the option
+	 * @param {number} animationID
+	 */
+	a.checkOption = function(name, animationID){
+		//options provided at start of the animation
+		var startOpt = this.activeAnimations[animationID].opt;
+		if(typeof(startOpt) != "undefined" && typeof(startOpt[name]) != "undefined"){
+			return startOpt[name];
+		}
+		else {
+			//options provided while adding the animation to the animatable
+			var animationOpt = this.availableAnimations[this.activeAnimations[id].animation.name].opt;
+			if(typeof(animationOpt) != "undefined" && typeof(animationOpt[name]) != "undefined"){
+				return animationOpt[name];
+			}else
+				//option of the animation itself
+				return this.activeAnimations[id].animation[name];
+		}
+	};
 
     //export
 	XMOT.ClientAnimatable = ClientAnimatable;

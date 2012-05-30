@@ -35,13 +35,13 @@
 		 */
 		this.orientationValues = orientationValues;
 		
-		//options
+		//options - set defaults
 		/**
 		 * loop
 		 * @private
-		 * @type {Boolean}
+		 * @type {number}
 		 */
-		this.loop = false;
+		this.loop = 1;
 		/**
 		 * Duration of the animation
 		 * @private
@@ -68,10 +68,8 @@
 	var k = ClientKeyframeAnimation.prototype;
 
 	/** @inheritDoc */
-    k.start = function(id, animatable, opt){
-    	//TODO: handle opts
-		var duration = this.duration;
-		if(opt && opt.duration) duration = opt.duration;
+    k.start = function(id, animatable){
+		var duration = animatable.checkOption("duration", id);
 		var i=0;
 		var start_time = 0;
 		var dest_time = 0;

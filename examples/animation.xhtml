@@ -92,7 +92,7 @@
       if(!aobj) {
           aobj = movObjects.cube = createAnimatable();
       }
-      aobj.startAnimation("a2", {duration: 5000, loop: 12})
+      aobj.startAnimation("a2")
       id = aobj.startAnimation("a1", {duration: 5000, loop: 3});
   }
 
@@ -108,7 +108,7 @@
       var a1 = factory.createKeyframeAnimation("a1", "Position", document.getElementById("animation01"), {duration: 2000, loop:1});
       var a2 = factory.createKeyframeAnimation("a2", "Orientation", document.getElementById("animation02"));
       c.addAnimation(a1);
-      c.addAnimation(a2, {duration: 5000, loop: 5});
+      c.addAnimation(a2, {duration: 5000, loop: 2});
       return c;
   }
 </script>
