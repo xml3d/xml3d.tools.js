@@ -35,7 +35,7 @@ XMOT.version = '%VERSION%';
      * @param {string} name name
      * @param {string} type "Position" or "Orientation"
      * @param {Object} element KeyframeAnimation, keyframes and corresponding positions or orientations
-     * @param {Object=} opt Options: {number} duration in ms; {number} loop; {string} interpolationalgorithm; {function} callback at the end of the animation;
+     * @param {Object=} opt Options: {number} duration in ms; {number} loop; {string} interpolation; {function} callback at the end of the animation;
      * @return {KeyframeAnimation} created KeyFrameAnimation
      */
     m.createKeyframeAnimation = function(name, type, element, opt){};
@@ -83,7 +83,7 @@ XMOT.version = '%VERSION%';
      * @param {Array.<number>|undefined} position local space Vector
      * @param {Array.<number>|undefined} orientation orientation Quaternion
      * @param {number} time when to reach the position, in milliseconds
-     * @param {Object=} opt options: {string} interpolationalgorithm: default: linear; {function} callback at the end of the movement;
+     * @param {Object=} opt options: {string} interpolation: default: linear; {function} callback at the end of the movement;
      * @return {Moveable} the Moveable
      */
     p.moveTo = function(position, orientation, time, opt){};
@@ -113,7 +113,7 @@ XMOT.version = '%VERSION%';
     /**
      * Add an Animation to the Animatable
      * @param {KeyframeAnimation} keyframeAnimation Keyframeanimation
-     * @param {Object=} opt options: {number} duration (in ms); {number} loop; {string} interpolationalgorithm; {function} callback at the end of the animation;
+     * @param {Object=} opt options: {number} duration (in ms); {number} loop; {string} interpolation; {function} callback at the end of the animation;
      * @return {Animatable} the Animatable
      */
     a.addAnimation = function(keyframeAnimation, opt){};
@@ -121,7 +121,7 @@ XMOT.version = '%VERSION%';
     /**
      * Starts an animation
      * @param {string} name animation, that will be started
-     * @param {Object=} opt options: {number} duration (in ms); {number} loop; {string} interpolationalgorithm; {function} callback at the end of the animation;
+     * @param {Object=} opt options: {number} duration (in ms); {number} loop; {string} interpolation; {function} callback at the end of the animation;
      * @return {number} id id of the animation, which was started. The id is valid until the end of the animation
      */
     a.startAnimation = function(name, opt){};
@@ -140,7 +140,7 @@ XMOT.version = '%VERSION%';
      * @param {Array.<number>|undefined} position local space Vector
      * @param {Array.<number>|undefined} orientation orientation Quaternion
      * @param {number} time when to reach the position, in milliseconds
-     * @param {Object=} opt options: {string} interpolationalgorithm: default: linear; {function} callback at the end of the movement;
+     * @param {Object=} opt options: {string} interpolation: default: linear; {function} callback at the end of the movement;
      * @return {Moveable} the Moveable
      */
     a.moveTo = function(id, position, orientation, time, opt){};
@@ -156,13 +156,13 @@ XMOT.version = '%VERSION%';
     /**
      * Starts the Animation, allows to add additional options for this certain animation.
      * @param {Animatable} animatable the animatable, which will be animated
-     * @param {Object=} opt options: {number} duration (in ms); {number} loop; {string} interpolationalgorithm; {function} callback at the end of the animation;
+     * @param {Object=} opt options: {number} duration (in ms); {number} loop; {string} interpolation; {function} callback at the end of the animation;
      */
     k.start = function(animatable, opt){};
 
 	/**
 	 * Set Options
-	 *{Object} opt options: {string} interpolationalgorithm: default: linear; {function} callback at the end of the movement;
+	 *{Object} opt options: {string} interpolation: default: linear; {function} callback at the end of the movement;
 	 */
 	k.setOptions = function(opt){};
 
