@@ -76,13 +76,8 @@ goog.require("goog.base");
 		return this;
     };
 
-    /** @inheritDoc
-     * We need to override the moveTo function of the Moveable in order to be able to stop single animations
-     * and have more than one animation at a single time.
-     * Name might not be that good?
-     * good idea to override?
-     */
-    a.moveTo = function(animationID, position, orientation, time, opt){
+    /** @inheritDoc */
+    a.animationStep = function(animationID, position, orientation, time, opt){
     	//TODO: rotation shows some strange behaviour!
 		//no movement needed
 		if(position == undefined && orientation == undefined) return this;
