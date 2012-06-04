@@ -89,14 +89,6 @@ goog.require("goog.base");
 
 		var queue = this.activeAnimations[animationID].queue;
 
-		/*Some Debug output
-		if(orientation === undefined)
-			console.log("moveTo: now: " + (new Date()).getSeconds() + "pos: " + position[0] + " " + position[1]+ " " +position[2] + " ori: undefined" + " time: " + time );
-		else if(position === undefined)
-			console.log("moveTo: now: " + (new Date()).getSeconds() + "pos undefined ori: " + orientation[0]+ " " +orientation[1]+ " " +orientation[2]+ " " +orientation[3]+ " time: " + time );
-		else
-			console.log("moveTo: now: " + (new Date()).getSeconds() + "pos: " + position[0] + " " + position[1]+ " " +position[2] + " ori: " + orientation[0]+ " " +orientation[1]+ " " +orientation[2]+ " " +orientation[3]+ " time: " + time );
-		 */
 		//endMotionData = data where the last motion ended; if the queue is empty, this is where we are
 		if( queue.length == 0){
 			var trans = this.transform.translation;
@@ -105,11 +97,10 @@ goog.require("goog.base");
 		}
 		//start of the chained motion is end of the the one before, if there is one before
     	//var currentData = this.endMotionData; need copyconstructor
-		var currentData = {pos_x:this.endMotionData.pos_x, pos_y:this.endMotionData.pos_y, pos_z:this.endMotionData.pos_z, ori_x:this.endMotionData.ori_x, ori_y:this.endMotionData.ori_y, ori_z:this.endMotionData.ori_z, ori_a:this.endMotionData.ori_a};
+		var currentData = {id:animationID, pos_x:this.endMotionData.pos_x, pos_y:this.endMotionData.pos_y, pos_z:this.endMotionData.pos_z, ori_x:this.endMotionData.ori_x, ori_y:this.endMotionData.ori_y, ori_z:this.endMotionData.ori_z, ori_a:this.endMotionData.ori_a};
 
 		//if undefined keep old values
-		//TODO: if undefined do not modify!!!
-		var destData = {pos_x:this.endMotionData.pos_x, pos_y:this.endMotionData.pos_y, pos_z:this.endMotionData.pos_z, ori_x:this.endMotionData.ori_x, ori_y:this.endMotionData.ori_y, ori_z:this.endMotionData.ori_z, ori_a:this.endMotionData.ori_a};
+		var destData = {id:animationID, pos_x:this.endMotionData.pos_x, pos_y:this.endMotionData.pos_y, pos_z:this.endMotionData.pos_z, ori_x:this.endMotionData.ori_x, ori_y:this.endMotionData.ori_y, ori_z:this.endMotionData.ori_z, ori_a:this.endMotionData.ori_a};
 		if(orientation === undefined){
 			destData.pos_x = position[0];
 			destData.pos_y = position[1];
@@ -122,68 +113,63 @@ goog.require("goog.base");
 			destData.ori_a = orientation[3];
 		}
 		else
-			destData = {pos_x:position[0], pos_y:position[1], pos_z:position[2], ori_x:orientation[0], ori_y:orientation[1], ori_z:orientation[2], ori_a:orientation[3]};
+			destData = {id:animationID,  pos_x:position[0], pos_y:position[1], pos_z:position[2], ori_x:orientation[0], ori_y:orientation[1], ori_z:orientation[2], ori_a:orientation[3]};
 
-		//TODO: var algo = this.checkOption("interpolationalgorithm", animationID);
+		//TODO: set easing
 		var tween = new TWEEN.Tween(currentData).to(destData, time);
+		tween.interpolation(TWEEN.Interpolation[this.checkOption("interpolation", animationID)]);
 
 		//this.endMotionData = destData;
 		this.endMotionData = {pos_x:destData.pos_x, pos_y:destData.pos_y, pos_z:destData.pos_z, ori_x:destData.ori_x, ori_y:destData.ori_y, ori_z:destData.ori_z, ori_a:destData.ori_a};
 
 		var that = this;
-		//update callback
-		tween.onUpdate( function() {
-			//console.log("animation update! " + (new Date()).getSeconds() );
+		//set callback on update
+		tween.onUpdate( function(value) {
+			//this is the currentData object
 			if(position != undefined)
-				that.setPosition([currentData.pos_x, currentData.pos_y, currentData.pos_z]);
+				that.setPosition([this.pos_x, this.pos_y, this.pos_z]);
 			if(orientation != undefined)
-				that.setOrientation([currentData.ori_x, currentData.ori_y, currentData.ori_z, currentData.ori_a]);
+				that.setOrientation([this.ori_x, this.ori_y, this.ori_z, this.ori_a]);
 		} );
 
-		//callback on complete
-		tween.onComplete( function(){
-			console.log("movement ended:" + (new Date()).getSeconds() );
-			//last motion step, just in case
-			that.setPosition([currentData.pos_x, currentData.pos_y, currentData.pos_z]);
-			that.setOrientation([currentData.ori_x, currentData.ori_y, currentData.ori_z, currentData.ori_a]);
+		//set callback on complete
+		tween.onComplete( function(value){
+			//this is the currentData object
+			animationID = this.id;
 			//remove finished tween from the end of the queue
+			var animation = that.activeAnimations[animationID];
+			var queue = animation.queue;
 			queue.pop();
 			//start next tween (end of the queue), if there is any in the queue
 			if(queue.length > 0){
 				queue[queue.length-1].start();
-				console.log("movement started:" + (new Date()).getSeconds() );
 			}
 			else{
 				//animation ended -> callback or loop
-				console.log("animation ended:" + (new Date()).getSeconds() );
 				var numberOfLoops = that.checkOption("loop", animationID);
 				if(isFinite(numberOfLoops)){
 					if( numberOfLoops > 1 ){ //we must loop again
-						var currentAnimation = that.activeAnimations[id];
-						currentAnimation.opt.loop = numberOfLoops - 1;
-						currentAnimation.queue = []; //reset array
-						currentAnimation.animation.start(id, that);
-						//TODO: loop is bug
+						if(typeof(animation.opt) !== "undefined")
+							animation.opt.loop = numberOfLoops - 1;
+						else
+							animation.opt = {loop: numberOfLoops-1};
+						animation.animation.start(animationID, that);
 					}else {
 						//no more loops, we are finished and now the callback
 						var cb = that.checkOption("callback", animationID);
 						if(typeof(cb) === "function") cb();
+						animation = {}; //clean up
 					}
 				}
 				else{
 					//infinite loops
-					that.start(that.activeAnimations[id].animation.name, that.activeAnimations[id].opt);
+					animation.animation.start(animationID, that);
 				}
 			}
 		});
 
-		//push tween to the beginning of the queue and start if queue was empty
+		//put tween at the begin of the queue
 		queue.unshift(tween);
-		if( queue.length-1 == 0){
-			tween.start();
-			//console.log("animation started:" + (new Date()).getSeconds() );
-			XMOT.animate();
-		}
 		return this;
     };
 
@@ -193,6 +179,8 @@ goog.require("goog.base");
 	 * @param {number} animationID
 	 */
 	a.checkOption = function(name, animationID){
+		//TODO: make the lib more efficient by filling options in the add/ start function
+		//but this will also make the code less readable
 		//options provided at start of the animation
 		var startOpt = this.activeAnimations[animationID].opt;
 		if(typeof(startOpt) != "undefined" && typeof(startOpt[name]) != "undefined"){
@@ -200,12 +188,12 @@ goog.require("goog.base");
 		}
 		else {
 			//options provided while adding the animation to the animatable
-			var animationOpt = this.availableAnimations[this.activeAnimations[id].animation.name].opt;
+			var animationOpt = this.availableAnimations[this.activeAnimations[animationID].animation.name].opt;
 			if(typeof(animationOpt) != "undefined" && typeof(animationOpt[name]) != "undefined"){
 				return animationOpt[name];
 			}else
 				//option of the animation itself
-				return this.activeAnimations[id].animation[name];
+				return this.activeAnimations[animationID].animation[name];
 		}
 	};
 

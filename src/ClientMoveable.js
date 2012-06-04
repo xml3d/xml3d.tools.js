@@ -151,7 +151,10 @@
 		if( this.motionQueue.length-1 == 0){
 			tween.start();
 			//console.log("animation started:" + (new Date()).getSeconds() );
-			animate();
+			if(!XMOT.animating) {
+				animate();
+				XMOT.animating = true;
+			}
 		}
 		return this;
     };
@@ -168,6 +171,11 @@
     };
 
     /**
+     * global variable, used to check if an animation is currently in progress
+     */
+    var animating = false;
+
+    /**
      * Updates all the Tweens until all animations are finished
      */
     function animate(){
@@ -175,9 +183,12 @@
 			window.requestAnimFrame(XMOT.animate);
 			TWEEN.update();
 		}
+		else
+			XMOT.animating = false;
     };
 
     //export
     XMOT.ClientMoveable = ClientMoveable;
     XMOT.animate = animate;
+    XMOT.animating = animating;
 }());

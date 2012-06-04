@@ -49,11 +49,11 @@
 		 */
 		this.duration = 1000;
 		/**
-		 * Interpolationalgorithm used between two steps
+		 * interpolation used between two steps
 		 * @private
 		 * @type {string}
 		 */
-		this.interpolationalgorithm = "linear";
+		this.interpolation = "linear";
 		/**
 		 * Callback, executed as soon as the animation ended
 		 * @private
@@ -73,6 +73,7 @@
 		var i=0;
 		var start_time = 0;
 		var dest_time = 0;
+		//queue animation steps
 		for(i=0; i<this.keys.length; i++){
 			dest_time = duration * this.keys[i];
 			var durationStep = dest_time - start_time;
@@ -96,6 +97,12 @@
 			}
 			start_time = dest_time;
 		}
+		//start animation
+		animatable.activeAnimations[id].queue[0].start();
+		if(!XMOT.animating) {
+			XMOT.animating = true;
+			XMOT.animate();
+		}
     };
 
     /** @inheritDoc */
@@ -104,8 +111,8 @@
 			this.loop = opt.loop;
 		if(opt.duration)
 			this.duration = opt.duration;
-		if(opt.interpolationalgorithm)
-			this.interpolationalgorithm = opt.interpolationalgorithm;
+		if(opt.interpolation)
+			this.interpolation = opt.interpolation;
 		if(opt.callback && typeof(opt.callback) === "function")
 			this.callback = opt.callback;
     };
