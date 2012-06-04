@@ -146,12 +146,39 @@ XMOT.version = '%VERSION%';
     a.moveTo = function(id, position, orientation, time, opt){};
 
 
-    /**
-     * A KeyframeAnimation
+
+	/**
+     * A Humanoid
+     * @extends Animatable
      * @interface
      */
-    var KeyframeAnimation = function(){};
-    var k = KeyframeAnimation.prototype;
+    var Humanoid = function(){};
+    var h = Humanoid.prototype;
+
+    /**
+     * Add an Animation to the Humanoid
+     * @param {XFlowAnimation} xFlowAnimation XFlowAnimation
+     * @param {Object=} opt options: {number} duration (in ms); {number} loop; {string} interpolation; {function} callback at the end of the animation;
+     * @return {Humanoid} the Humanoid
+     */
+    h.addAnimation = function(xFlowAnimation, opt){};
+
+    /**
+     * Interpolated movement
+     * @param {number} id
+     * @param {number} time
+     * @param {Object=} opt
+     */
+    h.moveTo = function(id, time, opt){};
+
+
+
+    /**
+     * A Animation
+     * @interface
+     */
+    var Animation = function(){};
+    var k = Animation.prototype;
 
     /**
      * Starts the Animation, allows to add additional options for this certain animation.
@@ -167,14 +194,22 @@ XMOT.version = '%VERSION%';
 	k.setOptions = function(opt){};
 
 
+
+	/**
+	 * A KeyFrameAnimation
+	 * @extends Animation
+	 * @interface
+	 */
+	var KeyFrameAnimation = function(){};
+
+
+
     /**
-     * A Humanoid
-     * @extends Animatable
+     * A XFlowAnimation
+     * @extends Animation
      * @interface
      */
-    var Humanoid = function(){};
-    var h = Humanoid.prototype;
-    //TODO define functions of the Humanoid
+	var XFlowAnimation = function(){};
 
 
 
