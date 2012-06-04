@@ -112,11 +112,11 @@ XMOT.version = '%VERSION%';
 
     /**
      * Add an Animation to the Animatable
-     * @param {KeyframeAnimation} keyframeAnimation Keyframeanimation
+     * @param {Animation} animation Animation
      * @param {Object=} opt options: {number} duration (in ms); {number} loop; {string} interpolation; {function} callback at the end of the animation;
      * @return {Animatable} the Animatable
      */
-    a.addAnimation = function(keyframeAnimation, opt){};
+    a.addAnimation = function(animation, opt){};
 
     /**
      * Starts an animation
@@ -133,9 +133,19 @@ XMOT.version = '%VERSION%';
      */
     a.stopAnimation = function(id){};
 
+
+
     /**
-     * Interpolated translation over time to position in local space.
-     * The animation is put into a fifo-queue and will be eventually executed.
+     * A RigidBodyAnimatable
+     * @extends Animatable
+     */
+    var RigidBodyAnimatable = function(){};
+    var r = RigidBodyAnimatable.prototype;
+
+    /**
+     * Interpolated translation and rotation of a single animation step between two keys
+     * The animation step is put into a fifo-queue and will be eventually executed.
+     * This is called by the KeyFrameAnimation, but should not be called otherwise, this can be seen as a major desig flaw. TODO
      * @param {number} id Animation ID
      * @param {Array.<number>|undefined} position local space Vector
      * @param {Array.<number>|undefined} orientation orientation Quaternion
@@ -143,33 +153,16 @@ XMOT.version = '%VERSION%';
      * @param {Object=} opt options: {string} interpolation: default: linear; {function} callback at the end of the movement;
      * @return {Moveable} the Moveable
      */
-    a.moveTo = function(id, position, orientation, time, opt){};
+    r.animationStep = function(id, position, orientation, time, opt){};
 
 
 
-	/**
-     * A Humanoid
+    /**
+     * A XFlowAnimatable aka Humanoid
      * @extends Animatable
      * @interface
      */
     var Humanoid = function(){};
-    var h = Humanoid.prototype;
-
-    /**
-     * Add an Animation to the Humanoid
-     * @param {XFlowAnimation} xFlowAnimation XFlowAnimation
-     * @param {Object=} opt options: {number} duration (in ms); {number} loop; {string} interpolation; {function} callback at the end of the animation;
-     * @return {Humanoid} the Humanoid
-     */
-    h.addAnimation = function(xFlowAnimation, opt){};
-
-    /**
-     * Interpolated movement
-     * @param {number} id
-     * @param {number} time
-     * @param {Object=} opt
-     */
-    h.moveTo = function(id, time, opt){};
 
 
 
@@ -235,5 +228,4 @@ XMOT.version = '%VERSION%';
      * @return {boolean} returns true if the operation is valid, false otherwise
      */
     c.constrainTranslation = function(translation, moveable){};
-
 }());
