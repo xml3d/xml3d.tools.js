@@ -51,7 +51,7 @@
     /** @inheritDoc */
 	p.setOrientation = function(orientation){
 		if(this.constraint.constrainRotation(orientation, this))
-			this.transform.rotation.setQuaternion(new XML3DVec3(orientation[0],orientation[1],orientation[2]), orientation[3]);
+			this.transform.rotation.setQuaternion( new XML3DVec3(orientation[0],orientation[1],orientation[2]), orientation[3] );
 		return this;
     };
 
@@ -79,14 +79,6 @@
 		//no movement needed
 		if(position == undefined && orientation == undefined) return this;
 
-		/*Some Debug output
-		if(orientation === undefined)
-			console.log("moveTo: now: " + (new Date()).getSeconds() + "pos: " + position[0] + " " + position[1]+ " " +position[2] + " ori: undefined" + " time: " + time );
-		else if(position === undefined)
-			console.log("moveTo: now: " + (new Date()).getSeconds() + "pos undefined ori: " + orientation[0]+ " " +orientation[1]+ " " +orientation[2]+ " " +orientation[3]+ " time: " + time );
-		else
-			console.log("moveTo: now: " + (new Date()).getSeconds() + "pos: " + position[0] + " " + position[1]+ " " +position[2] + " ori: " + orientation[0]+ " " +orientation[1]+ " " +orientation[2]+ " " +orientation[3]+ " time: " + time );
-		 */
 		//endMotionData = data where the last motion ended; if the queue is empty, this is where we are
 		if( this.motionQueue.length == 0){
 			var trans = this.transform.translation;
@@ -121,25 +113,21 @@
 		var that = this;
 		//update callback
 		tween.onUpdate( function() {
-			//console.log("animation update! " + (new Date()).getSeconds() );
+			//this is currentData
 			if(position != undefined)
-				that.setPosition([currentData.pos_x, currentData.pos_y, currentData.pos_z]);
+				that.setPosition([this.pos_x, this.pos_y, this.pos_z]);
 			if(orientation != undefined)
-				that.setOrientation([currentData.ori_x, currentData.ori_y, currentData.ori_z, currentData.ori_a]);
+				that.setOrientation([this.ori_x, this.ori_y, this.ori_z, this.ori_a]);
 		} );
 
 		//callback on complete
 		tween.onComplete( function(){
-			//console.log("animation ended:" + (new Date()).getSeconds() );
-			//last motion step, just in case
-			that.setPosition([currentData.pos_x, currentData.pos_y, currentData.pos_z]);
-			that.setOrientation([currentData.ori_x, currentData.ori_y, currentData.ori_z, currentData.ori_a]);
+			//this is currentData
 			//remove finished tween from the end of the queue
 			that.motionQueue.pop();
 			//start next tween (end of the queue), if there is any in the queue
 			if(that.motionQueue.length != 0){
 				that.motionQueue[that.motionQueue.length-1].start();
-				//console.log("animation started:" + (new Date()).getSeconds() );
 			}
 			//callback after the movement finished
 			if(opt && opt.callback && typeof(opt.callback) === "function")
@@ -150,7 +138,6 @@
 		this.motionQueue.unshift(tween);
 		if( this.motionQueue.length-1 == 0){
 			tween.start();
-			//console.log("animation started:" + (new Date()).getSeconds() );
 			if(!XMOT.animating) {
 				animate();
 				XMOT.animating = true;
