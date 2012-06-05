@@ -133,19 +133,10 @@ XMOT.version = '%VERSION%';
      */
     a.stopAnimation = function(id){};
 
-
-
-    /**
-     * A RigidBodyAnimatable
-     * @extends Animatable
-     */
-    var RigidBodyAnimatable = function(){};
-    var r = RigidBodyAnimatable.prototype;
-
     /**
      * Interpolated translation and rotation of a single animation step between two keys
      * The animation step is put into a fifo-queue and will be eventually executed.
-     * This is called by the KeyFrameAnimation, but should not be called otherwise, this can be seen as a major desig flaw. TODO
+     * This is called by the KeyFrameAnimation, but should not be called otherwise, this can be seen as a major design flaw. TODO ???
      * @param {number} id Animation ID
      * @param {Array.<number>|undefined} position local space Vector
      * @param {Array.<number>|undefined} orientation orientation Quaternion
@@ -153,16 +144,12 @@ XMOT.version = '%VERSION%';
      * @param {Object=} opt options: {string} interpolation: default: linear; {function} callback at the end of the movement;
      * @return {Moveable} the Moveable
      */
-    r.animationStep = function(id, position, orientation, time, opt){};
-
-
+    a.animationStepPose = function(id, position, orientation, time, opt){};
 
     /**
-     * A XFlowAnimatable aka Humanoid
-     * @extends Animatable
-     * @interface
+     * TODO: Interpolated paramater blah...
      */
-    var Humanoid = function(){};
+    r.animationStepParameter = function(id, parameter, time, opt){};
 
 
 
@@ -206,7 +193,24 @@ XMOT.version = '%VERSION%';
 
 
 
-    /**
+	/**
+	 * A AnimationCollection
+	 * @extends Animation
+	 * @interface
+	 */
+	var CombinedAnimation = function(){};
+	var ca = CombinedAnimation.prototype;
+
+	/**
+	 * Add an animation to the collection
+	 * @param {Animation} animation
+	 * @param {Object=} opt
+	 */
+	ca.addAnimation = function(animation, opt){};
+
+
+
+	/**
      * A Constraint
      * @interface
      */
