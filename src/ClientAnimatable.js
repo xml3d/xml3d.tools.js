@@ -77,7 +77,7 @@ goog.require("goog.base");
     };
 
     /** @inheritDoc */
-    a.animationStep = function(animationID, position, orientation, time, opt){
+    a.animationStep = function(animationID, position, orientation, time){
     	//TODO: rotation shows some strange behaviour!
 		//no movement needed
 		if(position == undefined && orientation == undefined) return this;
@@ -112,7 +112,6 @@ goog.require("goog.base");
 
 		//TODO: set easing
 		var tween = new TWEEN.Tween(currentData).to(destData, time);
-		tween.interpolation(TWEEN.Interpolation[this.checkOption("interpolation", animationID)]);
 
 		//this.endMotionData = destData;
 		this.endMotionData = {pos_x:destData.pos_x, pos_y:destData.pos_y, pos_z:destData.pos_z, ori_x:destData.ori_x, ori_y:destData.ori_y, ori_z:destData.ori_z, ori_a:destData.ori_a};
