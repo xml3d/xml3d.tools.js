@@ -149,7 +149,7 @@ XMOT.version = '%VERSION%';
     /**
      * TODO: Interpolated paramater blah...
      */
-    r.animationStepParameter = function(id, parameter, time, opt){};
+    a.animationStepParameter = function(id, parameter, time, opt){};
 
 
 
