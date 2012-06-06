@@ -53,7 +53,7 @@
 		 * @private
 		 * @type {string}
 		 */
-		this.interpolation = "linear";
+		this.interpolation = "linear"; //TODO: remove this and add easing
 		/**
 		 * Callback, executed as soon as the animation ended
 		 * @private
@@ -68,42 +68,75 @@
 	var k = ClientKeyframeAnimation.prototype;
 
 	/** @inheritDoc */
-    k.start = function(id, animatable){
-		var duration = animatable.checkOption("duration", id);
-		var i=0;
-		var start_time = 0;
-		var dest_time = 0;
-		//queue animation steps
-		for(i=0; i<this.keys.length; i++){
-			dest_time = duration * this.keys[i];
-			var durationStep = dest_time - start_time;
-			if(durationStep == 0) durationStep++; //duration of one animation step must not be 0. this will lead to exceptions due to tweening
-			if(this.orientationValues === undefined){ //position only
-				var arrayPos = i*3;
-				var dest_pos = [this.positionValues[arrayPos], this.positionValues[arrayPos+1], this.positionValues[arrayPos+2]];
-				animatable.animationStep(id, dest_pos, undefined, durationStep);
-			}
-			else if(this.positionValues === undefined){ //orientation only
-				var arrayPos = i*4;
-				var dest_ori = [this.orientationValues[arrayPos], this.orientationValues[arrayPos+1], this.orientationValues[arrayPos+2], this.orientationValues[arrayPos+3]];
-				animatable.animationStep(id, undefined, dest_ori, durationStep);
-			}
-			else{ //both
-				var arrayPos = i*3;
-				var dest_pos = [this.positionValues[arrayPos], this.positionValues[arrayPos+1], this.positionValues[arrayPos+2]];
-				arrayPos = i*4;
-				var dest_ori = [this.orientationValues[arrayPos], this.orientationValues[arrayPos+1], this.orientationValues[arrayPos+2], this.orientationValues[arrayPos+3]];
-				animatable.animationStep(id, dest_pos, dest_ori, durationStep);
-			}
-			start_time = dest_time;
+	k.applyAnimation = function(animatable, currentTime, startTime, endTime, opt/*???*/){
+		//TODO: easing zwischen den keys oder ueber alle keys?
+		var t = (currentTime - startTime) / (endTime - startTime);
+		var l = this.keys.length - 1;
+		if (t <= this.keys[0]){
+			var pos = this.positionValues !== undefined ? [this.positionValues[0], this.positionValues[1], this.positionValues[2]] : undefined;
+			var ori = this.orientationValues !== undefined ? [this.orientationValues[0], this.orientationValues[1], this.orientationValues[2], this.orientationValues[3]] : undefined;
+			this.setValue(animatable, pos, ori);
+		}else if (t >= this.keys[l - 1]){
+			var pos = this.positionValues !== undefined ? [this.positionValues[l], this.positionValues[l+1], this.positionValues[l+2]] : undefined;
+			var ori = this.orientationValues !== undefined ? [this.orientationValues[l], this.orientationValues[l+1], this.orientationValues[l+2], this.orientationValues[l+3]] : undefined;
+			this.setValue(animatable, pos, ori);
+		}else{
+			for ( var i = 0; i < l - 1; i++)
+				if (this.keys[i] < t && t <= this.keys[i + 1]) {
+					var ret = this.interpolateBetweenKeys( i, ((t - this.keys[i]) / (this.keys[i + 1] - this.keys[i])) );// TODO: this.easing((t - this.keys[i]) / (this.keys[i + 1] - this.keys[i])) );
+					this.setValue(animatable, ret.position, ret.orientation);
+				}
 		}
-		//start animation
-		animatable.activeAnimations[id].queue[0].start();
-		if(!XMOT.animating) {
-			XMOT.animating = true;
-			XMOT.animate();
+	};
+
+	/**
+	 * Set position and animation of the animatable
+	 * @private
+	 * @param {Array.<number>|undefined}
+	 * @param {Array.<number>|undefined}
+	 */
+	k.setValue = function(animatable, position, orientation){
+		if(position != undefined)
+			animatable.setPosition(position);
+		if(orientation != undefined)
+			animatable.setOrientation(orientation);
+	};
+
+	/**
+	 * Interpolates keyvalues between index i and index i+1 with parameter t
+	 * @private
+	 * @param {number} index
+	 * @param {number} t interpolationparameter
+	 */
+	k.interpolateBetweenKeys = function(index, t){
+		var ret = {position:undefined, orientation:undefined};
+		//position
+		if(this.positionValues !== undefined){
+			//TODO: make function "getPositionArray(index)"
+			ret.position = [];
+			var si = index*3;
+			var ei = (index+1)*3;
+			var start = [ this.positionValues[si], this.positionValues[si+1], this.positionValues[si+2] ];
+			var end = [ this.positionValues[ei], this.positionValues[ei+1], this.positionValues[ei+2] ];
+			var i = 0;
+			for(i=0; i<start.length; i++ ){
+				ret.position[i] = start[i] + ( end[i] - start[i] ) * t;
+			}
 		}
-    };
+		//orientation
+		if(this.orientationValues !== undefined){
+			ret.orientation = [];
+			var si = index*4;
+			var ei = (index+1)*4;
+			var start = [ this.orientationValues[si], this.orientationValues[si+1], this.orientationValues[si+2], this.orientationValues[si+3] ];
+			var end = [ this.orientationValues[ei], this.orientationValues[ei+1], this.orientationValues[ei+2], this.orientationValues[ei+3] ];
+			var i = 0;
+			for(i=0; i<start.length; i++ ){
+				ret.orientation[i] = start[i] + ( end[i] - start[i] ) * t;
+			}
+		}
+		return ret;
+	};
 
     /** @inheritDoc */
     k.setOptions = function(opt){
