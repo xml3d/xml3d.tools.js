@@ -1,5 +1,4 @@
 /** @namespace **/
-//var XMOT = XMOT || {};
 goog.provide("XMOT");
 
 /** @define {string} */
@@ -43,12 +42,11 @@ XMOT.version = '%VERSION%';
     /**
      * Creates a ParameterAnimation
      * @param {string} name name
-     * @param {string} type "Position" or "Orientation"
      * @param {Object} element ParameterAnimation, keys and corresponding parameters
      * @param {{duration: number, loop: number, delay: number, easing: string, callback: function}=} opt options
      * @return {ParamterAnimation} created ParameterAnimation
      */
-    m.createParameterAnimation = function(name, type, element, opt){};
+    m.createParameterAnimation = function(name, element, opt){};
 
 
     /**
@@ -130,8 +128,8 @@ XMOT.version = '%VERSION%';
     /**
      * Starts an animation
      * @param {string} name animation, that will be started
-     * @param {Object=} opt options: {number} duration (in ms); {number} loop; {string} easing; {function} callback at the end of the animation;
      * @param {{duration: number, loop: number, delay: number, easing: string, callback: function}=} opt options
+     * @return {number} id id of the animation
      */
     a.startAnimation = function(name, opt){};
 
@@ -142,38 +140,23 @@ XMOT.version = '%VERSION%';
      */
     a.stopAnimation = function(id){};
 
-    /**
-     * Interpolated translation and rotation of a single animation step between two keys
-     * The animation step is put into a fifo-queue and will be eventually executed.
-     * This is called by the KeyFrameAnimation, but should not be called otherwise, this can be seen as a major design flaw. TODO ???
-     * @param {number} id Animation ID
-     * @param {Array.<number>|undefined} position local space Vector
-     * @param {Array.<number>|undefined} orientation orientation Quaternion
-     * @param {number} time when to reach the position, in milliseconds
-     * @return {Moveable} the Moveable
-     */
-    a.animationStepPose = function(id, position, orientation, time){};
-
-    /**
-     * TODO: Interpolated paramater blah...
-     */
-    a.animationStepParameter = function(id, parameter, time, opt){};
-
 
 
     /**
-     * A Animation
+     * An Animation
      * @interface
      */
     var Animation = function(){};
     var k = Animation.prototype;
 
     /**
-     * Starts the Animation, allows to add additional options for this certain animation.
-     * @param {Animatable} animatable the animatable, which will be animated
-     * @param {{duration: number, loop: number, delay: number, easing: string, callback: function}=} opt options
+     * Sets the state of the animatable at time x of the animation
+     * @param {Animatable} animatable
+     * @param {number} currentTime
+     * @param {number} startTime
+     * @param {number} endTime
      */
-    k.start = function(animatable, opt){};
+    k.applyAnimation = function(animatable, currentTime, startTime, endTime){};
 
 	/**
 	 * Set Options
@@ -184,25 +167,7 @@ XMOT.version = '%VERSION%';
 
 
 	/**
-	 * A KeyFrameAnimation
-	 * @extends Animation
-	 * @interface
-	 */
-	var KeyFrameAnimation = function(){};
-
-
-
-    /**
-     * A ParameterAnimation
-     * @extends Animation
-     * @interface
-     */
-	var ParameterAnimation = function(){};
-
-
-
-	/**
-	 * A AnimationCollection
+	 * A CombinedAnimation
 	 * @extends Animation
 	 * @interface
 	 */
