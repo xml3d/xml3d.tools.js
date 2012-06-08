@@ -133,14 +133,19 @@
 	 */
 	k.getInterpolatedOrientation = function(index, t){
 		if(this.orientationValues === undefined) return undefined;
-		var ret = [];
+		//var ret = [];
 		var start = this.getOrientation(index);
 		var end = this.getOrientation(index+1);
-		var i = 0;
+		var quaternionStart = new XML3DRotation();
+		quaternionStart.setQuaternion( new XML3DVec3(start[0],start[1],start[2]), start[3] );
+		var quaternionEnd = new XML3DRotation();
+		quaternionEnd.setQuaternion( new XML3DVec3(end[0],end[1],end[2]), end[3] );
+		var ret = quaternionStart.interpolate(quaternionEnd, t);
+		/*var i = 0;
 		for(i=0; i<start.length; i++ ){
 			ret[i] = start[i] + ( end[i] - start[i] ) * t;
-		}
-		return ret;
+		}*/
+		return [ret._data[0], ret._data[1], ret._data[2], ret._data[3]];
 	};
 
 	/**
