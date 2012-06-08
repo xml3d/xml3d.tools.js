@@ -70,13 +70,12 @@ goog.require("goog.base");
 		//use a tween as a clock generator
 		var time = this.checkOption("duration", id);
 		var cg = new TWEEN.Tween({t:0}).to({t:time}, time);
-		//interpolating the id is a hack to make it available in onUpdate and onComplete 
 
 		//setup update and complete callbacks
 		var that = this;
 		cg.onUpdate(function(value){
 			//this is the interpolated object!
-			that.activeAnimations[id].animation.applyAnimation(that, this.t, 0, time);
+			that.activeAnimations[id].animation.applyAnimation(that, this.t, 0, time, that.checkOption("easing", id));
 		});
 
 		cg.onComplete( function(value){

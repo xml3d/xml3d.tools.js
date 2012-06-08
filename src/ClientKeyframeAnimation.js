@@ -49,11 +49,11 @@
 		 */
 		this.duration = 1000;
 		/**
-		 * interpolation used between two steps
+		 * easing
 		 * @private
-		 * @type {string}
+		 * @type {function}
 		 */
-		this.interpolation = "linear"; //TODO: remove this and add easing
+		this.easing = TWEEN.Easing.Linear.None;
 		/**
 		 * Callback, executed as soon as the animation ended
 		 * @private
@@ -68,9 +68,9 @@
 	var k = ClientKeyframeAnimation.prototype;
 
 	/** @inheritDoc */
-	k.applyAnimation = function(animatable, currentTime, startTime, endTime, opt/*???*/){
-		//TODO: easing zwischen den keys oder ueber alle keys?
+	k.applyAnimation = function(animatable, currentTime, startTime, endTime, easing){
 		var t = (currentTime - startTime) / (endTime - startTime);
+		if(typeof(easing) === "function") t = easing(t); //otherwise its linear
 		var l = this.keys.length - 1;
 		if (t <= this.keys[0]){
 			this.setValue( animatable, this.getPosition(0), this.getOrientation(0) );
@@ -79,7 +79,7 @@
 		}else{
 			for ( var i = 0; i < l - 1; i++){
 				if (this.keys[i] < t && t <= this.keys[i + 1]) {
-					var p = (t - this.keys[i]) / (this.keys[i + 1] - this.keys[i]); // TODO: this.easing((t - this.keys[i]) / (this.keys[i + 1] - this.keys[i])) );
+					var p = (t - this.keys[i]) / (this.keys[i + 1] - this.keys[i]);
 					this.setValue( animatable, this.getInterpolatedPosition(i, p), this.getInterpolatedOrientation(i, p) );
 				}
 			}
@@ -167,8 +167,8 @@
 			this.loop = opt.loop;
 		if(opt.duration)
 			this.duration = opt.duration;
-		if(opt.interpolation)
-			this.interpolation = opt.interpolation;
+		if(opt.easingk && typeof(opt.easing) === "function")
+			this.easing = opt.easing;
 		if(opt.callback && typeof(opt.callback) === "function")
 			this.callback = opt.callback;
     };

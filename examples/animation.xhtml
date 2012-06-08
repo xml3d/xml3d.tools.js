@@ -75,7 +75,7 @@
       if(!aobj)  {
           aobj = movObjects.cube = createAnimatable();
       }
-      id = aobj.startAnimation("a1", {duration: 500, loop: 3});
+      id = aobj.startAnimation("a1", {duration: 10000, loop: 3, easing:TWEEN.Easing.Sinusoidal.In});
   }
 
   function startOrientationAnimation()
