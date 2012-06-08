@@ -73,19 +73,16 @@
 		var t = (currentTime - startTime) / (endTime - startTime);
 		var l = this.keys.length - 1;
 		if (t <= this.keys[0]){
-			var pos = this.positionValues !== undefined ? [this.positionValues[0], this.positionValues[1], this.positionValues[2]] : undefined;
-			var ori = this.orientationValues !== undefined ? [this.orientationValues[0], this.orientationValues[1], this.orientationValues[2], this.orientationValues[3]] : undefined;
-			this.setValue(animatable, pos, ori);
+			this.setValue( animatable, this.getPosition(0), this.getOrientation(0) );
 		}else if (t >= this.keys[l - 1]){
-			var pos = this.positionValues !== undefined ? [this.positionValues[l], this.positionValues[l+1], this.positionValues[l+2]] : undefined;
-			var ori = this.orientationValues !== undefined ? [this.orientationValues[l], this.orientationValues[l+1], this.orientationValues[l+2], this.orientationValues[l+3]] : undefined;
-			this.setValue(animatable, pos, ori);
+			this.setValue( animatable, this.getPosition(l), this.getOrientation(l) );
 		}else{
-			for ( var i = 0; i < l - 1; i++)
+			for ( var i = 0; i < l - 1; i++){
 				if (this.keys[i] < t && t <= this.keys[i + 1]) {
-					var ret = this.interpolateBetweenKeys( i, ((t - this.keys[i]) / (this.keys[i + 1] - this.keys[i])) );// TODO: this.easing((t - this.keys[i]) / (this.keys[i + 1] - this.keys[i])) );
-					this.setValue(animatable, ret.position, ret.orientation);
+					var p = (t - this.keys[i]) / (this.keys[i + 1] - this.keys[i]); // TODO: this.easing((t - this.keys[i]) / (this.keys[i + 1] - this.keys[i])) );
+					this.setValue( animatable, this.getInterpolatedPosition(i, p), this.getInterpolatedOrientation(i, p) );
 				}
+			}
 		}
 	};
 
@@ -107,35 +104,61 @@
 	 * @private
 	 * @param {number} index
 	 * @param {number} t interpolationparameter
+	 * @return {Array.<number>} Position
 	 */
-	k.interpolateBetweenKeys = function(index, t){
-		var ret = {position:undefined, orientation:undefined};
-		//position
-		if(this.positionValues !== undefined){
-			//TODO: make function "getPositionArray(index)"
-			ret.position = [];
-			var si = index*3;
-			var ei = (index+1)*3;
-			var start = [ this.positionValues[si], this.positionValues[si+1], this.positionValues[si+2] ];
-			var end = [ this.positionValues[ei], this.positionValues[ei+1], this.positionValues[ei+2] ];
-			var i = 0;
-			for(i=0; i<start.length; i++ ){
-				ret.position[i] = start[i] + ( end[i] - start[i] ) * t;
-			}
-		}
-		//orientation
-		if(this.orientationValues !== undefined){
-			ret.orientation = [];
-			var si = index*4;
-			var ei = (index+1)*4;
-			var start = [ this.orientationValues[si], this.orientationValues[si+1], this.orientationValues[si+2], this.orientationValues[si+3] ];
-			var end = [ this.orientationValues[ei], this.orientationValues[ei+1], this.orientationValues[ei+2], this.orientationValues[ei+3] ];
-			var i = 0;
-			for(i=0; i<start.length; i++ ){
-				ret.orientation[i] = start[i] + ( end[i] - start[i] ) * t;
-			}
+	k.getInterpolatedPosition = function(index, t){
+		if(this.positionValues === undefined) return undefined;
+		var ret = [];
+		var start = this.getPosition(index);
+		var end = this.getPosition(index+1);
+		var i = 0;
+		for(i=0; i<start.length; i++ ){
+			ret[i] = start[i] + ( end[i] - start[i] ) * t;
 		}
 		return ret;
+	};
+
+	/**
+	 * Interpolates keyvalues between index i and index i+1 with parameter t
+	 * @private
+	 * @param {number} index
+	 * @param {number} t interpolationparameter
+	 * @return {Array.<number>} Orientation
+	 */
+	k.getInterpolatedOrientation = function(index, t){
+		if(this.orientationValues === undefined) return undefined;
+		var ret = [];
+		var start = this.getOrientation(index);
+		var end = this.getOrientation(index+1);
+		var i = 0;
+		for(i=0; i<start.length; i++ ){
+			ret[i] = start[i] + ( end[i] - start[i] ) * t;
+		}
+		return ret;
+	};
+
+	/**
+	 * Gets a position corresponding to a key
+	 * @private
+	 * @param {number} key
+	 * @return {Array.<number>} Position
+	 */
+	k.getPosition = function(key){
+		if(this.positionValues === undefined || key > this.keys.length-1 /*just in case*/) return undefined;
+		var index = key*3;
+		return [ this.positionValues[index], this.positionValues[index+1], this.positionValues[index+2] ];
+	};
+
+	/**
+	 * Gets an orientation corresponding to a key
+	 * @private
+	 * @param {number} key
+	 * @return {Array.<number>} Orientation
+	 */
+	k.getOrientation = function(key){
+		if(this.orientationValues === undefined || key > this.keys.length-1 /*just in case*/) return undefined;
+		var index = key*4;
+		return [ this.orientationValues[index], this.orientationValues[index+1], this.orientationValues[index+2], this.orientationValues[index+3] ];
 	};
 
     /** @inheritDoc */
