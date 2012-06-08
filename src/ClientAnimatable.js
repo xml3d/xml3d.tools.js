@@ -69,7 +69,7 @@ goog.require("goog.base");
     a.startClockGenerator = function(id){
 		//use a tween as a clock generator
 		var time = this.checkOption("duration", id);
-		var cg = new TWEEN.Tween({t:0}).to({t:time}, time);
+		var cg = new TWEEN.Tween({t:0}).to({t:time}, time).delay(this.checkOption("delay",id));
 
 		//setup update and complete callbacks
 		var that = this;

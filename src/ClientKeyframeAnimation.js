@@ -43,6 +43,12 @@
 		 */
 		this.loop = 1;
 		/**
+		 * delay
+		 * @private
+		 * @type{number}
+		 */
+		this.delay = 0;
+		/**
 		 * Duration of the animation
 		 * @private
 		 * @type {number}
