@@ -37,6 +37,7 @@
 		 */
 		var trans = this.transform.translation;
 		var rot = this.transform.rotation;
+		console.log(this.transform.rotation._data[0]+" "+this.transform.rotation._data[1]+" "+this.transform.rotation._data[2]+" "+this.transform.rotation._data[3]);
 		this.endMotionData	=  {pos_x:trans.x, pos_y:trans.y, pos_z:trans.z, ori_x:rot._axis.x, ori_y:rot._axis.y, ori_z:rot._axis.z, ori_a:rot._angle};
     };
 
@@ -163,11 +164,17 @@
     var animating = false;
 
     /**
+     * global variable, set a function, which is called within the animation loop
+     */
+    var animationHook = undefined;
+
+    /**
      * Updates all the Tweens until all animations are finished
      */
     function animate(){
-		if(TWEEN.getAll().length) {
+		if(TWEEN.getAll().length || XMOT.animationHook) {
 			window.requestAnimFrame(XMOT.animate);
+			if(XMOT.animationHook !== undefined) XMOT.animationHook();
 			TWEEN.update();
 		}
 		else
@@ -178,4 +185,5 @@
     XMOT.ClientMoveable = ClientMoveable;
     XMOT.animate = animate;
     XMOT.animating = animating;
+    XMOT.animationHook = animationHook;
 }());
