@@ -63,7 +63,7 @@ goog.require("goog.base");
     };
 
     /**
-     * TODO
+     * Starts a ClockGenerator which calls the Animation "from time to time", which then applies the current status of the animation to the animatable.
      * @private
      */
     a.startClockGenerator = function(id){

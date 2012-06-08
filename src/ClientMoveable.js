@@ -75,8 +75,8 @@
 
     /** @inheritDoc */
     p.moveTo = function(position, orientation, time, opt){
-    	//TODO: rotation shows some strange behaviour!
-		//no movement needed
+    	//TODO: implment slerp of the rotation
+    	//no movement needed
 		if(position == undefined && orientation == undefined) return this;
 
 		//endMotionData = data where the last motion ended; if the queue is empty, this is where we are
@@ -158,7 +158,7 @@
     };
 
     /**
-     * global variable, used to check if an animation is currently in progress
+     * global variable, used to check if an animation or movement is currently in progress
      */
     var animating = false;
 
