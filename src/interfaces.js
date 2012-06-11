@@ -71,6 +71,18 @@ XMOT.version = '%VERSION%';
     p.setOrientation = function(orientation){};
 
     /**
+     * Gets the current position
+     * @return {Array.<number>} position
+     */
+    p.getPosition = function(){};
+
+    /**
+     * Gets the current orientation as quaternion
+     * @return {Array.<number>} orientation
+     */
+    p.getOrientation = function(){};
+
+    /**
      * Translate the Moveable by a given Vector.
      * @param {Array.<number>} translation 3d Vector
      * @return {Moveable} the Moveable

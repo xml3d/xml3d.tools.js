@@ -46,14 +46,28 @@
     /** @inheritDoc */
     p.setPosition = function(position){
 		//make the setPosition a translation in order to work with the constraint
+    	//TODO: make this somehow different?
 		return this.translate([position[0]-this.transform.translation.x, position[1]-this.transform.translation.y, position[2]-this.transform.translation.z]);
     };
 
     /** @inheritDoc */
 	p.setOrientation = function(orientation){
-		if(this.constraint.constrainRotation(orientation, this))
+		if(this.constraint.constrainRotation(orientation, this)){
 			this.transform.rotation.setQuaternion( new XML3DVec3(orientation[0],orientation[1],orientation[2]), orientation[3] );
+		}
 		return this;
+    };
+
+    /** @inheritDoc */
+    p.getPosition = function(){
+    	return [this.transform.translation.x, this.transform.translation.y, this.transform.translation.z];
+    };
+
+    /** @inheritDoc */
+    p.getOrientation = function(){
+    	var axis = this.transform.rotation.axis;
+    	var angle = this.transform.rotation.angle;
+    	return XMOT.axisAngleToQuaternion([axis.x, axis.y, axis.z], angle);
     };
 
     /** @inheritDoc */
