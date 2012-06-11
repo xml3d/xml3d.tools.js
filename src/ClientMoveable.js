@@ -70,7 +70,7 @@
 		modifier.setQuaternion( new XML3DVec3(orientation[0],orientation[1],orientation[2]), orientation[3] );
 		var destination = this.transform.rotation.multiply( modifier );
 		if(this.constraint.constrainRotation(orientation, this))
-			this.transform.rotation.setQuaternion(destination);
+			this.transform.rotation.set(destination);
 		return this;
     };
 
