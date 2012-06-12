@@ -12,16 +12,20 @@
 		 * @private
 		 * @type {Array.<Constraint>}
 		 */
-		this.constraints = constraints;
+		this.constraints = constraints === undefined ? [] : constraints;
 	};
 	var c = ConstraintCollection.prototype;
 
 	/** @inheritDoc */
     c.constrainRotation = function(rotation, moveable){
-		var length = this.constraints.length();
+		var length = this.constraints.length;
 		var i = 0;
 		var ret = true;
-		while(i<l && ret){
+		while(i<length && ret){
+			//TODO: run over all constraints instead of a break as soon as a false is returned from of them?
+			// this would allow all constraints to do something with the transformation or the moveable.
+			// however, this might lead to a status in a which a change of a constraint changes
+			// the behaviour of an following constraint
 			ret = ret && this.constraints[i].constrainRotation(rotation, moveable);
 			i++;
 		}
@@ -30,10 +34,10 @@
 
     /** @inheritDoc */
     c.constrainTranslation = function(translation, moveable){
-		var length = this.constraints.length();
+		var length = this.constraints.length;
 		var i = 0;
 		var ret = true;
-		while(i<l && ret){
+		while(i<length && ret){
 			ret = ret && this.constraints[i].constrainTranslation(translation, moveable);
 			i++;
 		}
@@ -59,5 +63,5 @@
     };
 
     //export
-    XMOT.SimpleConstraint = SimpleConstraint;
+    XMOT.ConstraintCollection = ConstraintCollection;
 }());
