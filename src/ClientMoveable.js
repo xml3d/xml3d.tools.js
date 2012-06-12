@@ -122,6 +122,8 @@
 			destData = {pos_x:position[0], pos_y:position[1], pos_z:position[2], ori_x:orientation[0], ori_y:orientation[1], ori_z:orientation[2], ori_a:orientation[3]};
 
 		var tween = new TWEEN.Tween(currentData).to(destData, time);
+		if(opt && typeof(opt.delay) != undefined) tween.delay(opt.delay);
+		if(opt && typeof(opt.easing) === "function") tween.easing(opt.easing);
 
 		//this.endMotionData = destData;
 		this.endMotionData = {pos_x:destData.pos_x, pos_y:destData.pos_y, pos_z:destData.pos_z, ori_x:destData.ori_x, ori_y:destData.ori_y, ori_z:destData.ori_z, ori_a:destData.ori_a};
@@ -152,9 +154,10 @@
 				opt.callback();
 		});
 
-		//push tween to the beginning of the queue and start if queue was empty
+		//check if queueing is allowed or not
 		if(opt && typeof(opt.queueing) != undefined && opt.queueing == false){
-			if(!this.inProgress){//we discard the tween, we do not start it nor put it in a queue
+			if(!this.inProgress){
+				//we discard the tween, we do not start it nor put it in a queue
 				tween.start();
 				this.inProgress = true;
 				if(!XMOT.animating) {
@@ -164,6 +167,7 @@
 			}
 		}
 		else{
+			//push tween to the beginning of the queue and start if queue was empty
 			this.motionQueue.unshift(tween);
 			if( this.motionQueue.length-1 == 0){
 				tween.start();
