@@ -39,6 +39,7 @@
 		var rot = this.transform.rotation;
 		console.log(this.transform.rotation._data[0]+" "+this.transform.rotation._data[1]+" "+this.transform.rotation._data[2]+" "+this.transform.rotation._data[3]);
 		this.endMotionData	=  {pos_x:trans.x, pos_y:trans.y, pos_z:trans.z, ori_x:rot._axis.x, ori_y:rot._axis.y, ori_z:rot._axis.z, ori_a:rot._angle};
+		this.inProgress = false;
     };
 
     var p = ClientMoveable.prototype;
@@ -137,12 +138,14 @@
 
 		//callback on complete
 		tween.onComplete( function(){
+			that.inProgress = false;
 			//this is currentData
 			//remove finished tween from the end of the queue
 			that.motionQueue.pop();
 			//start next tween (end of the queue), if there is any in the queue
 			if(that.motionQueue.length != 0){
 				that.motionQueue[that.motionQueue.length-1].start();
+				this.inProgress = true;
 			}
 			//callback after the movement finished
 			if(opt && opt.callback && typeof(opt.callback) === "function")
@@ -150,12 +153,25 @@
 		});
 
 		//push tween to the beginning of the queue and start if queue was empty
-		this.motionQueue.unshift(tween);
-		if( this.motionQueue.length-1 == 0){
-			tween.start();
-			if(!XMOT.animating) {
-				animate();
-				XMOT.animating = true;
+		if(opt && typeof(opt.queueing) != undefined && opt.queueing == false){
+			if(!this.inProgress){//we discard the tween, we do not start it nor put it in a queue
+				tween.start();
+				this.inProgress = true;
+				if(!XMOT.animating) {
+					XMOT.animate();
+					XMOT.animating = true;
+				}
+			}
+		}
+		else{
+			this.motionQueue.unshift(tween);
+			if( this.motionQueue.length-1 == 0){
+				tween.start();
+				this.inProgress = true;
+				if(!XMOT.animating) {
+					XMOT.animate();
+					XMOT.animating = true;
+				}
 			}
 		}
 		return this;

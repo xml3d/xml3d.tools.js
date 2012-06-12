@@ -102,7 +102,7 @@ XMOT.version = '%VERSION%';
      * @param {Array.<number>|undefined} position local space Vector
      * @param {Array.<number>|undefined} orientation orientation Quaternion
      * @param {number} time when to reach the position, in milliseconds
-     * @param {{delay: number, easing: function, callback: function}=} opt options
+     * @param {{delay: number, easing: function, queueing: Boolean, callback: function}=} opt options
      * @return {Moveable} the Moveable
      */
     p.moveTo = function(position, orientation, time, opt){};
