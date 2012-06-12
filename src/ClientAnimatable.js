@@ -1,5 +1,3 @@
-goog.require("goog.inherits");
-goog.require("goog.base");
 
 (function(){
 

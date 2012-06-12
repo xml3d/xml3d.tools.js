@@ -1,5 +1,5 @@
 /** @namespace **/
-goog.provide("XMOT");
+var XMOT = XMOT || {};
 
 /** @define {string} */
 XMOT.version = '%VERSION%';

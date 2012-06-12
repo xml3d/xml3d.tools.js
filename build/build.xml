@@ -16,7 +16,6 @@
 	<filelist dir="../src" id="sourceFiles">
 		<!-- contrib -->
 		<file name="contrib/Tween.js" />
-		<file name="contrib/closure/goog/base.js"/>
 		<!-- our sources -->
 		<file name="interfaces.js" />
 		<file name="util.js" />
