@@ -167,7 +167,7 @@ XMOT.version = '%VERSION%';
      * @param {number} currentTime
      * @param {number} startTime
      * @param {number} endTime
-     * @param {function} easing
+     * @param {function=} easing
      */
     k.applyAnimation = function(animatable, currentTime, startTime, endTime, easing){};
 
