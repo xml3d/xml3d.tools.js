@@ -138,7 +138,7 @@
 				return animationOpt[name];
 			}else
 				//option of the animation itself
-				return this.activeAnimations[animationID].animation[name];
+				return this.activeAnimations[animationID].animation.getOption(name);
 		}
 	};
 

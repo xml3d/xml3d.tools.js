@@ -183,6 +183,12 @@ XMOT.version = '%VERSION%';
 	 */
 	k.setOptions = function(opt){};
 
+	/**
+	 * Gets the value of an option, the option can be requested by its name
+	 * @param {string} name of the option
+	 * @retrurn {object} the requested option value
+	 */
+	k.getOption = function(name){};
 
 
 	/**

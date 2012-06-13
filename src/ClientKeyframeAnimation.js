@@ -163,6 +163,11 @@
 		return [ this.orientationValues[index], this.orientationValues[index+1], this.orientationValues[index+2], this.orientationValues[index+3] ];
 	};
 
+	/** @inheritDoc */
+	k.getOption = function(name){
+		return this[name];
+	};
+
     /** @inheritDoc */
     k.setOptions = function(opt){
 		if(opt.loop)
