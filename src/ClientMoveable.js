@@ -207,6 +207,11 @@
 			this.setOrientation(orientation);
 	};
 
+	/** @inheritDoc */
+	p.movementInProgress = function(){
+		return this.motionQueue.length > 0;
+	};
+
     /**@inheritDoc */
     p.stop = function(){
 		this.motionQueue.shift().tween.stop();

@@ -108,6 +108,12 @@ XMOT.version = '%VERSION%';
     p.moveTo = function(position, orientation, time, opt){};
 
     /**
+     * Returns true if a movement is currently in progress
+     * @return {Boolean}
+     */
+    p.movementInProgress = function(){};
+
+    /**
      * Stops the current movement and cancels every queued movement.
      * @return {Moveable} the Moveable
      */
