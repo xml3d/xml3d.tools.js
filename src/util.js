@@ -121,7 +121,7 @@ var animationHook = undefined;
 function animate(){
 	if(TWEEN.getAll().length || XMOT.animationHook) {
 		window.requestAnimFrame(XMOT.animate);
-		if(XMOT.animationHook !== undefined) XMOT.animationHook();
+		if(XMOT.animationHook != undefined) XMOT.animationHook();
 		TWEEN.update();
 	}
 	else

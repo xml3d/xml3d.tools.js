@@ -83,7 +83,7 @@
 			var animation = that.activeAnimations[id];
 			if(isFinite(numberOfLoops)){
 				if( numberOfLoops > 1 ){ //we must loop again
-					if(typeof(animation.opt) !== "undefined")
+					if(animation.opt != undefined)
 						animation.opt.loop = numberOfLoops - 1;
 					else
 						animation.opt = {loop: numberOfLoops-1};
@@ -128,13 +128,13 @@
 		//TODO: make the lib more efficient by filling options in the add/ start function
 		//but this will also make the code less readable
 		var startOpt = this.activeAnimations[animationID].opt;
-		if(typeof(startOpt) != "undefined" && typeof(startOpt[name]) != "undefined"){
+		if(startOpt != undefined && startOpt[name] != undefined){
 			return startOpt[name];
 		}
 		else {
 			//options provided while adding the animation to the animatable
 			var animationOpt = this.availableAnimations[this.activeAnimations[animationID].animation.name].opt;
-			if(typeof(animationOpt) != "undefined" && typeof(animationOpt[name]) != "undefined"){
+			if(animationOpt != undefined && animationOpt[name] != undefined){
 				return animationOpt[name];
 			}else
 				//option of the animation itself

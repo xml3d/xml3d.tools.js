@@ -12,7 +12,7 @@
 		 * @private
 		 * @type {Array.<Constraint>}
 		 */
-		this.constraints = constraints === undefined ? [] : constraints;
+		this.constraints = constraints == undefined ? [] : constraints;
 	};
 	var c = ConstraintCollection.prototype;
 

@@ -76,7 +76,7 @@
 	/** @inheritDoc */
 	k.applyAnimation = function(animatable, currentTime, startTime, endTime, easing){
 		var t = (currentTime - startTime) / (endTime - startTime);
-		if(typeof(easing) === "function") t = easing(t); //otherwise its linear
+		if(easing && typeof(easing) === "function") t = easing(t); //otherwise its linear
 		var l = this.keys.length - 1;
 		if (t <= this.keys[0]){
 			this.setValue( animatable, this.getPosition(0), this.getOrientation(0) );
@@ -113,7 +113,7 @@
 	 * @return {Array.<number>} Position
 	 */
 	k.getInterpolatedPosition = function(index, t){
-		if(this.positionValues === undefined) return undefined;
+		if(this.positionValues == undefined) return undefined;
 		var ret = [];
 		var start = this.getPosition(index);
 		var end = this.getPosition(index+1);
@@ -132,7 +132,7 @@
 	 * @return {Array.<number>} Orientation
 	 */
 	k.getInterpolatedOrientation = function(index, t){
-		if(this.orientationValues === undefined) return undefined;
+		if(this.orientationValues == undefined) return undefined;
 		var start = this.getOrientation(index);
 		var end = this.getOrientation(index+1);
 		//the newely created quat gets filled with the result and returned
@@ -146,7 +146,7 @@
 	 * @return {Array.<number>} Position
 	 */
 	k.getPosition = function(key){
-		if(this.positionValues === undefined || key > this.keys.length-1 /*just in case*/) return undefined;
+		if(this.positionValues == undefined || key > this.keys.length-1 /*just in case*/) return undefined;
 		var index = key*3;
 		return [ this.positionValues[index], this.positionValues[index+1], this.positionValues[index+2] ];
 	};
@@ -158,7 +158,7 @@
 	 * @return {Array.<number>} Orientation
 	 */
 	k.getOrientation = function(key){
-		if(this.orientationValues === undefined || key > this.keys.length-1 /*just in case*/) return undefined;
+		if(this.orientationValues == undefined || key > this.keys.length-1 /*just in case*/) return undefined;
 		var index = key*4;
 		return [ this.orientationValues[index], this.orientationValues[index+1], this.orientationValues[index+2], this.orientationValues[index+3] ];
 	};
