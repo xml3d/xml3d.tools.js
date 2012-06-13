@@ -106,7 +106,6 @@
 			//start next tween (beginning of the queue), if there is any in the queue
 			if(that.motionQueue.length != 0){
 				that.motionQueue[0].tween.start();
-				console.log("next tween")
 			}
 			//callback after the movement finished
 			if(opt && opt.callback && typeof(opt.callback) === "function")
