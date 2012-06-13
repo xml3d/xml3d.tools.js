@@ -66,8 +66,11 @@
     c.constrainTranslation = function(translation, moveable){
 		//TODO: check rotationssymmetrische dingsda, also z achse der szene = -y des bildes?
 		//TODO: check normal
-		var checkAtX = (moveable.transform.translation.x + translation[0] ) / this.sceneWidth * this.img.width;
-		var checkAtY = (moveable.transform.translation.z + translation[2] ) / this.sceneDepth * this.img.height;
+    	var currentPos = moveable.getPosition();
+		var checkAtX = (currentPos[0] + translation[0] ) / this.sceneWidth * this.img.width;
+		var checkAtY = (currentPos[2] + translation[2] ) / this.sceneDepth * this.img.height;
+		if(!checkAtX) checkAtX = 0;
+		if(!checkAtY) checkAtY = 0;
 		var data = this.context.getImageData(checkAtX,checkAtY,1,1).data;
 		return (data[0] || data[1] || data[2]);
     };
