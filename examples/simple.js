@@ -3,7 +3,8 @@ moveable = undefined;
 function initMoveable(){
 	var cube = document.getElementById("cube");
 	var factory = new XMOT.ClientMotionFactory;
-	var constraint = new XMOT.CollisionConstraint(5.0, 5.0, [0,1,0], "collision.png");
+	//var constraint = new XMOT.CollisionConstraint(5.0, 5.0, [0,1,0], "collision.png");
+	var constraint = new XMOT.SimpleConstraint(true);
 	moveable = factory.createMoveable(cube, constraint);
 	XMOT.animationHook = controller;
 };
@@ -17,7 +18,7 @@ function rotateCube()
 		moveable.setOrientation([0.0, 1.0, 0.0, 0.25]);
 	muh++;
 	document.getElementById("notification").innerHTML = "Rotated the Cube ...";
-}
+};
 
 function moveCube()
 {
@@ -28,7 +29,7 @@ function moveCube()
 		moveable.setPosition([2.0, 0.0, 2.0]);
 	muh++;
 	document.getElementById("notification").innerHTML = "Moved the Cube ...";
-}
+};
 
 function translateCube()
 {
@@ -39,16 +40,17 @@ function translateCube()
 		moveable.translate([-2.0, 0.0, -2.0]);
 	muh++;
 	document.getElementById("notification").innerHTML = "Translated the Cube ...";
-}
+};
 
 function moveCubeTo()
 {
 	document.getElementById("notification").innerHTML = "Moving the Cube To ...";
-	moveable.setPosition([1.0, 0.0, 1.0]);
-	moveable.setOrientation([0.0, 1.0, 0.0, 0.0]);
-	moveable.moveTo([1.0, 0.0, 1.0], [0.0, 1.0, 0.0, 0.5], 1000).moveTo([4.0, 0.0, 4.0], [0.0, 1.0, 0.0, 1.5], 1500).moveTo([1.0, 0.0, 4.0], undefined, 2000).moveTo(undefined, [1.0, 1.0, 0.0, 0.0], 2500);
+	moveable.moveTo([1.0, 0.0, 1.0], XMOT.axisAngleToQuaternion([0.0, 1.0, 0.0], 0.5), 1000);
+	moveable.moveTo(undefined, XMOT.axisAngleToQuaternion([0.0, 1.0, 0.0], 1.5), 1500);
+	moveable.moveTo([1.0, 0.0, 4.0], undefined, 2000);
+	moveable.moveTo([4.0, 0.0, 4.0], XMOT.axisAngleToQuaternion([1.0, 1.0, 0.0], 0.0), 2500);
 	document.getElementById("notification").innerHTML = "Ehm... Cube should have moved";
-}
+};
 
 function controller() {
 	if(!window.Gamepad) return;
@@ -68,4 +70,4 @@ function controller() {
 function stop()
 {
 	moveable.stop();
-}
+};

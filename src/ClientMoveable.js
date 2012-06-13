@@ -27,19 +27,9 @@
 		/**
 		 * Queue of movements
 		 * @private
-		 * @type {Array.<tween>}
+		 * @type {Array.<{tween: tween, startPosition:Array.<number>, endPosition:Array.<number>, startOrientation:Array.<number>, endOrientation:Array.<number>}>}
 		 */
 		this.motionQueue = new Array();
-		/**
-		 * Destination Orientation and position of the last motion in the queue
-		 * @private
-		 * @type {Object} {pos_x:number, pos_y:number, pos_z:number, ori_x:number, ori_y:number, ori_z:number, ori_a:number}
-		 */
-		var trans = this.transform.translation;
-		var rot = this.transform.rotation;
-		console.log(this.transform.rotation._data[0]+" "+this.transform.rotation._data[1]+" "+this.transform.rotation._data[2]+" "+this.transform.rotation._data[3]);
-		this.endMotionData	=  {pos_x:trans.x, pos_y:trans.y, pos_z:trans.z, ori_x:rot._axis.x, ori_y:rot._axis.y, ori_z:rot._axis.z, ori_a:rot._angle};
-		this.inProgress = false;
     };
 
     var p = ClientMoveable.prototype;
@@ -80,7 +70,6 @@
 
     /** @inheritDoc */
     p.rotate = function(orientation){
-		//TODO: check how the rotate should really work oO
 		var modifier = new XML3DRotation();
 		modifier.setQuaternion( new XML3DVec3(orientation[0],orientation[1],orientation[2]), orientation[3] );
 		var destination = this.transform.rotation.multiply( modifier );
@@ -91,99 +80,137 @@
 
     /** @inheritDoc */
     p.moveTo = function(position, orientation, time, opt){
-    	//TODO: implment slerp of the rotation
     	//no movement needed
-		if(position == undefined && orientation == undefined) return this;
+    	var queueingAllowed = (opt && opt.queueing != undefined) ? opt.queueing : true; 
+		if( (position == undefined && orientation == undefined) || //nowhere to moveto
+				( !queueingAllowed && this.motionQueue.length) ) //queuing forbiden, but something in progress
+					return this;
 
-		//endMotionData = data where the last motion ended; if the queue is empty, this is where we are
-		if( this.motionQueue.length == 0){
-			var trans = this.transform.translation;
-			var rot = this.transform.rotation;
-			this.endMotionData	=  {pos_x:trans.x, pos_y:trans.y, pos_z:trans.z, ori_x:rot._axis.x, ori_y:rot._axis.y, ori_z:rot._axis.z, ori_a:rot._angle};
-		}
-		//start of the chained motion is end of the the one before, if there is one before
-    	//var currentData = this.endMotionData; need copyconstructor
-		var currentData = {pos_x:this.endMotionData.pos_x, pos_y:this.endMotionData.pos_y, pos_z:this.endMotionData.pos_z, ori_x:this.endMotionData.ori_x, ori_y:this.endMotionData.ori_y, ori_z:this.endMotionData.ori_z, ori_a:this.endMotionData.ori_a};
-
-		//if undefined keep old values, which are not handled anyway
-		var destData = {pos_x:this.endMotionData.pos_x, pos_y:this.endMotionData.pos_y, pos_z:this.endMotionData.pos_z, ori_x:this.endMotionData.ori_x, ori_y:this.endMotionData.ori_y, ori_z:this.endMotionData.ori_z, ori_a:this.endMotionData.ori_a};
-		if(orientation === undefined){
-			destData.pos_x = position[0];
-			destData.pos_y = position[1];
-			destData.pos_z = position[2];
-		}else if(position === undefined){
-			//TODO: is there a better way to address the data of the rotation?
-			destData.ori_x = orientation[0];
-			destData.ori_y = orientation[1];
-			destData.ori_z = orientation[2];
-			destData.ori_a = orientation[3];
-		}
-		else
-			destData = {pos_x:position[0], pos_y:position[1], pos_z:position[2], ori_x:orientation[0], ori_y:orientation[1], ori_z:orientation[2], ori_a:orientation[3]};
-
-		var tween = new TWEEN.Tween(currentData).to(destData, time);
-		if(opt && typeof(opt.delay) != undefined) tween.delay(opt.delay);
-		if(opt && typeof(opt.easing) === "function") tween.easing(opt.easing);
-
-		//this.endMotionData = destData;
-		this.endMotionData = {pos_x:destData.pos_x, pos_y:destData.pos_y, pos_z:destData.pos_z, ori_x:destData.ori_x, ori_y:destData.ori_y, ori_z:destData.ori_z, ori_a:destData.ori_a};
-
+		//crate new queue entry of the new given data:
+		var newEntry = {};
+		var tween = new TWEEN.Tween({t:0}).to({t:time}, time);
+		if(opt && opt.delay != undefined) tween.delay(opt.delay);
 		var that = this;
+		var easing = undefined;
+		if(opt && opt.easing != undefined) easing = opt.easing;
 		//update callback
 		tween.onUpdate( function() {
-			//this is currentData
-			if(position != undefined)
-				that.setPosition([this.pos_x, this.pos_y, this.pos_z]);
-			if(orientation != undefined)
-				that.setOrientation([this.ori_x, this.ori_y, this.ori_z, this.ori_a]);
+			//this is the data interpolated by the tween
+			that.movement(this.t, 0, time, easing);
 		} );
-
 		//callback on complete
 		tween.onComplete( function(){
-			that.inProgress = false;
-			//this is currentData
-			//remove finished tween from the end of the queue
-			that.motionQueue.pop();
-			//start next tween (end of the queue), if there is any in the queue
+			//this is the data interpolated by the tween
+			//remove finished tween from the beginning of the queue
+			that.motionQueue.shift();
+			//start next tween (beginning of the queue), if there is any in the queue
 			if(that.motionQueue.length != 0){
-				that.motionQueue[that.motionQueue.length-1].start();
-				this.inProgress = true;
+				that.motionQueue[0].tween.start();
+				console.log("next tween")
 			}
 			//callback after the movement finished
 			if(opt && opt.callback && typeof(opt.callback) === "function")
 				opt.callback();
 		});
-
-		//check if queueing is allowed or not
-		if(opt && typeof(opt.queueing) != undefined && opt.queueing == false){
-			if(!this.inProgress){
-				//we discard the tween, we do not start it nor put it in a queue
-				tween.start();
-				this.inProgress = true;
-				if(!XMOT.animating) {
-					XMOT.animate();
-					XMOT.animating = true;
+		newEntry.tween = tween;
+		newEntry.endPosition = position;
+		newEntry.endOrientation = orientation;
+		//default start values, are the current values
+		newEntry.startPosition = this.getPosition();
+		newEntry.startOrientation = this.getOrientation();
+		if(this.motionQueue.length != 0){
+			//we are not the first, we start, where the motion before ended
+			//seek the last defined end values
+			var q = this.motionQueue;
+			var length = q.length;
+			var i = 0;
+			var tmp = undefined;
+			for(i = length-1; i>-1; i--){
+				tmp = q[i].endPosition;
+				if(tmp != undefined){
+					newEntry.startPosition = tmp;
+					break;
+				}
+			}
+			//2nd loop instead of more complex if statements
+			for(i = length-1; i>-1; i--){
+				if(q[i].endOrientation != undefined){
+					newEntry.startOrientation = q[i].endOrientation;
+					break;
 				}
 			}
 		}
-		else{
-			//push tween to the beginning of the queue and start if queue was empty
-			this.motionQueue.unshift(tween);
-			if( this.motionQueue.length-1 == 0){
-				tween.start();
-				this.inProgress = true;
-				if(!XMOT.animating) {
-					XMOT.animate();
-					XMOT.animating = true;
-				}
+
+		//push tween to the end of the queue and start if queue was empty
+		this.motionQueue.push(newEntry);
+		if( this.motionQueue.length-1 == 0){
+			newEntry.tween.start();
+			if(!XMOT.animating) {
+				XMOT.animate();
+				XMOT.animating = true;
 			}
 		}
 		return this;
     };
 
+    /**
+     * Applies one movement step to the moveable
+     * @private
+     */
+    p.movement = function(currentTime, startTime, endTime, easing){
+		var t = (currentTime - startTime) / (endTime - startTime);
+		if(easing && typeof(easing) === "function") t = easing(t); //otherwise its linear
+		var pos = this.interpolatePosition(t);
+		var ori = this.interpolateOrientation(t);
+		this.setValue(pos, ori);
+    };
+
+    /**
+     * Interpolates the position of the current movement
+     * @private
+     * @param t interpolation parameter
+     */
+    p.interpolatePosition = function(t){
+		var end = this.motionQueue[0].endPosition;
+		if(end == undefined) return undefined;
+		var start = this.motionQueue[0].startPosition;
+		var ret = [];
+		var i = 0;
+		for(i=0; i<start.length; i++ ){
+			ret[i] = start[i] + ( end[i] - start[i] ) * t;
+		}
+		return ret;
+    };
+
+    /**
+     * interpoaltes the orientation of the current movement
+     * @private
+     * @param t interpolation paramater
+     */
+    p.interpolateOrientation = function(t){
+		var end = this.motionQueue[0].endOrientation;
+		if(end == undefined) return undefined;
+		var start = this.motionQueue[0].startOrientation;
+		//the newely created quat gets filled with the result and returned
+		return quat4.slerp(start, end, t, quat4.create());
+    };
+
+    /**
+	 * Set position and animation of the moveable
+	 * @private
+	 * @param {Array.<number>|undefined}
+	 * @param {Array.<number>|undefined}
+	 */
+	p.setValue = function(position, orientation){
+		if(position != undefined)
+			this.setPosition(position);
+		if(orientation != undefined)
+			this.setOrientation(orientation);
+	};
+
     /**@inheritDoc */
     p.stop = function(){
-		this.motionQueue.pop().stop();
+		this.motionQueue.shift().tween.stop();
 		this.motionQueue = []; //clear array
     };
 
