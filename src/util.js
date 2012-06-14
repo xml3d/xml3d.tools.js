@@ -143,7 +143,7 @@ function axisAngleToQuaternion(axis, angle){
 	quat[2] = normAxis[2] *s;
 	quat[3] = Math.cos(angle/2);
 	return quat;
-}
+};
 
 /**
  * Normalizes a 3D vector
@@ -154,7 +154,23 @@ function normalizeVector(vector){
 	var length = Math.sqrt( vector[0]*vector[0] + vector[1]*vector[1] + vector[2]*vector[2] );
 	if(length == 0) return vector;
 	return [vector[0]/length, vector[1]/length, vector[2]/length];
-}
+};
+
+/**
+ * Converts a quaternion into an axis angle representation
+ * @param{Array.<number>} quaternion
+ * @param{{axis:Array.<number>}, angle:number} quaternion
+ */
+function quaternionToAxisAngle(quat){
+	quat4.normalize(quat); //normalise to avoid erros that may happen if qw > 1
+	var angle = 2*Math.acos(quat[3]);
+	var s = Math.sqrt(1-quat[3]*quat[3]);
+	if(s < 0.00001 ) s = 1; //avoid div by zero, direction not important for small s
+	var x = quat[0]/s;
+	var y = quat[1]/s;
+	var z = quat[2]/s;
+	return {axis:[x,y,z], angle:angle};
+};
 
 //export
 XMOT.animate = animate;
@@ -162,4 +178,5 @@ XMOT.animating = animating;
 XMOT.animationHook = animationHook;
 XMOT.axisAngleToQuaternion = axisAngleToQuaternion;
 XMOT.normalizeVector = normalizeVector;
+XMOT.quaternionToAxisAngle = quaternionToAxisAngle;
 }());
