@@ -135,8 +135,7 @@
 		if(this.orientationValues == undefined) return undefined;
 		var start = this.getOrientation(index);
 		var end = this.getOrientation(index+1);
-		//the newely created quat gets filled with the result and returned
-		return quat4.slerp(start, end, t, quat4.create());
+		return XMOT.slerp(start, end, t);
 	};
 
 	/**

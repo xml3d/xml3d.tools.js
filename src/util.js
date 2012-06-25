@@ -172,6 +172,50 @@ function quaternionToAxisAngle(quat){
 	return {axis:[x,y,z], angle:angle};
 };
 
+/**
+ * Interpolate between two quaternions the shortest way
+ * See: http://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/slerp/
+ * @param{Array.<number>} a quaternion a
+ * @param{Array.<number>} b quaternion b
+ * @param{number} t interpolation parameter
+ */
+function slerp(a, b, t) {
+	// quaternion to return
+	var qm = {x:0, y:0, z:0, w:0};
+	var qa = {x:a[0], y:a[1], z:a[2], w:a[3]};
+	var qb = {x:b[0], y:b[1], z:b[2], w:b[3]};
+	// Calculate angle between them.
+	var cosHalfTheta = qa.w * qb.w + qa.x * qb.x + qa.y * qb.y + qa.z * qb.z;
+	// if qa=qb or qa=-qb then theta = 0 and we can return qa
+	if (Math.abs(cosHalfTheta) >= 1.0){
+		qm.w = qa.w;
+		qm.x = qa.x;
+		qm.y = qa.y;
+		qm.z = qa.z;
+		return qm;
+	}
+	// Calculate temporary values.
+	var halfTheta = Math.acos(cosHalfTheta);
+	var sinHalfTheta = Math.sqrt(1.0 - cosHalfTheta*cosHalfTheta);
+	// if theta = 180 degrees then result is not fully defined
+	// we could rotate around any axis normal to qa or qb
+	if (Math.abs(sinHalfTheta) < 0.001){ // fabs is floating point absolute
+		qm.w = (qa.w * 0.5 + qb.w * 0.5);
+		qm.x = (qa.x * 0.5 + qb.x * 0.5);
+		qm.y = (qa.y * 0.5 + qb.y * 0.5);
+		qm.z = (qa.z * 0.5 + qb.z * 0.5);
+		return qm;
+	}
+	var ratioA = Math.sin((1 - t) * halfTheta) / sinHalfTheta;
+	var ratioB = Math.sin(t * halfTheta) / sinHalfTheta;
+	//calculate Quaternion.
+	qm.w = (qa.w * ratioA + qb.w * ratioB);
+	qm.x = (qa.x * ratioA + qb.x * ratioB);
+	qm.y = (qa.y * ratioA + qb.y * ratioB);
+	qm.z = (qa.z * ratioA + qb.z * ratioB);
+	return [qm.x, qm.y, qm.z, qm.w];
+};
+
 //export
 XMOT.animate = animate;
 XMOT.animating = animating;
@@ -179,4 +223,5 @@ XMOT.animationHook = animationHook;
 XMOT.axisAngleToQuaternion = axisAngleToQuaternion;
 XMOT.normalizeVector = normalizeVector;
 XMOT.quaternionToAxisAngle = quaternionToAxisAngle;
+XMOT.slerp = slerp;
 }());

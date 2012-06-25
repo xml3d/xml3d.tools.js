@@ -190,8 +190,7 @@
 		var end = this.motionQueue[0].endOrientation;
 		if(end == undefined) return undefined;
 		var start = this.motionQueue[0].startOrientation;
-		//the newely created quat gets filled with the result and returned
-		return quat4.slerp(start, end, t, quat4.create());
+		return XMOT.slerp(start, end, t);
     };
 
     /**
