@@ -62,6 +62,9 @@
          <div>
             <button onclick="stopAnimations()">Stop Position animation</button>
          </div>
+         <div>
+            <button onclick="combinedAnimation()">Start Combined Animation</button>
+         </div>
       </div>
       <div id="footer"/>
 
@@ -103,12 +106,26 @@
       aobj.stopAnimation(id);
   }
 
+  function combinedAnimation(){
+        var aobj = movObjects.cube;
+      if(!aobj) {
+          aobj = movObjects.cube = createAnimatable();
+      }
+      aobj.startAnimation("combined");
+  }
+
   function createAnimatable() {
       var c = factory.createAnimatable(document.getElementById("shape_d1e22"), constraint);
       var a1 = factory.createKeyframeAnimation("a1", "Position", document.getElementById("animation01"), {duration: 2000, loop:1});
       var a2 = factory.createKeyframeAnimation("a2", "Orientation", document.getElementById("animation02"));
       c.addAnimation(a1);
       c.addAnimation(a2, {duration: 5000, loop: 2});
+      //TODO: some testing of the combined animation
+      var combined = new XMOT.CombinedAnimation("combined");
+      combined.addAnimation(a1, {duration:1500});
+      combined.addAnimation(a2, {delay: 2500, duration: 2000, callback:function(){console.log("Hier koennte ihre DebugInfo stehen");}} );
+      combined.addAnimation(a1, {duration: 2000, loop: 3, delay: 5000, callback:function(){console.log("Done");}} );
+      c.addAnimation(combined);
       return c;
   }
 </script>

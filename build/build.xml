@@ -27,6 +27,7 @@
 		<file name="ClientKeyframeAnimation.js" />
 		<file name="SimpleConstraint.js" />
 		<file name="ProhibitAxisMovementConstraint.js" />
+		<file name="CombinedAnimation.js" />
 	</filelist>
 
 	<filelist dir="../src" id="externs">
