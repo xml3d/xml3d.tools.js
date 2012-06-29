@@ -43,13 +43,13 @@
 		/**
 		 * easing
 		 * @private
-		 * @type {function}
+		 * @type {Function}
 		 */
 		this.easing = TWEEN.Easing.Linear.None;
 		/**
 		 * Callback, executed as soon as the animation ended
 		 * @private
-		 * @type {function}
+		 * @type {Function}
 		 */
 		this.callback = function(){};
 		if(opt){
@@ -75,7 +75,7 @@
 	/**
 	 * Adds an animation
 	 * @param {Animation} animation
-	 * @param {{duration: number, loop: number, delay: number, easing: function, callback: function}} opt
+	 * @param {{duration: number, loop: number, delay: number, easing: Function, callback: Function}=} opt
 	 * @return this
 	 */
 	ca.addAnimation = function(animation, opt){
@@ -114,7 +114,7 @@
     		if(tmp > 0  && !a.callbackCalled){
     			if(tmp < duration * opt.loop){
 	    			var currentLoopMinusOne = Math.floor(tmp/duration);
-	    			a.animation.applyAnimation(animatable, tmp - duration*currentLoopMinusOne, overAllstartTime, duration, a.opt.easing);
+	    			a.animation.applyAnimation(animatable, tmp - duration*currentLoopMinusOne, overAllstartTime, duration, opt.easing);
 	    			//combinedEasing is animation.getOption("easing"), which means, that we have this in the options if there was no easing added while addAnimation()
     			}else{
     				opt.callback();

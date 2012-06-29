@@ -7,7 +7,7 @@
 	 * @param {Boolean} y prohibit y axis
 	 * @param {Boolean} z prohibit z axis
 	 * @param {number} epsilon
-	 * @param {center} epsilon
+	 * @param {number} center
 	 * @implements {Constraint}
 	 */
 	var ProhibitAxisMovementConstraint = function(x,y,z, epsilon, center){

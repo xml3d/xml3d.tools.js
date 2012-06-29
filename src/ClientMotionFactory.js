@@ -15,7 +15,6 @@
 		var t = XML3D.URIResolver.resolve(obj.transform, obj.ownerDocument);
 		if (!t) {
 			throw "Object does not have a transfrom property.";
-			return null;
 		}
 		return new XMOT.ClientMoveable(obj, t, constraint);
 	};
@@ -25,7 +24,6 @@
 		var t = XML3D.URIResolver.resolve(obj.transform, obj.ownerDocument);
 		if (!t) {
 			throw "Object does not have a transfrom property.";
-			return null;
 		}
 		return new XMOT.ClientAnimatable(obj, t, constraint);
 	};
@@ -41,7 +39,6 @@
 		var values = child.value;
 		if(!keys || !values){
 			throw "Object is not a valid keyframe animation";
-			return null;
 		}
 
 		// opt is just passed to the constructor and not further handled here
@@ -54,7 +51,6 @@
 			var secondValues = child.value;
 			if(!secondValues){
 				throw "Specified both animations types but did not provide two series of values";
-				return null;
 			}
 			if(values.length*3 == keys.length) //first values are position
 				return new XMOT.ClientKeyframeAnimation(name, keys, values, secondValues, opt);
@@ -62,7 +58,6 @@
 				return new XMOT.ClientKeyframeAnimation(name, keys, secondValues, values, opt);
 		}else{
 			throw "Type must be either: 'Position', 'Orientation' or 'Both'!";
-			return null;
 		}
     };
 

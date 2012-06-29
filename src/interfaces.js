@@ -34,7 +34,7 @@ XMOT.version = '%VERSION%';
      * @param {string} name name
      * @param {string} type "Position" or "Orientation"
      * @param {Object} element KeyframeAnimation, keyframes and corresponding positions or orientations
-     * @param {{duration: number, loop: number, delay: number, easing: function, callback: function}=} opt options
+     * @param {{duration: number, loop: number, delay: number, easing: Function, callback: Function}=} opt options
      * @return {KeyframeAnimation} created KeyFrameAnimation
      */
     m.createKeyframeAnimation = function(name, type, element, opt){};
@@ -43,7 +43,7 @@ XMOT.version = '%VERSION%';
      * Creates a ParameterAnimation
      * @param {string} name name
      * @param {Object} element ParameterAnimation, keys and corresponding parameters
-     * @param {{duration: number, loop: number, delay: number, easing: function, callback: function}=} opt options
+     * @param {{duration: number, loop: number, delay: number, easing: Function, callback: Function}=} opt options
      * @return {ParamterAnimation} created ParameterAnimation
      */
     m.createParameterAnimation = function(name, element, opt){};
@@ -102,7 +102,7 @@ XMOT.version = '%VERSION%';
      * @param {Array.<number>|undefined} position local space Vector
      * @param {Array.<number>|undefined} orientation orientation Quaternion
      * @param {number} time when to reach the position, in milliseconds
-     * @param {{delay: number, easing: function, queueing: Boolean, callback: function}=} opt options
+     * @param {{delay: number, easing: Function, queueing: Boolean, callback: Function}=} opt options
      * @return {Moveable} the Moveable
      */
     p.moveTo = function(position, orientation, time, opt){};
@@ -138,7 +138,7 @@ XMOT.version = '%VERSION%';
     /**
      * Add an Animation to the Animatable
      * @param {Animation} animation Animation
-     * @param {{duration: number, loop: number, delay: number, easing: function, callback: function}=} opt options
+     * @param {{duration: number, loop: number, delay: number, easing: Function, callback: Function}=} opt options
      * @return {Animatable} the Animatable
      */
     a.addAnimation = function(animation, opt){};
@@ -146,7 +146,7 @@ XMOT.version = '%VERSION%';
     /**
      * Starts an animation
      * @param {string} name animation, that will be started
-     * @param {{duration: number, loop: number, delay: number, easing: function, callback: function}=} opt options
+     * @param {{duration: number, loop: number, delay: number, easing: Function, callback: Function}=} opt options
      * @return {number} id id of the animation
      */
     a.startAnimation = function(name, opt){};
@@ -173,13 +173,13 @@ XMOT.version = '%VERSION%';
      * @param {number} currentTime
      * @param {number} startTime
      * @param {number} endTime
-     * @param {function=} easing
+     * @param {Function=} easing
      */
     k.applyAnimation = function(animatable, currentTime, startTime, endTime, easing){};
 
 	/**
 	 * Set Options
-	 * @param {{duration: number, loop: number, delay: number, easing: function, callback: function}} opt options
+	 * @param {{duration: number, loop: number, delay: number, easing: Function, callback: Function}} opt options
 	 */
 	k.setOptions = function(opt){};
 
@@ -202,7 +202,7 @@ XMOT.version = '%VERSION%';
 	/**
 	 * Add an animation to the collection
 	 * @param {Animation} animation
-	 * @param {{duration: number, loop: number, delay: number, easing: function, callback: function}=} opt options
+	 * @param {{duration: number, loop: number, delay: number, easing: Function, callback: Function}=} opt options
 	 */
 	ca.addAnimation = function(animation, opt){};
 
@@ -230,4 +230,11 @@ XMOT.version = '%VERSION%';
      * @return {boolean} returns true if the operation is valid, false otherwise
      */
     c.constrainTranslation = function(translation, moveable){};
+    
+    //exports to make closure compiler happy and got less warnings
+    //TODO: this makes the empty function callable for other users? bad idea?
+    /*XMOT.Moveable = Moveable;
+    XMOT.Animatable = Animatable;
+    XMOT.Animation = Animation;
+    XMOT.Constraint = Constraint;*/
 }());

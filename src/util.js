@@ -158,8 +158,8 @@ function normalizeVector(vector){
 
 /**
  * Converts a quaternion into an axis angle representation
- * @param{Array.<number>} quaternion
- * @param{{axis:Array.<number>}, angle:number} quaternion
+ * @param {Array.<number>} quat
+ * @return {{axis: Array.<number>, angle:number}}
  */
 function quaternionToAxisAngle(quat){
 	quat4.normalize(quat); //normalise to avoid erros that may happen if qw > 1

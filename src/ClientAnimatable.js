@@ -14,8 +14,9 @@
 
 		/**
 		 * Map of KeyframeAnimations
+		 * The key of the map is  a string, which is the name of the animation
 		 * @private
-		 * @type {string, {animation: Animation, opt: Object=}}
+		 * @type {{animation: Animation, opt: Object}}
 		 */
 		this.availableAnimations = {};
 		/**
@@ -23,7 +24,7 @@
 		 * Note: This works since the IDs are only numbers.
 		 * Those numbers are turned into strings  and those are used as keys.
 		 * @private
-		 * @type {number, {animation: Animation, clockGenerator: TWEEN.Tween opt: Object=}}
+		 * @type {{animation: Animation, clockGenerator: TWEEN.Tween, opt: Object}}
 		 */
 		this.activeAnimations = {};
 		/**

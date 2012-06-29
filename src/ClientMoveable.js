@@ -15,7 +15,7 @@
 		/**
 		 * Transform coords of the object and the Moveable
 		 * @protected
-		 * @type {}
+		 * @type {Object}
 		 */
 		this.transform = transform;
 		/**
@@ -155,6 +155,10 @@
     /**
      * Applies one movement step to the moveable
      * @private
+     * @param {number}currentTime
+     * @param {number} startTime
+     * @param {number} endTime
+     * @param {Function} easing
      */
     p.movement = function(currentTime, startTime, endTime, easing){
 		var t = (currentTime - startTime) / (endTime - startTime);
@@ -167,7 +171,8 @@
     /**
      * Interpolates the position of the current movement
      * @private
-     * @param t interpolation parameter
+     * @param {number} t interpolation parameter
+     * @return {Array.<number>|undefined} position
      */
     p.interpolatePosition = function(t){
 		var end = this.motionQueue[0].endPosition;
@@ -184,7 +189,8 @@
     /**
      * interpoaltes the orientation of the current movement
      * @private
-     * @param t interpolation paramater
+     * @param {number} t interpolation paramater
+     * @return {Array.<number>|undefined} orientation
      */
     p.interpolateOrientation = function(t){
 		var end = this.motionQueue[0].endOrientation;
@@ -196,8 +202,8 @@
     /**
 	 * Set position and animation of the moveable
 	 * @private
-	 * @param {Array.<number>|undefined}
-	 * @param {Array.<number>|undefined}
+	 * @param {Array.<number>|undefined} position
+	 * @param {Array.<number>|undefined} orientation
 	 */
 	p.setValue = function(position, orientation){
 		if(position != undefined)

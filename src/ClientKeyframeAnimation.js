@@ -57,13 +57,13 @@
 		/**
 		 * easing
 		 * @private
-		 * @type {function}
+		 * @type {Function}
 		 */
 		this.easing = TWEEN.Easing.Linear.None;
 		/**
 		 * Callback, executed as soon as the animation ended
 		 * @private
-		 * @type {function}
+		 * @type {Function}
 		 */
 		this.callback = function(){};
 		if(opt){
@@ -95,8 +95,9 @@
 	/**
 	 * Set position and animation of the animatable
 	 * @private
-	 * @param {Array.<number>|undefined}
-	 * @param {Array.<number>|undefined}
+	 * @param {Animatable} animatable
+	 * @param {Array.<number>|undefined} position
+	 * @param {Array.<number>|undefined} orientation
 	 */
 	k.setValue = function(animatable, position, orientation){
 		if(position != undefined)
@@ -110,7 +111,7 @@
 	 * @private
 	 * @param {number} index
 	 * @param {number} t interpolationparameter
-	 * @return {Array.<number>} Position
+	 * @return {Array.<number>|undefined} Position
 	 */
 	k.getInterpolatedPosition = function(index, t){
 		if(this.positionValues == undefined) return undefined;
@@ -129,7 +130,7 @@
 	 * @private
 	 * @param {number} index
 	 * @param {number} t interpolationparameter
-	 * @return {Array.<number>} Orientation
+	 * @return {Array.<number>|undefined} Orientation
 	 */
 	k.getInterpolatedOrientation = function(index, t){
 		if(this.orientationValues == undefined) return undefined;
@@ -142,7 +143,7 @@
 	 * Gets a position corresponding to a key
 	 * @private
 	 * @param {number} key
-	 * @return {Array.<number>} Position
+	 * @return {Array.<number>|undefined} Position
 	 */
 	k.getPosition = function(key){
 		if(this.positionValues == undefined || key > this.keys.length-1 /*just in case*/) return undefined;
@@ -154,7 +155,7 @@
 	 * Gets an orientation corresponding to a key
 	 * @private
 	 * @param {number} key
-	 * @return {Array.<number>} Orientation
+	 * @return {Array.<number>|undefined} Orientation
 	 */
 	k.getOrientation = function(key){
 		if(this.orientationValues == undefined || key > this.keys.length-1 /*just in case*/) return undefined;
