@@ -61,7 +61,6 @@
 		var that = this;
 		this.callback = function(){
 			//reset callback flags, as soon as we know, that this animation finished
-			console.log("resetting flags");
 	    	var i = 0;
 	    	var animations = that.animations;
 	    	var length = animations.length;
