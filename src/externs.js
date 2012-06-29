@@ -24,3 +24,9 @@ function XML3DVec3(x,y,z){};
  * @constructor
  */
 function XML3DRotation(){};
+
+/**
+ * TODO
+ */
+var quat4 = {};
+quat4.normalize = function(quat){};

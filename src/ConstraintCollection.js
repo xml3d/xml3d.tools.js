@@ -59,7 +59,7 @@
     c.removeContraint = function(constraint){
 		var i = this.constraints.indexOf(constraint);
 		//indexOf returns -1 if item was not found
-		if(i !== -1) constraints.splice(i,1);
+		if(i !== -1) this.constraints.splice(i,1);
     };
 
     //export

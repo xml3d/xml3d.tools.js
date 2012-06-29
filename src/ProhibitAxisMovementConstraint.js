@@ -52,6 +52,8 @@
 
     /** @inheritDoc */
     c.constrainTranslation = function(translation, moveable){
+    	var center = this.center;
+    	var epsilon = this.epsilon;
 		if(this.x && Math.abs(center - moveable.getPosition()[0]+translation[0]) > epsilon) translation[0] = 0;
 		if(this.y && Math.abs(center - moveable.getPosition()[1]+translation[1]) > epsilon) translation[1] = 0;
 		if(this.z && Math.abs(center - moveable.getPosition()[2]+translation[2]) > epsilon) translation[2] = 0;
