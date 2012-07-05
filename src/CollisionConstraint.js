@@ -57,8 +57,6 @@
 
 	/** @inheritDoc */
     c.constrainRotation = function(rotation, moveable){
-		//TODO: implement something useful
-    	//COMMENT(rryk): How about coding rotation constraints in the RGB color? Just a crazy idea...
 		return true;
     };
 
