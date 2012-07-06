@@ -11,16 +11,22 @@
 		 * @type {string}
 		 */
 		this.name = name;
-		
+
 		/**
 		 * Animations array
 		 * Stores animation and their options
 		 * @private
-		 * TODO: which options are allowed here? - only delay - allowing more options would make the options stuff a complete mess - which is even yet the case
 		 * type{Array.<{animation: Animation, opt:{duration: number, loop: number, delay: number, easing: function, callback: function}, boolean: callbackCalled}>}
 		 */
 		this.animations = [];
-		
+
+		/**
+		 * Counter of finished child animations
+		 * @private
+		 * @type {number}
+		 */
+		this.finishedAnimationsCounter = 0;
+
 		//options - set defaults
 		/**
 		 * loop
@@ -55,23 +61,21 @@
 		if(opt){
 			this.setOptions(opt);
 		}
-		
-		//wrap the callback
-		var cb = this.callback;
-		var that = this;
-		this.callback = function(){
-			//reset callback flags, as soon as we know, that this animation finished
-	    	var i = 0;
-	    	var animations = that.animations;
-	    	var length = animations.length;
-	    	for(i=0; i<length; i++)
-	    		animations[i].callbackCalled = false;
-	    	//call the callback
-	    	cb();
-		};
 	};
 	var ca = CombinedAnimation.prototype;
-	
+
+	/**
+	 * Resetflags of the child animations
+	 * @private
+	 */
+	ca.resetFlags = function(){
+    	var i = 0;
+    	var animations = this.animations;
+    	var length = animations.length;
+    	for(i=0; i<length; i++)
+    		animations[i].callbackCalled = false;
+	};
+
 	/**
 	 * Adds an animation
 	 * @param {Animation} animation
@@ -118,7 +122,8 @@
 	    			//combinedEasing is animation.getOption("easing"), which means, that we have this in the options if there was no easing added while addAnimation()
     			}else{
     				opt.callback();
-    				a.callbackCalled = true;
+    				this.finishedAnimationsCounter++;
+    				if(this.finishedAnimationsCounter === animations.length) this.resetFlags();
     			}
     		}
     	}
