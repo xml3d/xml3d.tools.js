@@ -26,6 +26,12 @@ function XML3DVec3(x,y,z){};
 function XML3DRotation(){};
 
 /**
+ * @param {XML3DVec3} vec
+ * @param {number} s
+ */
+XML3DRotation.setQuaternion = function(vec, s){};
+
+/**
  * @constructor
  */
 function quat4(){};
@@ -39,8 +45,8 @@ quat4.normalize = function(quat){};
 /**
  * @param {Array.<number>|quat4} quat
  * @param {Array.<number>|vec3} vec
- * @param {Array.<number>|quat4} result
- * @return {Array.<number>|quat4} result
+ * @param {Array.<number>|vec3} result
+ * @return {Array.<number>|vec3} result
  */
 quat4.multiplyVec3 = function(quat, vec, result){};
 

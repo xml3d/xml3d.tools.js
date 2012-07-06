@@ -27,7 +27,7 @@
 		/**
 		 * needed to check if the used poi button is released before triggering the next movement
 		 * @private
-		 * @type {Boolean}
+		 * @type {boolean}
 		 */
 		this.allowPoi = true; 
 		/**
@@ -39,7 +39,7 @@
 		/**
 		 * flag: mouse button currently down
 		 * @private
-		 * @type {Boolean}
+		 * @type {boolean}
 		 */
 		this.mouseButtonIsDown = false;
 		/**
@@ -120,6 +120,8 @@
 	cc.addPointOfInterest = function(position, orientation){
 		this.poi.push({pos:position, ori:orientation});
 	};
+
+//TODO: removepoi(index)
 	
 	/**
 	 * Add a Constraint

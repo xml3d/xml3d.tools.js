@@ -6,7 +6,7 @@
 	 * @param{Array.<number>|undefined} positionValues
 	 * @param{Array.<number>|undefined} orientationValues
 	 * @constructor
-	 * @implements{MotionFactory}
+	 * @implements{Animation}
 	 */
 	function ClientKeyframeAnimation(name, keys, positionValues, orientationValues, opt){
 

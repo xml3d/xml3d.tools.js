@@ -16,7 +16,7 @@
 		 * Animations array
 		 * Stores animation and their options
 		 * @private
-		 * type{Array.<{animation: Animation, opt:{duration: number, loop: number, delay: number, easing: function, callback: function}, boolean: callbackCalled}>}
+		 * type{Array.<{animation: Animation, opt:{duration: number|undefined, loop: number|undefined, delay: number|undefined, easing: function|undefined, callback: function|undefined}|undefined, boolean: callbackCalled}>}
 		 */
 		this.animations = [];
 
@@ -79,7 +79,7 @@
 	/**
 	 * Adds an animation
 	 * @param {Animation} animation
-	 * @param {{duration: number, loop: number, delay: number, easing: Function, callback: Function}=} opt
+	 * @param { {duration: number|undefined, loop: number|undefined, delay: number|undefined, easing: function|undefined, callback: function|undefined}|undefined } opt
 	 * @return this
 	 */
 	ca.addAnimation = function(animation, opt){

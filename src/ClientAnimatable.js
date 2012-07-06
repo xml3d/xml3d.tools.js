@@ -1,4 +1,3 @@
-
 (function(){
 
 	/**
@@ -15,16 +14,18 @@
 		/**
 		 * Map of KeyframeAnimations
 		 * The key of the map is  a string, which is the name of the animation
+		 * type:  Map.key: string, Map.data: {animation: Animation, opt: Object}
 		 * @private
-		 * @type {{animation: Animation, opt: Object}}
+		 * @type {Object}
 		 */
 		this.availableAnimations = {};
 		/**
 		 * Map of active KeyframeAnimations
 		 * Note: This works since the IDs are only numbers.
 		 * Those numbers are turned into strings  and those are used as keys.
+		 * type: Map.key: number, Map.data: {animation: Animation, clockGenerator: TWEEN.Tween, opt: Object}
 		 * @private
-		 * @type {{animation: Animation, clockGenerator: TWEEN.Tween, opt: Object}}
+		 * @type {Object}
 		 */
 		this.activeAnimations = {};
 		/**
@@ -39,10 +40,10 @@
 	//inheritence is done here
 	goog.inherits(ClientAnimatable, XMOT.ClientMoveable);
 
-    var a = ClientAnimatable.prototype;
+    var ca = ClientAnimatable.prototype;
 
     /** @inheritDoc */
-    a.addAnimation = function(animation, opt){
+    ca.addAnimation = function(animation, opt){
 		//do not change options of the animation, store options of the animation of this animatable
 		//same animation might have different options on another animatable
 		this.availableAnimations[animation.name] = new Object();
@@ -52,10 +53,12 @@
     };
 
     /** @inheritDoc */
-    a.startAnimation = function(name, opt){
+    ca.startAnimation = function(name, opt){
 		var id = this.idCounter;
 		this.idCounter++;
-		this.activeAnimations[id] = {animation:this.availableAnimations[name].animation, opt:opt};
+		var tmp = this.availableAnimations[name];
+		if(!tmp) throw "Add animation before starting animation: "+name;
+		this.activeAnimations[id] = {animation:tmp.animation, opt:opt};
 		this.startClockGenerator(id);
 		//finally return the id after setting up everything
 		return id;
@@ -65,7 +68,7 @@
      * Starts a ClockGenerator which calls the Animation "from time to time", which then applies the current status of the animation to the animatable.
      * @private
      */
-    a.startClockGenerator = function(id){
+    ca.startClockGenerator = function(id){
 		//use a tween as a clock generator
 		var time = this.checkOption("duration", id);
 		var cg = new TWEEN.Tween({t:0}).to({t:time}, time).delay(this.checkOption("delay",id));
@@ -112,11 +115,11 @@
     };
 
     /** @inheritDoc */
-    a.stopAnimation = function(id){
+    ca.stopAnimation = function(id){
 		//stop animation
 		this.activeAnimations[id].clockGenerator.stop();
 		//delete from map - TODO how to do this correctly?
-		this.activeAnimations[id] = {};
+		this.activeAnimations[id] = undefined;
 		return this;
     };
 
@@ -125,7 +128,7 @@
 	 * @param {string} name name of the option
 	 * @param {number} animationID
 	 */
-	a.checkOption = function(name, animationID){
+	ca.checkOption = function(name, animationID){
 		//TODO: make the lib more efficient by filling options in the add/ start function
 		//but this will also make the code less readable
 		var startOpt = this.activeAnimations[animationID].opt;
