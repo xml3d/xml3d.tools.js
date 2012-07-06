@@ -1,6 +1,4 @@
-
 (function(){
-
 	/**
 	 * A CameraController
 	 * @constructor
@@ -8,7 +6,6 @@
 	 * @param {Array.<number>} sceneUpVector normalized up vector of the scene
 	 */
 	function CameraController(camera_id, sceneUpVector){
-		
 		/**
 		 * Points of Interest
 		 * @private
@@ -36,7 +33,7 @@
 		/**
 		 * Old mouse position
 		 * @private
-		 * @type {x: number, y: number}
+		 * @type {{x: number, y: number}}
 		 */
 		this.oldMousePosition = {x:0,y:0};
 		/**
@@ -105,7 +102,7 @@
 		/**
 		 * starting point of the moveable, used to reset position and orientation
 		 * @private
-		 * @type {pos:Array.<number>, ori:Array.<number>}
+		 * @type {{position: Array.<number>, orientation: Array.<number>}}
 		 */
 		this.startingPoint = {position:this.moveable.getPosition(), orientation:this.moveable.getOrientation()};
 	
@@ -130,7 +127,7 @@
 	 * @param {Constraint} constraint
 	 */
 	cc.addConstraint = function(constraint){
-		this.constraint.addConstraint(constraint1);
+		this.constraint.addConstraint(constraint);
 	};
 	
 	/**
@@ -150,10 +147,10 @@
 					this.beforePoi();
 				}
 				if(pad.rightShoulder0){ //upper shoulder buttons
-					this.moveUpAndDown(-0.75*slowthis);
+					this.moveUpAndDown(-this.moveSensivityPad);
 				}
 				if(pad.leftShoulder0){
-					this.moveUpAndDown(0.75*slowthis);
+					this.moveUpAndDown(this.moveSensivityPad);
 				}
 				if(pad.start){
 					this.reset();
@@ -166,10 +163,10 @@
 				if(x != 0) this.moveLeftAndRight(x*this.moveSensivityPad);
 				//up and down
 				var rotUpDown = (pad.rightStickY < -0.15 || pad.rightStickY > 0.15) ? pad.rightStickY : 0;
-				if(rotUpDown != 0) this.cameraUpAndDown(-this.rotationSensivityPad*rotUpDown);
+				if(rotUpDown != 0) this.rotateCameraUpAndDown(-this.rotationSensivityPad*rotUpDown);
 				//left and right - rotate
 				var rotLeftRight = (pad.rightStickX < -0.15 || pad.rightStickX > 0.15) ? pad.rightStickX : 0;
-				if(rotLeftRight != 0) this.cameraLeftAndRight(-this.rotationSensivityPad*rotLeftRight);
+				if(rotLeftRight != 0) this.rotateCameraLeftAndRight(-this.rotationSensivityPad*rotLeftRight);
 			}
 		}
 	};
@@ -193,7 +190,7 @@
 	 * @private
 	 * @param {number} l length of the movement
 	 */
-	cc.moveLeftAndRight = function(y){
+	cc.moveLeftAndRight = function(l){
 		var vecY = [1, 0, 0]; // global x is local z of the camera
 		var result = vec3.create();
 		quat4.multiplyVec3(this.moveable.getOrientation(),vecY, result);
@@ -205,7 +202,7 @@
 	 * @private
 	 * @param {number} l length of the movement
 	 */
-	cc.moveUpAndDown = function(z){
+	cc.moveUpAndDown = function(l){
 		var vecY = this.upVector;
 		var result = vec3.create();
 		quat4.multiplyVec3(this.moveable.getOrientation(),vecY, result);
@@ -217,13 +214,13 @@
 	 * @private
 	 */
 	cc.nextPoi = function(){
-		if(!allowPoi || moveable.movementInProgress()) return;
+		if(!this.allowPoi || this.moveable.movementInProgress()) return;
 		//rotate up/down before any other movement, this prevends from rolling
 		this.moveable.rotate( XMOT.axisAngleToQuaternion( [1,0,0], -this.angleUp) );
 		this.angleUp = 0;
 		this.allowPoi = false;
 		this.currentPoi = this.currentPoi == this.poi.length-1 ? 0 : this.currentPoi+1;
-		var movetopoi = this.poi[currentPoi];
+		var movetopoi = this.poi[this.currentPoi];
 		this.moveable.moveTo(movetopoi.pos, movetopoi.ori, this.poiMoveToTime, {queueing: false, callback: this.moveToCallback});
 	};
 	
@@ -234,7 +231,7 @@
 	cc.beforePoi = function(){
 		if(!this.allowPoi || this.moveable.movementInProgress()) return;
 		//rotate up/down before any other movement, this prevends from rolling
-		this.moveable.rotate( XMOT.axisAngleToQuaternion( [1,0,0], -angleUp) );
+		this.moveable.rotate( XMOT.axisAngleToQuaternion( [1,0,0], -this.angleUp) );
 		this.angleUp = 0;
 		this.allowPoi = false;
 		this.currentPoi = this.currentPoi == 0 ? this.poi.length-1 : this.currentPoi-1;
@@ -249,7 +246,7 @@
 	 */
 	cc.rotateCameraUpAndDown = function(angle){
 		this.angleUp += angle*Math.PI;
-		moveable.rotate( XMOT.axisAngleToQuaternion( [1,0,0], angle*Math.PI) );
+		this.moveable.rotate( XMOT.axisAngleToQuaternion( [1,0,0], angle*Math.PI) );
 	};
 	
 	/**
@@ -304,9 +301,9 @@
 	 * @param {Event} e event
 	 */
 	cc.keypressEventHandler = function(e){
-		if(!allowPoi) return;
+		if(!this.allowPoi) return;
 		e = window.event || e;
-		kc = e.keyCode;
+		var kc = e.keyCode;
 		var flag = true;
 		switch(kc){
 			case 83 : this.moveBackAndForward(this.moveSensivityKeyboard); break; // s
@@ -317,10 +314,10 @@
 			case 34 : this.moveUpAndDown(-this.moveSensivityKeyboard); break; //page down
 			case 69 : this.nextPoi(); break; // q
 			case 81 : this.beforePoi(); break; // e
-			case 38 : this.cameraUpAndDown(this.rotationSensivityMouse); break; // up Arrow
-			case 40 : this.cameraUpAndDown(-this.rotationSensivityMouse); break; // down Arrow
-			case 37 : this.cameraLeftAndRight(this.rotationSensivityMouse); break; // left Arrow
-			case 39 : this.cameraLeftAndRight(-this.rotationSensivityMouse); break; // right Arrow
+			case 38 : this.rotateCameraUpAndDown(this.rotationSensivityMouse); break; // up Arrow
+			case 40 : this.rotateCameraUpAndDown(-this.rotationSensivityMouse); break; // down Arrow
+			case 37 : this.rotateCameraLeftAndRight(this.rotationSensivityMouse); break; // left Arrow
+			case 39 : this.rotateCameraLeftAndRight(-this.rotationSensivityMouse); break; // right Arrow
 			case 82 : this.reset(); break; //r
 			default : flag = false; break;
 		}
@@ -332,18 +329,18 @@
 	 * @private
 	 * @param {Event} e event
 	 */
-	cc.mouseMovementHandle = function(e){
-		if(!mouseButtonIsDown || !allowPoi) return;
+	cc.mouseMovementHandler = function(e){
+		if(!this.mouseButtonIsDown || !this.allowPoi) return;
 		var currentX = e.pageX;
 		var currentY = e.pageY;
-		var x = currentX - oldMousePosition.x;
-		var y = currentY - oldMousePosition.y;
+		var x = currentX - this.oldMousePosition.x;
+		var y = currentY - this.oldMousePosition.y;
 		this.oldMousePosition.x = currentX;
 		this.oldMousePosition.y = currentY;
 		if(x != 0)
-			this.cameraLeftAndRight(-this.rotationSensivityMouse*x);
+			this.rotateCameraLeftAndRight(-this.rotationSensivityMouse*x);
 		if(y != 0)
-			this.cameraUpAndDown(-this.rotationSensivityMouse*y);
+			this.rotateCameraUpAndDown(-this.rotationSensivityMouse*y);
 	};
 	
 	/**
