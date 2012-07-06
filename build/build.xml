@@ -28,6 +28,7 @@
 		<file name="SimpleConstraint.js" />
 		<file name="ProhibitAxisMovementConstraint.js" />
 		<file name="CombinedAnimation.js" />
+		<file name="CameraController.js" />
 	</filelist>
 
 	<filelist dir="../src" id="externs">
