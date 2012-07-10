@@ -121,7 +121,6 @@
       var a2 = factory.createKeyframeAnimation("a2", "Orientation", document.getElementById("animation02"));
       c.addAnimation(a1);
       c.addAnimation(a2, {duration: 5000, loop: 2});
-      //TODO: some testing of the combined animation
       var combined = new XMOT.CombinedAnimation("combined");
       combined.addAnimation(a1, {duration:1500});
       combined.addAnimation(a2, {delay: 2500, duration: 2000, callback:function(){console.log("Hier koennte ihre DebugInfo stehen");}} );
