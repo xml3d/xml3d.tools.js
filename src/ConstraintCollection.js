@@ -6,6 +6,7 @@
 	 * @param {Array.<Constraint>} constraints
 	 * @implements {Constraint}
 	 */
+	//TODO: option: breakearly
 	var ConstraintCollection = function(constraints){
 		/**
 		 * Collection of Contraints

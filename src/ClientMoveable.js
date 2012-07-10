@@ -80,8 +80,9 @@
 
     /** @inheritDoc */
     p.moveTo = function(position, orientation, time, opt){
+    	opt = opt || {};
     	//no movement needed
-    	var queueingAllowed = (opt && opt.queueing != undefined) ? opt.queueing : true; 
+    	var queueingAllowed = opt.queueing || true;
 		if( (position == undefined && orientation == undefined) || //nowhere to moveto
 				( !queueingAllowed && this.motionQueue.length) ) //queuing forbiden, but something in progress
 					return this;
@@ -106,6 +107,7 @@
 			//start next tween (beginning of the queue), if there is any in the queue
 			if(that.motionQueue.length != 0){
 				that.motionQueue[0].tween.start();
+				//TODO: set startpos / ori of the following moveTo, instead of setting at definition
 			}
 			//callback after the movement finished
 			if(opt && opt.callback && typeof(opt.callback) === "function")

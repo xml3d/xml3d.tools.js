@@ -5,7 +5,6 @@
 	 * @implements{MotionFactory}
 	 */
 	function ClientMotionFactory(){
-		//TODO: sync with server - sirikata
 	};
 
 	var m = ClientMotionFactory.prototype;
@@ -14,6 +13,13 @@
 	m.createMoveable = function(obj, constraint){
 		var t = XML3D.URIResolver.resolve(obj.transform, obj.ownerDocument);
 		if (!t) {
+			//TODO:
+			//var defs = document.createElementNS(XML3D.xml3dNS, "defs");
+			//t = document.createElementNS(XML3D.xml3dNS, "transform");
+			//t.id=makeUniqueId();
+			//defs.appendChild(t);
+			//obj.appendChild(defs);
+			//obj.transform="#"+t.id;
 			throw "Object does not have a transfrom property.";
 		}
 		return new XMOT.ClientMoveable(obj, t, constraint);
@@ -31,7 +37,6 @@
 	/** @inheritDoc */
     m.createKeyframeAnimation = function(name, type, element, opt){
 		//TODO: this works with WebGL only?
-		//TODO: error handling?
 
 		var child = element.firstElementChild;
 		var keys = child.value;
