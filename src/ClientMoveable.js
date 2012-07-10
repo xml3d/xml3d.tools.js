@@ -36,9 +36,9 @@
 
     /** @inheritDoc */
     p.setPosition = function(position){
-		//make the setPosition a translation in order to work with the constraint
-    	//TODO: make this somehow different?
-		return this.translate([position[0]-this.transform.translation.x, position[1]-this.transform.translation.y, position[2]-this.transform.translation.z]);
+		if(this.constraint.constrainTranslation(position, this))
+			this.transform.translation.set(position[0],position[1],position[2]);
+		return this;
     };
 
     /** @inheritDoc */
@@ -63,9 +63,8 @@
 
     /** @inheritDoc */
     p.translate = function(translation){
-		if(this.constraint.constrainTranslation(translation, this))
-			this.transform.translation.set(this.transform.translation.add( new XML3DVec3(translation[0],translation[1],translation[2]) ));
-		return this;
+    	var currentPos = this.getPosition();
+    	return this.setPosition([currentPos[0]+translation[0], currentPos[1]+translation[1], currentPos[2]+translation[2]]);
     };
 
     /** @inheritDoc */

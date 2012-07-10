@@ -2,32 +2,33 @@
 	/**
 	 * SimpleConstraint
 	 * @constructor
-	 * @param {Boolean} allowedToMove
+	 * @param {boolean} allowedToMove
+	 * @param {boolean} allowedToRotate
 	 * @implements {Constraint}
 	 */
 	var SimpleConstraint = function(allowedToMove, allowedToRotate){
 		/**
 		 * allowed to move
 		 * @private
-		 * @type {Boolean}
+		 * @type {boolean}
 		 */
 		this.allowedToMove = allowedToMove;
 		/**
 		 * allowed to Rotate
 		 * @private
-		 * @type {Boolean}
+		 * @type {boolean}
 		 */
 		this.allowedToRotate = allowedToRotate;
 	};
 	var s = SimpleConstraint.prototype;
 
 	/** @inheritDoc */
-    s.constrainRotation = function(rotation, moveable){
+    s.constrainRotation = function(newRotation, moveable){
 		return this.allowedToRotate;
     };
 
     /** @inheritDoc */
-    s.constrainTranslation = function(translation, moveable){
+    s.constrainTranslation = function(newPosition, moveable){
 		return this.allowedToMove;
     };
 

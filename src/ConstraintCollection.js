@@ -18,7 +18,7 @@
 	var c = ConstraintCollection.prototype;
 
 	/** @inheritDoc */
-    c.constrainRotation = function(rotation, moveable){
+    c.constrainRotation = function(newRotation, moveable){
 		var length = this.constraints.length;
 		var i = 0;
 		var ret = true;
@@ -27,19 +27,19 @@
 			// this would allow all constraints to do something with the transformation or the moveable.
 			// however, this might lead to a status in a which a change of a constraint changes
 			// the behaviour of an following constraint
-			ret = ret && this.constraints[i].constrainRotation(rotation, moveable);
+			ret = ret && this.constraints[i].constrainRotation(newRotation, moveable);
 			i++;
 		}
     	return ret;
     };
 
     /** @inheritDoc */
-    c.constrainTranslation = function(translation, moveable){
+    c.constrainTranslation = function(newPosition, moveable){
 		var length = this.constraints.length;
 		var i = 0;
 		var ret = true;
 		while(i<length && ret){
-			ret = ret && this.constraints[i].constrainTranslation(translation, moveable);
+			ret = ret && this.constraints[i].constrainTranslation(newPosition, moveable);
 			i++;
 		}
     	return ret;
