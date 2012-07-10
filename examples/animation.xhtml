@@ -71,7 +71,7 @@
 
 <script type="text/javascript">
   var movObjects = {}, factory = new XMOT.ClientMotionFactory;
-  var constraint = new XMOT.SimpleConstraint(true);
+  var constraint = new XMOT.SimpleConstraint(true, true);
   var id = 0;
 
   function startPositionAnimation() {
@@ -112,7 +112,7 @@
       if(!aobj) {
           aobj = movObjects.cube = createAnimatable();
       }
-      aobj.startAnimation("combined", {callback:combinedAnimation});
+      aobj.startAnimation("combined", {loop:2});
   }
 
   function createAnimatable() {
