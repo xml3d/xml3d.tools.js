@@ -35,7 +35,7 @@ XMOT.version = '%VERSION%';
      * @param {string} type "Position" or "Orientation"
      * @param {Object} element KeyframeAnimation, keyframes and corresponding positions or orientations
      * @param {{duration: number, loop: number, delay: number, easing: Function, callback: Function}=} opt options
-     * @return {KeyframeAnimation} created KeyFrameAnimation
+     * @return {Animation} created KeyFrameAnimation
      */
     m.createKeyframeAnimation = function(name, type, element, opt){};
 
@@ -44,7 +44,7 @@ XMOT.version = '%VERSION%';
      * @param {string} name name
      * @param {Object} element ParameterAnimation, keys and corresponding parameters
      * @param {{duration: number, loop: number, delay: number, easing: Function, callback: Function}=} opt options
-     * @return {ParamterAnimation} created ParameterAnimation
+     * @return {Animation} created ParameterAnimation
      */
     m.createParameterAnimation = function(name, element, opt){};
 
@@ -126,7 +126,6 @@ XMOT.version = '%VERSION%';
     p.setContraint = function(constraint){};
 
 
-
     /**
      * An Animatable
      * @extends Moveable
@@ -192,23 +191,6 @@ XMOT.version = '%VERSION%';
 
 
 	/**
-	 * A CombinedAnimation
-	 * @extends Animation
-	 * @interface
-	 */
-	var CombinedAnimation = function(){};
-	var ca = CombinedAnimation.prototype;
-
-	/**
-	 * Add an animation to the collection
-	 * @param {Animation} animation
-	 * @param {{duration: number, loop: number, delay: number, easing: Function, callback: Function}=} opt options
-	 */
-	ca.addAnimation = function(animation, opt){};
-
-
-
-	/**
      * A Constraint
      * @interface
      */
@@ -217,19 +199,19 @@ XMOT.version = '%VERSION%';
 
     /**
      * Checks if a rotation operation is valid.
-     * @param {Array.<number>} rotation Quaternion
+     * @param {Array.<number>} newRotation Quaternion, absolute Orientation
      * @param {Moveable} moveable Moveable
      * @return {boolean} returns true if the operation is valid, false otherwise
      */
-    c.constrainRotation = function(rotation, moveable){};
+    c.constrainRotation = function(newRotation, moveable){};
 
     /**
      * Checks if a translation operation is valid.
-     * @param {Array.<number>} translation 3d Vector
+     * @param {Array.<number>} newTranslatation 3d Vector representing the absolute position in local space
      * @param {Moveable} moveable Moveable
      * @return {boolean} returns true if the operation is valid, false otherwise
      */
-    c.constrainTranslation = function(translation, moveable){};
+    c.constrainTranslation = function(newTranslation, moveable){};
     
     //exports to make closure compiler happy and got less warnings
     //TODO: this makes the empty function callable for other users? bad idea?
