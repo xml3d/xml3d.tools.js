@@ -5,19 +5,25 @@
 	 * @param {Boolean} allowedToMove
 	 * @implements {Constraint}
 	 */
-	var SimpleConstraint = function(allowedToMove){
+	var SimpleConstraint = function(allowedToMove, allowedToRotate){
 		/**
-		 * The value wich is returned everytime
+		 * allowed to move
 		 * @private
 		 * @type {Boolean}
 		 */
 		this.allowedToMove = allowedToMove;
+		/**
+		 * allowed to Rotate
+		 * @private
+		 * @type {Boolean}
+		 */
+		this.allowedToRotate = allowedToRotate;
 	};
 	var s = SimpleConstraint.prototype;
 
 	/** @inheritDoc */
     s.constrainRotation = function(rotation, moveable){
-		return this.allowedToMove;
+		return this.allowedToRotate;
     };
 
     /** @inheritDoc */
