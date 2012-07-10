@@ -164,8 +164,8 @@
 	};
 
 	/** @inheritDoc */
-	k.getOption = function(name){
-		return this[name];
+	k.getOptions = function(){
+		return {duration: this.duration, loop: this.loop, delay: this.delay, easing: this.easing, callback: this.callback};
 	};
 
     /** @inheritDoc */

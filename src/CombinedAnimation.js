@@ -79,26 +79,11 @@
 	/**
 	 * Adds an animation
 	 * @param {Animation} animation
-	 * @param { {duration: number|undefined, loop: number|undefined, delay: number|undefined, easing: function|undefined, callback: function|undefined}|undefined } opt
+	 * @param { {duration: number, loop: number, delay: number, easing: Function, callback: Function}|undefined } opt
 	 * @return this
 	 */
 	ca.addAnimation = function(animation, opt){
-		//make sure options are always there
-		if(opt) {
-			if(!opt.duration) 	opt.duration = animation.getOption("duration");
-			if(!opt.loop)		opt.loop 	 = animation.getOption("loop");
-			if(!opt.delay) 		opt.delay 	 = animation.getOption("delay");
-			if(!opt.easing) 	opt.easing 	 = animation.getOption("easing");
-			if(!opt.callback) 	opt.callback = animation.getOption("callback");
-		}else{
-			opt = {};
-			opt.duration = animation.getOption("duration");
-			opt.loop 	 = animation.getOption("loop");
-			opt.delay 	 = animation.getOption("delay");
-			opt.easing 	 = animation.getOption("easing");
-			opt.callback = animation.getOption("callback");
-		}
-		this.animations.push({animation: animation, opt: opt, callbackCalled: false});
+		this.animations.push({animation: animation, opt: XMOT.mergeOptions(opt, animation.getOptions()), callbackCalled: false});
 		//adopt duration correctly
 		var needed_duration = opt.duration*opt.loop + opt.delay;
 		if(this.duration < needed_duration) this.duration = needed_duration;
@@ -141,10 +126,10 @@
 			this.callback = opt.callback;
     };
     
-    /** @inheritDoc */
-    ca.getOption = function(name){
-    	return this[name];
-    };
+	/** @inheritDoc */
+	ca.getOptions = function(){
+		return {duration: this.duration, loop: this.loop, delay: this.delay, easing: this.easing, callback: this.callback};
+	};
 	
 //export
 XMOT.CombinedAnimation = CombinedAnimation;

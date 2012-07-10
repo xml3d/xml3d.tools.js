@@ -48,7 +48,7 @@
 		//same animation might have different options on another animatable
 		this.availableAnimations[animation.name] = new Object();
 		var tmp = this.availableAnimations[animation.name];
-		tmp.opt = opt;
+		tmp.opt = XMOT.mergeOptions(opt, animation.getOptions());
 		tmp.animation = animation;
     };
 
@@ -56,9 +56,9 @@
     ca.startAnimation = function(name, opt){
 		var id = this.idCounter;
 		this.idCounter++;
-		var tmp = this.availableAnimations[name];
-		if(!tmp) throw "Add animation before starting animation: "+name;
-		this.activeAnimations[id] = {animation:tmp.animation, opt:opt};
+		var animation = this.availableAnimations[name];
+		if(!animation) throw "Add animation before starting animation: "+name;
+		this.activeAnimations[id] = {animation:animation.animation, opt:XMOT.mergeOptions(opt, animation.opt)};
 		this.startClockGenerator(id);
 		//finally return the id after setting up everything
 		return id;
@@ -70,33 +70,31 @@
      */
     ca.startClockGenerator = function(id){
 		//use a tween as a clock generator
-		var time = this.checkOption("duration", id);
-		var cg = new TWEEN.Tween({t:0}).to({t:time}, time).delay(this.checkOption("delay",id));
+    	var a = this.activeAnimations[id];
+    	var opt = a.opt;
+		var time = opt.duration;
+		var cg = new TWEEN.Tween({t:0}).to({t:time}, time).delay(opt.delay);
 
 		//setup update and complete callbacks
 		var that = this;
 		cg.onUpdate(function(value){
 			//this is the interpolated object!
-			that.activeAnimations[id].animation.applyAnimation(that, this.t, 0, time, that.checkOption("easing", id));
+			a.animation.applyAnimation(that, this.t, 0, time, opt.easing);
 		});
 
 		cg.onComplete( function(value){
 			//this is the interpolated object!
 			//animation ended -> callback or loop
-			var numberOfLoops = that.checkOption("loop", id);
-			var animation = that.activeAnimations[id];
+			var numberOfLoops = opt.loop;
 			if(isFinite(numberOfLoops)){
 				if( numberOfLoops > 1 ){ //we must loop again
-					if(animation.opt != undefined)
-						animation.opt.loop = numberOfLoops - 1;
-					else
-						animation.opt = {loop: numberOfLoops-1};
+					opt.loop = numberOfLoops - 1;
 					that.startClockGenerator(id);
 				}else {
 					//no more loops, we are finished and now the callback
-					var cb = that.checkOption("callback", id);
+					var cb = opt.callback;
 					if(typeof(cb) === "function") cb();
-					animation = {}; //clean up
+					a = undefined; //clean up
 				}
 			}
 			else{
@@ -106,7 +104,7 @@
 		});
 
 		//and finally the start
-		this.activeAnimations[id].clockGenerator = cg;
+		a.clockGenerator = cg;
 		cg.start();
 		if(!XMOT.animating) {
 			XMOT.animating = true;
@@ -122,29 +120,6 @@
 		this.activeAnimations[id] = undefined;
 		return this;
     };
-
-	/**
-	 * Checks for a single options and returns the correct value according to the hierachy of different opts
-	 * @param {string} name name of the option
-	 * @param {number} animationID
-	 */
-	ca.checkOption = function(name, animationID){
-		//TODO: make the lib more efficient by filling options in the add/ start function
-		//but this will also make the code less readable
-		var startOpt = this.activeAnimations[animationID].opt;
-		if(startOpt != undefined && startOpt[name] != undefined){
-			return startOpt[name];
-		}
-		else {
-			//options provided while adding the animation to the animatable
-			var animationOpt = this.availableAnimations[this.activeAnimations[animationID].animation.name].opt;
-			if(animationOpt != undefined && animationOpt[name] != undefined){
-				return animationOpt[name];
-			}else
-				//option of the animation itself
-				return this.activeAnimations[animationID].animation.getOption(name);
-		}
-	};
 
     //export
 	XMOT.ClientAnimatable = ClientAnimatable;

@@ -184,10 +184,10 @@ XMOT.version = '%VERSION%';
 
 	/**
 	 * Gets the value of an option, the option can be requested by its name
-	 * @param {string} name of the option
-	 * @retrurn {object} the requested option value
+	 * @return {{duration: number, loop: number, delay: number, easing: Function, callback: Function}} opt options the requested option value
 	 */
-	k.getOption = function(name){};
+	k.getOptions = function(){
+	};
 
 
 	/**
@@ -207,7 +207,7 @@ XMOT.version = '%VERSION%';
 
     /**
      * Checks if a translation operation is valid.
-     * @param {Array.<number>} newTranslatation 3d Vector representing the absolute position in local space
+     * @param {Array.<number>} newTranslation 3d Vector representing the absolute position in local space
      * @param {Moveable} moveable Moveable
      * @return {boolean} returns true if the operation is valid, false otherwise
      */

@@ -216,6 +216,24 @@ function slerp(a, b, t) {
 	return [qm.x, qm.y, qm.z, qm.w];
 };
 
+/**
+ * Merges two optionsobjects
+ * @param {{duration: number, loop: number, delay: number, easing: Function, callback: Function}} high options with high priority
+ * @param {{duration: number, loop: number, delay: number, easing: Function, callback: Function}} low options with low priority
+ * @return {{duration: number, loop: number, delay: number, easing: Function, callback: Function}} merged options
+ */
+function mergeOptions(high, low){
+	var ret = {};
+	high = high || {};
+	low = low || {};
+	ret.duration 	= high.duration || low.duration;
+	ret.loop 		= high.loop 	|| low.loop;
+	ret.delay 		= high.delay 	|| low.delay;
+	ret.easing 		= high.easing 	|| low.easing;
+	ret.callback 	= high.callback || low.callback;
+	return ret;
+};
+
 //export
 XMOT.animate = animate;
 XMOT.animating = animating;
@@ -224,4 +242,5 @@ XMOT.axisAngleToQuaternion = axisAngleToQuaternion;
 XMOT.normalizeVector = normalizeVector;
 XMOT.quaternionToAxisAngle = quaternionToAxisAngle;
 XMOT.slerp = slerp;
+XMOT.mergeOptions = mergeOptions;
 }());
