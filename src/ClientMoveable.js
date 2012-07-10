@@ -83,16 +83,15 @@
     	//no movement needed
     	var queueingAllowed = opt.queueing || true;
 		if( (position == undefined && orientation == undefined) || //nowhere to moveto
-				( !queueingAllowed && this.motionQueue.length) ) //queuing forbiden, but something in progress
+				( !queueingAllowed && this.movementInProgress()) ) //queuing forbiden, but something in progress
 					return this;
 
-		//crate new queue entry of the new given data:
+		//create new queue entry of the new given data:
 		var newEntry = {};
 		var tween = new TWEEN.Tween({t:0}).to({t:time}, time);
-		if(opt && opt.delay != undefined) tween.delay(opt.delay);
+		if(opt.delay != undefined) tween.delay(opt.delay);
 		var that = this;
-		var easing = undefined;
-		if(opt && opt.easing != undefined) easing = opt.easing;
+		var easing = opt.easing;
 		//update callback
 		tween.onUpdate( function() {
 			//this is the data interpolated by the tween
@@ -101,45 +100,29 @@
 		//callback on complete
 		tween.onComplete( function(){
 			//this is the data interpolated by the tween
+
+			//start next tween (beginning of the queue), if there is any in the queue
+			if(that.motionQueue.length > 1){ //we did not remove the finished one yet
+				//set startpos / ori of the following moveTo, instead of setting at definition
+				var followingMovement = that.motionQueue[1];
+				var endedMovement = that.motionQueue[0];
+				followingMovement.startPosition = endedMovement.endPosition || that.getPosition();
+				followingMovement.startOrientation = endedMovement.endOrientation || that.getOrientation();
+				followingMovement.tween.start();
+			}
 			//remove finished tween from the beginning of the queue
 			that.motionQueue.shift();
-			//start next tween (beginning of the queue), if there is any in the queue
-			if(that.motionQueue.length != 0){
-				that.motionQueue[0].tween.start();
-				//TODO: set startpos / ori of the following moveTo, instead of setting at definition
-			}
 			//callback after the movement finished
-			if(opt && opt.callback && typeof(opt.callback) === "function")
+			if(opt.callback && typeof(opt.callback) === "function")
 				opt.callback();
 		});
 		newEntry.tween = tween;
 		newEntry.endPosition = position;
 		newEntry.endOrientation = orientation;
 		//default start values, are the current values
+		//those are overwritten if a tween ends before us, see the onComplete callback
 		newEntry.startPosition = this.getPosition();
 		newEntry.startOrientation = this.getOrientation();
-		if(this.motionQueue.length != 0){
-			//we are not the first, we start, where the motion before ended
-			//seek the last defined end values
-			var q = this.motionQueue;
-			var length = q.length;
-			var i = 0;
-			var tmp = undefined;
-			for(i = length-1; i>-1; i--){
-				tmp = q[i].endPosition;
-				if(tmp != undefined){
-					newEntry.startPosition = tmp;
-					break;
-				}
-			}
-			//2nd loop instead of more complex if statements
-			for(i = length-1; i>-1; i--){
-				if(q[i].endOrientation != undefined){
-					newEntry.startOrientation = q[i].endOrientation;
-					break;
-				}
-			}
-		}
 
 		//push tween to the end of the queue and start if queue was empty
 		this.motionQueue.push(newEntry);
