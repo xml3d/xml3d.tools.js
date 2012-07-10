@@ -3,31 +3,36 @@
 	 * ConstraintCollection
 	 * Combines a number of constraints
 	 * @constructor
-	 * @param {Array.<Constraint>} constraints
+	 * @param {Array.<Constraint>|undefined} constraints
+	 * @param {boolean} breakEarly do not check all constraints if one fail
 	 * @implements {Constraint}
 	 */
-	//TODO: option: breakearly
-	var ConstraintCollection = function(constraints){
+	var ConstraintCollection = function(constraints, breakEarly){
 		/**
 		 * Collection of Contraints
 		 * @private
-		 * @type {Array.<Constraint>}
+		 * @type {Array.<Constraint>|undefined}
 		 */
 		this.constraints = constraints == undefined ? [] : constraints;
+		/**
+		 * break early flag
+		 * @private
+		 * @type{boolean}
+		 */
+		this.breakEarly = breakEarly || true;
 	};
 	var c = ConstraintCollection.prototype;
 
 	/** @inheritDoc */
     c.constrainRotation = function(newRotation, moveable){
-		var length = this.constraints.length;
+    	var constraints = this.constraints;
+    	var length = constraints.length;
 		var i = 0;
 		var ret = true;
-		while(i<length && ret){
-			//TODO: run over all constraints instead of a break as soon as a false is returned from of them?
-			// this would allow all constraints to do something with the transformation or the moveable.
-			// however, this might lead to a status in a which a change of a constraint changes
-			// the behaviour of an following constraint
-			ret = ret && this.constraints[i].constrainRotation(newRotation, moveable);
+		var breakEarly = this.breakEarly;
+		
+		while( i<length && (ret || !breakEarly) ){
+			ret = ret && constraints[i].constrainRotation(newRotation, moveable);
 			i++;
 		}
     	return ret;
@@ -35,11 +40,13 @@
 
     /** @inheritDoc */
     c.constrainTranslation = function(newPosition, moveable){
-		var length = this.constraints.length;
+    	var constraints = this.constraints;
+		var length = constraints.length;
 		var i = 0;
 		var ret = true;
-		while(i<length && ret){
-			ret = ret && this.constraints[i].constrainTranslation(newPosition, moveable);
+		var breakEarly = this.breakEarly;
+		while( i<length && (ret || !breakEarly) ){
+			ret = ret && constraints[i].constrainTranslation(newPosition, moveable);
 			i++;
 		}
     	return ret;
