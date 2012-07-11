@@ -114,9 +114,7 @@
 
     /** @inheritDoc */
     ca.stopAnimation = function(id){
-		//stop animation
 		this.activeAnimations[id].clockGenerator.stop();
-		//delete from map - TODO how to do this correctly?
 		this.activeAnimations[id] = undefined;
 		return this;
     };
