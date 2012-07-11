@@ -34,6 +34,16 @@
                     <float name="key">0 0.1 0.18 0.24 0.3 0.36 0.42 0.48 0.54 0.6 0.66 0.72 0.78 0.84 0.9</float>
                     <float4 name="orientation">1 0 0 0 0.7073882818222046 0.7068251967430115 0 0 0.0007963267271406949 0.9999997019767761 0 0 -0.7062616348266602 0.7079508900642395 0 0 -0.9999987483024597 0.0015926528722047806 0 0 1 0 0 0 0.7073882818222046 0 0.7068251967430115 0 0.0007963267271406949 0 0.9999997019767761 0 -0.7062616348266602 0 0.7079508900642395 0 -0.9999987483024597 0 0.0015926528722047806 0 1 0 0 0 0.7073882818222046 0 0 0.7068251967430115 0.0007963267271406949 0 0 0.9999997019767761 -0.7062616348266602 0 0 0.7079508900642395 -0.9999987483024597 0 0 0.0015926528722047806 </float4>
                </data>
+               <data id="animation03">
+                    <float name="key">0 0.08 0.16 0.24 0.32 0.4 0.48 0.56 0.64 0.72 0.8 0.88 0.96</float>
+                    <float3 name="scale">1 2 3 -2 0 0 1 3 2 2 0 0 3 2 1 0 -2 0 2 1 3 0 2 0 0 0 0 0 0 -2 0 0 0 0 0 2 0 0 0</float3>
+               </data>
+               <data id="animation04">
+                    <float name="key">0 0.08 0.16 0.24 0.32 0.4 0.48 0.56 0.64 0.72 0.8 0.88 0.96</float>
+                    <float3 name="position">0 0 0 -2 0 0 0 0 0 2 0 0 0 0 0 0 -2 0 0 0 0 0 2 0 0 0 0 0 0 -2 0 0 0 0 0 2 0 0 0</float3>
+                    <float4 name="orientation">1 0 0 0 0.7073882818222046 0.7068251967430115 0 0 0.0007963267271406949 0.9999997019767761 0 0 -0.7062616348266602 0.7079508900642395 0 0 -0.9999987483024597 0.0015926528722047806 0 0 1 0 0 0 0.7073882818222046 0 0.7068251967430115 0 0.0007963267271406949 0 0.9999997019767761 0 -0.7062616348266602 0 0.7079508900642395 0 -0.9999987483024597 0 0.0015926528722047806 0 1 0 0 0 0.7073882818222046 0 0 0.7068251967430115 0.0007963267271406949 0 0 0.9999997019767761</float4>
+                    <float3 name="scale">1 2 3 3 2 1 1 3 2 2 3 1 3 2 1 2 2 2 2 1 3 3 2 1 2 3 2 1 2 2 3 3 3 1 2 2 1 2 3</float3>
+               </data>
             </defs>
             <view position="0 0 10"/>
             <group id="root">
@@ -66,6 +76,12 @@
          <div>
             <button onclick="combinedAnimation()">Start Combined Animation</button>
          </div>
+         <div>
+            <button onclick="scaleAnimation()">Start Scale Animation</button>
+         </div>
+         <div>
+            <button onclick="wuhu()">WUHU</button>
+         </div>
       </div>
       <div id="footer"/>
 
@@ -80,7 +96,7 @@
           aobj = movObjects.cube = createAnimatable();
       }
       id = aobj.startAnimation("a1", {duration: 10000, loop: 3, easing:TWEEN.Easing.Sinusoidal.In});
-  }
+  };
 
   function startOrientationAnimation()
   {
@@ -89,7 +105,7 @@
           aobj = movObjects.cube = createAnimatable();
       }
       aobj.startAnimation("a2");
-  }
+  };
 
   function startTwoAnimations()  {
       var aobj = movObjects.cube;
@@ -98,14 +114,14 @@
       }
       aobj.startAnimation("a2", {delay: 2500})
       id = aobj.startAnimation("a1", {duration: 5000, loop: 3});
-  }
+  };
 
   function stopAnimations() {
       var aobj;
       if(!(aobj = movObjects.cube)) 
           return;
       aobj.stopAnimation(id);
-  }
+  };
 
   function combinedAnimation(){
       var aobj = movObjects.cube;
@@ -113,21 +129,41 @@
           aobj = movObjects.cube = createAnimatable();
       }
       aobj.startAnimation("combined", {loop:2});
-  }
+  };
+
+  function scaleAnimation(){
+  	  var aobj = movObjects.cube;
+      if(!aobj) {
+          aobj = movObjects.cube = createAnimatable();
+      }
+      aobj.startAnimation("a3", {loop:2});
+  };
+  
+  function wuhu(){
+  	  var aobj = movObjects.cube;
+      if(!aobj) {
+          aobj = movObjects.cube = createAnimatable();
+      }
+      aobj.startAnimation("a4", {loop:2});
+  };
 
   function createAnimatable() {
       var c = factory.createAnimatable(document.getElementById("shape_d1e22"), constraint);
-      var a1 = factory.createKeyframeAnimation("a1", "Position", document.getElementById("animation01"), {duration: 2000, loop:1});
-      var a2 = factory.createKeyframeAnimation("a2", "Orientation", document.getElementById("animation02"));
+      var a1 = factory.createKeyframeAnimation("a1", document.getElementById("animation01"), {duration: 2000, loop:1});
+      var a2 = factory.createKeyframeAnimation("a2", document.getElementById("animation02"));
+      var a3 = factory.createKeyframeAnimation("a3", document.getElementById("animation03"));
+      var a4 = factory.createKeyframeAnimation("a4", document.getElementById("animation04"), {duration: 10000});
       c.addAnimation(a1);
       c.addAnimation(a2, {duration: 5000, loop: 2});
+      c.addAnimation(a3, {duration: 10000});
+      c.addAnimation(a4);
       var combined = new XMOT.CombinedAnimation("combined");
       combined.addAnimation(a1, {duration:1500});
       combined.addAnimation(a2, {delay: 2500, duration: 2000, callback:function(){console.log("Hier koennte ihre DebugInfo stehen");}} );
       combined.addAnimation(a1, {duration: 2000, loop: 3, delay: 5000, callback:function(){console.log("Done");}} );
       c.addAnimation(combined);
       return c;
-  }
+  };
 </script>
       <br/>
    </body>

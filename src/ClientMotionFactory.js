@@ -35,34 +35,27 @@
 	};
 
 	/** @inheritDoc */
-    m.createKeyframeAnimation = function(name, type, element, opt){
-		//TODO: this works with WebGL only?
-
+    m.createKeyframeAnimation = function(name, element, opt){
 		var child = element.firstElementChild;
-		var keys = child.value;
-		child = child.nextElementSibling;
-		var values = child.value;
-		if(!keys || !values){
-			throw "Object is not a valid keyframe animation";
-		}
-
-		// opt is just passed to the constructor and not further handled here
-		if(type === "Position")
-			return new XMOT.ClientKeyframeAnimation(name, keys, values, undefined, opt);
-		else if(type === "Orientation")
-			return new XMOT.ClientKeyframeAnimation(name, keys, undefined, values, opt);
-		else if(type === "Both"){
-			child = child.nextElementSibling;
-			var secondValues = child.value;
-			if(!secondValues){
-				throw "Specified both animations types but did not provide two series of values";
+		var keys = undefined;
+		var position = undefined;
+		var orientation = undefined;
+		var scale = undefined;
+		while(child){
+			switch(child.name){
+				case "key" : 		 keys = child.value; break;
+				case "position" : 	 position = child.value.length == keys.length*3 ? child.value : undefined; break; 
+				case "orientation" : orientation = child.value.length == keys.length*4 ? child.value : undefined; break;
+				case "scale" : 		 scale = child.value.length == keys.length*3 ? child.value : undefined; break;
+				default: break;
 			}
-			if(values.length*3 == keys.length) //first values are position
-				return new XMOT.ClientKeyframeAnimation(name, keys, values, secondValues, opt);
-			else //secondValues are position
-				return new XMOT.ClientKeyframeAnimation(name, keys, secondValues, values, opt);
-		}else{
-			throw "Type must be either: 'Position', 'Orientation' or 'Both'!";
+			child = child.nextElementSibling;
+		}
+		if(!keys || (!position && !orientation && !scale)){
+			throw "Element is not a valid keyframe animation";
+		}
+		else{
+			return new XMOT.ClientKeyframeAnimation(name, keys, position, orientation, scale, opt);
 		}
     };
 

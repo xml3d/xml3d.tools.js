@@ -50,6 +50,11 @@
     };
 
     /** @inheritDoc */
+    p.setScale = function(scale){
+    	this.transform.scale.set(new XML3DVec3(scale[0], scale[1], scale[2]));
+    };
+
+    /** @inheritDoc */
     p.getPosition = function(){
     	return [this.transform.translation.x, this.transform.translation.y, this.transform.translation.z];
     };
@@ -59,6 +64,11 @@
     	var axis = this.transform.rotation.axis;
     	var angle = this.transform.rotation.angle;
     	return XMOT.axisAngleToQuaternion([axis.x, axis.y, axis.z], angle);
+    };
+
+    /** @inheritDoc */
+    p.getScale = function(){
+    	return this.transform.scale;
     };
 
     /** @inheritDoc */
@@ -75,6 +85,12 @@
 		if(this.constraint.constrainRotation(orientation, this))
 			this.transform.rotation.set(destination);
 		return this;
+    };
+
+    /** @inheritDoc */
+    p.scale = function(factor){
+    	this.transform.scale.multiply(new XML3DVec3(factor[0], factor[1], factor[2]));
+    	return this;
     };
 
     /** @inheritDoc */

@@ -71,6 +71,12 @@ XMOT.version = '%VERSION%';
     p.setOrientation = function(orientation){};
 
     /**
+     * Sets a new scale factor
+     * @param {Array.<number>} scale scale factor
+     */
+    p.setScale = function(scale){};
+
+    /**
      * Gets the current position
      * @return {Array.<number>} position
      */
@@ -81,6 +87,12 @@ XMOT.version = '%VERSION%';
      * @return {Array.<number>} orientation
      */
     p.getOrientation = function(){};
+
+    /**
+     * Gets the current scale factor
+     * @return {number} scale factor
+     */
+    p.getScale = function(){};
 
     /**
      * Translate the Moveable by a given Vector.
@@ -95,6 +107,13 @@ XMOT.version = '%VERSION%';
      * @return {Moveable} the Moveable
      */
     p.rotate = function(rotation){};
+
+    /**
+     * Scales the moveable by a given vector
+     * @param{Array.<number>} factor scale factor
+     * @return {Moveable} the Moveable
+     */
+    p.scale = function(factor){};
 
     /**
      * Interpolated translation over time to position in local space.

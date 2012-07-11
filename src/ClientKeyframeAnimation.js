@@ -8,7 +8,7 @@
 	 * @constructor
 	 * @implements{Animation}
 	 */
-	function ClientKeyframeAnimation(name, keys, positionValues, orientationValues, opt){
+	function ClientKeyframeAnimation(name, keys, positionValues, orientationValues, scaleValues, opt){
 
 		/**
 		 * name of animation
@@ -34,7 +34,13 @@
 		 * @type{Array.<number>|undefined}
 		 */
 		this.orientationValues = orientationValues;
-		
+		/**
+		 * Array of the scale values
+		 * @private
+		 * @type{Array.<number>|undefined}
+		 */
+		this.scaleValues = scaleValues;
+
 		//options - set defaults
 		/**
 		 * loop
@@ -86,7 +92,7 @@
 			for ( var i = 0; i < l - 1; i++){
 				if (this.keys[i] < t && t <= this.keys[i + 1]) {
 					var p = (t - this.keys[i]) / (this.keys[i + 1] - this.keys[i]);
-					this.setValue( animatable, this.getInterpolatedPosition(i, p), this.getInterpolatedOrientation(i, p) );
+					this.setValue( animatable, this.getInterpolatedPosition(i, p), this.getInterpolatedOrientation(i, p), this.getInterpolatedScale(i, p) );
 				}
 			}
 		}
@@ -99,15 +105,17 @@
 	 * @param {Array.<number>|undefined} position
 	 * @param {Array.<number>|undefined} orientation
 	 */
-	k.setValue = function(animatable, position, orientation){
+	k.setValue = function(animatable, position, orientation, scale){
 		if(position != undefined)
 			animatable.setPosition(position);
 		if(orientation != undefined)
 			animatable.setOrientation(orientation);
+		if(scale != undefined)
+			animatable.setScale(scale);
 	};
 
 	/**
-	 * Interpolates keyvalues between index i and index i+1 with parameter t
+	 * Interpolates positionvalues between index i and index i+1 with parameter t
 	 * @private
 	 * @param {number} index
 	 * @param {number} t interpolationparameter
@@ -115,12 +123,36 @@
 	 */
 	k.getInterpolatedPosition = function(index, t){
 		if(this.positionValues == undefined) return undefined;
+		return this.interpolateArray(this.getPosition(index), this.getPosition(index+1), t);
+	};
+
+	/**
+	 * Interpolates scalevalues between index i and index i+1 with parameter t
+	 * @private
+	 * @param {number} index
+	 * @param {number} t interpolationparameter
+	 * @return {Array.<number>|undefined} Position
+	 */
+	k.getInterpolatedScale = function(index, t){
+		if(this.scaleValues == undefined) return undefined;
+		return this.interpolateArray(this.getScale(index), this.getScale(index+1), t);
+	};
+
+	/**
+	 * Interpolate the values of two arrays
+	 * @private
+	 * @param{Array.<number>} a1 array 1
+	 * @param{Array.<number>} a2 array 2
+	 * @param {number} t interpolationparameter
+	 * @return {Array.<number>|undefined} interpolated array
+	 */
+	k.interpolateArray = function(a1, a2, t){
 		var ret = [];
-		var start = this.getPosition(index);
-		var end = this.getPosition(index+1);
 		var i = 0;
-		for(i=0; i<start.length; i++ ){
-			ret[i] = start[i] + ( end[i] - start[i] ) * t;
+		var l = a1.length;
+		if(a1.length != a2.length) return undefined;
+		for(i=0; i<l; i++ ){
+			ret[i] = a1[i] + ( a2[i] - a1[i] ) * t;
 		}
 		return ret;
 	};
@@ -149,6 +181,18 @@
 		if(this.positionValues == undefined || key > this.keys.length-1 /*just in case*/) return undefined;
 		var index = key*3;
 		return [ this.positionValues[index], this.positionValues[index+1], this.positionValues[index+2] ];
+	};
+
+	/**
+	 * Gets a sacle corresponding to a key
+	 * @private
+	 * @param {number} key
+	 * @return {Array.<number>|undefined} Position
+	 */
+	k.getScale = function(key){
+		if(this.scaleValues == undefined || key > this.keys.length-1 /*just in case*/) return undefined;
+		var index = key*3;
+		return [ this.scaleValues[index], this.scaleValues[index+1], this.scaleValues[index+2] ];
 	};
 
 	/**

@@ -117,8 +117,8 @@
 
   function createAnimatable() {
       var c = factory.createAnimatable(document.getElementById("shape_d1e22"), constraint);
-      var a1 = factory.createKeyframeAnimation("a1", "Position", document.getElementById("animation01"), {duration: 2000, loop:1});
-      var a2 = factory.createKeyframeAnimation("a2", "Orientation", document.getElementById("animation02"));
+      var a1 = factory.createKeyframeAnimation("a1", document.getElementById("animation01"), {duration: 2000, loop:1});
+      var a2 = factory.createKeyframeAnimation("a2", document.getElementById("animation02"));
       c.addAnimation(a1);
       c.addAnimation(a2, {duration: 5000, loop: 2});
       var combined = new XMOT.CombinedAnimation("combined");
