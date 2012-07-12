@@ -60,4 +60,7 @@
 		if(this.z && Math.abs(center - newPosition[2]) > epsilon) newPosition[2] = currentPosition[2];
     	return true;
     };
+
+    //export
+    XMOT.ProhibitAxisMovementConstraint = ProhibitAxisMovementConstraint;
 }());
