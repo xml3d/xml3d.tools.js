@@ -31,7 +31,4 @@
     s.constrainTranslation = function(newPosition, moveable){
 		return this.allowedToMove;
     };
-
-    //export
-    XMOT.SimpleConstraint = SimpleConstraint;
 }());

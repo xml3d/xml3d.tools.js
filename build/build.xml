@@ -21,14 +21,10 @@
 		<file name="util.js" />
 		<file name="ClientMoveable.js" />
 		<file name="ClientMotionFactory.js" />
-		<file name="CollisionConstraint.js" />
 		<file name="ConstraintCollection.js" />
 		<file name="ClientAnimatable.js" />
 		<file name="ClientKeyframeAnimation.js" />
-		<file name="SimpleConstraint.js" />
-		<file name="ProhibitAxisMovementConstraint.js" />
 		<file name="CombinedAnimation.js" />
-		<file name="CameraController.js" />
 	</filelist>
 
 	<filelist dir="../src" id="externs">

@@ -368,7 +368,4 @@
 			this.oldMousePosition.y = e.pageY;
 		}
 	};
-
-	//export
-	XMOT.CameraController = CameraController;
 }());

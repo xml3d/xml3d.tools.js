@@ -71,7 +71,4 @@
 		var data = this.context.getImageData(checkAtX,checkAtY,1,1).data;
 		return (data[0] || data[1] || data[2]);
     };
-
-    //export
-    XMOT.CollisionConstraint = CollisionConstraint;
 }());
