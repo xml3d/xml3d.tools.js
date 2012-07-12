@@ -93,7 +93,7 @@
 		 * @type {Moveable}
 		 */
 		this.moveable = factory.createMoveable(cam, this.constraint);
-		this.moveabel.rotate(initialRotation);
+		this.moveable.rotate(initialRotation);
 		/**
 		 * starting point of the moveable, used to reset position and orientation
 		 * @private
@@ -286,10 +286,11 @@
 	 */
 	cc.initEvents = function(){
 		//registered on window, since registring on div did not work, events never triggered
-		window.addEventListener("keydown", this.keypressEventHandler, false);
-		window.addEventListener("mousemove", this.mouseMovementHandler, false);
-		window.addEventListener("mousedown", this.mouseDownHandler, false);
-		window.addEventListener("mouseup", this.mouseUpHandler, false);
+		var that = this;
+		window.addEventListener("keydown", function(e){that.keypressEventHandler(e);}, false);
+		window.addEventListener("mousemove", function(e){that.mouseMovementHandler(e);}, false);
+		window.addEventListener("mousedown", function(e){that.mouseDownHandler(e);}, false);
+		window.addEventListener("mouseup", function(e){that.mouseUpHandler(e);}, false);
 	};
 	
 	/**
@@ -363,4 +364,5 @@
 			this.oldMousePosition.y = e.pageY;
 		}
 	};
+	XMOT.CameraController = CameraController;
 }());
