@@ -5,33 +5,19 @@
 	 * @implements{MotionFactory}
 	 */
 	function ClientMotionFactory(){
+		this.id = 0;
 	};
 
 	var m = ClientMotionFactory.prototype;
 
 	/** @inheritDoc */
 	m.createMoveable = function(obj, constraint){
-		var t = XML3D.URIResolver.resolve(obj.transform, obj.ownerDocument);
-		if (!t) {
-			//TODO:
-			//var defs = document.createElementNS(XML3D.xml3dNS, "defs");
-			//t = document.createElementNS(XML3D.xml3dNS, "transform");
-			//t.id=makeUniqueId();
-			//defs.appendChild(t);
-			//obj.appendChild(defs);
-			//obj.transform="#"+t.id;
-			throw "Object does not have a transfrom property.";
-		}
-		return new XMOT.ClientMoveable(obj, t, constraint);
+		return new XMOT.ClientMoveable(obj, this.getTransform(obj), constraint);
 	};
 
 	/** @inheritDoc */
 	m.createAnimatable = function(obj, constraint){
-		var t = XML3D.URIResolver.resolve(obj.transform, obj.ownerDocument);
-		if (!t) {
-			throw "Object does not have a transfrom property.";
-		}
-		return new XMOT.ClientAnimatable(obj, t, constraint);
+		return new XMOT.ClientAnimatable(obj, this.getTransform(obj), constraint);
 	};
 
 	/** @inheritDoc */
@@ -57,6 +43,32 @@
 		else{
 			return new XMOT.ClientKeyframeAnimation(name, keys, position, orientation, scale, opt);
 		}
+    };
+
+    /**
+     * creates a unique id
+     * @return {string} unique id
+     */
+    m.createUniqueId = function(){
+    	return "createdByClientMotionFactory" + this.id++;
+    };
+
+    /**
+     * Gets the transform of an element and creates a transform if necessary
+     * @param {Object} obj element
+     * @return {Object} transform
+     */
+    m.getTransform = function(obj){
+    	var t = XML3D.URIResolver.resolve(obj.transform, obj.ownerDocument);
+    	if (!t || obj.transform == "") {
+    		var defs = document.createElementNS(XML3D.xml3dNS, "defs");
+    		t = document.createElementNS(XML3D.xml3dNS, "transform");
+    		t.id = this.createUniqueId();
+    		defs.appendChild(t);
+    		obj.appendChild(defs);
+    		obj.transform = "#"+t.id;
+    	}
+    	return t;
     };
 
 	//export

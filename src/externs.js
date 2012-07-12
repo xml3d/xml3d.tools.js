@@ -6,6 +6,8 @@ var XML3D = {};
 
 XML3D.URIResolver = {};
 
+XML3D.xml3dNS = {};
+
 /**
  * @param {Object} transform
  * @param {Object} ownerDoc
