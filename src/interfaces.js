@@ -177,7 +177,6 @@ XMOT.version = '%VERSION%';
     a.stopAnimation = function(id){};
 
 
-
     /**
      * An Animation
      * @interface
@@ -205,8 +204,7 @@ XMOT.version = '%VERSION%';
 	 * Gets the value of an option, the option can be requested by its name
 	 * @return {{duration: number, loop: number, delay: number, easing: Function, callback: Function}} opt options the requested option value
 	 */
-	k.getOptions = function(){
-	};
+	k.getOptions = function(){};
 
 
 	/**
