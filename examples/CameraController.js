@@ -3,9 +3,9 @@
 	 * A CameraController
 	 * @constructor
 	 * @param {string} camera_id name of the group of the camera
-	 * @param {Array.<number>} sceneUpVector normalized up vector of the scene
+	 * @param {Array.<number>} initialRotation rotation to rotate the camera in a manner, that "forward" is a movement along -z
 	 */
-	function CameraController(camera_id, sceneUpVector){
+	function CameraController(camera_id, initialRotation){
 		/**
 		 * Points of Interest
 		 * @private
@@ -13,7 +13,7 @@
 		 */
 		this.poi = [];
 		/**
-		 * Time to move to the next poi
+		 * Time to move to the next poi in milliseconds
 		 * @private
 		 * @type {number}
 		 */
@@ -79,12 +79,6 @@
 		 */
 		this.angleUp = 0;
 		/**
-		 * Up Vector of the scene
-		 * @private
-		 * @type {Array.<number>}
-		 */
-		this.upVector = sceneUpVector;
-		/**
 		 * Constraint
 		 * @private
 		 * @type {ConstraintCollection}
@@ -99,6 +93,7 @@
 		 * @type {Moveable}
 		 */
 		this.moveable = factory.createMoveable(cam, this.constraint);
+		this.moveabel.rotate(initialRotation);
 		/**
 		 * starting point of the moveable, used to reset position and orientation
 		 * @private
