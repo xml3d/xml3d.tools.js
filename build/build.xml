@@ -11,7 +11,8 @@
            Merge all the single scripts to one global xml3d-motion.js
     </description>
 
-	<import file="build-master.xml"/>
+    <import file="build-master.xml"/>
+    <property file="build.properties" />
 
 	<filelist dir="../src" id="sourceFiles">
 		<!-- contrib -->
@@ -45,10 +46,40 @@
         </compileScripts>
     </target>
 
-   <target name="init-properties">
-        <property name="buildDir" value="output"/>
-       <property name="script.start" value="xml3d-motion"/>
-   </target>
+   <target name="lastTag" depends="init, windowsGit, linuxGit">
+        <tstamp />
+        <git command="describe">
+            <args>
+                <arg value="--tags" />
+                <arg value="--abbrev=0" />
+            </args>
+        </git>
+        <echo message="${git.output}" />
+        <concatScripts version="${git.output}" extension="-${git.output}"/>
+        <compileScripts version="${git.output}" extension="-${git.output}-min">
+            <args>
+                <define name="XMOT.version" value="@{version}"/>
+            </args>
+        </compileScripts>
+    </target>
 
+    <target name="continuous" depends="init, windowsGit, linuxGit">
+        <tstamp />
+        <git command="log">
+            <args>
+                <arg value="-1" />
+                <arg value="--format=%h / %ci" />
+            </args>
+        </git>
+        <echo message="${git.output}" />
+        <concatScripts version="DEVELOPMENT SNAPSHOT / ${git.output}" extension="-${continuous.extension}"/>
+        <compileScripts version="DEVELOPMENT SNAPSHOT / ${git.output}" extension="-${continuous.extension}-min">
+            <args>
+                    <define name="XMOT.version" value="@{version}"/>
+            </args>
+        </compileScripts>
+        <upload extension="-${continuous.extension}"/>
+        <upload extension="-${continuous.extension}-min"/>
+    </target>
 
 </project>
