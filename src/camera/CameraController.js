@@ -128,7 +128,7 @@
 	};
 	
 	/**
-	 * updates the controller - is called automatically
+	 * updates the controller
 	 * @public
 	 */
 	cc.updateController = function() {
