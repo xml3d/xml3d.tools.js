@@ -15,20 +15,20 @@
     <property file="build.properties" />
 
 	<filelist dir="../src" id="sourceFiles">
+		<file name="interfaces.js" />
 		<!-- contrib -->
 		<file name="contrib/Tween.js" />
 		<!-- our sources -->
-		<file name="interfaces.js" />
 		<file name="util.js" />
-		<file name="ClientMoveable.js" />
-		<file name="ClientMotionFactory.js" />
-		<file name="ConstraintCollection.js" />
-		<file name="ClientAnimatable.js" />
-		<file name="ClientKeyframeAnimation.js" />
-		<file name="CombinedAnimation.js" />
+		<file name="base/ClientMoveable.js" />
+		<file name="base/ClientMotionFactory.js" />
+		<file name="constraints/ConstraintCollection.js" />
+		<file name="base/ClientAnimatable.js" />
+		<file name="base/ClientKeyframeAnimation.js" />
+		<file name="base/CombinedAnimation.js" />
 	</filelist>
 
-	<filelist dir="../src" id="externs">
+	<filelist dir="../externs" id="externs">
 			<file name="externs.js" />
 	</filelist>
 
