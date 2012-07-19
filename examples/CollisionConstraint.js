@@ -1,14 +1,13 @@
 (function(){
 	/**
-	 * CollisionConstraint
+	 * CollisionConstraint - works only with the simple example.
 	 * @constructor
 	 * @param {number} sceneWidth width of the scene to which the map applies
 	 * @param {number} sceneDepth depth of the scene to which the map applies
-	 * @param {Array.<number>} normal normal of the plane to the which the map applies
 	 * @param {String} collisionMap URL of the CollisionMap
 	 * @implements {Constraint}
 	 */
-	var CollisionConstraint = function(sceneWidth, sceneDepth, normal, collisionMap){
+	var CollisionConstraint = function(sceneWidth, sceneDepth, collisionMap){
 		/**
 		 * Width of the scene
 		 * @private
@@ -21,13 +20,6 @@
 		 * @type {number}
 		 */
 		this.sceneDepth = sceneDepth;
-		/**
-		 * Normal of the plan related to the collisionMap
-		 * @private
-		 * @type {Array.<number>}
-		 */
-		this.normal = normal;
-
 		//draw the map to a canvas to be able to get pixel data
 		/**
 		 * Collisionmap
@@ -62,8 +54,6 @@
 
     /** @inheritDoc */
     c.constrainTranslation = function(newPosition, moveable){
-		//TODO: check rotationssymmetrische dingsda, also z achse der szene = -y des bildes?
-		//TODO: check normal
 		var checkAtX = newPosition[0] / this.sceneWidth * this.img.width;
 		var checkAtY = newPosition[2] / this.sceneDepth * this.img.height;
 		if(!checkAtX) checkAtX = 0;

@@ -3,8 +3,7 @@ moveable = undefined;
 function initMoveable(){
 	var cube = document.getElementById("cube");
 	var factory = new XMOT.ClientMotionFactory;
-	var constraint = new XMOT.CollisionConstraint(5.0, 5.0, [0,1,0], "collision.png");
-	//var constraint = new XMOT.SimpleConstraint(true);
+	var constraint = new XMOT.CollisionConstraint(5.0, 5.0, "collision.png");
 	moveable = factory.createMoveable(cube, constraint);
 	XMOT.animationHook = controller;
 };
