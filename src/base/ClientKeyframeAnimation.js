@@ -83,13 +83,13 @@
 	k.applyAnimation = function(animatable, currentTime, startTime, endTime, easing){
 		var t = (currentTime - startTime) / (endTime - startTime);
 		if(easing && typeof(easing) === "function") t = easing(t); //otherwise its linear
-		var l = this.keys.length - 1;
+		var lmo = this.keys.length - 1;
 		if (t <= this.keys[0]){
-			this.setValue( animatable, this.getPosition(0), this.getOrientation(0) );
-		}else if (t >= this.keys[l - 1]){
-			this.setValue( animatable, this.getPosition(l), this.getOrientation(l) );
+			this.setValue( animatable, this.getPosition(0), this.getOrientation(0), this.getScale(0) );
+		}else if (t >= this.keys[lmo]){
+			this.setValue( animatable, this.getPosition(lmo), this.getOrientation(lmo), this.getScale(lmo) );
 		}else{
-			for ( var i = 0; i < l - 1; i++){
+			for ( var i = 0; i < lmo; i++){
 				if (this.keys[i] < t && t <= this.keys[i + 1]) {
 					var p = (t - this.keys[i]) / (this.keys[i + 1] - this.keys[i]);
 					this.setValue( animatable, this.getInterpolatedPosition(i, p), this.getInterpolatedOrientation(i, p), this.getInterpolatedScale(i, p) );
