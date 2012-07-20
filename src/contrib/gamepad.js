@@ -270,7 +270,7 @@
         into.deadZoneRightStick = 8689/32767.0;
         into.deadZoneShoulder0 = 0.5;
         into.deadZoneShoulder1 = 30.0/255.0;
-        console.log(raw.axes);
+        //console.log(raw.axes);
         into.rightStickX = raw.axes[2];
         into.rightStickY = raw.axes[5];
         into.leftShoulder1 = raw.buttons[6];
@@ -285,7 +285,7 @@
         into.rightShoulder1 = axisToButton(raw.axes[5]);
     };
 
-    var CommonMacPS3Controller = function(Raw, into, index) {
+    var CommonMacPS3Controller = function(raw, into, index) {
         // NOTE: Partial, doesn't set all values.
         into.leftStickX = raw.axes[0];
         into.leftStickY = raw.axes[1];
