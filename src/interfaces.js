@@ -229,11 +229,5 @@ XMOT.version = '%VERSION%';
      * @return {boolean} returns true if the operation is valid, false otherwise
      */
     c.constrainTranslation = function(newTranslation, moveable){};
-    
-    //exports to make closure compiler happy and got less warnings
-    //TODO: this makes the empty function callable for other users? bad idea?
-    /*XMOT.Moveable = Moveable;
-    XMOT.Animatable = Animatable;
-    XMOT.Animation = Animation;
-    XMOT.Constraint = Constraint;*/
+
 }());
