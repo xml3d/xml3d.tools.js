@@ -1,5 +1,9 @@
 (function() {
 
+
+//The functions inherit and base are taken out of the google closure project.
+//Those functions are part of the Apache License (see Appache_License file)
+
 /**
  * Inherit the prototype methods from one constructor into another.
  * Usage:
