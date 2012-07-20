@@ -104,20 +104,30 @@
 		this.initEvents();
 	};
 	var cc = CameraController.prototype;
-	
+
 	// public:
 	/**
 	 * Add a Point of Interest
 	 * @public
 	 * @param {Array.<number>} position
 	 * @param {Array.<number>} orientation
+	 * @return {CameraController} this
 	 */
 	cc.addPointOfInterest = function(position, orientation){
 		this.poi.push({pos:position, ori:orientation});
+		return this;
 	};
 
-//TODO: removepoi(index)
-	
+	/**
+	 * Remove the latest added Point of Interest
+	 * @public
+	 * @return {CameraController} this
+	 */
+	cc.removePointIOfInterest = function(){
+		this.poi.pop();
+		return this;
+	};
+
 	/**
 	 * Add a Constraint
 	 * @public
