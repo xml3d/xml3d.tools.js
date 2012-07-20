@@ -5,6 +5,11 @@
 	 * @implements{MotionFactory}
 	 */
 	function ClientMotionFactory(){
+		/**
+		 * Counter to create unique IDs for the elements added to DOM
+		 * @private
+		 * @type {number}
+		 */
 		this.id = 0;
 	};
 
