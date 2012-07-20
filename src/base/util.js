@@ -98,12 +98,18 @@ var animating = false;
 var animationHook = undefined;
 
 /**
+ * a cameracontroller register here and the update of the gamepad is called
+ */
+var registeredCameraController = undefined;
+
+/**
  * Updates all the Tweens until all animations are finished and calls the hook.
  */
 function animate(){
-	if(TWEEN.getAll().length || XMOT.animationHook) {
+	if(TWEEN.getAll().length || XMOT.animationHook || XMOT.registeredCameraController) {
 		window.requestAnimFrame(XMOT.animate);
-		if(XMOT.animationHook != undefined) XMOT.animationHook();
+		if(XMOT.animationHook) XMOT.animationHook();
+		if(XMOT.registeredCameraController) XMOT.registeredCameraController.updateController();
 		TWEEN.update();
 	}
 	else
@@ -222,6 +228,7 @@ XMOT.base = base;
 XMOT.animate = animate;
 XMOT.animating = animating;
 XMOT.animationHook = animationHook;
+XMOT.registeredCameraController = registeredCameraController;
 XMOT.axisAngleToQuaternion = axisAngleToQuaternion;
 XMOT.normalizeVector = normalizeVector;
 XMOT.quaternionToAxisAngle = quaternionToAxisAngle;

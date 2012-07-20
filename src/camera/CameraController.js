@@ -1,6 +1,12 @@
 (function(){
 	/**
 	 * A CameraController
+	 * In order to use this gamepad functiponality of this class do as follows:
+	 * 1. Use Chrome.
+	 * 2. Get A XBox360 Controller.
+	 * 3. Activate the gamepad api of chrome -> about:flags
+	 * 4. Add the gamepad.js to your application: http://www.gamepadjs.com/
+	 * 5. Have Fun :-)
 	 * @constructor
 	 * @param {string} camera_id name of the group of the camera
 	 * @param {Array.<number>} initialRotation rotation to rotate the camera in a manner, that "forward" is a movement along -z
@@ -71,7 +77,7 @@
 		 * @private
 		 * @type {number}
 		 */
-		this.rotationSensivityMouse = 0.00125 * this.slowthis;
+		this.rotationSensivityMouse = 0.005 * this.slowthis;
 		/**
 		 * Angle, that we currently look up or down
 		 * @private
@@ -102,6 +108,12 @@
 		this.startingPoint = {position:this.moveable.getPosition(), orientation:this.moveable.getOrientation()};
 	
 		this.initEvents();
+
+		//finally, register in the animation loop
+		if( !XMOT.registeredCameraController)
+			XMOT.registeredCameraController = this;
+		else
+			throw "Only one CameraController allowed.";
 	};
 	var cc = CameraController.prototype;
 
@@ -138,7 +150,8 @@
 	};
 	
 	/**
-	 * updates the controller
+	 * updates the controller - gets called autmatically
+	 * To use the Controller the gamepad.js is needed as well.
 	 * @public
 	 */
 	cc.updateController = function() {
@@ -221,7 +234,7 @@
 	 * @private
 	 */
 	cc.nextPoi = function(){
-		if(!this.allowPoi || this.moveable.movementInProgress()) return;
+		if(this.poi.length == 0 || !this.allowPoi || this.moveable.movementInProgress()) return;
 		//rotate up/down before any other movement, this prevends from rolling
 		this.moveable.rotate( XMOT.axisAngleToQuaternion( [1,0,0], -this.angleUp) );
 		this.angleUp = 0;
@@ -236,7 +249,7 @@
 	 * @private
 	 */
 	cc.beforePoi = function(){
-		if(!this.allowPoi || this.moveable.movementInProgress()) return;
+		if(this.poi.length == 0 || !this.allowPoi || this.moveable.movementInProgress()) return;
 		//rotate up/down before any other movement, this prevends from rolling
 		this.moveable.rotate( XMOT.axisAngleToQuaternion( [1,0,0], -this.angleUp) );
 		this.angleUp = 0;
