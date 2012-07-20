@@ -50,6 +50,7 @@
 		var tmp = this.availableAnimations[animation.name];
 		tmp.opt = XMOT.mergeOptions(opt, animation.getOptions());
 		tmp.animation = animation;
+		return this;
     };
 
     /** @inheritDoc */
