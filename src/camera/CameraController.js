@@ -210,7 +210,7 @@
 	 * @param {number} l length of the movement
 	 */
 	cc.moveUpAndDown = function(l){
-		var vecY = this.upVector;
+		var vecY = [0, 1, 0];
 		var result = vec3.create();
 		quat4.multiplyVec3(this.moveable.getOrientation(),vecY, result);
 		this.moveable.translate(vec3.scale(vec3.normalize(result), l));
