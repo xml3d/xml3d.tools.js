@@ -9,7 +9,7 @@
 	var ClientAnimatable = function(obj, transform, constraint){
 
 		//call parent constructor here
-		goog.base(this, obj, transform, constraint);
+		XMOT.base(this, obj, transform, constraint);
 
 		/**
 		 * Map of KeyframeAnimations
@@ -38,7 +38,7 @@
 	};
 
 	//inheritence is done here
-	goog.inherits(ClientAnimatable, XMOT.ClientMoveable);
+	XMOT.inherit(ClientAnimatable, XMOT.ClientMoveable);
 
     var ca = ClientAnimatable.prototype;
 
