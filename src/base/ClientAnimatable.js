@@ -114,8 +114,11 @@
 
     /** @inheritDoc */
     ca.stopAnimation = function(id){
-		this.activeAnimations[id].clockGenerator.stop();
-		this.activeAnimations[id] = undefined;
+    	var toStop = this.activeAnimations[id];
+		if(toStop) {
+			toStop.clockGenerator.stop();
+			this.activeAnimations[id] = undefined;
+		}
 		return this;
     };
 
