@@ -5,7 +5,6 @@ function initMoveable(){
 	var factory = new XMOT.ClientMotionFactory;
 	var constraint = new XMOT.CollisionConstraint(5.0, 5.0, "collision.png");
 	moveable = factory.createMoveable(cube, constraint);
-	XMOT.animationHook = controller;
 };
 
 function rotateCube()
