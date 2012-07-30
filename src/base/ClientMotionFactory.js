@@ -33,11 +33,12 @@
 		var orientation = undefined;
 		var scale = undefined;
 		while(child){
-			switch(child.name){
-				case "key" : 		 keys = child.value; break;
-				case "position" : 	 position = child.value.length == keys.length*3 ? child.value : undefined; break; 
-				case "orientation" : orientation = child.value.length == keys.length*4 ? child.value : undefined; break;
-				case "scale" : 		 scale = child.value.length == keys.length*3 ? child.value : undefined; break;
+			//TODO: does child.name work for native?
+			switch(this.getNameFromChild(child)){
+				case "key" : 		 keys = this.getValueFromChild(child, undefined); break;
+				case "position" : 	 position = this.getValueFromChild(child, keys.length*3); break; 
+				case "orientation" : orientation = this.getValueFromChild(child, keys.length*4); break;
+				case "scale" : 		 scale = this.getValueFromChild(child, keys.length*3); break;
 				default: break;
 			}
 			child = child.nextElementSibling;
@@ -49,6 +50,43 @@
 			return new XMOT.ClientKeyframeAnimation(name, keys, position, orientation, scale, opt);
 		}
     };
+
+	/**
+	 * get Values from child
+	 * @param {*} child
+	 * @param {number}
+	 * @return {Array.<number>}
+	 */
+	this.getValueFromChild = function(child, number){
+		if(!XML3D._native)
+		{
+			var val = child.value;
+			if(!val || val.length != number) return undefined;
+			else return val;
+		}
+		else
+		{
+			throw "Animations are currently not supported in native Version.";
+			//TODO: code for native version
+		}
+	};
+
+	/**
+	 * get name property of child element
+	 * @param {Object} child
+	 * @return {string}
+	 */
+	this.getNameFromChild = function(child){
+		if(!XML3D._native)
+		{
+			return child.name;
+		}
+		else
+		{
+			throw "Animations are currently not supported in native Version.";
+			//TODO: code for native version
+		}
+	};
 
     /**
      * creates a unique id

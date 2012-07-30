@@ -8,6 +8,8 @@ XML3D.URIResolver = {};
 
 XML3D.xml3dNS = {};
 
+XML3D._native = {};
+
 /**
  * @param {Object} transform
  * @param {Object} ownerDoc
