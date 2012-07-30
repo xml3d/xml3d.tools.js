@@ -37,7 +37,7 @@
     /** @inheritDoc */
     p.setPosition = function(position){
 		if(this.constraint.constrainTranslation(position, this))
-			this.transform.translation.set(position[0],position[1],position[2]);
+			this.transform.translation.set(new XML3DVec3(position[0],position[1],position[2]));
 		return this;
     };
 
