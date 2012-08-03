@@ -16,17 +16,20 @@
 	var m = ClientMotionFactory.prototype;
 
 	/** @inheritDoc */
-	m.createMoveable = function(obj, constraint){
-		return new XMOT.ClientMoveable(obj, this.getTransform(obj), constraint);
+	m.createMoveable = function(element, constraint){
+		if(!element) throw "No valid element, cannot create Moveable.";
+		return new XMOT.ClientMoveable(element, this.getTransform(obj), constraint);
 	};
 
 	/** @inheritDoc */
-	m.createAnimatable = function(obj, constraint){
-		return new XMOT.ClientAnimatable(obj, this.getTransform(obj), constraint);
+	m.createAnimatable = function(element, constraint){
+		if(!element) throw "No valid element, cannot create Animatable.";
+		return new XMOT.ClientAnimatable(element, this.getTransform(obj), constraint);
 	};
 
 	/** @inheritDoc */
     m.createKeyframeAnimation = function(name, element, opt){
+    	if(!element) throw "No valid element, cannot create Animatable.";
 		var child = element.firstElementChild;
 		var keys = undefined;
 		var position = undefined;
