@@ -18,13 +18,13 @@
 	/** @inheritDoc */
 	m.createMoveable = function(element, constraint){
 		if(!element) throw "No valid element, cannot create Moveable.";
-		return new XMOT.ClientMoveable(element, this.getTransform(obj), constraint);
+		return new XMOT.ClientMoveable(element, this.getTransform(element), constraint);
 	};
 
 	/** @inheritDoc */
 	m.createAnimatable = function(element, constraint){
 		if(!element) throw "No valid element, cannot create Animatable.";
-		return new XMOT.ClientAnimatable(element, this.getTransform(obj), constraint);
+		return new XMOT.ClientAnimatable(element, this.getTransform(element), constraint);
 	};
 
 	/** @inheritDoc */
