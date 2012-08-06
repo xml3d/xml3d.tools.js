@@ -387,6 +387,7 @@
 	 */
 	cc.mouseUpHandler = function(e){
 		if(e.button == 2){
+			this.stopDefaultEventAction(e);
 			this.mouseButtonIsDown = false;
 		}
 	};
@@ -398,10 +399,26 @@
 	 */
 	cc.mouseDownHandler = function(e){
 		if(e.button == 2){
+			this.stopDefaultEventAction(e);
 			this.mouseButtonIsDown = true;
 			this.oldMousePosition.x = e.pageX;
 			this.oldMousePosition.y = e.pageY;
 		}
 	};
+
+	/**
+	 * Stops HTML Default action of events
+	 * Note: in some Browsers the context menu still apears, but there is a workaround:
+	 * <body ... oncontextmenu="return false;">
+	 * @param {Object} e event
+	 */
+	cc.stopDefaultEventAction = function(e){
+		if (e && e.preventDefault) {
+			e.preventDefault();
+		} else if (window.event && window.event.returnValue){
+			window.eventReturnValue = false;
+		}
+	};
+
 	XMOT.CameraController = CameraController;
 }());
