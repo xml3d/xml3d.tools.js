@@ -60,7 +60,7 @@
 	 * @param {number}
 	 * @return {Array.<number>}
 	 */
-	this.getValueFromChild = function(child, number){
+    m.getValueFromChild = function(child, number){
 		if(!XML3D._native)
 		{
 			var val = child.value;
