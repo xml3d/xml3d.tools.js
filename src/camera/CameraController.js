@@ -117,6 +117,22 @@
 	};
 	var cc = CameraController.prototype;
 
+	/**
+	 * Get current position in local space
+	 * @return {Array.<number>} 3D vector
+	 */
+	cc.getPosition = function(){
+		return this.moveable.getPosition();
+	};
+
+	/**
+	 * Get current orientation in local space
+	 * @return {Array.<number>} quaternion
+	 */
+	cc.getOrientation = function(){
+		return this.moveable.getOrientation();
+	};
+
 	// public:
 	/**
 	 * Add a Point of Interest
