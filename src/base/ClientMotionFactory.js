@@ -37,7 +37,7 @@
 		var scale = undefined;
 		while(child){
 			//TODO: does child.name work for native?
-			switch(this.getNameFromChild(child)){
+			switch(child.name){
 				case "key" : 		 keys = this.getValueFromChild(child, undefined); break;
 				case "position" : 	 position = this.getValueFromChild(child, keys.length*3); break; 
 				case "orientation" : orientation = this.getValueFromChild(child, keys.length*4); break;
@@ -66,23 +66,6 @@
 			var val = child.value;
 			if(!val || val.length != number) return undefined;
 			else return val;
-		}
-		else
-		{
-			throw "Animations are currently not supported in native Version.";
-			//TODO: code for native version
-		}
-	};
-
-	/**
-	 * get name property of child element
-	 * @param {Object} child
-	 * @return {string}
-	 */
-	this.getNameFromChild = function(child){
-		if(!XML3D._native)
-		{
-			return child.name;
 		}
 		else
 		{
