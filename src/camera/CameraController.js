@@ -13,6 +13,11 @@
 	 */
 	function CameraController(camera_id, initialRotation){
 		/**
+		 * @private
+		 * @type {Object}
+		 */
+		this.currentlyPressedKeys = {};
+		/**
 		 * Points of Interest
 		 * @private
 		 * @type {Array.<{pos:Array.<number>, ori:Array.<number>}>}
@@ -110,8 +115,10 @@
 		this.initEvents();
 
 		//finally, register in the animation loop
-		if( !XMOT.registeredCameraController)
+		if( !XMOT.registeredCameraController){
 			XMOT.registeredCameraController = this;
+			XMOT.animate();
+		}
 		else
 			throw "Only one CameraController allowed.";
 	};
@@ -119,6 +126,7 @@
 
 	/**
 	 * Get current position in local space
+	 * @public
 	 * @return {Array.<number>} 3D vector
 	 */
 	cc.getPosition = function(){
@@ -127,6 +135,7 @@
 
 	/**
 	 * Get current orientation in local space
+	 * @public
 	 * @return {Array.<number>} quaternion
 	 */
 	cc.getOrientation = function(){
@@ -164,11 +173,21 @@
 	cc.addConstraint = function(constraint){
 		this.constraint.addConstraint(constraint);
 	};
-	
+
+	/**
+	 * Update movement
+	 * @public
+	 */
+	cc.update = function(){
+		this.updateController();
+		this.updateKeyMovement();
+	};
+
+	// private:
 	/**
 	 * updates the controller - gets called autmatically
 	 * To use the Controller the gamepad.js is needed as well.
-	 * @public
+	 * @private
 	 */
 	cc.updateController = function() {
 		if(!window.Gamepad)return;
@@ -206,8 +225,7 @@
 			}
 		}
 	};
-	
-	// private:
+
 	// ---------- functions to handle movement ----------
 	/**
 	 * Move camera back and forward
@@ -220,7 +238,7 @@
 		quat4.multiplyVec3(this.moveable.getOrientation(),vecX, result);
 		this.moveable.translate(vec3.scale(vec3.normalize(result), l));
 	};
-	
+
 	/**
 	 * Move camera left and right (strafe)
 	 * @private
@@ -232,7 +250,7 @@
 		quat4.multiplyVec3(this.moveable.getOrientation(),vecY, result);
 		this.moveable.translate(vec3.scale(vec3.normalize(result), l));
 	};
-	
+
 	/**
 	 * Move camera Up and Down
 	 * @private
@@ -244,7 +262,7 @@
 		quat4.multiplyVec3(this.moveable.getOrientation(),vecY, result);
 		this.moveable.translate(vec3.scale(vec3.normalize(result), l));
 	};
-	
+
 	/**
 	 * Move to the next Point of Interest
 	 * @private
@@ -259,7 +277,7 @@
 		var movetopoi = this.poi[this.currentPoi];
 		this.moveable.moveTo(movetopoi.pos, movetopoi.ori, this.poiMoveToTime, {queueing: false, callback: this.moveToCallback});
 	};
-	
+
 	/**
 	 * Move to the next Point of Interest
 	 * @private
@@ -274,7 +292,7 @@
 		var movetopoi = this.poi[this.currentPoi];
 		this.moveable.moveTo(movetopoi.pos, movetopoi.ori, this.poiMoveToTime, {queueing: false, callback: this.moveToCallback});
 	};
-	
+
 	/**
 	 * Rotates the camera up and down by an given angle
 	 * @private 
@@ -284,7 +302,7 @@
 		this.angleUp += angle*Math.PI;
 		this.moveable.rotate( XMOT.axisAngleToQuaternion( [1,0,0], angle*Math.PI) );
 	};
-	
+
 	/**
 	 * Rotates the camera left and right by an given angle
 	 * @private 
@@ -297,7 +315,7 @@
 		//and rotate up/down again
 		this.moveable.rotate( XMOT.axisAngleToQuaternion( [1,0,0], this.angleUp) );
 	};
-	
+
 	/**
 	 * Resets the camera to the starting Position
 	 * @private 
@@ -307,7 +325,7 @@
 		this.moveable.setOrientation(this.startingPoint.orientation);
 		this.angleUp = 0;
 	};
-	
+
 	/**
 	 * Callback of the movement to a PoI
 	 * Needed to prevent movement while we move to a PoI
@@ -318,7 +336,7 @@
 	};
 	
 	// ---------- event handler ----------
-	
+
 	/**
 	 * Init Events
 	 * @private
@@ -327,11 +345,12 @@
 		//registered on window, since registring on div did not work, events never triggered
 		var that = this;
 		window.addEventListener("keydown", function(e){that.keypressEventHandler(e);}, false);
+		window.addEventListener("keyup", function(e){that.keyUpEventHandler(e);}, false);
 		window.addEventListener("mousemove", function(e){that.mouseMovementHandler(e);}, false);
 		window.addEventListener("mousedown", function(e){that.mouseDownHandler(e);}, false);
 		window.addEventListener("mouseup", function(e){that.mouseUpHandler(e);}, false);
 	};
-	
+
 	/**
 	 * Handles key events
 	 * @private
@@ -341,26 +360,66 @@
 		if(!this.allowPoi) return;
 		e = window.event || e;
 		var kc = e.keyCode;
-		var flag = true;
-		switch(kc){
+		if(! this.currentlyPressedKeys[kc])
+		{
+			var flag = this.moveWithKey(kc);
+			if(flag){
+				this.currentlyPressedKeys[kc] = true;
+			}
+			switch(kc){
+				case 69 : this.nextPoi(); break; // q
+				case 81 : this.beforePoi(); break; // e
+				case 82 : this.reset(); break; //r
+				default : flag = false; break;
+			}
+			if(flag) this.stopDefaultEventAction(e);
+		}
+	};
+
+	/**
+	 * Removes key from the list of currently pressed keys
+	 * @param
+	 * @param {Event} e
+	 */
+	cc.keyUpEventHandler = function(e){
+	    if(!this.allowPoi) return;
+	    e = window.event || e;
+	    delete this.currentlyPressedKeys[e.keyCode];
+	};
+
+	/**
+	 * handle single key
+	 * @private
+	 * @param {number} keyCode
+	 * @return {boolean}
+	 */
+	cc.moveWithKey = function(keyCode){
+	    switch(keyCode){
 			case 83 : this.moveBackAndForward(this.moveSensivityKeyboard); break; // s
 			case 87 : this.moveBackAndForward(-this.moveSensivityKeyboard); break; // w
 			case 65 : this.moveLeftAndRight(-this.moveSensivityKeyboard); break; // a
 			case 68 : this.moveLeftAndRight(this.moveSensivityKeyboard); break; // d
 			case 33 : this.moveUpAndDown(this.moveSensivityKeyboard); break; //page up
 			case 34 : this.moveUpAndDown(-this.moveSensivityKeyboard); break; //page down
-			case 69 : this.nextPoi(); break; // q
-			case 81 : this.beforePoi(); break; // e
 			case 38 : this.rotateCameraUpAndDown(this.rotationSensivityMouse); break; // up Arrow
 			case 40 : this.rotateCameraUpAndDown(-this.rotationSensivityMouse); break; // down Arrow
 			case 37 : this.rotateCameraLeftAndRight(this.rotationSensivityMouse); break; // left Arrow
 			case 39 : this.rotateCameraLeftAndRight(-this.rotationSensivityMouse); break; // right Arrow
-			case 82 : this.reset(); break; //r
-			default : flag = false; break;
-		}
-		if(flag) e.preventDefault();
+	        default : return false; break;
+	    }
+	    return true;
 	};
-	
+
+	/**
+	 * update movement of currently pressed keys
+	 * @private
+	 */
+	cc.updateKeyMovement = function(){
+	    for(var kc in this.currentlyPressedKeys){
+	        this.moveWithKey(kc*1); //*1 -> to make its a number now
+	    }
+	};
+
 	/**
 	 * Handles mousemovement events
 	 * @private
@@ -379,7 +438,7 @@
 		if(y != 0)
 			this.rotateCameraUpAndDown(-this.rotationSensivityMouse*y);
 	};
-	
+
 	/**
 	 * Handles mousebutton up event
 	 * @private
@@ -391,7 +450,7 @@
 			this.mouseButtonIsDown = false;
 		}
 	};
-	
+
 	/**
 	 * Handles mousebutton down events
 	 * @private

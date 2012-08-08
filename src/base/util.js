@@ -109,7 +109,7 @@ function animate(){
 	if(TWEEN.getAll().length || XMOT.animationHook || XMOT.registeredCameraController) {
 		window.requestAnimFrame(XMOT.animate);
 		if(XMOT.animationHook) XMOT.animationHook();
-		if(XMOT.registeredCameraController) XMOT.registeredCameraController.updateController();
+		if(XMOT.registeredCameraController) XMOT.registeredCameraController.update();
 		TWEEN.update();
 	}
 	else
