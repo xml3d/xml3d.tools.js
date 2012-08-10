@@ -160,7 +160,7 @@
 	 * @public
 	 * @return {CameraController} this
 	 */
-	cc.removePointIOfInterest = function(){
+	cc.removePointOfInterest = function(){
 		this.poi.pop();
 		return this;
 	};
