@@ -275,7 +275,8 @@
 		this.allowPoi = false;
 		this.currentPoi = this.currentPoi == this.poi.length-1 ? 0 : this.currentPoi+1;
 		var movetopoi = this.poi[this.currentPoi];
-		this.moveable.moveTo(movetopoi.pos, movetopoi.ori, this.poiMoveToTime, {queueing: false, callback: this.moveToCallback});
+		var that = this;
+		this.moveable.moveTo(movetopoi.pos, movetopoi.ori, this.poiMoveToTime, {queueing: false, callback: function(){that.moveToCallback();}});
 	};
 
 	/**
@@ -290,7 +291,8 @@
 		this.allowPoi = false;
 		this.currentPoi = this.currentPoi == 0 ? this.poi.length-1 : this.currentPoi-1;
 		var movetopoi = this.poi[this.currentPoi];
-		this.moveable.moveTo(movetopoi.pos, movetopoi.ori, this.poiMoveToTime, {queueing: false, callback: this.moveToCallback});
+		var that = this;
+		this.moveable.moveTo(movetopoi.pos, movetopoi.ori, this.poiMoveToTime, {queueing: false, callback: function(){that.moveToCallback();}});
 	};
 
 	/**
