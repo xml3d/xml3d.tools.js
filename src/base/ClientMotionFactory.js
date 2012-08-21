@@ -64,7 +64,7 @@
 		if(!XML3D._native)
 		{
 			var val = child.value;
-			if(!val || val.length != number) return undefined;
+			if(!val || (number && val.length != number )) return undefined;
 			else return val;
 		}
 		else
