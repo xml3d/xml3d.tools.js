@@ -99,8 +99,11 @@
     	//no movement needed
     	var queueingAllowed = opt.queueing || true;
 		if( (position == undefined && orientation == undefined) || //nowhere to moveto
-				( !queueingAllowed && this.movementInProgress()) ) //queuing forbiden, but something in progress
-					return this;
+			(!queueingAllowed && this.movementInProgress()) || //queuing forbiden, but something in progress
+			(this.checkIfNoNeedToMove(position, orientation)) ){
+			if(opt.callback) opt.callback();
+			return this;
+		}
 
 		//create new queue entry of the new given data:
 		var newEntry = {};
@@ -151,6 +154,42 @@
 		}
 		return this;
     };
+
+	/**
+	 * Checks if we need to move to a poi or if we are already there
+	 * @private
+	 * @param {Array.<number>} position
+	 * @param {Array.<number>} orientation
+	 * @return {boolean}
+	 */
+	p.checkIfNoNeedToMove = function(position, orientation){
+		if(!position && !orientation) return true;
+		if(!position && orientation) return this.checkPosition(orientation);
+		if(position && !orientation) return this.checkPosition(position);
+		return this.checkPosition(position) && this.checkPosition(orientation);
+	};
+
+	/**
+	 * check if current position equals moveTo position
+	 * @private
+	 * @param {Array.<number>} position
+	 * @return {boolean}
+	 */
+	p.checkPosition = function(position){
+		var curPos = this.transform.translation;
+		return (curPos.x == position[0] && curPos.y == position[1] && curPos.z == position[2]);
+	};
+
+	/**
+	 * check if current orientation equals moveTo orientation
+	 * @private
+	 * @param {Array.<number>} orientation
+	 * @return {boolean}
+	 */
+	p.checkOrientation = function(orientation){
+		var curOri = this.transform.orientation;
+		return (curOri.x === orientation[0] && curOri.y === orientation[1] && curOri.z === orientation[2] && curOri.w === orientation[3]);
+	};
 
     /**
      * Applies one movement step to the moveable
