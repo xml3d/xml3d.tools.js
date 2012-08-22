@@ -180,7 +180,7 @@ function slerp(a, b, t) {
 		qm.x = qa.x;
 		qm.y = qa.y;
 		qm.z = qa.z;
-		return qm;
+		return [qm.x, qm.y, qm.z, qm.w];
 	}
 	// Calculate temporary values.
 	var halfTheta = Math.acos(cosHalfTheta);
@@ -192,7 +192,7 @@ function slerp(a, b, t) {
 		qm.x = (qa.x * 0.5 + qb.x * 0.5);
 		qm.y = (qa.y * 0.5 + qb.y * 0.5);
 		qm.z = (qa.z * 0.5 + qb.z * 0.5);
-		return qm;
+		return [qm.x, qm.y, qm.z, qm.w];
 	}
 	var ratioA = Math.sin((1 - t) * halfTheta) / sinHalfTheta;
 	var ratioB = Math.sin(t * halfTheta) / sinHalfTheta;

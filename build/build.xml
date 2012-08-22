@@ -38,7 +38,7 @@
 
 	<target name="develop" depends="init">
 		<tstamp />
-		<concatScripts version="0.1"/>
+		<concatScripts version="0.1.1"/>
 	</target>
 
     <target name="develop-min" depends="init">

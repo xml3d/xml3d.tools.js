@@ -269,12 +269,12 @@
 	 */
 	cc.nextPoi = function(){
 		if(this.poi.length == 0 || !this.allowPoi || this.moveable.movementInProgress()) return;
-		//rotate up/down before any other movement, this prevends from rolling
-		this.moveable.rotate( XMOT.axisAngleToQuaternion( [1,0,0], -this.angleUp) );
-		this.angleUp = 0;
-		this.allowPoi = false;
+
 		this.currentPoi = this.currentPoi == this.poi.length-1 ? 0 : this.currentPoi+1;
 		var movetopoi = this.poi[this.currentPoi];
+		this.allowPoi = false;
+
+		this.preventRolling();
 		var that = this;
 		this.moveable.moveTo(movetopoi.pos, movetopoi.ori, this.poiMoveToTime, {queueing: false, callback: function(){that.moveToCallback();}});
 	};
@@ -285,14 +285,23 @@
 	 */
 	cc.beforePoi = function(){
 		if(this.poi.length == 0 || !this.allowPoi || this.moveable.movementInProgress()) return;
-		//rotate up/down before any other movement, this prevends from rolling
-		this.moveable.rotate( XMOT.axisAngleToQuaternion( [1,0,0], -this.angleUp) );
-		this.angleUp = 0;
-		this.allowPoi = false;
+
 		this.currentPoi = this.currentPoi == 0 ? this.poi.length-1 : this.currentPoi-1;
 		var movetopoi = this.poi[this.currentPoi];
+		this.allowPoi = false;
+
+		this.preventRolling();
 		var that = this;
 		this.moveable.moveTo(movetopoi.pos, movetopoi.ori, this.poiMoveToTime, {queueing: false, callback: function(){that.moveToCallback();}});
+	};
+
+	/**
+	 * rotate up/down before any other movement, this prevends from rolling
+	 * @private
+	 */
+	cc.preventRolling = function(){
+		this.moveable.rotate( XMOT.axisAngleToQuaternion( [1,0,0], -this.angleUp) );
+		this.angleUp = 0;
 	};
 
 	/**
