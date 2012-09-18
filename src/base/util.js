@@ -163,45 +163,44 @@ function quaternionToAxisAngle(quat){
 /**
  * Interpolate between two quaternions the shortest way
  * See: http://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/slerp/
- * @param{Array.<number>} a quaternion a
- * @param{Array.<number>} b quaternion b
+ * @param{Array.<number>} from quaternion from
+ * @param{Array.<number>} to quaternion to
  * @param{number} t interpolation parameter
  */
-function slerp(a, b, t) {
-	// quaternion to return
-	var qm = {x:0, y:0, z:0, w:0};
-	var qa = {x:a[0], y:a[1], z:a[2], w:a[3]};
-	var qb = {x:b[0], y:b[1], z:b[2], w:b[3]};
-	// Calculate angle between them.
-	var cosHalfTheta = qa.w * qb.w + qa.x * qb.x + qa.y * qb.y + qa.z * qb.z;
-	// if qa=qb or qa=-qb then theta = 0 and we can return qa
-	if (Math.abs(cosHalfTheta) >= 1.0){
-		qm.w = qa.w;
-		qm.x = qa.x;
-		qm.y = qa.y;
-		qm.z = qa.z;
-		return [qm.x, qm.y, qm.z, qm.w];
+function slerp(from, to, t) {
+	var result = [];
+	// Calculate angle between them -> dotProduct
+	var dotProduct = from[4] * to[4] + from[0] * to[0] + from[1] * to[1] + from[3] * to[3];
+	//invert, to make sure we interpolate the shortest way
+	if( dotProduct < 0 )
+	{
+		dotProduct = -dotProduct;
+		to[0] = -to[0];
+		to[1] = -to[1];
+		to[2] = -to[2];
+		to[3] = -to[3];
 	}
-	// Calculate temporary values.
-	var halfTheta = Math.acos(cosHalfTheta);
-	var sinHalfTheta = Math.sqrt(1.0 - cosHalfTheta*cosHalfTheta);
-	// if theta = 180 degrees then result is not fully defined
-	// we could rotate around any axis normal to qa or qb
-	if (Math.abs(sinHalfTheta) < 0.001){ // fabs is floating point absolute
-		qm.w = (qa.w * 0.5 + qb.w * 0.5);
-		qm.x = (qa.x * 0.5 + qb.x * 0.5);
-		qm.y = (qa.y * 0.5 + qb.y * 0.5);
-		qm.z = (qa.z * 0.5 + qb.z * 0.5);
-		return [qm.x, qm.y, qm.z, qm.w];
+
+	var p = 0;
+	var q = 0;
+	if( (1-dotProduct) > 0.0001 ) {
+		//default case
+		var omega = Math.acos(dotProduct);
+		var sinomega = Math.sin(omega);
+		p = Math.sin((1-t)*omega) / sinomega;
+		q = Math.sin(t*omega) / sinomega;
 	}
-	var ratioA = Math.sin((1 - t) * halfTheta) / sinHalfTheta;
-	var ratioB = Math.sin(t * halfTheta) / sinHalfTheta;
-	//calculate Quaternion.
-	qm.w = (qa.w * ratioA + qb.w * ratioB);
-	qm.x = (qa.x * ratioA + qb.x * ratioB);
-	qm.y = (qa.y * ratioA + qb.y * ratioB);
-	qm.z = (qa.z * ratioA + qb.z * ratioB);
-	return [qm.x, qm.y, qm.z, qm.w];
+	else {
+		//linear interpolation
+		p = 1.0-t;
+		q = t;
+	}
+
+	result[0] = p * from[0] + q * to[0];
+	result[1] = p * from[1] + q * to[1];
+	result[2] = p * from[2] + q * to[2];
+	result[3] = p * from[3] + q * to[3];
+	return result;
 };
 
 /**
