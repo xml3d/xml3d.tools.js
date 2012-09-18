@@ -162,7 +162,6 @@ function quaternionToAxisAngle(quat){
 
 /**
  * Interpolate between two quaternions the shortest way
- * See: http://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/slerp/
  * @param{Array.<number>} from quaternion from
  * @param{Array.<number>} to quaternion to
  * @param{number} t interpolation parameter
@@ -170,7 +169,7 @@ function quaternionToAxisAngle(quat){
 function slerp(from, to, t) {
 	var result = [];
 	// Calculate angle between them -> dotProduct
-	var dotProduct = from[4] * to[4] + from[0] * to[0] + from[1] * to[1] + from[3] * to[3];
+	var dotProduct = from[0] * to[0] + from[1] * to[1] + from[2] * to[2] + from[3] * to[3];
 	//invert, to make sure we interpolate the shortest way
 	if( dotProduct < 0 )
 	{
