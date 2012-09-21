@@ -260,6 +260,7 @@
     p.stop = function(){
 		this.motionQueue.shift().tween.stop();
 		this.motionQueue = []; //clear array
+		return this;
     };
 
     /** @inheritDoc */
