@@ -258,8 +258,9 @@
 
     /**@inheritDoc */
     p.stop = function(){
-		this.motionQueue.shift().tween.stop();
-		this.motionQueue = []; //clear array
+		var motion = this.motionQueue.shift();
+		if(motion) motion.tween.stop();
+		this.motionQueue = [];
 		return this;
     };
 
