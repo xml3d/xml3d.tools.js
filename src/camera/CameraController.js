@@ -296,6 +296,15 @@
 	};
 
 	/**
+	 * Stops the current movement to a poi
+	 * @public
+	 */
+	cc.stopMovementToPoi = function(){
+		this.moveable.stop();
+		this.allowPoi = true;
+	};
+
+	/**
 	 * rotate up/down before any other movement, this prevends from rolling
 	 * @private
 	 */
