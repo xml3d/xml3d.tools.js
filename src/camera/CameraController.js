@@ -10,8 +10,9 @@
 	 * @constructor
 	 * @param {string} camera_id name of the group of the camera
 	 * @param {Array.<number>} initialRotation rotation to rotate the camera in a manner, that "forward" is a movement along -z
+	 * @param {string} mouseButton "left", "right", "middle"
 	 */
-	function CameraController(camera_id, initialRotation){
+	function CameraController(camera_id, initialRotation, mouseButton){
 		/**
 		 * @private
 		 * @type {Object}
@@ -111,7 +112,13 @@
 		 * @type {{position: Array.<number>, orientation: Array.<number>}}
 		 */
 		this.startingPoint = {position:this.moveable.getPosition(), orientation:this.moveable.getOrientation()};
-	
+
+		/**
+		 * Mousebutton on which the camera turns:
+		 * 0 = left, 1 = middle, 2 = right;
+		 */
+		this.mouseButton = 0;
+		this.setMouseButtonValue(mouseButton);
 		this.initEvents();
 
 		//finally, register in the animation loop
@@ -123,6 +130,15 @@
 			throw "Only one CameraController allowed.";
 	};
 	var cc = CameraController.prototype;
+
+	/**
+	 * Sets the used mouseButton for camera motion
+	 */
+	cc.setMouseButtonValue = function(button){
+		if(button == "left") this.mouseButton = 0;
+		else if(button == "middle") this.mouseButton = 1;
+		else if(button == "right") this.mouseButton = 2;
+	};
 
 	/**
 	 * Get current position in local space
@@ -398,7 +414,6 @@
 
 	/**
 	 * Removes key from the list of currently pressed keys
-	 * @param
 	 * @param {Event} e
 	 */
 	cc.keyUpEventHandler = function(e){
@@ -465,7 +480,7 @@
 	 * @param {Event} e event
 	 */
 	cc.mouseUpHandler = function(e){
-		if(e.button == 2){
+		if(e.button == this.mouseButton){
 			this.stopDefaultEventAction(e);
 			this.mouseButtonIsDown = false;
 		}
@@ -477,7 +492,7 @@
 	 * @param {Event} e event
 	 */
 	cc.mouseDownHandler = function(e){
-		if(e.button == 2){
+		if(e.button == this.mouseButton){
 			this.stopDefaultEventAction(e);
 			this.mouseButtonIsDown = true;
 			this.oldMousePosition.x = e.pageX;
