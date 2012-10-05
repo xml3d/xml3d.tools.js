@@ -119,6 +119,9 @@
 		 */
 		this.mouseButton = 0;
 		this.setMouseButtonValue(mouseButton);
+
+		this.pointToRotateAround = [0,0,0];
+
 		this.initEvents();
 
 		//finally, register in the animation loop
@@ -352,6 +355,42 @@
 		this.moveable.rotate( XMOT.axisAngleToQuaternion( [1,0,0], this.angleUp) );
 	};
 
+	cc.rotateCameraAroundPointLeftAndRight = function(angle){
+		var distanceToLookAt = this.distanceToLookAtPoint(this.pointToRotateAround);
+		//var cameraDirection = this.cameraDirectionAsXML3D();
+		//var translationToOrigin = this.moveable.transform.translation.negate();
+		this.moveable.setPosition([0,0,0]);
+		this.rotateCameraLeftAndRight(angle);
+		var newDirection = this.cameraDirectionAsXML3D();
+		var tmp = newDirection.scale(distanceToLookAt).negate();
+		this.moveable.setPosition([tmp.x, tmp.y, tmp.z]);
+		this.moveable.translate(this.pointToRotateAround);
+	};
+
+	cc.rotateCameraAroundPointUpAndDown = function(angle){
+		var distanceToLookAt = this.distanceToLookAtPoint(this.pointToRotateAround);
+		//var cameraDirection = this.cameraDirectionAsXML3D();
+		//var translationToOrigin = this.moveable.transform.translation.negate();
+		this.moveable.setPosition([0,0,0]);
+		this.rotateCameraUpAndDown(angle);
+		var newDirection = this.cameraDirectionAsXML3D();
+		var tmp = newDirection.scale(distanceToLookAt).negate();
+		this.moveable.setPosition([tmp.x, tmp.y, tmp.z]);
+		this.moveable.translate(this.pointToRotateAround);
+	};
+
+	cc.distanceToLookAtPoint = function(point){
+		var camPosition = this.moveable.transform.translation;
+		var p = new XML3DVec3(point[0],point[1],point[2]);
+		return camPosition.subtract(p).length();
+	};
+
+	cc.cameraDirectionAsXML3D = function(){
+		var camOrientation = this.moveable.transform.rotation;
+		// as per spec: [getOrientation] is the orientation multiplied with the default direction (0, 0, -1)
+		return camOrientation.rotateVec3(new XML3DVec3(0,0,-1)).normalize();
+	};
+
 	/**
 	 * Resets the camera to the starting Position
 	 * @private 
@@ -436,6 +475,7 @@
 			case 68 : this.moveLeftAndRight(this.moveSensivityKeyboard); break; // d
 			case 33 : this.moveUpAndDown(this.moveSensivityKeyboard); break; //page up
 			case 34 : this.moveUpAndDown(-this.moveSensivityKeyboard); break; //page down
+			//TODO: check for rotateAroundPoint oder normal rotate somewhere
 			case 38 : this.rotateCameraUpAndDown(this.rotationSensivityMouse); break; // up Arrow
 			case 40 : this.rotateCameraUpAndDown(-this.rotationSensivityMouse); break; // down Arrow
 			case 37 : this.rotateCameraLeftAndRight(this.rotationSensivityMouse); break; // left Arrow
