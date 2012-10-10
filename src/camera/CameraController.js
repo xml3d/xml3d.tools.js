@@ -306,12 +306,9 @@
 	 */
 	cc.nextPoi = function(){
 		if(this.poi.length == 0 || !this.allowPoi || this.moveable.movementInProgress()) return;
-
 		this.currentPoi = this.currentPoi == this.poi.length-1 ? 0 : this.currentPoi+1;
 		var movetopoi = this.poi[this.currentPoi];
 		this.allowPoi = false;
-
-		this.preventRolling();
 		var that = this;
 		this.moveable.moveTo(movetopoi.pos, movetopoi.ori, this.poiMoveToTime, {queueing: false, callback: function(){that.moveToCallback();}});
 	};
@@ -322,12 +319,9 @@
 	 */
 	cc.beforePoi = function(){
 		if(this.poi.length == 0 || !this.allowPoi || this.moveable.movementInProgress()) return;
-
 		this.currentPoi = this.currentPoi == 0 ? this.poi.length-1 : this.currentPoi-1;
 		var movetopoi = this.poi[this.currentPoi];
 		this.allowPoi = false;
-
-		this.preventRolling();
 		var that = this;
 		this.moveable.moveTo(movetopoi.pos, movetopoi.ori, this.poiMoveToTime, {queueing: false, callback: function(){that.moveToCallback();}});
 	};
@@ -545,9 +539,9 @@
 		this.oldMousePosition.x = currentX;
 		this.oldMousePosition.y = currentY;
 		if(x != 0)
-			this.rotateCameraLeftAndRight(-this.rotationSensivityMouse*x);
+			this.rotateLeftAndRight(-this.rotationSensivityMouse*x);
 		if(y != 0)
-			this.rotateCameraUpAndDown(-this.rotationSensivityMouse*y);
+			this.rotateUpAndDown(-this.rotationSensivityMouse*y);
 	};
 
 	/**
