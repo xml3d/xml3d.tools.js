@@ -66,7 +66,9 @@
 			};
 
 			function initCamera(){
-				movObjects.cam = new XMOT.CameraController("node-camera_player", [0,0,0,0], "left", true);
+				var rotatearoundpoint = true;
+				movObjects.cam = new XMOT.CameraController("node-camera_player", [0,0,0,0], "left", rotatearoundpoint);
+				movObjects.cam.pointToRotateAround = [0,0,0];
 				createPois();
 			};
 
