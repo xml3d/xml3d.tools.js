@@ -11,8 +11,9 @@
 	 * @param {string} camera_id name of the group of the camera
 	 * @param {Array.<number>} initialRotation rotation to rotate the camera in a manner, that "forward" is a movement along -z
 	 * @param {string} mouseButton "left", "right", "middle"
+	 * @param {boolean} inspectMode determine wether to use inspectMode or not
 	 */
-	function CameraController(camera_id, initialRotation, mouseButton){
+	function CameraController(camera_id, initialRotation, mouseButton, inspectMode){
 		/**
 		 * @private
 		 * @type {Object}
@@ -122,6 +123,13 @@
 
 		this.pointToRotateAround = [0,0,0];
 
+		/**
+		 * camera mode freeflight
+		 * @type {Boolean}
+		 */
+		this.cameraModeInspect = inspectMode;
+		this.cameraModeFreeflight = !this.cameraModeInspect;
+
 		this.initEvents();
 
 		//finally, register in the animation loop
@@ -133,6 +141,16 @@
 			throw "Only one CameraController allowed.";
 	};
 	var cc = CameraController.prototype;
+
+	cc.activateInspectCameraMode = function(){
+		this.cameraModeInspect = true;
+		this.cameraModeFreeflight = !this.cameraModeInspect;
+	};
+
+	cc.activateFreeFlightCameraMode = function(){
+		this.cameraModeFreeflight = true;
+		this.cameraModeInspect = !this.cameraModeFreeflight;
+	};
 
 	/**
 	 * Sets the used mouseButton for camera motion
@@ -237,10 +255,10 @@
 				if(x != 0) this.moveLeftAndRight(x*this.moveSensivityPad);
 				//up and down
 				var rotUpDown = (pad.rightStickY < -0.15 || pad.rightStickY > 0.15) ? pad.rightStickY : 0;
-				if(rotUpDown != 0) this.rotateCameraUpAndDown(-this.rotationSensivityPad*rotUpDown);
+				if(rotUpDown != 0) this.rotateUpAndDown(-this.rotationSensivityPad*rotUpDown);
 				//left and right - rotate
 				var rotLeftRight = (pad.rightStickX < -0.15 || pad.rightStickX > 0.15) ? pad.rightStickX : 0;
-				if(rotLeftRight != 0) this.rotateCameraLeftAndRight(-this.rotationSensivityPad*rotLeftRight);
+				if(rotLeftRight != 0) this.rotateUpAndDown(-this.rotationSensivityPad*rotLeftRight);
 			}
 		}
 	};
@@ -476,13 +494,31 @@
 			case 33 : this.moveUpAndDown(this.moveSensivityKeyboard); break; //page up
 			case 34 : this.moveUpAndDown(-this.moveSensivityKeyboard); break; //page down
 			//TODO: check for rotateAroundPoint oder normal rotate somewhere
-			case 38 : this.rotateCameraUpAndDown(this.rotationSensivityMouse); break; // up Arrow
-			case 40 : this.rotateCameraUpAndDown(-this.rotationSensivityMouse); break; // down Arrow
-			case 37 : this.rotateCameraLeftAndRight(this.rotationSensivityMouse); break; // left Arrow
-			case 39 : this.rotateCameraLeftAndRight(-this.rotationSensivityMouse); break; // right Arrow
+			case 38 : this.rotateUpAndDown(this.rotationSensivityMouse); break; // up Arrow
+			case 40 : this.rotateUpAndDown(-this.rotationSensivityMouse); break; // down Arrow
+			case 37 : this.rotateLeftAndRight(this.rotationSensivityMouse); break; // left Arrow
+			case 39 : this.rotateLeftAndRight(-this.rotationSensivityMouse); break; // right Arrow
 	        default : return false; break;
 	    }
 	    return true;
+	};
+
+	cc.rotateLeftAndRight = function(angle)
+	{
+		if(this.cameraModeInspect){
+			this.rotateCameraAroundPointLeftAndRight(angle);
+		}else if(this.cameraModeFreeflight){
+			this.rotateCameraLeftAndRight(angle);
+		}
+	};
+
+	cc.rotateUpAndDown = function(angle)
+	{
+		if(this.cameraModeInspect){
+			this.rotateCameraAroundPointUpAndDown(angle);
+		}else if(this.cameraModeFreeflight){
+			this.rotateCameraUpAndDown(angle);
+		}
 	};
 
 	/**
