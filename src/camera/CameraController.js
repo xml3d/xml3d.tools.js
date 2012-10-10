@@ -285,7 +285,9 @@
 		var vecY = [1, 0, 0]; // global x is local z of the camera
 		var result = vec3.create();
 		quat4.multiplyVec3(this.moveable.getOrientation(),vecY, result);
-		this.moveable.translate(vec3.scale(vec3.normalize(result), l));
+		var moveVec = vec3.scale(vec3.normalize(result), l);
+		this.moveable.translate(moveVec);
+		this.pointToRotateAround = vec3.add(this.pointToRotateAround, moveVec);
 	};
 
 	/**
