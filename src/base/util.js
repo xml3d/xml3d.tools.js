@@ -1,5 +1,6 @@
-(function() {
+var XMOT = XMOT || {};
 
+(function() {
 
 //The functions inherit and base are taken out of the google closure project.
 //Those functions are part of the Apache License (see Appache_License file)
