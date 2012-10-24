@@ -33,12 +33,6 @@
 	 */
 	Gamepad.prototype.updateStatus = function (newStatus) { };
 
-	/**
-	 * @abstract
-	 * @param newStatus
-	 */
-	Gamepad.prototype.createKeyCodeMap = function (newStatus) { };
-
 	Gamepad.prototype.getId = function () {
 		return this.id;
 	};
@@ -250,22 +244,6 @@
 
 	GamepadEventProvider.prototype.stopPolling = function () {
 		this.pollingInProgress = false;
-	};
-
-	GamepadEventProvider.prototype.getKeycodeMap = function () {
-		return this.createKeyCodeMap();
-	};
-
-	GamepadEventProvider.prototype.createKeyCodeMap = function () {
-		var keycodeMap = [];
-		for(var i=0; i<this.pads.length; i++){
-			if(!this.pads[i]){
-				continue;
-			}
-			var index = this.pads[i].getIndex();
-			keycodeMap[index] = this.pads[i].createKeyCodeMap();
-		}
-		return keycodeMap;
 	};
 
 	//export
