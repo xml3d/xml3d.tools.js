@@ -4,8 +4,6 @@
  * Time: 12:34 PM
  */
 
-var XMOT = XMOT || {};
-
 (function () {
 
 	/**
@@ -21,7 +19,6 @@ var XMOT = XMOT || {};
 
 	/**
 	 * Gamepad
-	 * @interface
 	 * @constructor
 	 */
 	function Gamepad(status) {
@@ -29,7 +26,17 @@ var XMOT = XMOT || {};
 		this.id = status.id;
 		this.index = status.index;
 	}
+
+	/**
+	 * @abstract
+	 * @param newStatus
+	 */
 	Gamepad.prototype.updateStatus = function (newStatus) { };
+
+	/**
+	 * @abstract
+	 * @param newStatus
+	 */
 	Gamepad.prototype.createKeyCodeMap = function (newStatus) { };
 
 	Gamepad.prototype.getId = function () {

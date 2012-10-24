@@ -1,5 +1,3 @@
-var XMOT = XMOT || {};
-
 (function() {
 
 //The functions inherit and base are taken out of the google closure project.
