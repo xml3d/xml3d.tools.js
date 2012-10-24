@@ -30,6 +30,7 @@ var XMOT = XMOT || {};
 		this.timestamp = status.timestamp;
 		this.id = status.id;
 		this.index = status.index;
+		this.keycodeBase = 20*this.index;
 	}
 	Gamepad.prototype.updateStatus = function(newStatus){ };
 	Gamepad.prototype.createKeyCodeMap = function(newStatus){ };
@@ -43,19 +44,24 @@ var XMOT = XMOT || {};
 	};
 
 	Gamepad.prototype.dispatchButtonEvent = function(down, keycode){
-		this.dispatchEvent(down, keycode, undefined);
+		var eventName = down ? "GamepadButtonDown" : "GamepadButtonUp";
+		var detail = {key:keycode};
+		this.dispatchCustomEvent(eventName, detail)
 	};
 
 	Gamepad.prototype.dispatchAxisEvent = function(data, keycode){
-		this.dispatchEvent(true, keycode, data);
+		var eventName = "GamepadAxis";
+		var detail = {axis:keycode, value: data};
+		this.dispatchCustomEvent(eventName, detail)
 	};
 
-	Gamepad.prototype.dispatchEvent = function(down, keycode, data){
-		var event = document.createEvent("Event");
-		var eventName = down ? "keydown" : "keyup";
-		event.initEvent(eventName, true, true);
-		event.keyCode = keycode;
-		event.data = data;
+	Gamepad.prototype.dispatchCustomEvent = function(eventName, detail){
+		var options = {
+			detail: detail,
+			bubbles: true,
+			cancelable: false
+		};
+		var event = new window.CustomEvent(eventName, options);
 		document.dispatchEvent(event);
 	};
 
@@ -119,140 +125,140 @@ var XMOT = XMOT || {};
 	XBox360Gamepad.prototype.checkLeftShoulderButton = function(newValue){
 		if(this.left_shoulder_button != newValue ){
 			this.left_shoulder_button = newValue;
-			this.dispatchButtonEvent(this.left_shoulder_button, 5000);
+			this.dispatchButtonEvent(this.left_shoulder_button, this.keycodeBase+0);
 		}
 	};
 
 	XBox360Gamepad.prototype.checkRightShoulderButton = function(newValue){
 		if(this.right_shoulder_button != newValue ){
 			this.right_shoulder_button = newValue;
-			this.dispatchButtonEvent(this.right_shoulder_button, 5001);
+			this.dispatchButtonEvent(this.right_shoulder_button, this.keycodeBase+1);
 		}
 	};
 
 	XBox360Gamepad.prototype.checkLeftTrigger = function(newValue){
 		if(this.left_trigger != newValue ){
 			this.left_trigger = newValue;
-			this.dispatchAxisEvent(this.left_trigger, 5002);
+			this.dispatchAxisEvent(this.left_trigger, this.keycodeBase+2);
 		}
 	};
 
 	XBox360Gamepad.prototype.checkRightTrigger = function(newValue){
 		if(this.right_trigger != newValue ){
 			this.right_trigger = newValue;
-			this.dispatchAxisEvent(this.right_trigger, 5003);
+			this.dispatchAxisEvent(this.right_trigger, this.keycodeBase+3);
 		}
 	};
 
 	XBox360Gamepad.prototype.checkStartButton = function(newValue){
 		if(this.start_button != newValue ){
 			this.start_button = newValue;
-			this.dispatchButtonEvent(this.start_button, 5004);
+			this.dispatchButtonEvent(this.start_button, this.keycodeBase+4);
 		}
 	};
 
 	XBox360Gamepad.prototype.checkBackButton = function(newValue){
 		if(this.back_button != newValue ){
 			this.back_button = newValue;
-			this.dispatchButtonEvent(this.back_button, 5005);
+			this.dispatchButtonEvent(this.back_button, this.keycodeBase+5);
 		}
 	};
 
 	XBox360Gamepad.prototype.checkXButton = function(newValue){
 		if(this.x_button != newValue ){
 			this.x_button = newValue;
-			this.dispatchButtonEvent(this.x_button, 5006);
+			this.dispatchButtonEvent(this.x_button, this.keycodeBase+6);
 		}
 	};
 
 	XBox360Gamepad.prototype.checkYButton = function(newValue){
 		if(this.y_button != newValue ){
 			this.y_button = newValue;
-			this.dispatchButtonEvent(this.y_button, 5007);
+			this.dispatchButtonEvent(this.y_button, this.keycodeBase+7);
 		}
 	};
 
 	XBox360Gamepad.prototype.checkAButton = function(newValue){
 		if(this.a_button != newValue ){
 			this.a_button = newValue;
-			this.dispatchButtonEvent(this.a_button, 5008);
+			this.dispatchButtonEvent(this.a_button, this.keycodeBase+8);
 		}
 	};
 
 	XBox360Gamepad.prototype.checkBButton = function(newValue){
 		if(this.b_button != newValue ){
 			this.b_button = newValue;
-			this.dispatchButtonEvent(this.b_button, 5009);
+			this.dispatchButtonEvent(this.b_button, this.keycodeBase+9);
 		}
 	};
 
 	XBox360Gamepad.prototype.checkLeftStickButton = function(newValue){
 		if(this.left_stick_button != newValue ){
 			this.left_stick_button = newValue;
-			this.dispatchButtonEvent(this.left_stick_button, 5010);
+			this.dispatchButtonEvent(this.left_stick_button, this.keycodeBase+10);
 		}
 	};
 
 	XBox360Gamepad.prototype.checkRightStickButton = function(newValue){
 		if(this.right_stick_button != newValue ){
 			this.right_stick_button = newValue;
-			this.dispatchButtonEvent(this.right_stick_button, 5011);
+			this.dispatchButtonEvent(this.right_stick_button, this.keycodeBase+11);
 		}
 	};
 
 	XBox360Gamepad.prototype.checkDPadLeft = function(newValue){
 		if(this.dpad_left != newValue ){
 			this.dpad_left = newValue;
-			this.dispatchButtonEvent(this.dpad_left, 5012);
+			this.dispatchButtonEvent(this.dpad_left, this.keycodeBase+12);
 		}
 	};
 
 	XBox360Gamepad.prototype.checkDPadRight = function(newValue){
 		if(this.dpad_right != newValue ){
 			this.dpad_right = newValue;
-			this.dispatchButtonEvent(this.dpad_right, 5013);
+			this.dispatchButtonEvent(this.dpad_right, this.keycodeBase+13);
 		}
 	};
 
 	XBox360Gamepad.prototype.checkDPadUp = function(newValue){
 		if(this.dpad_up != newValue ){
 			this.dpad_up = newValue;
-			this.dispatchButtonEvent(this.dpad_up, 5014);
+			this.dispatchButtonEvent(this.dpad_up, this.keycodeBase+14);
 		}
 	};
 
 	XBox360Gamepad.prototype.checkDPadDown = function(newValue){
 		if(this.dpad_down != newValue ){
 			this.dpad_down = newValue;
-			this.dispatchButtonEvent(this.dpad_down, 5015);
+			this.dispatchButtonEvent(this.dpad_down, this.keycodeBase+15);
 		}
 	};
 
 	XBox360Gamepad.prototype.checkLeftXAxis = function(newValue){
 		if(this.left_stick_x_axis != newValue ){
 			this.left_stick_x_axis = newValue;
-			this.dispatchAxisEvent(this.left_stick_x_axis, 5016);
+			this.dispatchAxisEvent(this.left_stick_x_axis, this.keycodeBase+16);
 		}
 	};
 
 	XBox360Gamepad.prototype.checkLeftYAxis = function(newValue){
 		if(this.left_stick_y_axis != newValue ){
 			this.left_stick_y_axis = newValue;
-			this.dispatchAxisEvent(this.left_stick_y_axis, 5017);
+			this.dispatchAxisEvent(this.left_stick_y_axis, this.keycodeBase+17);
 		}
 	};
 
 	XBox360Gamepad.prototype.checkRightXAxis = function(newValue){
 		if(this.right_stick_x_axis != newValue ){
 			this.right_stick_x_axis = newValue;
-			this.dispatchAxisEvent(this.right_stick_x_axis, 5018);
+			this.dispatchAxisEvent(this.right_stick_x_axis, this.keycodeBase+18);
 		}
 	};
 
 	XBox360Gamepad.prototype.checkRightYAxis = function(newValue){
 		if(this.right_stick_y_axis != newValue ){
 			this.right_stick_y_axis = newValue;
-			this.dispatchAxisEvent(this.right_stick_y_axis, 5019);
+			this.dispatchAxisEvent(this.right_stick_y_axis, this.keycodeBase+19);
 		}
 	};
 

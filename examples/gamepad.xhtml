@@ -6,93 +6,164 @@
 	<script src="http://xml3d.org/xml3d/scripts/xml3d.js"  type="text/javascript"/>
     <script src="../src/base/util.js" type="text/javascript"></script>
     <script src="../src/gamepad/gamepadConnector.js" type="text/javascript"></script>
-    <script src="simple.js" type="text/javascript"/>
     <script type="text/javascript">
         init = function(){
             //create connector
             new XMOT.GamepadConnector();
 			var ls = document.getElementById("ls");
-			window.addEventListener("keydown", function(e){if(e.keyCode == 5000) ls.innerHTML = "down";}, false);
-			window.addEventListener("keyup", function(e){if(e.keyCode == 5000) ls.innerHTML = "up";}, false);
+			window.addEventListener("GamepadButtonDown", function(e){if(e.detail.key == 0) ls.innerHTML = "down";}, false);
+			window.addEventListener("GamepadButtonUp", function(e){if(e.detail.key == 0) ls.innerHTML = "up";}, false);
 			var rs = document.getElementById("rs");
-			window.addEventListener("keydown", function(e){if(e.keyCode == 5001) rs.innerHTML = "down";}, false);
-			window.addEventListener("keyup", function(e){if(e.keyCode == 5001) rs.innerHTML = "up";}, false);
+			window.addEventListener("GamepadButtonDown", function(e){if(e.detail.key == 1) rs.innerHTML = "down";}, false);
+			window.addEventListener("GamepadButtonUp", function(e){if(e.detail.key == 1) rs.innerHTML = "up";}, false);
 			var lt = document.getElementById("lt");
-			window.addEventListener("keydown", function(e){if(e.keyCode == 5002) lt.innerHTML = e.data;}, false);
+			window.addEventListener("GamepadAxis", function(e){if(e.detail.axis == 2) lt.innerHTML = e.detail.value;}, false);
 			var rt = document.getElementById("rt");
-			window.addEventListener("keydown", function(e){if(e.keyCode == 5003) rt.innerHTML = e.data;}, false);
+			window.addEventListener("GamepadAxis", function(e){if(e.detail.axis == 3) rt.innerHTML = e.detail.value;}, false);
 			var start = document.getElementById("start");
-			window.addEventListener("keydown", function(e){if(e.keyCode == 5004) start.innerHTML = "down";}, false);
-			window.addEventListener("keyup", function(e){if(e.keyCode == 5004) start.innerHTML = "up";}, false);
+			window.addEventListener("GamepadButtonDown", function(e){if(e.detail.key == 4) start.innerHTML = "down";}, false);
+			window.addEventListener("GamepadButtonUp", function(e){if(e.detail.key == 4) start.innerHTML = "up";}, false);
 			var back = document.getElementById("back");
-			window.addEventListener("keydown", function(e){if(e.keyCode == 5005) back.innerHTML = "down"}, false);
-			window.addEventListener("keyup", function(e){if(e.keyCode == 5005) back.innerHTML = "up";}, false);
+			window.addEventListener("GamepadButtonDown", function(e){if(e.detail.key == 5) back.innerHTML = "down"}, false);
+			window.addEventListener("GamepadButtonUp", function(e){if(e.detail.key == 5) back.innerHTML = "up";}, false);
 			var x = document.getElementById("x");
-			window.addEventListener("keydown", function(e){if(e.keyCode == 5006) x.innerHTML = "down";}, false);
-			window.addEventListener("keyup", function(e){if(e.keyCode == 5006) x.innerHTML = "up";}, false);
+			window.addEventListener("GamepadButtonDown", function(e){if(e.detail.key == 6) x.innerHTML = "down";}, false);
+			window.addEventListener("GamepadButtonUp", function(e){if(e.detail.key == 6) x.innerHTML = "up";}, false);
 			var y = document.getElementById("y");
-			window.addEventListener("keydown", function(e){if(e.keyCode == 5007) y.innerHTML = "down"}, false);
-			window.addEventListener("keyup", function(e){if(e.keyCode == 5007) y.innerHTML = "up";}, false);
+			window.addEventListener("GamepadButtonDown", function(e){if(e.detail.key == 7) y.innerHTML = "down"}, false);
+			window.addEventListener("GamepadButtonUp", function(e){if(e.detail.key == 7) y.innerHTML = "up";}, false);
 			var a = document.getElementById("a");
-			window.addEventListener("keydown", function(e){if(e.keyCode == 5008) a.innerHTML = "down";}, false);
-			window.addEventListener("keyup", function(e){if(e.keyCode == 5008) a.innerHTML = "up";}, false);
+			window.addEventListener("GamepadButtonDown", function(e){if(e.detail.key == 8) a.innerHTML = "down";}, false);
+			window.addEventListener("GamepadButtonUp", function(e){if(e.detail.key == 8) a.innerHTML = "up";}, false);
 			var b = document.getElementById("b");
-			window.addEventListener("keydown", function(e){if(e.keyCode == 5009) b.innerHTML = "down"}, false);
-			window.addEventListener("keyup", function(e){if(e.keyCode == 5009) b.innerHTML = "up";}, false);
+			window.addEventListener("GamepadButtonDown", function(e){if(e.detail.key == 9) b.innerHTML = "down"}, false);
+			window.addEventListener("GamepadButtonUp", function(e){if(e.detail.key == 9) b.innerHTML = "up";}, false);
 			var lsb = document.getElementById("lsb");
-			window.addEventListener("keydown", function(e){if(e.keyCode == 5010) lsb.innerHTML = "down";}, false);
-			window.addEventListener("keyup", function(e){if(e.keyCode == 5010) lsb.innerHTML = "up";}, false);
+			window.addEventListener("GamepadButtonDown", function(e){if(e.detail.key == 10) lsb.innerHTML = "down";}, false);
+			window.addEventListener("GamepadButtonUp", function(e){if(e.detail.key == 10) lsb.innerHTML = "up";}, false);
 			var rsb = document.getElementById("rsb");
-			window.addEventListener("keydown", function(e){if(e.keyCode == 5011) rsb.innerHTML = "down"}, false);
-			window.addEventListener("keyup", function(e){if(e.keyCode == 5011) rsb.innerHTML = "up";}, false);
+			window.addEventListener("GamepadButtonDown", function(e){if(e.detail.key == 11) rsb.innerHTML = "down"}, false);
+			window.addEventListener("GamepadButtonUp", function(e){if(e.detail.key == 11) rsb.innerHTML = "up";}, false);
 			var dpl = document.getElementById("dpl");
-			window.addEventListener("keydown", function(e){if(e.keyCode == 5012) dpl.innerHTML = "down";}, false);
-			window.addEventListener("keyup", function(e){if(e.keyCode == 5012) dpl.innerHTML = "up";}, false);
+			window.addEventListener("GamepadButtonDown", function(e){if(e.detail.key == 12) dpl.innerHTML = "down";}, false);
+			window.addEventListener("GamepadButtonUp", function(e){if(e.detail.key == 12) dpl.innerHTML = "up";}, false);
 			var dpr = document.getElementById("dpr");
-			window.addEventListener("keydown", function(e){if(e.keyCode == 5013) dpr.innerHTML = "down"}, false);
-			window.addEventListener("keyup", function(e){if(e.keyCode == 5013) dpr.innerHTML = "up";}, false);
+			window.addEventListener("GamepadButtonDown", function(e){if(e.detail.key == 13) dpr.innerHTML = "down"}, false);
+			window.addEventListener("GamepadButtonUp", function(e){if(e.detail.key == 13) dpr.innerHTML = "up";}, false);
 			var dpu = document.getElementById("dpu");
-			window.addEventListener("keydown", function(e){if(e.keyCode == 5014) dpu.innerHTML = "down";}, false);
-			window.addEventListener("keyup", function(e){if(e.keyCode == 5014) dpu.innerHTML = "up";}, false);
+			window.addEventListener("GamepadButtonDown", function(e){if(e.detail.key == 14) dpu.innerHTML = "down";}, false);
+			window.addEventListener("GamepadButtonUp", function(e){if(e.detail.key == 14) dpu.innerHTML = "up";}, false);
 			var dpd = document.getElementById("dpd");
-			window.addEventListener("keydown", function(e){if(e.keyCode == 5015) dpd.innerHTML = "down"}, false);
-			window.addEventListener("keyup", function(e){if(e.keyCode == 5015) dpd.innerHTML = "up";}, false);
+			window.addEventListener("GamepadButtonDown", function(e){if(e.detail.key == 15) dpd.innerHTML = "down"}, false);
+			window.addEventListener("GamepadButtonUp", function(e){if(e.detail.key == 15) dpd.innerHTML = "up";}, false);
 			var xl = document.getElementById("x-l");
-			window.addEventListener("keydown", function(e){if(e.keyCode == 5016) xl.innerHTML = e.data;}, false);
+			window.addEventListener("GamepadAxis", function(e){if(e.detail.axis == 16) xl.innerHTML = e.detail.value;}, false);
 			var yl = document.getElementById("y-l");
-			window.addEventListener("keydown", function(e){if(e.keyCode == 5017) yl.innerHTML = e.data;}, false);
+			window.addEventListener("GamepadAxis", function(e){if(e.detail.axis == 17) yl.innerHTML = e.detail.value;}, false);
 			var xr = document.getElementById("x-r");
-			window.addEventListener("keydown", function(e){if(e.keyCode == 5018) xr.innerHTML = e.data;}, false);
+			window.addEventListener("GamepadAxis", function(e){if(e.detail.axis == 18) xr.innerHTML = e.detail.value;}, false);
 			var yr = document.getElementById("y-r");
-			window.addEventListener("keydown", function(e){if(e.keyCode == 5019) yr.innerHTML = e.data;}, false);
+			window.addEventListener("GamepadAxis", function(e){if(e.detail.axis == 19) yr.innerHTML = e.detail.value;}, false);
 
-
-
-
-
+			var ls2 = document.getElementById("ls2");
+			window.addEventListener("GamepadButtonDown", function(e){if(e.detail.key == 20) ls2.innerHTML = "down";}, false);
+			window.addEventListener("GamepadButtonUp", function(e){if(e.detail.key == 20) ls2.innerHTML = "up";}, false);
+			var rs2 = document.getElementById("rs2");
+			window.addEventListener("GamepadButtonDown", function(e){if(e.detail.key == 21) rs2.innerHTML = "down";}, false);
+			window.addEventListener("GamepadButtonUp", function(e){if(e.detail.key == 21) rs2.innerHTML = "up";}, false);
+			var lt2 = document.getElementById("lt2");
+			window.addEventListener("GamepadAxis", function(e){if(e.detail.axis == 22) lt2.innerHTML = e.detail.value;}, false);
+			var rt2 = document.getElementById("rt2");
+			window.addEventListener("GamepadAxis", function(e){if(e.detail.axis == 23) rt2.innerHTML = e.detail.value;}, false);
+			var start2 = document.getElementById("start2");
+			window.addEventListener("GamepadButtonDown", function(e){if(e.detail.key == 24) start2.innerHTML = "down";}, false);
+			window.addEventListener("GamepadButtonUp", function(e){if(e.detail.key == 24) start2.innerHTML = "up";}, false);
+			var back2 = document.getElementById("back2");
+			window.addEventListener("GamepadButtonDown", function(e){if(e.detail.key == 25) back2.innerHTML = "down"}, false);
+			window.addEventListener("GamepadButtonUp", function(e){if(e.detail.key == 25) back2.innerHTML = "up";}, false);
+			var x2 = document.getElementById("x2");
+			window.addEventListener("GamepadButtonDown", function(e){if(e.detail.key == 26) x2.innerHTML = "down";}, false);
+			window.addEventListener("GamepadButtonUp", function(e){if(e.detail.key == 26) x2.innerHTML = "up";}, false);
+			var y2 = document.getElementById("y2");
+			window.addEventListener("GamepadButtonDown", function(e){if(e.detail.key == 27) y2.innerHTML = "down"}, false);
+			window.addEventListener("GamepadButtonUp", function(e){if(e.detail.key == 27) y2.innerHTML = "up";}, false);
+			var a2 = document.getElementById("a2");
+			window.addEventListener("GamepadButtonDown", function(e){if(e.detail.key == 28) a2.innerHTML = "down";}, false);
+			window.addEventListener("GamepadButtonUp", function(e){if(e.detail.key == 28) a2.innerHTML = "up";}, false);
+			var b2 = document.getElementById("b2");
+			window.addEventListener("GamepadButtonDown", function(e){if(e.detail.key == 29) b2.innerHTML = "down"}, false);
+			window.addEventListener("GamepadButtonUp", function(e){if(e.detail.key == 29) b2.innerHTML = "up";}, false);
+			var lsb2 = document.getElementById("lsb2");
+			window.addEventListener("GamepadButtonDown", function(e){if(e.detail.key == 30) lsb2.innerHTML = "down";}, false);
+			window.addEventListener("GamepadButtonUp", function(e){if(e.detail.key == 30) lsb2.innerHTML = "up";}, false);
+			var rsb2 = document.getElementById("rsb2");
+			window.addEventListener("GamepadButtonDown", function(e){if(e.detail.key == 31) rsb2.innerHTML = "down"}, false);
+			window.addEventListener("GamepadButtonUp", function(e){if(e.detail.key == 31) rsb2.innerHTML = "up";}, false);
+			var dpl2 = document.getElementById("dpl2");
+			window.addEventListener("GamepadButtonDown", function(e){if(e.detail.key == 32) dpl2.innerHTML = "down";}, false);
+			window.addEventListener("GamepadButtonUp", function(e){if(e.detail.key == 32) dpl2.innerHTML = "up";}, false);
+			var dpr2 = document.getElementById("dpr2");
+			window.addEventListener("GamepadButtonDown", function(e){if(e.detail.key == 33) dpr2.innerHTML = "down"}, false);
+			window.addEventListener("GamepadButtonUp", function(e){if(e.detail.key == 33) dpr2.innerHTML = "up";}, false);
+			var dpu2 = document.getElementById("dpu2");
+			window.addEventListener("GamepadButtonDown", function(e){if(e.detail.key == 34) dpu2.innerHTML = "down";}, false);
+			window.addEventListener("GamepadButtonUp", function(e){if(e.detail.key == 34) dpu2.innerHTML = "up";}, false);
+			var dpd2 = document.getElementById("dpd2");
+			window.addEventListener("GamepadButtonDown", function(e){if(e.detail.key == 35) dpd2.innerHTML = "down"}, false);
+			window.addEventListener("GamepadButtonUp", function(e){if(e.detail.key == 35) dpd2.innerHTML = "up";}, false);
+			var xl2 = document.getElementById("x-l2");
+			window.addEventListener("GamepadAxis", function(e){if(e.detail.axis == 36) xl2.innerHTML = e.detail.value;}, false);
+			var yl2 = document.getElementById("y-l2");
+			window.addEventListener("GamepadAxis", function(e){if(e.detail.axis == 37) yl2.innerHTML = e.detail.value;}, false);
+			var xr2 = document.getElementById("x-r2");
+			window.addEventListener("GamepadAxis", function(e){if(e.detail.axis == 38) xr2.innerHTML = e.detail.value;}, false);
+			var yr2 = document.getElementById("y-r2");
+			window.addEventListener("GamepadAxis", function(e){if(e.detail.axis == 39) yr2.innerHTML = e.detail.value;}, false);
         }
     </script>
 </head>
 <body onload="init()">
-Button Left Shoulder: <div id="ls">up</div> <br/>
-Button Right Shoulder: <div id="rs">up</div> <br/>
-Button Left Trigger: <div id="lt">0</div> <br/>
-Button Right Trigger: <div id="rt">0</div> <br/>
-Button Start: <div id="start">up</div> <br/>
-Button Back: <div id="back">up</div> <br/>
-Button A: <div id="a">up</div> <br/>
-Button B: <div id="b">up</div> <br/>
-Button X: <div id="x">up</div> <br/>
-Button Y: <div id="y">up</div> <br/>
-Left Stick Button: <div id="lsb">up</div> <br/>
-Right Stick Button: <div id="rsb">up</div> <br/>
-DPad Left: <div id="dpl">up</div> <br/>
-DPad Right: <div id="dpr">up</div> <br/>
-DPad Up: <div id="dpu">up</div> <br/>
-DPad Down: <div id="dpd">up</div> <br/>
-Left x-Axis:<div id="x-l">0</div> <br/>
-Left y-Axis:<div id="y-l">0</div> <br/>
-Right x-Axis<div id="x-r">0</div> <br/>
-Right y-Axis<div id="y-r">0</div> <br/>
+<h3>Gamepad 1</h3>
+<div style="width: 300px;">Button Left Shoulder: <div style="float:right;" id="ls">up</div></div>
+<div style="width: 300px;">Button Right Shoulder: <div style="float:right;" id="rs">up</div></div>
+<div style="width: 300px;">Button Left Trigger: <div style="float:right;" id="lt">0</div></div>
+<div style="width: 300px;">Button Right Trigger: <div style="float:right;" id="rt">0</div></div>
+<div style="width: 300px;">Button Start: <div style="float:right;" id="start">up</div></div>
+<div style="width: 300px;">Button Back: <div style="float:right;" id="back">up</div></div>
+<div style="width: 300px;">Button A: <div style="float:right;" id="a">up</div></div>
+<div style="width: 300px;">Button B: <div style="float:right;" id="b">up</div></div>
+<div style="width: 300px;">Button X: <div style="float:right;" id="x">up</div></div>
+<div style="width: 300px;">Button Y: <div style="float:right;" id="y">up</div></div>
+<div style="width: 300px;">Left Stick Button: <div style="float:right;" id="lsb">up</div></div>
+<div style="width: 300px;">Right Stick Button: <div style="float:right;" id="rsb">up</div></div>
+<div style="width: 300px;">DPad Left: <div style="float:right;" id="dpl">up</div></div>
+<div style="width: 300px;">DPad Right: <div style="float:right;" id="dpr">up</div></div>
+<div style="width: 300px;">DPad Up: <div style="float:right;" id="dpu">up</div></div>
+<div style="width: 300px;">DPad Down: <div style="float:right;" id="dpd">up</div></div>
+<div style="width: 300px;">Left x-Axis:<div style="float:right;" id="x-l">0</div></div>
+<div style="width: 300px;">Left y-Axis:<div style="float:right;" id="y-l">0</div></div>
+<div style="width: 300px;">Right x-Axis<div style="float:right;" id="x-r">0</div></div>
+<div style="width: 300px;">Right y-Axis<div style="float:right;" id="y-r">0</div></div>
+<h3>Gamepad 2</h3>
+<div style="width: 300px;">Button Left Shoulder: <div style="float:right;" id="ls2">up</div></div>
+<div style="width: 300px;">Button Right Shoulder: <div style="float:right;" id="rs2">up</div></div>
+<div style="width: 300px;">Button Left Trigger: <div style="float:right;" id="lt2">0</div></div>
+<div style="width: 300px;">Button Right Trigger: <div style="float:right;" id="rt2">0</div></div>
+<div style="width: 300px;">Button Start: <div style="float:right;" id="start2">up</div></div>
+<div style="width: 300px;">Button Back: <div style="float:right;" id="back2">up</div></div>
+<div style="width: 300px;">Button A: <div style="float:right;" id="a2">up</div></div>
+<div style="width: 300px;">Button B: <div style="float:right;" id="b2">up</div></div>
+<div style="width: 300px;">Button X: <div style="float:right;" id="x2">up</div></div>
+<div style="width: 300px;">Button Y: <div style="float:right;" id="y2">up</div></div>
+<div style="width: 300px;">Left Stick Button: <div style="float:right;" id="lsb2">up</div></div>
+<div style="width: 300px;">Right Stick Button: <div style="float:right;" id="rsb2">up</div></div>
+<div style="width: 300px;">DPad Left: <div style="float:right;" id="dpl2">up</div></div>
+<div style="width: 300px;">DPad Right: <div style="float:right;" id="dpr2">up</div></div>
+<div style="width: 300px;">DPad Up: <div style="float:right;" id="dpu2">up</div></div>
+<div style="width: 300px;">DPad Down: <div style="float:right;" id="dpd2">up</div></div>
+<div style="width: 300px;">Left x-Axis:<div style="float:right;" id="x-l2">0</div></div>
+<div style="width: 300px;">Left y-Axis:<div style="float:right;" id="y-l2">0</div></div>
+<div style="width: 300px;">Right x-Axis<div style="float:right;" id="x-r2">0</div></div>
+<div style="width: 300px;">Right y-Axis<div style="float:right;" id="y-r2">0</div></div>
 </body>
 </html>
