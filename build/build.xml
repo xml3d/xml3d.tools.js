@@ -18,7 +18,6 @@
 		<file name="interfaces.js" />
 		<!-- contrib -->
 		<file name="contrib/Tween.js" />
-		<!-- <file name="contrib/gamepad.js" /> -->
 		<!-- our sources -->
 		<file name="base/util.js" />
 		<file name="base/ClientMoveable.js" />
@@ -30,6 +29,7 @@
 		<file name="constraint/SimpleConstraint.js" />
 		<file name="constraint/ProhibitAxisMovementConstraint.js" />
 		<file name="camera/CameraController.js" />
+		<file name="gamepad/GamepadConnector.js" />
 	</filelist>
 
 	<filelist dir="../externs" id="externs">
