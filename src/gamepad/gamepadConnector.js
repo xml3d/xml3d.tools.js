@@ -329,6 +329,7 @@ var XMOT = XMOT || {};
 
 	GamepadConnector.prototype.handleDisconnectedGamepads = function(newStatusData){
 		for(var i=0; i<this.pads.length; i++){
+			if(!this.pads[i]) continue;
 			var index = this.pads[i].getIndex();
 			if( !newStatusData[index] )
 				this.pads[index] = undefined;
@@ -337,6 +338,7 @@ var XMOT = XMOT || {};
 
 	GamepadConnector.prototype.updateGamepads = function(newStatusData){
 		for(var i=0; i<this.pads.length; i++){
+			if(!this.pads[i]) continue;
 			var index = this.pads[i].getIndex();
 			this.pads[i].updateStatus(newStatusData[index]);
 		}
@@ -361,6 +363,7 @@ var XMOT = XMOT || {};
 	GamepadConnector.prototype.createKeyCodeMap = function(){
 		var keycodeMap = [];
 		for(var i=0; i<this.pads.length; i++){
+			if(!this.pads[i]) continue;
 			var index = this.pads[i].getIndex();
 			keycodeMap[index] = this.pads[i].createKeyCodeMap();
 		}
