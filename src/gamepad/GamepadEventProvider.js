@@ -155,7 +155,7 @@
 	 * This whole module will only work with Chrome 21 (or higher)
 	 * @constructor
 	 */
-	function GamepadConnector() {
+	function GamepadEventProvider() {
 		if (!this.gamepadApiAvailable()) {
 			console.log("No Gamepad API available");
 			return;
@@ -165,18 +165,18 @@
 		this.startPolling();
 	}
 
-	GamepadConnector.prototype.gamepadApiAvailable = function () {
+	GamepadEventProvider.prototype.gamepadApiAvailable = function () {
 		return !!navigator.webkitGetGamepads || !!navigator.webkitGamepads;
 	};
 
-	GamepadConnector.prototype.startPolling = function () {
+	GamepadEventProvider.prototype.startPolling = function () {
 		if (!this.pollingInProgress) {
 			this.pollingInProgress = true;
 			this.onePoll();
 		}
 	};
 
-	GamepadConnector.prototype.onePoll = function () {
+	GamepadEventProvider.prototype.onePoll = function () {
 		var newStatusData = this.getNewStatusDataFromAPI();
 		if (!newStatusData) {
 			console.log("Cannot retrieve gamepad data");
@@ -186,17 +186,17 @@
 		this.nextPoll();
 	};
 
-	GamepadConnector.prototype.getNewStatusDataFromAPI = function () {
+	GamepadEventProvider.prototype.getNewStatusDataFromAPI = function () {
 		return (navigator.webkitGetGamepads && navigator.webkitGetGamepads()) || navigator.webkitGamepads;
 	};
 
-	GamepadConnector.prototype.processNewStatusData = function (newStatusData) {
+	GamepadEventProvider.prototype.processNewStatusData = function (newStatusData) {
 		this.handleNewlyConnectedGamepads(newStatusData);
 		this.handleDisconnectedGamepads(newStatusData);
 		this.updateGamepads(newStatusData);
 	};
 
-	GamepadConnector.prototype.handleNewlyConnectedGamepads = function (newStatusData) {
+	GamepadEventProvider.prototype.handleNewlyConnectedGamepads = function (newStatusData) {
 		for (var i=0; i<newStatusData.length; i++) {
 			var index = newStatusData[i] ? newStatusData[i].index : undefined;
 			if(index !== undefined && !this.pads[index]){
@@ -205,7 +205,7 @@
 		}
 	};
 
-	GamepadConnector.prototype.createNewGamepad = function (newGamepadData) {
+	GamepadEventProvider.prototype.createNewGamepad = function (newGamepadData) {
 		var id = newGamepadData.id;
 		if(id.indexOf("Xbox 360 Controller") !== -1){
 			return new XBox360Gamepad(newGamepadData);
@@ -214,7 +214,7 @@
 		return undefined;
 	};
 
-	GamepadConnector.prototype.handleDisconnectedGamepads = function (newStatusData) {
+	GamepadEventProvider.prototype.handleDisconnectedGamepads = function (newStatusData) {
 		for(var i=0; i<this.pads.length; i++){
 			if(!this.pads[i]){
 				continue;
@@ -226,7 +226,7 @@
 		}
 	};
 
-	GamepadConnector.prototype.updateGamepads = function (newStatusData) {
+	GamepadEventProvider.prototype.updateGamepads = function (newStatusData) {
 		for(var i=0; i<this.pads.length; i++){
 			if(!this.pads[i]){
 				continue;
@@ -236,7 +236,7 @@
 		}
 	};
 
-	GamepadConnector.prototype.nextPoll = function () {
+	GamepadEventProvider.prototype.nextPoll = function () {
 		if(!this.pollingInProgress){
 			return;
 		}
@@ -248,15 +248,15 @@
 		}
 	};
 
-	GamepadConnector.prototype.stopPolling = function () {
+	GamepadEventProvider.prototype.stopPolling = function () {
 		this.pollingInProgress = false;
 	};
 
-	GamepadConnector.prototype.getKeycodeMap = function () {
+	GamepadEventProvider.prototype.getKeycodeMap = function () {
 		return this.createKeyCodeMap();
 	};
 
-	GamepadConnector.prototype.createKeyCodeMap = function () {
+	GamepadEventProvider.prototype.createKeyCodeMap = function () {
 		var keycodeMap = [];
 		for(var i=0; i<this.pads.length; i++){
 			if(!this.pads[i]){
@@ -269,5 +269,5 @@
 	};
 
 	//export
-	XMOT.GamepadConnector = GamepadConnector;
+	XMOT.GamepadEventProvider = GamepadEventProvider;
 }());
