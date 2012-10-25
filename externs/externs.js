@@ -17,17 +17,21 @@ XML3D._native = {};
 XML3D.URIResolver.resolve = function(transform, ownerDoc){};
 
 /**
- * @param {number} x
- * @param {number} y
- * @param {number} z
+ * @param {number|void} x
+ * @param {number|void} y
+ * @param {number|void} z
  * @constructor
  */
 function XML3DVec3(x,y,z){};
+
+XML3DVec3._data = {};
 
 /**
  * @constructor
  */
 function XML3DRotation(){};
+
+XML3DRotation._setQuaternion = function(q){};
 
 /**
  * @param {XML3DVec3} vec
@@ -53,6 +57,8 @@ quat4.normalize = function(quat){};
  * @return {Array.<number>|vec3} result
  */
 quat4.multiplyVec3 = function(quat, vec, result){};
+
+quat4.setFromBasis = function(a, b,c, d){};
 
 /**
  * @constructor
@@ -84,3 +90,5 @@ console.log = function(string){};
 navigator.webkitGetGamepads = function(){};
 
 navigator.webkitGamepads = [];
+
+window.requestAnimFrame = function(f, u){};

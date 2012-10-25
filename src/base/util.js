@@ -106,7 +106,7 @@ var registeredCameraController = undefined;
  */
 function animate(){
 	if(TWEEN.getAll().length || XMOT.animationHook || XMOT.registeredCameraController) {
-		window.requestAnimFrame(XMOT.animate);
+		window.requestAnimFrame(XMOT.animate, undefined);
 		if(XMOT.animationHook) XMOT.animationHook();
 		if(XMOT.registeredCameraController) XMOT.registeredCameraController.update();
 		TWEEN.update();
