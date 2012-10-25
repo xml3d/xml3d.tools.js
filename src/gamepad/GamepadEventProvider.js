@@ -146,15 +146,13 @@
 
 
 	/**
-	 * GamepadConnector
+	 * GamepadConnector - Singleton
 	 * This whole module will only work with Chrome 21 (or higher)
+	 * @private
 	 * @constructor
 	 */
 	function GamepadEventProvider() {
-		if (!this.gamepadApiAvailable()) {
-			console.log("No Gamepad API available");
-			return;
-		}
+		this.instance;
 		this.pollingInProgress = false;
 		this.pads = [];
 		this.startPolling();
@@ -162,6 +160,20 @@
 
 	GamepadEventProvider.prototype.gamepadApiAvailable = function () {
 		return !!navigator.webkitGetGamepads || !!navigator.webkitGamepads;
+	};
+
+	GamepadEventProvider.prototype.getInstance = function(){
+		if(!this.instance)
+			this.instance = new GamepadEventProvider();
+		return this.instance;
+	};
+
+	GamepadEventProvider.prototype.init = function(){
+		if (!this.gamepadApiAvailable()) {
+			console.log("No Gamepad API available");
+			return undefined;
+		}
+		return this.getInstance();
 	};
 
 	GamepadEventProvider.prototype.startPolling = function () {
@@ -248,5 +260,5 @@
 	};
 
 	//export
-	XMOT.GamepadEventProvider = GamepadEventProvider;
+	XMOT.GamepadEventProvider = GamepadEventProvider.prototype.init.bind(GamepadEventProvider.prototype);
 }());

@@ -130,7 +130,7 @@
 		this.cameraModeInspect = inspectMode;
 		this.cameraModeFreeflight = !this.cameraModeInspect;
 
-		new XMOT.GamepadEventProvider();
+		this.gamepadEventProvider = XMOT.GamepadEventProvider();
 		this.padData = {};
 		this.initEvents();
 
