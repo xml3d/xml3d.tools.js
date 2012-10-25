@@ -1,12 +1,12 @@
 (function(){
 	/**
 	 * A CameraController
-	 * In order to use this gamepad functiponality of this class do as follows:
-	 * 1. Use Chrome.
+	 * In order to use the gamepad functiponality of this class do as follows:
+	 * 1. Use Chrome 21 or higher.
 	 * 2. Get A XBox360 Controller.
-	 * 3. Activate the gamepad api of chrome -> about:flags
-	 * 4. Add the gamepad.js to your application: http://www.gamepadjs.com/
-	 * 5. Have Fun :-)
+	 * (2. a: Use another Controller in XBox360 Emulation Mode)
+	 * (2. b: Add your own XYZGamepad class in GamepadEventProvider.js)
+	 * 3. Have Fun :-)
 	 * @constructor
 	 * @param {string} camera_id name of the group of the camera
 	 * @param {Array.<number>} initialRotation rotation to rotate the camera in a manner, that "forward" is a movement along -z
@@ -66,13 +66,13 @@
 		 * @private
 		 * @type {number}
 		 */
-		this.moveSensivityPad = 0.4 * this.slowthis;
+		this.moveSensivityPad = 0.04 * this.slowthis;
 		/**
 		 * Sensivity for rotation of gamepad
 		 * @private
 		 * @type {number}
 		 */
-		this.rotationSensivityPad = 0.0025 * this.slowthis;
+		this.rotationSensivityPad = 0.01 * this.slowthis;
 		/**
 		 * Sensivity for movement of keyboard
 		 * @private
@@ -130,6 +130,8 @@
 		this.cameraModeInspect = inspectMode;
 		this.cameraModeFreeflight = !this.cameraModeInspect;
 
+		new XMOT.GamepadEventProvider();
+		this.padData = {};
 		this.initEvents();
 
 		//finally, register in the animation loop
@@ -139,7 +141,7 @@
 		}
 		else
 			throw "Only one CameraController allowed.";
-	};
+	}
 	var cc = CameraController.prototype;
 
 	cc.activateInspectCameraMode = function(){
@@ -216,51 +218,8 @@
 	 * @public
 	 */
 	cc.update = function(){
-		this.updateController();
 		this.updateKeyMovement();
-	};
-
-	// private:
-	/**
-	 * updates the controller - gets called autmatically
-	 * To use the Controller the gamepad.js is needed as well.
-	 * @private
-	 */
-	cc.updateController = function() {
-		if(!window.Gamepad)return;
-		var pads = Gamepad.getStates();
-		for ( var i = 0; i < pads.length; ++i) {
-			var pad = pads[i];
-			if (pad) {
-				if(pad.rightShoulder1){ //lower shoulder buttons
-					this.nextPoi();
-				}
-				if(pad.leftShoulder1){
-					this.beforePoi();
-				}
-				if(pad.rightShoulder0){ //upper shoulder buttons
-					this.moveUpAndDown(-this.moveSensivityPad);
-				}
-				if(pad.leftShoulder0){
-					this.moveUpAndDown(this.moveSensivityPad);
-				}
-				if(pad.start){
-					this.reset();
-				}
-				//back and for
-				var y = (pad.leftStickY < -0.15 || pad.leftStickY > 0.15) ? pad.leftStickY : 0;
-				if(y != 0) this.moveBackAndForward(y*this.moveSensivityPad);
-				//left and right - transalte
-				var x = (pad.leftStickX < -0.15 || pad.leftStickX > 0.15) ? pad.leftStickX : 0;
-				if(x != 0) this.moveLeftAndRight(x*this.moveSensivityPad);
-				//up and down
-				var rotUpDown = (pad.rightStickY < -0.15 || pad.rightStickY > 0.15) ? pad.rightStickY : 0;
-				if(rotUpDown != 0) this.rotateUpAndDown(-this.rotationSensivityPad*rotUpDown);
-				//left and right - rotate
-				var rotLeftRight = (pad.rightStickX < -0.15 || pad.rightStickX > 0.15) ? pad.rightStickX : 0;
-				if(rotLeftRight != 0) this.rotateUpAndDown(-this.rotationSensivityPad*rotLeftRight);
-			}
-		}
+		this.updateGamepadMovement();
 	};
 
 	// ---------- functions to handle movement ----------
@@ -433,11 +392,15 @@
 	cc.initEvents = function(){
 		//registered on window, since registring on div did not work, events never triggered
 		var that = this;
-		window.addEventListener("keydown", function(e){that.keypressEventHandler(e);}, false);
+		window.addEventListener("keydown", function(e){that.keyDownEventHandler(e);}, false);
 		window.addEventListener("keyup", function(e){that.keyUpEventHandler(e);}, false);
 		window.addEventListener("mousemove", function(e){that.mouseMovementHandler(e);}, false);
 		window.addEventListener("mousedown", function(e){that.mouseDownHandler(e);}, false);
 		window.addEventListener("mouseup", function(e){that.mouseUpHandler(e);}, false);
+
+		window.addEventListener("GamepadButtonDown", function(e){that.gamepadButtonDownHandler(e);}, false);
+		window.addEventListener("GamepadButtonUp", function(e){that.gamepadButtonUpHandler(e);}, false);
+		window.addEventListener("GamepadAxis", function(e){that.gamepadAxisHandler(e);}, false);
 	};
 
 	/**
@@ -445,7 +408,7 @@
 	 * @private
 	 * @param {Event} e event
 	 */
-	cc.keypressEventHandler = function(e){
+	cc.keyDownEventHandler = function(e){
 		if(!this.allowPoi) return;
 		e = window.event || e;
 		var kc = e.keyCode;
@@ -570,6 +533,49 @@
 			this.oldMousePosition.x = e.pageX;
 			this.oldMousePosition.y = e.pageY;
 		}
+	};
+
+	cc.updateGamepadMovement = function(){
+		for(var item in this.padData){
+			switch (item){
+				case "RT" : this.moveUpAndDown(this.padData[item]*this.moveSensivityPad); break;
+				case "LT" : this.moveUpAndDown(this.padData[item]*this.moveSensivityPad*-1); break;
+				case "Left" : if(this.padData[item]) this.moveLeftAndRight(this.moveSensivityPad*-1); break;
+				case "Right" : if(this.padData[item]) this.moveLeftAndRight(this.moveSensivityPad); break;
+				case "Up" : if(this.padData[item]) this.moveBackAndForward(this.moveSensivityPad*-1); break;
+				case "Down" : if(this.padData[item]) this.moveBackAndForward(this.moveSensivityPad); break;
+				case "LeftStickX" : this.moveLeftAndRight(this.padData[item] * this.moveSensivityPad); break;
+				case "LeftStickY" : this.moveBackAndForward(this.padData[item] * this.moveSensivityPad); break;
+				case "RightStickX" : this.rotateLeftAndRight(this.padData[item] * this.moveSensivityPad); break;
+				case "RightStickY" : this.rotateUpAndDown(this.padData[item] * this.moveSensivityPad*-1); break;
+				default: break;
+			}
+		}
+	};
+
+	cc.gamepadButtonDownHandler = function(e){
+		switch (e.detail.button) {
+			case "RB": this.nextPoi(); break;
+			case "LB": this.beforePoi(); break;
+			case "Start": this.reset(); break;
+			default: this.padData[e.detail.button] = e.detail.value; break;
+		}
+	};
+
+	cc.gamepadButtonUpHandler = function(e){
+		this.padData[e.detail.button] = e.detail.value;
+	};
+
+	cc.gamepadAxisHandler = function(e){
+		var value = this.handleAxisThreshold(e.detail.value);
+		this.padData[e.detail.axis] = value;
+	};
+
+	cc.handleAxisThreshold = function(value){
+		if(value > 0.15 || value < -0.15)
+			return value;
+		else
+			return 0;
 	};
 
 	/**
