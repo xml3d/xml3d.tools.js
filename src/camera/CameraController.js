@@ -608,8 +608,8 @@
 				case "Down" : if(this.padData[item]) this.moveBackAndForward(this.moveSensivityPad); break;
 				case "LeftStickX" : this.moveLeftAndRight(this.padData[item] * this.moveSensivityPad); break;
 				case "LeftStickY" : this.moveBackAndForward(this.padData[item] * this.moveSensivityPad); break;
-				case "RightStickX" : this.rotateLeftAndRight(this.padData[item] * this.rotationSensivityPad); break;
-				case "RightStickY" : this.rotateUpAndDown(this.padData[item] * this.rotationSensivityPad*-1); break;
+				case "RightStickX" : this.rotateLeftAndRight(this.padData[item] * this.rotationSensivityPad*-1); break;
+				case "RightStickY" : this.rotateUpAndDown(this.padData[item] * this.rotationSensivityPad); break;
 				default: break;
 			}
 		}
