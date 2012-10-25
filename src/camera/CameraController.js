@@ -125,7 +125,7 @@
 
 		/**
 		 * camera mode freeflight
-		 * @type {Boolean}
+		 * @type {Boolean|null}
 		 */
 		this.cameraModeInspect = inspectMode;
 		this.cameraModeFreeflight = !this.cameraModeInspect;
@@ -355,12 +355,72 @@
 		this.moveable.translate(this.pointToRotateAround);
 	};
 
-	cc.distanceToLookAtPoint = function(point){
+	/**
+	 * distance between camera and a point
+	 * @param point
+	 * @return {Number|void}
+	 */
+	cc.distanceBetweenCameraAndPoint = function(point){
 		var camPosition = this.moveable.transform.translation;
 		var p = new XML3DVec3(point[0],point[1],point[2]);
 		return camPosition.subtract(p).length();
 	};
 
+	/**
+	 * look at a certain point
+	 * @public
+	 * @param point {Array}
+	 */
+	cc.lookAtPoint = function(point){
+		var position = this.getPosition();
+		var direction = [point[0]-position[0],point[1]-position[1],point[2]-position[2]];
+		var orientation =this.getRotationFromDirection(direction);
+		this.moveable.setOrientation(orientation);
+	};
+
+	/**
+	 * Get rotation to look from a point at another
+	 * @param fromPoint
+	 * @param atPoint
+	 * @return {vec3|void}
+	 */
+	cc.getRotationToLookFromPointAtPoint = function (fromPoint, atPoint) {
+		return this.getRotationFromDirection(atPoint.subtract(fromPoint));
+	};
+
+	/**
+	 * @private
+	 * @param direction
+	 * @return {vec3|void}
+	 */
+	cc.getRotationFromDirection = function (direction) {
+		direction = direction || new window.XML3DVec3(0,0,-1);
+		direction = direction.normalize();
+
+		var up = new XML3DVec3(0,1,0);
+		var tmpX = new XML3DVec3();
+		var tmpY = new XML3DVec3();
+		var tmpZ = new XML3DVec3();
+
+		vec3.cross(direction._data,up._data,tmpX);
+		if(!vec3.length(tmpX)) {
+			tmpX = this.moveable.transform.rotation.rotateVec3(new window.XML3DVec3(1,0,0))._data;
+		}
+		vec3.cross(tmpX,direction._data,tmpY);
+		vec3.negate(direction._data,tmpZ);
+
+		var q = quat4.create();
+		quat4.setFromBasis(tmpX, up._data, tmpZ, q);
+		var lookAtVector = new XML3DRotation();
+		lookAtVector._setQuaternion(q);
+		return q;
+	};
+
+	/**
+	 * Returns the normalized camera Direction in XML3D format
+	 * @private
+	 * @return {*}
+	 */
 	cc.cameraDirectionAsXML3D = function(){
 		var camOrientation = this.moveable.transform.rotation;
 		// as per spec: [getOrientation] is the orientation multiplied with the default direction (0, 0, -1)
