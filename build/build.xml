@@ -28,7 +28,7 @@
 		<file name="constraint/ConstraintCollection.js" />
 		<file name="constraint/SimpleConstraint.js" />
 		<file name="constraint/ProhibitAxisMovementConstraint.js" />
-		<!--<file name="camera/CameraController.js" />-->
+		<file name="camera/CameraController.js" />
 		<file name="gamepad/GamepadEventProvider.js" />
 	</filelist>
 
