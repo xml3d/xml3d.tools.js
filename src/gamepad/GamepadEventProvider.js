@@ -108,6 +108,7 @@
 	};
 
 	XBox360Gamepad.prototype.initAxes = function (status) {
+		this.axisEpsilon = 0.001;
 		this.axes.push(new GamepadAttribute("LeftStickX", status.axes[0]));
 		this.axes.push(new GamepadAttribute("LeftStickY", status.axes[1]));
 		this.axes.push(new GamepadAttribute("RightStickX", status.axes[2]));
@@ -135,7 +136,7 @@
 
 	XBox360Gamepad.prototype.updateAxes = function (newStatus) {
 		for(var i=0; i<this.axes.length; i++){
-			if(this.axes[i].value !== newStatus.axes[i]){
+			if(newStatus[i] !== this.axes[i].value && Math.abs(this.axes[i].value - newStatus.axes[i]) > this.axisEpsilon){
 				this.axes[i].value = newStatus.axes[i];
 				this.dispatchAxisEvent(this.axes[i]);
 			}
