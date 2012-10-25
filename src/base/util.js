@@ -1,6 +1,5 @@
 (function() {
 
-
 //The functions inherit and base are taken out of the google closure project.
 //Those functions are part of the Apache License (see Appache_License file)
 
@@ -27,12 +26,12 @@
  */
 function inherit(child, parent) {
 	/** @constructor */
-	function tmp() {};
+	function tmp() {}
 	tmp.prototype = parent.prototype;
 	child.superClass_ = parent.prototype;
 	child.prototype = new tmp();
 	child.prototype.constructor = child;
-};
+}
 
 /**
  * Call up to the superclass.
@@ -83,7 +82,7 @@ function base(me, opt_methodName, var_args) {
 	} else {
 		throw "base called from a method of one name to a method of a different name";
 	}
-};
+}
 
 // ----------------------------------------------------------------------------
 
@@ -107,14 +106,14 @@ var registeredCameraController = undefined;
  */
 function animate(){
 	if(TWEEN.getAll().length || XMOT.animationHook || XMOT.registeredCameraController) {
-		window.requestAnimFrame(XMOT.animate);
+		window.requestAnimFrame(XMOT.animate, undefined);
 		if(XMOT.animationHook) XMOT.animationHook();
 		if(XMOT.registeredCameraController) XMOT.registeredCameraController.update();
 		TWEEN.update();
 	}
 	else
 		XMOT.animating = false;
-};
+}
 
 /**
  * Converts axis angle representation into an quaternion
@@ -131,7 +130,7 @@ function axisAngleToQuaternion(axis, angle){
 	quat[2] = normAxis[2] *s;
 	quat[3] = Math.cos(angle/2);
 	return quat;
-};
+}
 
 /**
  * Normalizes a 3D vector
@@ -142,7 +141,7 @@ function normalizeVector(vector){
 	var length = Math.sqrt( vector[0]*vector[0] + vector[1]*vector[1] + vector[2]*vector[2] );
 	if(length == 0) return vector;
 	return [vector[0]/length, vector[1]/length, vector[2]/length];
-};
+}
 
 /**
  * Converts a quaternion into an axis angle representation
@@ -158,7 +157,7 @@ function quaternionToAxisAngle(quat){
 	var y = quat[1]/s;
 	var z = quat[2]/s;
 	return {axis:[x,y,z], angle:angle};
-};
+}
 
 /**
  * Interpolate between two quaternions the shortest way
@@ -200,7 +199,7 @@ function slerp(from, to, t) {
 	result[2] = p * from[2] + q * to[2];
 	result[3] = p * from[3] + q * to[3];
 	return result;
-};
+}
 
 /**
  * Merges two optionsobjects
@@ -218,7 +217,7 @@ function mergeOptions(high, low){
 	ret.easing 		= high.easing 	|| low.easing;
 	ret.callback 	= high.callback || low.callback;
 	return ret;
-};
+}
 
 //export
 XMOT.inherit = inherit;
