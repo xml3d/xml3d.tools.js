@@ -229,6 +229,7 @@
 	 * @param {number} l length of the movement
 	 */
 	cc.moveBackAndForward = function(l){
+		if(l === 0) return;
 		var vecX = [0, 0, 1];
 		var result = vec3.create();
 		quat4.multiplyVec3(this.moveable.getOrientation(),vecX, result);
@@ -241,6 +242,7 @@
 	 * @param {number} l length of the movement
 	 */
 	cc.moveLeftAndRight = function(l){
+		if(l === 0) return;
 		var vecY = [1, 0, 0]; // global x is local z of the camera
 		var result = vec3.create();
 		quat4.multiplyVec3(this.moveable.getOrientation(),vecY, result);
@@ -255,6 +257,7 @@
 	 * @param {number} l length of the movement
 	 */
 	cc.moveUpAndDown = function(l){
+		if(l === 0) return;
 		var vecY = [0, 1, 0];
 		var result = vec3.create();
 		quat4.multiplyVec3(this.moveable.getOrientation(),vecY, result);
@@ -452,7 +455,6 @@
 			case 68 : this.moveLeftAndRight(this.moveSensivityKeyboard); break; // d
 			case 33 : this.moveUpAndDown(this.moveSensivityKeyboard); break; //page up
 			case 34 : this.moveUpAndDown(-this.moveSensivityKeyboard); break; //page down
-			//TODO: check for rotateAroundPoint oder normal rotate somewhere
 			case 38 : this.rotateUpAndDown(this.rotationSensivityMouse); break; // up Arrow
 			case 40 : this.rotateUpAndDown(-this.rotationSensivityMouse); break; // down Arrow
 			case 37 : this.rotateLeftAndRight(this.rotationSensivityMouse); break; // left Arrow
@@ -546,8 +548,8 @@
 				case "Down" : if(this.padData[item]) this.moveBackAndForward(this.moveSensivityPad); break;
 				case "LeftStickX" : this.moveLeftAndRight(this.padData[item] * this.moveSensivityPad); break;
 				case "LeftStickY" : this.moveBackAndForward(this.padData[item] * this.moveSensivityPad); break;
-				case "RightStickX" : this.rotateLeftAndRight(this.padData[item] * this.moveSensivityPad); break;
-				case "RightStickY" : this.rotateUpAndDown(this.padData[item] * this.moveSensivityPad*-1); break;
+				case "RightStickX" : this.rotateLeftAndRight(this.padData[item] * this.rotationSensivityPad); break;
+				case "RightStickY" : this.rotateUpAndDown(this.padData[item] * this.rotationSensivityPad*-1); break;
 				default: break;
 			}
 		}
@@ -567,8 +569,7 @@
 	};
 
 	cc.gamepadAxisHandler = function(e){
-		var value = this.handleAxisThreshold(e.detail.value);
-		this.padData[e.detail.axis] = value;
+		this.padData[e.detail.axis] = this.handleAxisThreshold(e.detail.value);
 	};
 
 	cc.handleAxisThreshold = function(value){

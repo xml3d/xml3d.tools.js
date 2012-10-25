@@ -63,21 +63,21 @@
 					aobj = movObjects.cube = createAnimatable();
 				}
 				aobj.startAnimation("a1", {loop:2});
-			};
+			}
 
 			function initCamera(){
-				var rotatearoundpoint = true;
+				var rotatearoundpoint = false;
 				movObjects.cam = new XMOT.CameraController("node-camera_player", [0,0,0,0], "left", rotatearoundpoint);
 				movObjects.cam.pointToRotateAround = [0,0,0];
 				createPois();
-			};
+			}
 
 			function createAnimatable() {
 				var c = factory.createAnimatable(document.getElementById("shape_d1e22"), constraint);
 				var a1 = factory.createKeyframeAnimation("a1", document.getElementById("animation"), {duration: 100000});
 				c.addAnimation(a1);
 				return c;
-			};
+			}
 
 			function createPois(){
 				var cam = movObjects.cam;
@@ -90,7 +90,7 @@
 				cam.addPointOfInterest([i,i,i], [i,i,i,i]);i++;
 				cam.addPointOfInterest([i,i,i], [i,i,i,i]);i++;
 				cam.addPointOfInterest([i,i,i], [i,i,i,i]);
-			};
+			}
 		</script>
 	</body>
 </html>
