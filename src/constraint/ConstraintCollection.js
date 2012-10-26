@@ -30,6 +30,7 @@
 		var i = 0;
 		var ret = true;
 		var breakEarly = this.breakEarly;
+		
 		while( i<length && (ret || !breakEarly) ){
 			ret = ret && constraints[i].constrainRotation(newRotation, moveable);
 			i++;

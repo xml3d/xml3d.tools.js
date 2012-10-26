@@ -78,12 +78,12 @@
     };
 
     /** @inheritDoc */
-    p.rotate = function(relative_orientation){
-		var newOrientation = new XML3DRotation();
-		newOrientation.setQuaternion( new XML3DVec3(relative_orientation[0],relative_orientation[1],relative_orientation[2]), relative_orientation[3] );
-		newOrientation.multiply(this.transform.rotation);
-		if(this.constraint.constrainRotation(newOrientation, this))
-			this.transform.rotation.set(newOrientation);
+    p.rotate = function(orientation){
+		var modifier = new XML3DRotation();
+		modifier.setQuaternion( new XML3DVec3(orientation[0],orientation[1],orientation[2]), orientation[3] );
+		var destination = this.transform.rotation.multiply( modifier );
+		if(this.constraint.constrainRotation(orientation, this))
+			this.transform.rotation.set(destination);
 		return this;
     };
 
