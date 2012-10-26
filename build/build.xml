@@ -7,46 +7,46 @@
      Author: Kristian Sons
      ====================================================================== -->
 <project name="script-merge" default="develop">
-	<description>
+    <description>
            Merge all the single scripts to one global xml3d-motion.js
     </description>
 
     <import file="build-master.xml"/>
     <property file="build.properties" />
 
-	<filelist dir="../src" id="sourceFiles">
-		<file name="interfaces.js" />
-		<!-- contrib -->
-		<file name="contrib/Tween.js" />
-		<!-- our sources -->
-		<file name="base/util.js" />
-		<file name="base/ClientMoveable.js" />
-		<file name="base/ClientMotionFactory.js" />
-		<file name="base/ClientAnimatable.js" />
-		<file name="base/ClientKeyframeAnimation.js" />
-		<file name="animation/CombinedAnimation.js" />
-		<file name="constraint/ConstraintCollection.js" />
-		<file name="constraint/SimpleConstraint.js" />
-		<file name="constraint/ProhibitAxisMovementConstraint.js" />
-		<file name="camera/CameraController.js" />
-		<file name="gamepad/GamepadEventProvider.js" />
-	</filelist>
+    <filelist dir="../src" id="sourceFiles">
+        <file name="interfaces.js" />
+        <!-- contrib -->
+        <file name="contrib/Tween.js" />
+        <!-- our sources -->
+        <file name="base/util.js" />
+        <file name="base/ClientMoveable.js" />
+        <file name="base/ClientMotionFactory.js" />
+        <file name="base/ClientAnimatable.js" />
+        <file name="base/ClientKeyframeAnimation.js" />
+        <file name="animation/CombinedAnimation.js" />
+        <file name="constraint/ConstraintCollection.js" />
+        <file name="constraint/SimpleConstraint.js" />
+        <file name="constraint/ProhibitAxisMovementConstraint.js" />
+        <file name="camera/CameraController.js" />
+        <file name="gamepad/GamepadEventProvider.js" />
+    </filelist>
 
-	<filelist dir="../externs" id="externs">
-			<file name="externs.js" />
-	</filelist>
+    <filelist dir="../externs" id="externs">
+            <file name="externs.js" />
+    </filelist>
 
-	<target name="develop" depends="init">
-		<tstamp />
-		<concatScripts version="0.2.0"/>
-	</target>
+    <target name="develop" depends="init">
+        <tstamp />
+        <concatScripts version="0.2.0"/>
+    </target>
 
     <target name="develop-min" depends="init">
         <tstamp />
         <compileScripts version="DEVELOPMENT SNAPSHOT (${TODAY})" extension="" level="simple">
-        	<args>
-        		   <define name="XMOT.version" value="@{version}"/>
-        	</args>
+            <args>
+                   <define name="XMOT.version" value="@{version}"/>
+            </args>
         </compileScripts>
     </target>
 
