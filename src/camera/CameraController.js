@@ -9,11 +9,12 @@
 	 * 3. Have Fun :-)
 	 * @constructor
 	 * @param {string} camera_id name of the group of the camera
+	 * @param {string} xml3dElementId name of the group of the complete scene
 	 * @param {Array.<number>} initialRotation rotation to rotate the camera in a manner, that "forward" is a movement along -z
 	 * @param {string} mouseButton "left", "right", "middle"
 	 * @param {boolean} inspectMode determine wether to use inspectMode or not
 	 */
-	function CameraController(camera_id, initialRotation, mouseButton, inspectMode){
+	function CameraController(camera_id, xml3dElementId, initialRotation, mouseButton, inspectMode){
 		/**
 		 * @private
 		 * @type {Object}
@@ -97,7 +98,14 @@
 		 * @type {ConstraintCollection}
 		 */
 		this.constraint = new XMOT.ConstraintCollection();
-	
+		/**
+		 * Xml3d Element
+		 * @private
+		 * @type {HTMLElement}
+		 */
+		this.xml3dElement = document.getElementById(xml3dElementId);
+		this.sceneBoundingBox = this.xml3dElement.getBoundingBox();
+
 		var factory = new XMOT.ClientMotionFactory();
 		var cam = document.getElementById(camera_id);
 		/**
@@ -106,6 +114,7 @@
 		 * @type {Moveable}
 		 */
 		this.moveable = factory.createMoveable(cam, this.constraint);
+		var initRot = initialRotation || [0,0,0,0];
 		this.moveable.rotate(initialRotation);
 		/**
 		 * starting point of the moveable, used to reset position and orientation
@@ -120,14 +129,14 @@
 		 */
 		this.mouseButton = 0;
 		this.setMouseButtonValue(mouseButton);
-
-		this.pointToRotateAround = [0,0,0];
+		var pointToRotateAroundAsXML3dVec = this.sceneBoundingBox.center();
+		this.pointToRotateAround = [pointToRotateAroundAsXML3dVec.x, pointToRotateAroundAsXML3dVec.y, pointToRotateAroundAsXML3dVec.z];
 
 		/**
 		 * camera mode freeflight
 		 * @type {Boolean|null}
 		 */
-		this.cameraModeInspect = inspectMode;
+		this.cameraModeInspect = inspectMode || false;
 		this.cameraModeFreeflight = !this.cameraModeInspect;
 
 		this.gamepadEventProvider = XMOT.GamepadEventProvider();
@@ -394,8 +403,16 @@
 	 * @return {vec3|void}
 	 */
 	cc.getRotationFromDirection = function (direction) {
-		direction = direction || new window.XML3DVec3(0,0,-1);
-		direction = direction.normalize();
+		//xml3DVec3 fails with error if normalizing null vector
+		if (direction) {
+			XMOT.normalizeVector(direction);
+			direction = new XML3DVec3(direction[0],direction[1],direction[2]);
+		}
+		else {
+			direction =  new window.XML3DVec3(0,0,-1);
+			direction = direction.normalize();
+		}
+
 
 		var up = new XML3DVec3(0,1,0);
 		var tmpX = new XML3DVec3();
@@ -458,7 +475,7 @@
 		window.addEventListener("keydown", function(e){that.keyDownEventHandler(e);}, false);
 		window.addEventListener("keyup", function(e){that.keyUpEventHandler(e);}, false);
 		window.addEventListener("mousemove", function(e){that.mouseMovementHandler(e);}, false);
-		window.addEventListener("mousedown", function(e){that.mouseDownHandler(e);}, false);
+		this.xml3dElement.addEventListener("mousedown", function(e){that.mouseDownHandler(e);}, false);
 		window.addEventListener("mouseup", function(e){that.mouseUpHandler(e);}, false);
 
 		window.addEventListener("GamepadButtonDown", function(e){that.gamepadButtonDownHandler(e);}, false);
@@ -485,6 +502,7 @@
 				case 69 : this.nextPoi(); break; // q
 				case 81 : this.beforePoi(); break; // e
 				case 82 : this.reset(); break; //r
+				case 84 : this.seeTheCompleteScene(); break;//t
 				default : flag = false; break;
 			}
 			if(flag) this.stopDefaultEventAction(e);
@@ -526,6 +544,7 @@
 
 	cc.rotateLeftAndRight = function(angle)
 	{
+		if(angle === 0) return;
 		if(this.cameraModeInspect){
 			this.rotateCameraAroundPointLeftAndRight(angle);
 		}else if(this.cameraModeFreeflight){
@@ -535,6 +554,7 @@
 
 	cc.rotateUpAndDown = function(angle)
 	{
+		if(angle === 0) return;
 		if(this.cameraModeInspect){
 			this.rotateCameraAroundPointUpAndDown(angle);
 		}else if(this.cameraModeFreeflight){
@@ -620,6 +640,7 @@
 			case "RB": this.nextPoi(); break;
 			case "LB": this.beforePoi(); break;
 			case "Start": this.reset(); break;
+			case "Back" : this.seeTheCompleteScene(); break;
 			default: this.padData[e.detail.button] = e.detail.value; break;
 		}
 	};
@@ -651,6 +672,13 @@
 		} else if (window.event && window.event.returnValue){
 			window.eventReturnValue = false;
 		}
+	};
+
+	cc.seeTheCompleteScene = function(){
+		var center = this.sceneBoundingBox.center();
+		this.lookAtPoint([center.x, center.y, center.z]);
+		var moveBy = this.sceneBoundingBox.max;
+		this.moveable.setPosition([2*moveBy.x, 2*moveBy.y, 4*moveBy.z]);
 	};
 
 	XMOT.CameraController = CameraController;
