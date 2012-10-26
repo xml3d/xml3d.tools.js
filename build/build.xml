@@ -30,6 +30,10 @@
         <file name="constraint/ProhibitAxisMovementConstraint.js" />
         <file name="camera/CameraController.js" />
         <file name="gamepad/GamepadEventProvider.js" />
+        <file name="util/transformtracker.js" />
+        <file name="util/viewtracker.js" />
+        <file name="xml3d_extensions/datatype_extensions.js" />
+        <file name="xml3d_extensions/util.js" />
     </filelist>
 
     <filelist dir="../externs" id="externs">
