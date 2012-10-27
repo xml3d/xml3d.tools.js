@@ -102,25 +102,6 @@
         }; 
     
         /** 
-         * Extract a vector where the given function is applied to each 
-         * component. 
-         * 
-         * @param {!XML3DVec3} v1 
-         * @param {!XML3DVec3} v2 
-         * @param {!function(number, number)} f
-         * @return {XML3DVec3} XML3DVec3(f(v1.x,v2.x),f(v1.y,v2.y), f(v1.z,v2.z))
-         */
-        function extractVec(v1, v2, f)
-        {
-            var vec = new window.XML3DVec3(); 
-            vec.x = f(v1.x, v2.x); 
-            vec.y = f(v1.y, v2.y);
-            vec.z = f(v1.z, v2.z); 
-            
-            return vec; 
-        };
-    
-        /** 
          * Returns the box that sets the min and max properties to 
          * the minimal and maximal vectors of min and max, respectively. 
          * 
@@ -134,8 +115,8 @@
             var mi = new window.XML3DVec3(this.min); 
             var ma = new window.XML3DVec3(this.max); 
             
-            this.min.set(extractVec(mi, ma, Math.min)); 
-            this.max.set(extractVec(mi, ma, Math.max));
+            this.min.set(mi.mapVec(ma, Math.min)); 
+            this.max.set(mi.mapVec(ma, Math.max));
             
             return this; 
         };
@@ -454,7 +435,8 @@
          * @this {XML3DVec3} 
          * @return {string}
          */
-        p.str = function() { 
+        p.str = function() 
+        { 
             return this.x.toFixed(3) + " " + this.y.toFixed(3) + " " + this.z.toFixed(3); 
         };
 
@@ -466,14 +448,35 @@
          * @param {XML3DVec3} other
          * @return {boolean}
          */
-        p.equals = function(other) { 
-            
+        p.equals = function(other) 
+        {
             if(!other)
                 return false; 
             
             return XML3D.epsilonEquals(this.x, other.x) 
                 && XML3D.epsilonEquals(this.y, other.y) 
                 && XML3D.epsilonEquals(this.z, other.z);
-        };         
+        };  
+        
+        /** 
+         * Extract a vector where the given function is applied to each 
+         * component of both vectors.
+         *  
+         * @this {XML3DVec3}
+         * @param {!XML3DVec3} other 
+         * @param {!function(number, number)} f
+         * @return {XML3DVec3} XML3DVec3(f(this.x,other.x),f(this.y,other.y), f(this.z,other.z))
+         * 
+         */
+        p.mapVec = function(other, f) 
+        { 
+            var vec = new window.XML3DVec3(); 
+            
+            vec.x = f(this.x, other.x); 
+            vec.y = f(this.y, other.y);
+            vec.z = f(this.z, other.z); 
+            
+            return vec;
+        };
     }
 }()); 
