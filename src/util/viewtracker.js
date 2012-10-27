@@ -45,7 +45,7 @@
             
             if(this._xfmObs)
                 this._xfmObs.detach(); 
-            this._xfmObs = new XML3D.TransformTracker(this.targetNode); 
+            this._xfmObs = new XMOT.TransformTracker(this.targetNode); 
             this._xfmObs.xfmChanged = XML3D.util.wrapCallback(this, _onXfmChanged);
     
             _onXfmChanged.apply(this, this.targetNode);
