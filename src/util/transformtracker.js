@@ -20,7 +20,7 @@
         if(!_targetNode)
             throw "TransformTracker: no target node specified.";
         
-        this.xml3d = XML3D.util.getXml3dElement(_targetNode);
+        this.xml3d = XML3D.util.getXml3dRoot(_targetNode);
         if(!this.xml3d)
             throw "TransformTracker: given node is not a child of an xml3d element."; 
         

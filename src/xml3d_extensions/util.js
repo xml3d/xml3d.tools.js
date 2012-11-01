@@ -1,19 +1,22 @@
 /** This file contains miscellaneous utilities, that are added to the XML3D.util namespace. 
  */
 (function() {
+
+    if(!XML3D.util) 
+        XML3D.util = {};
     
-    var u = {};   
+    var u = XML3D.util;      
     
     /** Extend the target object with all attributes from the source object
      * 
      *  @param tarobj the object to be extended 
      *  @param srcobj the object from which to take the attributes 
      */
-    function extend(tarobj, srcobj)
+    u.extend = function(tarobj, srcobj)
     { 
         for(var attr in srcobj)
             tarobj[attr] = srcobj[attr]; 
-    }
+    };
     
     /** 
      * Can be used to wrap the given method into a closure that preserves the 
@@ -96,13 +99,16 @@
      * @param {!Object} el
      * @return {Object} 
      */
-    u.getXml3dElement = function(el)
+    u.getXml3dRoot = function(el)
     {
+        if(!el)
+            return null; 
+        
         if(el.tagName == "xml3d")
             return el; 
         
         if(el.parentNode)
-            return XML3D.util.getXml3dElement(el.parentNode); 
+            return u.getXml3dRoot(el.parentNode); 
         
         return null; 
     }; 
@@ -183,9 +189,9 @@
      * 
      * @return {Object} the first defs element of the given xml3d element 
      */
-    u.getOrCreateDefsElement = function(xml3d)
+    u.getOrCreateDefs = function(xml3d)
     {
-        var defs = XML3D.util.evaluateXPathExpr(
+        var defs = u.evaluateXPathExpr(
                 xml3d, './/xml3d:defs[1]').singleNodeValue;
         
         if(!defs)
@@ -196,12 +202,55 @@
         
         return defs; 
     }; 
+    
+    /** 
+     * Returns the transform element corresponding to the given 
+     * group. If it doesn't exist, one will be created with the 
+     * id newId, appended to the defs section and targetGrp's 
+     * transform reference will be set to the newly created 
+     * element. 
+     * 
+     * @param {!Object} targetGrp the group to retrieve the transform from
+     * @param {!string} the id attribute of the transform to be created 
+     * 
+     * @return {Object} the transform corresponding to targetGrp
+     */
+    u.getOrCreateTransform = function(targetGrp, newId)
+    {
+        var t = XML3D.util.transform(targetGrp);
+        
+        if(t)
+            return t; 
+        
+        var xml3d = u.getXml3dRoot(targetGrp);
+        var defs = u.getOrCreateDefs(xml3d);  
+        
+        // create transform
+        t = XML3D.createElement("transform", {id: newId}); 
+        defs.appendChild(xfm);
+        targetGrp.setAttribute("transform", "#" + xfmStr);
+        
+        return t;       
+    };
 
-    // export
-    if(!XML3D.util) 
-        XML3D.util = {}; 
     
-    XML3D.util.extend = extend; 
-    
-    extend(XML3D.util, u);
+    /** Return the first child element of tarNode, whose "name" attribute 
+     * is equal to the given one. Useful for retrieving shader attributes. 
+     * 
+     * @param {!Object} tarNode
+     * @param {string} name
+     * @return {Element} the found node 
+     */ 
+    u.getNamedChild = function(tarNode, name)
+    {
+        var nodes = document.getElementsByName(name); 
+        
+        for(var i = 0; i < nodes.length; i++)
+        {
+            if(nodes[i].parentNode === tarNode) 
+                return nodes[i]; 
+        }
+        
+        return null; 
+    }; 
 }());

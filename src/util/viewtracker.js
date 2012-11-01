@@ -13,7 +13,7 @@
         if(!this.targetTransform)
             throw "ViewTracker: no target transformation specified."; 
         
-        this.xml3d = XML3D.util.getXml3dElement(_targetTransform); 
+        this.xml3d = XML3D.util.getXml3dRoot(_targetTransform); 
         if(!this.xml3d)
             throw "ViewTracker: given node is not a child of an xml3d element.";
         
