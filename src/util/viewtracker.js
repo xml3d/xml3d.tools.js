@@ -13,7 +13,7 @@
         if(!this.targetTransform)
             throw "ViewTracker: no target transformation specified."; 
         
-        this.xml3d = XML3D.util.getXml3dRoot(_targetTransform); 
+        this.xml3d = XMOT.util.getXml3dRoot(_targetTransform); 
         if(!this.xml3d)
             throw "ViewTracker: given node is not a child of an xml3d element.";
         
@@ -39,14 +39,14 @@
         if(!this._attached)
         {           
             this.xml3d.addEventListener("DOMAttrModified", 
-                XML3D.util.wrapCallback(this, _onXml3DAttrModified), false); 
+                XMOT.util.wrapCallback(this, _onXml3DAttrModified), false); 
             
-            this.targetNode = XML3D.util.getOrCreateActiveView(this.xml3d);
+            this.targetNode = XMOT.util.getOrCreateActiveView(this.xml3d);
             
             if(this._xfmObs)
                 this._xfmObs.detach(); 
             this._xfmObs = new XMOT.TransformTracker(this.targetNode); 
-            this._xfmObs.xfmChanged = XML3D.util.wrapCallback(this, _onXfmChanged);
+            this._xfmObs.xfmChanged = XMOT.util.wrapCallback(this, _onXfmChanged);
     
             _onXfmChanged.apply(this, this.targetNode);
             
@@ -60,7 +60,7 @@
         {
             this._xfmObs.detach(); 
             this.xml3d.removeEventListener("DOMAttrModified",
-                XML3D.util.wrapCallback(this, _onXml3DAttrModified), false);
+                XMOT.util.wrapCallback(this, _onXml3DAttrModified), false);
             
             this._attached = false; 
         }

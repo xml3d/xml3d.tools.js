@@ -20,7 +20,7 @@
         if(!_targetNode)
             throw "TransformTracker: no target node specified.";
         
-        this.xml3d = XML3D.util.getXml3dRoot(_targetNode);
+        this.xml3d = XMOT.util.getXml3dRoot(_targetNode);
         if(!this.xml3d)
             throw "TransformTracker: given node is not a child of an xml3d element."; 
         
@@ -59,17 +59,17 @@
             if(node.tagName == "group")
             {
                 node.addEventListener("DOMAttrModified", 
-                    XML3D.util.wrapCallback(this, _onGrpAttrModified), false);
+                    XMOT.util.wrapCallback(this, _onGrpAttrModified), false);
                 
-                var xfm = XML3D.util.transform(node); 
+                var xfm = XMOT.util.transform(node); 
                 if(xfm)
                     xfm.addEventListener("DOMAttrModified", 
-                        XML3D.util.wrapCallback(this, _onXfmAttrModified), false);
+                        XMOT.util.wrapCallback(this, _onXfmAttrModified), false);
             }
             else if(node.tagName == "view")
             {
                 node.addEventListener("DOMAttrModified", 
-                    XML3D.util.wrapCallback(this, _onViewAttrModified), false);
+                    XMOT.util.wrapCallback(this, _onViewAttrModified), false);
             }
             
             this.attach(node.parentNode); 
@@ -98,17 +98,17 @@
             if(node.tagName == "group")
             {
                 node.removeEventListener("DOMAttrModified", 
-                    XML3D.util.wrapCallback(this, _onGrpAttrModified), false);
+                    XMOT.util.wrapCallback(this, _onGrpAttrModified), false);
             
-                var xfm = XML3D.util.transform(node);
+                var xfm = XMOT.util.transform(node);
                 if(xfm)
                     node.removeEventListener("DOMAttrModified", 
-                        XML3D.util.wrapCallback(this, _onXfmAttrModified), false);
+                        XMOT.util.wrapCallback(this, _onXfmAttrModified), false);
             }
             else if(node.tagName == "view")
             {
                 node.removeEventListener("DOMAttrModified", 
-                    XML3D.util.wrapCallback(this, _onViewAttrModified), false);
+                    XMOT.util.wrapCallback(this, _onViewAttrModified), false);
             }
             
             this.detach(node.parentNode);

@@ -1,11 +1,12 @@
-/** This file contains miscellaneous utilities, that are added to the XML3D.util namespace. 
+/** 
+ * This file constructs the XMOT.util namespace and adds miscellaneous utilities. 
  */
 (function() {
 
-    if(!XML3D.util) 
-        XML3D.util = {};
+    if(!XMOT.util) 
+        XMOT.util = {};
     
-    var u = XML3D.util;      
+    var u = XMOT.util;      
     
     /** Extend the target object with all attributes from the source object
      * 
@@ -114,8 +115,8 @@
     }; 
     
     /** Internal helper method. Gets and/or sets a reference pointed to by attrName 
-     *  of the element el. For more information see XML3D.util.transform() 
-     *  or XML3D.util.shader().  
+     *  of the element el. For more information see XMOT.util.transform() 
+     *  or XMOT.util.shader().  
      *  
      *  @param {!Object} el
      *  @param {!string} attrName
@@ -159,7 +160,7 @@
     u.transform = function(grp, xfm)
     {
         if(grp.tagName !== "group")
-            throw "XML3D.util.transform(): given element is not a group."; 
+            throw "XMOT.util.transform(): given element is not a group."; 
         
         return getOrSetRefNode(grp, "transform", xfm);
     }; 
@@ -176,7 +177,7 @@
     u.shader = function(grp, sh)
     {
         if(grp.tagName !== "group")
-            throw "XML3D.util.shader(): given element is not a group.";  
+            throw "XMOT.util.shader(): given element is not a group.";  
         
         return getOrSetRefNode(grp, "shader", sh);
     };
@@ -191,12 +192,12 @@
      */
     u.getOrCreateDefs = function(xml3d)
     {
-        var defs = u.evaluateXPathExpr(
+        var defs = XML3D.util.evaluateXPathExpr(
                 xml3d, './/xml3d:defs[1]').singleNodeValue;
         
         if(!defs)
         {
-            defs = XML3D.createElement("defs"); 
+            defs = XMOT.creation.element("defs"); 
             xml3d.appendChild(defs);  
         }
         
@@ -211,24 +212,26 @@
      * element. 
      * 
      * @param {!Object} targetGrp the group to retrieve the transform from
-     * @param {!string} the id attribute of the transform to be created 
+     * @param {string} newId the id attribute of the transform to be created 
      * 
      * @return {Object} the transform corresponding to targetGrp
      */
     u.getOrCreateTransform = function(targetGrp, newId)
     {
-        var t = XML3D.util.transform(targetGrp);
+        var t = XMOT.util.transform(targetGrp);
         
-        if(t)
+        if(t) // found it, just return 
             return t; 
         
         var xml3d = u.getXml3dRoot(targetGrp);
+        if(!xml3d)
+            throw "XMOT.util.getOrCreateTransform(): target group does have no xml3d root element!"; 
         var defs = u.getOrCreateDefs(xml3d);  
         
         // create transform
-        t = XML3D.createElement("transform", {id: newId}); 
-        defs.appendChild(xfm);
-        targetGrp.setAttribute("transform", "#" + xfmStr);
+        t = XMOT.creation.element("transform", {id: newId}); 
+        defs.appendChild(t);
+        targetGrp.setAttribute("transform", "#" + newId);
         
         return t;       
     };
@@ -239,7 +242,7 @@
      * 
      * @param {!Object} tarNode
      * @param {string} name
-     * @return {Element} the found node 
+     * @return {Object} the found node 
      */ 
     u.getNamedChild = function(tarNode, name)
     {
