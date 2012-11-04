@@ -2,9 +2,9 @@
     /**
      * SimpleConstraint
      * @constructor
-     * @param {boolean} allowedToMove
-     * @param {boolean} allowedToRotate
-     * @param {boolean} allowedToScale
+     * @param {boolean} [allowedToMove]
+     * @param {boolean} [allowedToRotate]
+     * @param {boolean} [allowedToScale]
      * @implements {Constraint}
      */
     var SimpleConstraint = function(allowedToMove, allowedToRotate, allowedToScale){
