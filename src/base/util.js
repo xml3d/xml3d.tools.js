@@ -133,6 +133,34 @@ function mergeOptions(high, low){
 	return ret;
 }
 
+/** 
+ *  Creates a namespace and subnamespaces, that are contained in the path. 
+ * 
+ *  @param {string} fullName the full name of the namespace  
+ *  
+ *  Example: 
+ *  
+ *  namespace("XMOT.interaction.behaviors"]) will create: 
+ *  
+ *  XMOT.interaction.behaviors
+ */
+function namespace(fullName)
+{
+    var curParentNS = window; 
+    
+    var namespacePath = fullName.split("."); 
+    
+    for(var i = 0; i < namespacePath.length; i++)
+    {
+        var ns = namespacePath[i];
+        
+        if(!curParentNS[ns])
+            curParentNS[ns] = {}; 
+        
+        curParentNS = curParentNS[ns]; 
+    }
+}
+
 //export
 XMOT.inherit = inherit;
 XMOT.base = base;
@@ -141,4 +169,5 @@ XMOT.animating = animating;
 XMOT.animationHook = animationHook;
 XMOT.registeredCameraController = registeredCameraController;
 XMOT.mergeOptions = mergeOptions;
+XMOT.namespace = namespace; 
 }());
