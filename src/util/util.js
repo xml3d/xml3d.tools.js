@@ -256,4 +256,25 @@
         
         return null; 
     }; 
+
+    /** Get the children of the given node that reside in the XML3D namespace
+     * 
+     *  @param {!Object} node 
+     *  @return {Array.<Object>}
+     */
+    u.getXML3DChildren = function(node)
+    {
+        var children = []; 
+        
+        var n = node.firstChild; 
+        while(n)
+        {
+            if(n.namespaceURI === XML3D.xml3dNS)
+                children.push(n); 
+            
+            n = n.nextSibling; 
+        }
+        
+        return children; 
+    };
 }());
