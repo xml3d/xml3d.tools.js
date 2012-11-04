@@ -1,16 +1,17 @@
 (function(){
+
+	/* Counter to create unique IDs for the elements added to DOM. 
+	 * Is in closure: same for every instance so no ID clashes will 
+	 * occur across multiple instances of the factory.
+	 */     
+	var id = 0; 
+
 	/**
 	 * ClientMotionFactory implementation
 	 * @constructor
 	 * @implements{MotionFactory}
 	 */
 	function ClientMotionFactory(){
-		/**
-		 * Counter to create unique IDs for the elements added to DOM
-		 * @private
-		 * @type {number}
-		 */
-		this.id = 0;
 	};
 
 	var m = ClientMotionFactory.prototype;
@@ -73,32 +74,24 @@
 			//TODO: code for native version
 		}
 	};
+	
+	/**
+	 * creates a unique id
+	 * @return {string} unique id
+	 */
+	m.createUniqueId = function(){
+		return "createdByClientMotionFactory" + id++;
+	};
+	
+	/**
+	 * Gets the transform of an element and creates a transform if necessary
+	 * @param {Object} obj element
+	 * @return {Object} transform
+	 */
+	m.getTransform = function(obj){
 
-    /**
-     * creates a unique id
-     * @return {string} unique id
-     */
-    m.createUniqueId = function(){
-    	return "createdByClientMotionFactory" + this.id++;
-    };
-
-    /**
-     * Gets the transform of an element and creates a transform if necessary
-     * @param {Object} obj element
-     * @return {Object} transform
-     */
-    m.getTransform = function(obj){
-    	var t = XML3D.URIResolver.resolve(obj.transform, obj.ownerDocument);
-    	if (!t || obj.transform == "") {
-    		var defs = document.createElementNS(XML3D.xml3dNS, "defs");
-    		t = document.createElementNS(XML3D.xml3dNS, "transform");
-    		t.id = this.createUniqueId();
-    		defs.appendChild(t);
-    		obj.appendChild(defs);
-    		obj.transform = "#"+t.id;
-    	}
-    	return t;
-    };
+		return XMOT.util.getOrCreateTransform(obj, this.createUniqueId());
+	};
 
 	//export
 	XMOT.ClientMotionFactory = ClientMotionFactory;
