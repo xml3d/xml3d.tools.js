@@ -51,7 +51,9 @@
 
     /** @inheritDoc */
     p.setScale = function(scale){
-    	this.transform.scale.set(new XML3DVec3(scale[0], scale[1], scale[2]));
+        if(this.constraint.constrainScaling(scale, this)){
+            this.transform.scale.set(new XML3DVec3(scale[0], scale[1], scale[2]));            
+        }
     };
 
     /** @inheritDoc */
