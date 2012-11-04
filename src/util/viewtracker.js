@@ -41,7 +41,7 @@
             this.xml3d.addEventListener("DOMAttrModified", 
                 XMOT.util.wrapCallback(this, _onXml3DAttrModified), false); 
             
-            this.targetNode = XMOT.util.getOrCreateActiveView(this.xml3d);
+            this.targetNode = XML3D.util.getOrCreateActiveView(this.xml3d);
             
             if(this._xfmObs)
                 this._xfmObs.detach(); 
