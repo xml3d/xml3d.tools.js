@@ -53,6 +53,14 @@
         <file name="interaction/behaviors/translater.js" />
         <file name="interaction/behaviors/ringmenu.js" />
         <file name="interaction/behaviors/transformsensor.js" />
+
+        <file name="interaction/widgets/widget.js" />
+        <file name="interaction/widgets/ringmenu.js" />
+        <file name="interaction/widgets/singleaxisrotator.js" />
+        <file name="interaction/widgets/translatebox.js" />
+        <file name="interaction/widgets/uniformscaler.js" />
+        <file name="interaction/widgets/transformbox.js" />
+        <file name="interaction/widgets/rotatorbox.js" />
     </filelist>
 
     <filelist dir="../externs" id="externs">
