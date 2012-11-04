@@ -237,4 +237,34 @@ XMOT.version = '%VERSION%';
      * @return {boolean} returns true if the operation is valid, false otherwise
      */
     c.constrainScaling = function(newScale, moveable){};
+
+
+    /**
+     * A Constraint that does not rely on Movables
+     * @interface
+     */
+    var PureConstraint = function(){};
+    var c = PureConstraint.prototype;
+
+    /**
+     * Checks if a rotation operation is valid.
+     * 
+     * @param {Array.<number>} newRotation Quaternion, absolute Orientation
+     * @return {Array.<number>} the constrained rotation
+     */
+    c.constrainRotation = function(newRotation){};
+
+    /**
+     * Checks if a translation operation is valid.
+     * @param {Array.<number>} newTranslation 3d Vector representing the absolute position in local space
+     * @return {Array.<number>} the constrained translation
+     */
+    c.constrainTranslation = function(newTranslation){};
+
+    /**
+     * Checks if a scaling operation is valid.
+     * @param {Array.<number>} newScale 3d Vector representing the scaling in local space
+     * @return {Array.<number>} the constrained scaling
+     */
+    c.constrainScaling = function(newScale){};
 }());
