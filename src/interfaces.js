@@ -90,7 +90,7 @@ XMOT.version = '%VERSION%';
 
     /**
      * Gets the current scale factor
-     * @return {number} scale factor
+     * @return {Array.<number>} scale factor
      */
     p.getScale = function(){};
 
@@ -142,7 +142,7 @@ XMOT.version = '%VERSION%';
      * Sets a constraint for the Moveable. The constraint is checked
      * @param {Constraint} constraint Set a constraint to the Moveable
      */
-    p.setContraint = function(constraint){};
+    p.setConstraint = function(constraint){};
 
 
     /**
@@ -230,4 +230,11 @@ XMOT.version = '%VERSION%';
      */
     c.constrainTranslation = function(newTranslation, moveable){};
 
+    /**
+     * Checks if a scaling operation is valid.
+     * @param {Array.<number>} newScale 3d Vector representing the scaling in local space
+     * @param {Moveable} moveable Moveable
+     * @return {boolean} returns true if the operation is valid, false otherwise
+     */
+    c.constrainScaling = function(newScale, moveable){};
 }());
