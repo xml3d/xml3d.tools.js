@@ -1,7 +1,7 @@
 var xml3d = null;
 
 var intSensor = null;
-var xfmSensor = null; // the XML3D.interaction.behaviors.TransformSensor
+var xfmSensor = null; // the XML3D.TransformSensor
 
 var intBox = null; // the interactor mesh element
 var intGrp = null;
@@ -97,7 +97,7 @@ function setupXfmSensor()
     var bbox = XMOT.util.getWorldBBox(tarGrp);
 
     // setup change observer
-    xfmSensor = new XMOT.interaction.behaviors.TransformSensor("myxfmsensor", [intGrp], bbox);
+    xfmSensor = new XMOT.TransformSensor("myxfmsensor", [intGrp], bbox);
 
     var proxy = tarGrp;
     xfmSensor.addListener("start", function(tarNode) {

@@ -1,6 +1,4 @@
 
-XMOT.namespace("XMOT.interaction.behaviors"); 
-
 /** A simple TransformSensor, similar to X3D's TransformSensor.
  *
  * You give it a bounding box and target node. The sensor tracks transformation changes
@@ -13,13 +11,13 @@ XMOT.namespace("XMOT.interaction.behaviors");
  * 
  * @extends XMOT.util.Observable
  */
-XMOT.interaction.behaviors.TransformSensor = new XMOT.util.Class(
+XMOT.TransformSensor = new XMOT.util.Class(
     XMOT.util.Observable, {
 
     /** Initializes the sensor with the given values and attaches the sensor to
      *  the target groups.
      *  
-     *  @this {XMOT.interaction.behaviors.TransformSensor}
+     *  @this {XMOT.TransformSensor}
      *  
      *  @param {string} _id a unique identifier for this sensor
      *  @param {Array.<Object>} _tarGrps the groups of which to track transformation changes
@@ -47,7 +45,7 @@ XMOT.interaction.behaviors.TransformSensor = new XMOT.util.Class(
         this.attach();
     },
 
-    /** @this {XMOT.interaction.behaviors.TransformSensor} */
+    /** @this {XMOT.TransformSensor} */
     attach: function()
     {
         if(!this._isAttached)
@@ -66,7 +64,7 @@ XMOT.interaction.behaviors.TransformSensor = new XMOT.util.Class(
         }
     },
 
-    /** @this {XMOT.interaction.behaviors.TransformSensor} */
+    /** @this {XMOT.TransformSensor} */
     detach: function()
     {
         if(this._isAttached)
@@ -88,7 +86,7 @@ XMOT.interaction.behaviors.TransformSensor = new XMOT.util.Class(
 
     /** Callback of internally used XMOT.TransformTracker
      * 
-     *  @this {XMOT.interaction.behaviors.TransformSensor}
+     *  @this {XMOT.TransformSensor}
      *  @private
      *  
      *  @param {!Object} tarNode

@@ -47,14 +47,6 @@ var EXAMPLE_LIST = [
         href: "tests/test_rotatorbox.xhtml",
         info: "A widget for performing constrained rotation and translation."
     },
-    
-    // --- Utilities --- 
-    {
-        cat: "utils",
-        name: "TransformSensor",
-        href: "tests/test_transformsensor.xhtml",
-        info: "Application of the TransformSensor utility."
-    },
 
     // --- Miscellaneous --- 
     {

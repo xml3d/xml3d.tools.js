@@ -44,6 +44,7 @@
 
         <file name="util/transformtracker.js" />
         <file name="util/viewtracker.js" />
+        <file name="util/transformsensor.js" />
 
         <file name="interaction/behaviors/pdsensor.js" />
         <file name="interaction/behaviors/planesensor.js" />
@@ -52,7 +53,6 @@
         <file name="interaction/behaviors/rotater.js" />
         <file name="interaction/behaviors/translater.js" />
         <file name="interaction/behaviors/ringmenu.js" />
-        <file name="interaction/behaviors/transformsensor.js" />
 
         <file name="interaction/widgets/widget.js" />
         <file name="interaction/widgets/ringmenu.js" />

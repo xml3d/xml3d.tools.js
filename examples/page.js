@@ -60,6 +60,12 @@ var EXAMPLE_LIST = [
         href: "elementfactory.xhtml",
         info: "Constructs a lid cube using the XMOT.creation facility."
     },
+    {
+        cat: "utils",
+        name: "TransformSensor",
+        href: "transformsensor.xhtml",
+        info: "Application of the TransformSensor utility."
+    },
 ];
 
 var CURRENT = null;
