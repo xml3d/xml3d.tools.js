@@ -449,6 +449,17 @@
     { 
         return this.x.toFixed(3) + " " + this.y.toFixed(3) + " " + this.z.toFixed(3); 
     };
+    
+    /** 
+     * Convert the vector to an array. 
+     * 
+     * @this {XML3DVec3} 
+     * @return {Array.<number>}
+     */
+    p.toArray = function() 
+    {
+        return new Array(this.x, this.y, this.z); 
+    }; 
 
     /** 
      * Compares the vector with the given one and returns true if all 
