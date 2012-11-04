@@ -294,6 +294,7 @@
 
             this.data = data;
             
+            /** @private */
             this._totalNumInstances = 0; // used to create unique mesh IDs 
         },
 

@@ -18,7 +18,9 @@ XMOT.util.Observable = new XMOT.util.Class({
      */
     initialize: function(listenerTypes)
     {
+        /** @private */
         this._listeners = {};
+        /** @private */ 
         this._listenerTypes = {};
         
         this.addListenerTypes(listenerTypes);

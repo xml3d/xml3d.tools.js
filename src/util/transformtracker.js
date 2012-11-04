@@ -25,6 +25,8 @@
             throw "TransformTracker: given node is not a child of an xml3d element."; 
         
         this.targetNode = _targetNode; 
+        
+        /** @private */ 
         this._attached = false; 
         
         this.attach(); 

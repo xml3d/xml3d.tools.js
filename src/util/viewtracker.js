@@ -17,9 +17,13 @@
         if(!this.xml3d)
             throw "ViewTracker: given node is not a child of an xml3d element.";
         
-        this.targetNode = null; // the current view element that is tracked                  
-        this._xfmObs = null; // the TransformTracker used to track changes in the active view element 
+        this.targetNode = null; // the current view element that is tracked       
         
+        /** the TransformTracker used to track changes in the active view element
+         *  @private 
+         */ 
+        this._xfmObs = null; 
+        /** @private */ 
         this._attached = false; 
         
         this.attach(); 
