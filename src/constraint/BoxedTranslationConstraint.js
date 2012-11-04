@@ -18,13 +18,13 @@
         this.box = null; 
         
         if(box)
-            this.box = new XML3DBox(box);
+            this.box = new window.XML3DBox(box);
         else
         {
-            var min = new XML3DVec3(-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE); 
-            var max = new XML3DVec3(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE); 
+            var min = new window.XML3DVec3(-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE); 
+            var max = new window.XML3DVec3(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE); 
             
-            this.box = new XML3DBox(min, max); 
+            this.box = new window.XML3DBox(min, max); 
         }
     };
     var c = BoxedTranslationConstraint.prototype;

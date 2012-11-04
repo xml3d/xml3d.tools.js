@@ -272,9 +272,11 @@
     };
 
     /** Small object that holds data concerning a geometry object.
-     * You give it the the actual data,
-     * that is a structure that has fields id, index, position, normal
-     * and texcoord strings. 
+     *  You give it the the actual data,
+     *  that is a structure that has fields id, index, position, normal
+     *  and texcoord strings.
+     * 
+     *  @constructor
      */
     var DataObject = new XMOT.util.Class({
 
@@ -306,6 +308,9 @@
          */
         createMesh: function(xml3d, id)
         {
+            if(!xml3d)
+                throw "XMOT.creation call: xml3d not given!"; 
+            
             if(!this.numInstances[xml3d] || this.numInstances[xml3d] < 1)
             {
                 this.numInstances[xml3d] = 0; // initialize to zero, incremented below 

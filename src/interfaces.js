@@ -244,7 +244,7 @@ XMOT.version = '%VERSION%';
      * @interface
      */
     var PureConstraint = function(){};
-    var c = PureConstraint.prototype;
+    var pc = PureConstraint.prototype;
 
     /**
      * Checks if a rotation operation is valid.
@@ -252,19 +252,19 @@ XMOT.version = '%VERSION%';
      * @param {Array.<number>} newRotation Quaternion, absolute Orientation
      * @return {Array.<number>} the constrained rotation
      */
-    c.constrainRotation = function(newRotation){};
+    pc.constrainRotation = function(newRotation){};
 
     /**
      * Checks if a translation operation is valid.
      * @param {Array.<number>} newTranslation 3d Vector representing the absolute position in local space
      * @return {Array.<number>} the constrained translation
      */
-    c.constrainTranslation = function(newTranslation){};
+    pc.constrainTranslation = function(newTranslation){};
 
     /**
      * Checks if a scaling operation is valid.
      * @param {Array.<number>} newScale 3d Vector representing the scaling in local space
      * @return {Array.<number>} the constrained scaling
      */
-    c.constrainScaling = function(newScale){};
+    pc.constrainScaling = function(newScale){};
 }());

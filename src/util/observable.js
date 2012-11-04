@@ -12,8 +12,9 @@
 XMOT.util.Observable = new XMOT.util.Class({
 
     /** 
-     *  @this XMOT.util.Observable 
-     * @param listenerTypes a single name or an array of names for 
+     *  @this {XMOT.util.Observable}
+     *   
+     *  @param listenerTypes a single name or an array of names for 
      *        listener types
      */
     initialize: function(listenerTypes)
@@ -28,7 +29,7 @@ XMOT.util.Observable = new XMOT.util.Class({
 
     /** Remembers the given (array of) event name as valid event names.
      * 
-     *  @this XMOT.util.Observable
+     *  @this {XMOT.util.Observable}
      */
     addListenerTypes: function(listenerTypes)
     {
@@ -57,7 +58,7 @@ XMOT.util.Observable = new XMOT.util.Class({
     /** Remove the given listener types from the array. The listeners will not be 
      *  removed!
      * 
-     *  @this XMOT.util.Observable 
+     *  @this {XMOT.util.Observable} 
      */
     removeListenerTypes: function(listenerTypes)
     {
@@ -76,7 +77,8 @@ XMOT.util.Observable = new XMOT.util.Class({
 
     /** Add a listener for the given event type 
      *  
-     *  @this XMOT.util.Observable
+     *  @this {XMOT.util.Observable}
+     *  
      *  @param {string} evtname
      *  @param {function()} listener
      */
@@ -93,7 +95,7 @@ XMOT.util.Observable = new XMOT.util.Class({
 
     /** Remove first occurence of given element. 
      * 
-     *  @this XMOT.util.Observable
+     *  @this {XMOT.util.Observable}
      *  @param {string} evtname
      *  @param {function()} listener 
      */
@@ -118,7 +120,7 @@ XMOT.util.Observable = new XMOT.util.Class({
     /** Notifies all listeners. Arguments can be given to this function that get
      *     forwarded to each listener.
      * 
-     *  @this XMOT.util.Observable
+     *  @this {XMOT.util.Observable}
      *  @param {string} evtname
      */
     notifyListeners: function(evtname)
@@ -134,7 +136,7 @@ XMOT.util.Observable = new XMOT.util.Class({
 
     /** Returns whether this listener manager manages the given event name.
      * 
-     *  @this XMOT.util.Observable
+     *  @this {XMOT.util.Observable}
      *  @param {string} evtname
      *  @return {boolean} true if evtname is registered as a listener type. 
      */

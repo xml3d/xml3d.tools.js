@@ -5,7 +5,9 @@
  * 
  * -- Root Element --
  * Special is the root element. In GeoObject.graph["root"] the root element is placed. We want
- * this to have a unique interface for accessing the root node.
+ * this to have a unique interface for accessing the root node. Also when attaching the geometry 
+ * only the root node will be attached. All other elements in the graph attribute can be used 
+ * for storage. They will be detached from their parents during destruction. 
  * 
  * -- ID -- 
  * Each GeoObject has an ID. Storage in the defs and graph sections is addressed by local IDs. 
@@ -17,11 +19,11 @@ XMOT.util.GeoObject = new XMOT.util.Class({
 
     /** Initializes the object.
      *
-     *  @this XMOT.util.GeoObject
+     *  @this {XMOT.util.GeoObject}
      *  @param {string} _id the ID of this object 
      *  @param {!Object} _xml3d the xml3d element in which the object will reside
      *  @param {!Object} [_rootGrp] the group to which this object is to be attached. If not given
-     *              it will ba appended to the given xml3d element.
+     *              it will be appended to the given xml3d element.
      */
     initialize: function(_id, _xml3d, _rootGrp)
     {
@@ -40,7 +42,7 @@ XMOT.util.GeoObject = new XMOT.util.Class({
     
     /** Detaches the object and resets the defs and graph.
      * 
-     *  @this XMOT.util.GeoObject
+     *  @this {XMOT.util.GeoObject}
      */
     destroy: function() 
     {
@@ -55,30 +57,30 @@ XMOT.util.GeoObject = new XMOT.util.Class({
     // ========================================================================
     /** Add all defs elements to the defsRoot 
      * 
-     *  @this XMOT.util.GeoObject 
+     *  @this {XMOT.util.GeoObject} 
      */
     attachDefs: function()
     {
         this._appendChildren(this.defsRoot, this.defs);
     }, 
     
-    /** Add all graph elements to the root group. 
+    /** Add the graph["root"] object to the root group  
      * 
-     *  @this XMOT.util.GeoObject
+     *  @this {XMOT.util.GeoObject}
      */
     attachGraph: function()
-    {
-        this._appendChildren(this.rootGrp, this.graph);
+    {            
+        this.rootGrp.appendChild(this.graph["root"]); 
     },
 
     /** Remove the graph and defs elements from the DOM. 
      * 
-     *  @this XMOT.util.GeoObject
+     *  @this {XMOT.util.GeoObject}
      */
     detach: function()
     {
-        this._removeChildren(this.defsRoot, this.defs);
         this._removeChildren(this.rootGrp, this.graph);
+        this._removeChildren(this.defsRoot, this.defs);
     },
 
     // ========================================================================
@@ -87,7 +89,7 @@ XMOT.util.GeoObject = new XMOT.util.Class({
     /** Set the given node as the root node in the graph. This is the child node 
      *  of this object's root group. 
      * 
-     *  @this XMOT.util.GeoObject
+     *  @this {XMOT.util.GeoObject}
      *  @param {!Object} rootNode 
      */
     setGraphRoot: function(rootNode)
@@ -98,7 +100,7 @@ XMOT.util.GeoObject = new XMOT.util.Class({
     /** Add the given array of children to the graph root, set previously by 
      *  setGraphRoot(). 
      *  
-     *  @this XMOT.util.GeoObject
+     *  @this {XMOT.util.GeoObject}
      *  @param {Array.<Object>} children
      */
     addToGraphRoot: function(children)
@@ -115,7 +117,7 @@ XMOT.util.GeoObject = new XMOT.util.Class({
 
     /** Retrieve the graph root node. 
      * 
-     *  @this XMOT.util.GeoObject
+     *  @this {XMOT.util.GeoObject}
      *  @return {Object} 
      */
     getGraphRoot: function() 
@@ -131,7 +133,7 @@ XMOT.util.GeoObject = new XMOT.util.Class({
      *  id to the given id. This could be done without such a function, but it's 
      *  pretty often used, so the encapsulation is useful.  
      *  
-     *  @this XMOT.util.GeoObject
+     *  @this {XMOT.util.GeoObject}
      *  @param {string} id a local ID to be converted 
      *  @return {string} the converted, global, ID 
      */
@@ -142,7 +144,7 @@ XMOT.util.GeoObject = new XMOT.util.Class({
     
     /** Creates phong shaders and adds them to the defs elements. 
      * 
-     *  @this XMOT.util.GeoObject
+     *  @this {XMOT.util.GeoObject}
      *  @param {string|Array} IDs a single or array of local IDs for the shader. 
      *  @param {Object} [opts] the options for XMOT.creation.phongShader()
      * 
@@ -167,7 +169,7 @@ XMOT.util.GeoObject = new XMOT.util.Class({
 
     /** Creates transform elements and adds them to the defs elements. 
      * 
-     *  @this XMOT.util.GeoObject
+     *  @this {XMOT.util.GeoObject}
      *  @param {string|Array} IDs a single or array of local IDs for the transform elements 
      *  @param {Object} [opts] the options for XMOT.creation.element() 
      * 
@@ -194,7 +196,7 @@ XMOT.util.GeoObject = new XMOT.util.Class({
      *  with the given options. So basically setting a lot of transforms to the same
      *  values with a single call.   
      * 
-     *  @this XMOT.util.GeoObject
+     *  @this {XMOT.util.GeoObject}
      *  @param {string|Array} localIDs a single ID or an array of IDs 
      *  @param {!Object} opts an object of options, supported: transl, scale, rot
      */
@@ -225,7 +227,7 @@ XMOT.util.GeoObject = new XMOT.util.Class({
 
     /** Append all children to the given element. 
      *   
-     *  @this XMOT.util.GeoObject
+     *  @this {XMOT.util.GeoObject}
      *  @param {!Object} targetEl 
      *  @param {Array.<Object>} children
      */
@@ -237,7 +239,7 @@ XMOT.util.GeoObject = new XMOT.util.Class({
 
     /** Remove all childen from the given element. 
      *   
-     *  @this XMOT.util.GeoObject
+     *  @this {XMOT.util.GeoObject}
      *  @param {!Object} targetEl 
      *  @param {Array.<Object>} children
      */
