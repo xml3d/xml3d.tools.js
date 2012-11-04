@@ -2,12 +2,20 @@
  <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
    <link href="http://www.xml3d.org/xml3d/script/xml3d.css" media="all" rel="stylesheet" type="text/css"/>
+      
+   <link rel="stylesheet" type="text/css" media="all" href="style/default.css"/>
+
+   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+   <script type="text/javascript" src="page.js"></script>
+      
    <script src="http://xml3d.org/xml3d/scripts/xml3d.js"  type="text/javascript"/>
    <script src="../build/output/xml3d-motion.js" type="text/javascript"/>
    <script src="CollisionConstraint.js" type="text/javascript"/>
    <script src="simple.js" type="text/javascript"/>
   </head>
   <body onload="initMoveable();">
+  <div id="overall">
+  <div id="content">
    <h1>
     Simple
    </h1>
@@ -87,7 +95,7 @@
 		 0.2
 		</float>
 		<texture name="diffuseTexture">
-				<img src="collision.png"/>
+				<img src="img/collision.png"/>
 		</texture>
 	  </shader>
      </defs>
@@ -113,6 +121,8 @@
    <button type="button" onclick="stop()">Stop Cube</button>
 
    <h2>Collision Image</h2>
-   <img id="collisionimage" src="collision.png" alt="collision"></img>
+   <img id="collisionimage" src="img/collision.png" alt="collision"></img>
+  </div> 
+  </div>
   </body>
  </html>
