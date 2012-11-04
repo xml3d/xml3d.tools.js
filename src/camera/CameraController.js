@@ -313,7 +313,7 @@
 	 * @private
 	 */
 	cc.preventRolling = function(){
-		this.moveable.rotate( XMOT.axisAngleToQuaternion( [1,0,0], -this.angleUp) );
+		this.moveable.rotate( XMOT.math.axisAngleToQuaternion( [1,0,0], -this.angleUp) );
 		this.angleUp = 0;
 	};
 
@@ -324,7 +324,7 @@
 	 */
 	cc.rotateCameraUpAndDown = function(angle){
 		this.angleUp += angle*Math.PI;
-		this.moveable.rotate( XMOT.axisAngleToQuaternion( [1,0,0], angle*Math.PI) );
+		this.moveable.rotate( XMOT.math.axisAngleToQuaternion( [1,0,0], angle*Math.PI) );
 	};
 
 	/**
@@ -334,10 +334,10 @@
 	 */
 	cc.rotateCameraLeftAndRight = function(angle){
 		//rotate up/down befor rotating sidewards, this prevends from rolling
-		this.moveable.rotate( XMOT.axisAngleToQuaternion( [1,0,0], -this.angleUp) );
-		this.moveable.rotate( XMOT.axisAngleToQuaternion( [0,1,0], angle*Math.PI) );
+		this.moveable.rotate( XMOT.math.axisAngleToQuaternion( [1,0,0], -this.angleUp) );
+		this.moveable.rotate( XMOT.math.axisAngleToQuaternion( [0,1,0], angle*Math.PI) );
 		//and rotate up/down again
-		this.moveable.rotate( XMOT.axisAngleToQuaternion( [1,0,0], this.angleUp) );
+		this.moveable.rotate( XMOT.math.axisAngleToQuaternion( [1,0,0], this.angleUp) );
 	};
 
 	cc.rotateCameraAroundPointLeftAndRight = function(angle){
@@ -405,7 +405,7 @@
 	cc.getRotationFromDirection = function (direction) {
 		//xml3DVec3 fails with error if normalizing null vector
 		if (direction) {
-			XMOT.normalizeVector(direction);
+			XMOT.math.normalizeVector(direction);
 			direction = new XML3DVec3(direction[0],direction[1],direction[2]);
 		}
 		else {

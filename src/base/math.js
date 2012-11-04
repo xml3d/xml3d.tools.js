@@ -8,6 +8,92 @@
     
     var m = XMOT.math; 
 
+    /**
+     * Converts axis angle representation into an quaternion
+     * @param {Array.<number>} axis
+     * @param {number} angle
+     * @return {Array.<number>} quaternion
+     */
+    m.axisAngleToQuaternion = function(axis, angle) {
+        var normAxis = XMOT.math.normalizeVector(axis);
+        var quat = [];
+        var s = Math.sin(angle/2);
+        quat[0] = normAxis[0] *s;
+        quat[1] = normAxis[1] *s;
+        quat[2] = normAxis[2] *s;
+        quat[3] = Math.cos(angle/2);
+        return quat;
+    };
+
+    /**
+     * Normalizes a 3D vector
+     * @param {Array.<number>} vector
+     * @return {Array.<number>} normalized vector
+     */
+    m.normalizeVector = function(vector) {
+        var length = Math.sqrt( vector[0]*vector[0] + vector[1]*vector[1] + vector[2]*vector[2] );
+        if(length == 0) return vector;
+        return [vector[0]/length, vector[1]/length, vector[2]/length];
+    };
+
+    /**
+     * Converts a quaternion into an axis angle representation
+     * @param {Array.<number>} quat
+     * @return {{axis: Array.<number>, angle:number}}
+     */
+    m.quaternionToAxisAngle = function(quat) {
+        quat4.normalize(quat); //normalise to avoid erros that may happen if qw > 1
+        var angle = 2*Math.acos(quat[3]);
+        var s = Math.sqrt(1-quat[3]*quat[3]);
+        if(s < 0.00001 ) s = 1; //avoid div by zero, direction not important for small s
+        var x = quat[0]/s;
+        var y = quat[1]/s;
+        var z = quat[2]/s;
+        return {axis:[x,y,z], angle:angle};
+    };
+
+    /**
+     * Interpolate between two quaternions the shortest way
+     * @param{Array.<number>} from quaternion from
+     * @param{Array.<number>} to quaternion to
+     * @param{number} t interpolation parameter
+     */
+    m.slerp = function(from, to, t) {
+        var result = [];
+        // Calculate angle between them -> dotProduct
+        var dotProduct = from[0] * to[0] + from[1] * to[1] + from[2] * to[2] + from[3] * to[3];
+        //invert, to make sure we interpolate the shortest way
+        if( dotProduct < 0 )
+        {
+            dotProduct = -dotProduct;
+            to[0] = -to[0];
+            to[1] = -to[1];
+            to[2] = -to[2];
+            to[3] = -to[3];
+        }
+
+        var p = 0;
+        var q = 0;
+        if( (1-dotProduct) > 0.0001 ) {
+            //default case
+            var omega = Math.acos(dotProduct);
+            var sinomega = Math.sin(omega);
+            p = Math.sin((1-t)*omega) / sinomega;
+            q = Math.sin(t*omega) / sinomega;
+        }
+        else {
+            //linear interpolation
+            p = 1.0-t;
+            q = t;
+        }
+
+        result[0] = p * from[0] + q * to[0];
+        result[1] = p * from[1] + q * to[1];
+        result[2] = p * from[2] + q * to[2];
+        result[3] = p * from[3] + q * to[3];
+        return result;
+    };
+
     /** Convert degrees to radians. 
      * 
      *  @param {number} deg angle in degrees.

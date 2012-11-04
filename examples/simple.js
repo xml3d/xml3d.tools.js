@@ -43,12 +43,12 @@ function translateCube()
 function moveCubeTo()
 {
 	document.getElementById("notification").innerHTML = "Moving the Cube To ...";
-	moveable.moveTo([1.0, 0.0, 1.0], XMOT.axisAngleToQuaternion([0.0, 1.0, 0.0], 0.5), 1000);
-	moveable.moveTo(undefined, XMOT.axisAngleToQuaternion([0.0, 1.0, 0.0], Math.PI), 1500);
+	moveable.moveTo([1.0, 0.0, 1.0], XMOT.math.axisAngleToQuaternion([0.0, 1.0, 0.0], 0.5), 1000);
+	moveable.moveTo(undefined, XMOT.math.axisAngleToQuaternion([0.0, 1.0, 0.0], Math.PI), 1500);
 	moveable.moveTo([1.0, 0.0, 4.0], undefined, 2000);
 	moveable.moveTo([4.0, 0.0, 4.0], undefined, 2500);
 	moveable.moveTo([4.0, 0.0, 1.0], undefined, 3000);
-	moveable.moveTo([1.0, 0.0, 1.0], XMOT.axisAngleToQuaternion([0.0, 1.0, 0.0], 0.5), 3500);
+	moveable.moveTo([1.0, 0.0, 1.0], XMOT.math.axisAngleToQuaternion([0.0, 1.0, 0.0], 0.5), 3500);
 	document.getElementById("notification").innerHTML = "Ehm... Cube should have moved";
 };
 

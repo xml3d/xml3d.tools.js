@@ -69,7 +69,7 @@
     p.getOrientation = function(){
     	var axis = this.transform.rotation.axis;
     	var angle = this.transform.rotation.angle;
-    	return XMOT.axisAngleToQuaternion([axis.x, axis.y, axis.z], angle);
+    	return XMOT.math.axisAngleToQuaternion([axis.x, axis.y, axis.z], angle);
     };
 
     /** @inheritDoc */
@@ -241,7 +241,7 @@
 		var end = this.motionQueue[0].endOrientation;
 		if(end == undefined) return undefined;
 		var start = this.motionQueue[0].startOrientation;
-		return XMOT.slerp(start, end, t);
+		return XMOT.math.slerp(start, end, t);
     };
 
     /**
