@@ -18,12 +18,16 @@
 		 * @type {Object}
 		 */
 		this.transform = transform;
+		
 		/**
 		 * Constraint of the movement
 		 * @protected
 		 * @type {Constraint}
 		 */
+		if(!constraint)
+			constraint = new XMOT.SimpleConstraint(true, true, true); 
 		this.constraint = constraint;
+		
 		/**
 		 * Queue of movements
 		 * @private
@@ -58,7 +62,7 @@
 
     /** @inheritDoc */
     p.getPosition = function(){
-    	return [this.transform.translation.x, this.transform.translation.y, this.transform.translation.z];
+    	return this.transform.translation.toArray(); 
     };
 
     /** @inheritDoc */
@@ -70,7 +74,7 @@
 
     /** @inheritDoc */
     p.getScale = function(){
-    	return this.transform.scale;
+    	return this.transform.scale.toArray();
     };
 
     /** @inheritDoc */
