@@ -19,7 +19,7 @@ function initScene()
 
 function attachSensor()
 {
-    var fac = new XMOT.ClientMotionFactory(); 
+    var fac = XMOT.ClientMotionFactory; 
     var xfm1 = fac.createTransformable($("#group1")[0]);
     var xfm2 = fac.createTransformable($("#group2")[0]);
     var xfm3 = fac.createTransformable($("#group3")[0]); 

@@ -16,7 +16,7 @@ function onLoad()
 function attachSensor()
 {
     var target = $("#g_target")[0];
-    var tarXfm = (new XMOT.ClientMotionFactory).createTransformable(target);
+    var tarXfm = XMOT.ClientMotionFactory.createTransformable(target);
     
     sensor = new XMOT.interaction.behaviors.Scaler("myScaler", 
             [target], tarXfm, true); 

@@ -106,7 +106,7 @@
 		this.xml3dElement = document.getElementById(xml3dElementId);
 		this.sceneBoundingBox = this.xml3dElement.getBoundingBox();
 
-		var factory = new XMOT.ClientMotionFactory();
+		var factory = XMOT.ClientMotionFactory;
 		var cam = document.getElementById(camera_id);
 		/**
 		 * The Transformable

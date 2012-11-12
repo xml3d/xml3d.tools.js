@@ -25,7 +25,7 @@ XMOT.interaction.widgets.RingMenu = new XMOT.Class(
         this._radius = _radius; 
         
         // initialization with targetGrp's children        
-        var tarXfm = (new XMOT.ClientMotionFactory()).createTransformable(_targetGrp);        
+        var tarXfm = XMOT.ClientMotionFactory.createTransformable(_targetGrp);        
         this.callSuper(_id, tarXfm, false); 
     },
 

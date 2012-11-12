@@ -15,7 +15,7 @@ function initScene()
 
 function attachSensor()
 {
-    var xfm = (new XMOT.ClientMotionFactory()).createTransformable($("#group1")[0]); 
+    var xfm = XMOT.ClientMotionFactory.createTransformable($("#group1")[0]); 
     sensor = new XMOT.interaction.widgets.UniformScaler("myscaler", xfm); 
 }
 

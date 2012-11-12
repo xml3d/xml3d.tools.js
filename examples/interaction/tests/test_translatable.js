@@ -14,7 +14,7 @@ function initScene()
     );
     
     var bns = XMOT.interaction.behaviors; 
-    var motFac = new XMOT.ClientMotionFactory(); 
+    var motFac = XMOT.ClientMotionFactory; 
 
     // group1 
     var target1 = $("#group1")[0]; 

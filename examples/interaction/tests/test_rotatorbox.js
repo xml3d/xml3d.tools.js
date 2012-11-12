@@ -17,7 +17,7 @@ function onLoad()
 
     // xfm box creation
     var target = $("#g_target")[0]; 
-    var tarXfm = (new XMOT.ClientMotionFactory).createTransformable(target);
+    var tarXfm = XMOT.ClientMotionFactory.createTransformable(target);
     
     xfmBox = new XMOT.interaction.widgets.RotatorBox("myRotatorBox", tarXfm, 5); 
 }
