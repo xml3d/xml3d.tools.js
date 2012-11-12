@@ -17,9 +17,9 @@ function onLoad()
 
     // xfm box creation
     var target = $("#g_target")[0]; 
-    var tarMov = (new XMOT.ClientMotionFactory).createMoveable(target);
+    var tarXfm = (new XMOT.ClientMotionFactory).createTransformable(target);
     
-    xfmBox = new XMOT.interaction.widgets.TransformBox("myXfmBox", tarMov);
+    xfmBox = new XMOT.interaction.widgets.TransformBox("myXfmBox", tarXfm);
     
     xfmBoxOn = true;
     $("#b_togglebox").val("Detach Widget");

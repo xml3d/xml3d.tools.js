@@ -15,7 +15,7 @@ XMOT.interaction.behaviors.Rotater = new XMOT.util.Class(
      *  
      *  @param {string} id the id of this sensor
      *  @param {Array.<Object>} pickGrps the group this sensor will listen for events
-     *  @param {XMOT.Moveable} targetMovable the group this sensor will modify.
+     *  @param {XMOT.Transformable} targetTransformable the group this sensor will modify.
      *                 If not given, it is equal to the first element in pickGrp.
      *  @param {number} [rotSpeed] rotation speed, default is 1
      *  @param {XML3DVec3|Object} [planeOrient] modifies the orientation of the underlying
@@ -25,7 +25,7 @@ XMOT.interaction.behaviors.Rotater = new XMOT.util.Class(
      *  @throws "target no transform" if the target group doesn't have a transform
      *           attribute
      */
-    initialize: function(id, pickGrps, targetMovable, rotSpeed, planeOrient)
+    initialize: function(id, pickGrps, targetTransformable, rotSpeed, planeOrient)
     {
         // parent class
         this.callSuper(id, pickGrps, planeOrient, null);
@@ -59,7 +59,7 @@ XMOT.interaction.behaviors.Rotater = new XMOT.util.Class(
             this.trackBall.rotationSpeed = 4; 
 
         // --- setup this sensor ---          
-        this.targetMovable = targetMovable; 
+        this.targetTransformable = targetTransformable; 
 
         // listeners
         this.addListener("dragstart", this.callback("_onTrackBallDragStart"));
@@ -75,7 +75,7 @@ XMOT.interaction.behaviors.Rotater = new XMOT.util.Class(
     {
         this.trackBall.resetRotationOffset();
         
-        this.targetMovable.setOrientation((new window.XML3DRotation()).getQuaternion());
+        this.targetTransformable.setOrientation((new window.XML3DRotation()).getQuaternion());
     },
 
     /** restrict the rotation to x or y axis
@@ -136,7 +136,7 @@ XMOT.interaction.behaviors.Rotater = new XMOT.util.Class(
     _onTrackBallDragStart: function(sensor)
     {
         // update the offset with perhaps changed rotation
-        this._rotationOffset = new window.XML3DRotation(this.targetMovable.transform.rotation);
+        this._rotationOffset = new window.XML3DRotation(this.targetTransformable.transform.rotation);
         // reset the trackball's offset: we do that for ourselves 
         this.trackBall.rotationOffset = new XML3DRotation();
 
@@ -173,6 +173,6 @@ XMOT.interaction.behaviors.Rotater = new XMOT.util.Class(
                 
         var finalRot = this._rotationOffset.multiply(canRot);
         
-        this.targetMovable.setOrientation(finalRot.getQuaternion());
+        this.targetTransformable.setOrientation(finalRot.getQuaternion());
     }
 });

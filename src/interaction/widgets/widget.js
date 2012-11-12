@@ -21,7 +21,7 @@ XMOT.interaction.widgets.Widget = new XMOT.util.Class(
      *  @this{XMOT.interaction.widgets.Widget}
      *  
      *  @param {string} _id the id if this TransformBox and also the id of the corresponding root group node
-     *  @param {XMOT.Moveable} _target the target movable
+     *  @param {XMOT.Transformable} _target the target transformable
      *  @param {boolean} [_autoScaleAdj] automatically fit the scale of the widget's root group to the 
      *      scaling of the target node. Default: true. Useful when widgets have to match the dimensions of the
      *      target node.  
@@ -51,7 +51,7 @@ XMOT.interaction.widgets.Widget = new XMOT.util.Class(
 
         // root: the container node whose transform a widget modifies.
         var rootGrp = this.target.object.parentNode;
-        this.root = this.motFactory.createMoveable(rootGrp); 
+        this.root = this.motFactory.createTransformable(rootGrp); 
         
         this.geo = new XMOT.util.GeoObject(this.ID, this.xml3d, rootGrp); 
         this.behavior = {}; // localID -> behavior, storage for all sensors and alike

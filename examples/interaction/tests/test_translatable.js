@@ -18,9 +18,9 @@ function initScene()
 
     // group1 
     var target1 = $("#group1")[0]; 
-    var tarMov1 = motFac.createMoveable(target1);
+    var tarXfm1 = motFac.createTransformable(target1);
     
-    sensor1 = new bns.Translater("transl1", [target1], tarMov1);
+    sensor1 = new bns.Translater("transl1", [target1], tarXfm1);
     sensor1.constraint = new XMOT.BoxedTranslationConstraint(grp1ConstrBox);
     sensor1.addListener("dragstart", onDragStart);
     sensor1.addListener("drag", onDrag);
@@ -34,8 +34,8 @@ function initScene()
     ); 
 
     var target2 = $("#group2")[0]; 
-    var tarMov2 = motFac.createMoveable(target2);
-    sensor1 = new bns.Translater("transl2", [target2], tarMov2);
+    var tarXfm2 = motFac.createTransformable(target2);
+    sensor2 = new bns.Translater("transl2", [target2], tarXfm2);
     sensor2.constraint = new XMOT.BoxedTranslationConstraint(grp2ConstrBox);
     sensor2.addListener("dragstart", onDragStart);
     sensor2.addListener("drag", onDrag);

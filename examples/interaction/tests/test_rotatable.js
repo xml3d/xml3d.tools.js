@@ -16,10 +16,10 @@ function initScene()
 
 function attachSensor()
 {
-    var tarMov = (new XMOT.ClientMotionFactory).createMoveable(target); 
+    var tarXfm = (new XMOT.ClientMotionFactory).createTransformable(target); 
     sensor = new XMOT.interaction.behaviors.Rotater(
         "myRotater", [target],
-        tarMov, 8
+        tarXfm, 8
     );
     
     sensor.addListener("dragstart", onDragStart); 

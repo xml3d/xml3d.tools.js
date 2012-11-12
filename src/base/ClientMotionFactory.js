@@ -17,9 +17,9 @@
 	var m = ClientMotionFactory.prototype;
 
 	/** @inheritDoc */
-	m.createMoveable = function(element, constraint){
-		if(!element) throw "No valid element, cannot create Moveable.";
-		return new XMOT.ClientMoveable(element, this.getTransform(element), constraint);
+	m.createTransformable = function(element, constraint){
+		if(!element) throw "No valid element, cannot create Transformable.";
+		return new XMOT.ClientTransformable(element, this.getTransform(element), constraint);
 	};
 
 	/** @inheritDoc */

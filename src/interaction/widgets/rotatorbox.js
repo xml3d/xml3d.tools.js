@@ -20,7 +20,7 @@ XMOT.interaction.widgets.RotatorBox = new XMOT.util.Class(
      *  @this {XMOT.interaction.widgets.RotatorBox}
      *   
      *  @param {string} _id the id if this XMOT.interaction.widgets.TransformBox and also the id of the corresponding root group node
-     *  @param {XMOT.Moveable} _target
+     *  @param {XMOT.Transformable} _target
      *  @param {number} [_arrowScaleFac] scales the arrows with the given factor. Default: 1
      *
      *  IMPORTANT: If the target's parent group node has no transform element attached,

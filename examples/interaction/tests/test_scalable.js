@@ -16,10 +16,10 @@ function onLoad()
 function attachSensor()
 {
     var target = $("#g_target")[0];
-    var tarMov = (new XMOT.ClientMotionFactory).createMoveable(target);
+    var tarXfm = (new XMOT.ClientMotionFactory).createTransformable(target);
     
     sensor = new XMOT.interaction.behaviors.Scaler("myScaler", 
-            [target], tarMov, true); 
+            [target], tarXfm, true); 
     
     sensor.addListener("translchanged", onTranslChanged);
 

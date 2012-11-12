@@ -109,19 +109,19 @@
 		var factory = new XMOT.ClientMotionFactory();
 		var cam = document.getElementById(camera_id);
 		/**
-		 * The Moveable
+		 * The Transformable
 		 * @private
-		 * @type {Moveable}
+		 * @type {Transformable}
 		 */
-		this.moveable = factory.createMoveable(cam, this.constraint);
+		this.transformable = factory.createTransformable(cam, this.constraint);
 		var initRot = initialRotation || [0,0,0,0];
-		this.moveable.rotate(initialRotation);
+		this.transformable.rotate(initialRotation);
 		/**
-		 * starting point of the moveable, used to reset position and orientation
+		 * starting point of the transformable, used to reset position and orientation
 		 * @private
 		 * @type {{position: Array.<number>, orientation: Array.<number>}}
 		 */
-		this.startingPoint = {position:this.moveable.getPosition(), orientation:this.moveable.getOrientation()};
+		this.startingPoint = {position:this.transformable.getPosition(), orientation:this.transformable.getOrientation()};
 
 		/**
 		 * Mousebutton on which the camera turns:
@@ -178,7 +178,7 @@
 	 * @return {Array.<number>} 3D vector
 	 */
 	cc.getPosition = function(){
-		return this.moveable.getPosition();
+		return this.transformable.getPosition();
 	};
 
 	/**
@@ -187,7 +187,7 @@
 	 * @return {Array.<number>} quaternion
 	 */
 	cc.getOrientation = function(){
-		return this.moveable.getOrientation();
+		return this.transformable.getOrientation();
 	};
 
 	// public:
@@ -241,8 +241,8 @@
 		if(l === 0) return;
 		var vecX = [0, 0, 1];
 		var result = vec3.create();
-		quat4.multiplyVec3(this.moveable.getOrientation(),vecX, result);
-		this.moveable.translate(vec3.scale(vec3.normalize(result), l));
+		quat4.multiplyVec3(this.transformable.getOrientation(),vecX, result);
+		this.transformable.translate(vec3.scale(vec3.normalize(result), l));
 	};
 
 	/**
@@ -254,9 +254,9 @@
 		if(l === 0) return;
 		var vecY = [1, 0, 0]; // global x is local z of the camera
 		var result = vec3.create();
-		quat4.multiplyVec3(this.moveable.getOrientation(),vecY, result);
+		quat4.multiplyVec3(this.transformable.getOrientation(),vecY, result);
 		var moveVec = vec3.scale(vec3.normalize(result), l);
-		this.moveable.translate(moveVec);
+		this.transformable.translate(moveVec);
 		this.pointToRotateAround = vec3.add(this.pointToRotateAround, moveVec);
 	};
 
@@ -269,8 +269,8 @@
 		if(l === 0) return;
 		var vecY = [0, 1, 0];
 		var result = vec3.create();
-		quat4.multiplyVec3(this.moveable.getOrientation(),vecY, result);
-		this.moveable.translate(vec3.scale(vec3.normalize(result), l));
+		quat4.multiplyVec3(this.transformable.getOrientation(),vecY, result);
+		this.transformable.translate(vec3.scale(vec3.normalize(result), l));
 	};
 
 	/**
@@ -278,12 +278,12 @@
 	 * @private
 	 */
 	cc.nextPoi = function(){
-		if(this.poi.length == 0 || !this.allowPoi || this.moveable.movementInProgress()) return;
+		if(this.poi.length == 0 || !this.allowPoi || this.transformable.movementInProgress()) return;
 		this.currentPoi = this.currentPoi == this.poi.length-1 ? 0 : this.currentPoi+1;
 		var movetopoi = this.poi[this.currentPoi];
 		this.allowPoi = false;
 		var that = this;
-		this.moveable.moveTo(movetopoi.pos, movetopoi.ori, this.poiMoveToTime, {queueing: false, callback: function(){that.moveToCallback();}});
+		this.transformable.moveTo(movetopoi.pos, movetopoi.ori, this.poiMoveToTime, {queueing: false, callback: function(){that.moveToCallback();}});
 	};
 
 	/**
@@ -291,12 +291,12 @@
 	 * @private
 	 */
 	cc.beforePoi = function(){
-		if(this.poi.length == 0 || !this.allowPoi || this.moveable.movementInProgress()) return;
+		if(this.poi.length == 0 || !this.allowPoi || this.transformable.movementInProgress()) return;
 		this.currentPoi = this.currentPoi == 0 ? this.poi.length-1 : this.currentPoi-1;
 		var movetopoi = this.poi[this.currentPoi];
 		this.allowPoi = false;
 		var that = this;
-		this.moveable.moveTo(movetopoi.pos, movetopoi.ori, this.poiMoveToTime, {queueing: false, callback: function(){that.moveToCallback();}});
+		this.transformable.moveTo(movetopoi.pos, movetopoi.ori, this.poiMoveToTime, {queueing: false, callback: function(){that.moveToCallback();}});
 	};
 
 	/**
@@ -304,7 +304,7 @@
 	 * @public
 	 */
 	cc.stopMovementToPoi = function(){
-		this.moveable.stop();
+		this.transformable.stop();
 		this.allowPoi = true;
 	};
 
@@ -313,7 +313,7 @@
 	 * @private
 	 */
 	cc.preventRolling = function(){
-		this.moveable.rotate( XMOT.math.axisAngleToQuaternion( [1,0,0], -this.angleUp) );
+		this.transformable.rotate( XMOT.math.axisAngleToQuaternion( [1,0,0], -this.angleUp) );
 		this.angleUp = 0;
 	};
 
@@ -324,7 +324,7 @@
 	 */
 	cc.rotateCameraUpAndDown = function(angle){
 		this.angleUp += angle*Math.PI;
-		this.moveable.rotate( XMOT.math.axisAngleToQuaternion( [1,0,0], angle*Math.PI) );
+		this.transformable.rotate( XMOT.math.axisAngleToQuaternion( [1,0,0], angle*Math.PI) );
 	};
 
 	/**
@@ -334,34 +334,34 @@
 	 */
 	cc.rotateCameraLeftAndRight = function(angle){
 		//rotate up/down befor rotating sidewards, this prevends from rolling
-		this.moveable.rotate( XMOT.math.axisAngleToQuaternion( [1,0,0], -this.angleUp) );
-		this.moveable.rotate( XMOT.math.axisAngleToQuaternion( [0,1,0], angle*Math.PI) );
+		this.transformable.rotate( XMOT.math.axisAngleToQuaternion( [1,0,0], -this.angleUp) );
+		this.transformable.rotate( XMOT.math.axisAngleToQuaternion( [0,1,0], angle*Math.PI) );
 		//and rotate up/down again
-		this.moveable.rotate( XMOT.math.axisAngleToQuaternion( [1,0,0], this.angleUp) );
+		this.transformable.rotate( XMOT.math.axisAngleToQuaternion( [1,0,0], this.angleUp) );
 	};
 
 	cc.rotateCameraAroundPointLeftAndRight = function(angle){
 		var distanceToLookAt = this.distanceToLookAtPoint(this.pointToRotateAround);
 		//var cameraDirection = this.cameraDirectionAsXML3D();
-		//var translationToOrigin = this.moveable.transform.translation.negate();
-		this.moveable.setPosition([0,0,0]);
+		//var translationToOrigin = this.transformable.transform.translation.negate();
+		this.transformable.setPosition([0,0,0]);
 		this.rotateCameraLeftAndRight(angle);
 		var newDirection = this.cameraDirectionAsXML3D();
 		var tmp = newDirection.scale(distanceToLookAt).negate();
-		this.moveable.setPosition([tmp.x, tmp.y, tmp.z]);
-		this.moveable.translate(this.pointToRotateAround);
+		this.transformable.setPosition([tmp.x, tmp.y, tmp.z]);
+		this.transformable.translate(this.pointToRotateAround);
 	};
 
 	cc.rotateCameraAroundPointUpAndDown = function(angle){
 		var distanceToLookAt = this.distanceToLookAtPoint(this.pointToRotateAround);
 		//var cameraDirection = this.cameraDirectionAsXML3D();
-		//var translationToOrigin = this.moveable.transform.translation.negate();
-		this.moveable.setPosition([0,0,0]);
+		//var translationToOrigin = this.transformable.transform.translation.negate();
+		this.transformable.setPosition([0,0,0]);
 		this.rotateCameraUpAndDown(angle);
 		var newDirection = this.cameraDirectionAsXML3D();
 		var tmp = newDirection.scale(distanceToLookAt).negate();
-		this.moveable.setPosition([tmp.x, tmp.y, tmp.z]);
-		this.moveable.translate(this.pointToRotateAround);
+		this.transformable.setPosition([tmp.x, tmp.y, tmp.z]);
+		this.transformable.translate(this.pointToRotateAround);
 	};
 
 	/**
@@ -370,7 +370,7 @@
 	 * @return {Number|void}
 	 */
 	cc.distanceBetweenCameraAndPoint = function(point){
-		var camPosition = this.moveable.transform.translation;
+		var camPosition = this.transformable.transform.translation;
 		var p = new XML3DVec3(point[0],point[1],point[2]);
 		return camPosition.subtract(p).length();
 	};
@@ -384,7 +384,7 @@
 		var position = this.getPosition();
 		var direction = [point[0]-position[0],point[1]-position[1],point[2]-position[2]];
 		var orientation =this.getRotationFromDirection(direction);
-		this.moveable.setOrientation(orientation);
+		this.transformable.setOrientation(orientation);
 	};
 
 	/**
@@ -421,7 +421,7 @@
 
 		vec3.cross(direction._data,up._data,tmpX);
 		if(!vec3.length(tmpX)) {
-			tmpX = this.moveable.transform.rotation.rotateVec3(new window.XML3DVec3(1,0,0))._data;
+			tmpX = this.transformable.transform.rotation.rotateVec3(new window.XML3DVec3(1,0,0))._data;
 		}
 		vec3.cross(tmpX,direction._data,tmpY);
 		vec3.negate(direction._data,tmpZ);
@@ -439,7 +439,7 @@
 	 * @return {*}
 	 */
 	cc.cameraDirectionAsXML3D = function(){
-		var camOrientation = this.moveable.transform.rotation;
+		var camOrientation = this.transformable.transform.rotation;
 		// as per spec: [getOrientation] is the orientation multiplied with the default direction (0, 0, -1)
 		return camOrientation.rotateVec3(new XML3DVec3(0,0,-1)).normalize();
 	};
@@ -449,8 +449,8 @@
 	 * @private 
 	 */
 	cc.reset = function(){
-		this.moveable.setPosition(this.startingPoint.position);
-		this.moveable.setOrientation(this.startingPoint.orientation);
+		this.transformable.setPosition(this.startingPoint.position);
+		this.transformable.setOrientation(this.startingPoint.orientation);
 		this.angleUp = 0;
 	};
 
@@ -678,7 +678,7 @@
 		var center = this.sceneBoundingBox.center();
 		this.lookAtPoint([center.x, center.y, center.z]);
 		var moveBy = this.sceneBoundingBox.max;
-		this.moveable.setPosition([2*moveBy.x, 2*moveBy.y, 4*moveBy.z]);
+		this.transformable.setPosition([2*moveBy.x, 2*moveBy.y, 4*moveBy.z]);
 	};
 
 	XMOT.CameraController = CameraController;

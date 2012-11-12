@@ -18,9 +18,9 @@ var EXAMPLE_LIST = [
     }, 
     {
         cat: "misc",
-        name: "Moveable",
+        name: "Transformable",
         href: "simple.xhtml",
-        info: "Tests the XMOT.Moveable"
+        info: "Tests the XMOT.Transformable"
     },
     {
         cat: "misc",

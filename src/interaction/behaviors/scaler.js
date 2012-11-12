@@ -30,13 +30,13 @@ XMOT.interaction.behaviors.Scaler = new XMOT.util.Class(
      *  
      *  @param {string} id the id of this sensor
      *  @param {Array.<Object>} pickGrps the groups this sensor will listen for events
-     *  @param {XMOT.Moveable} targetMovable the group this sensor will modify. If not given,
+     *  @param {XMOT.Transformable} targetTransformable the group this sensor will modify. If not given,
      *             it's equal to the first element in pickGrp.
      *  @param {boolean} [uniformScale] whether to perform uniform scaling. Default: true.
      *
      *  @throws "target no transform"/"pick no transform" - targetGrp/pickGrp doesn't have transform attribute
      */
-    initialize: function(id, pickGrps, targetMovable, uniformScale)
+    initialize: function(id, pickGrps, targetTransformable, uniformScale)
     {
         // parent class
         this.callSuper(id, pickGrps, null, null);
@@ -48,7 +48,7 @@ XMOT.interaction.behaviors.Scaler = new XMOT.util.Class(
         if(uniformScale)
             this.uniformScale = uniformScale;
         
-        this.targetMovable = targetMovable;
+        this.targetTransformable = targetTransformable;
 
         // listeners
         this.addListener("dragstart", this.callback("_onScalePlaneDragStart"));
@@ -67,10 +67,10 @@ XMOT.interaction.behaviors.Scaler = new XMOT.util.Class(
      */
     _onScalePlaneDragStart: function(sensor)
     {
-        this._startTarGrpScale = new window.XML3DVec3(this.targetMovable.transform.scale);
+        this._startTarGrpScale = new window.XML3DVec3(this.targetTransformable.transform.scale);
 
         // adjust scaling factor with world bounding box of target node
-        var tarSize = XMOT.util.getWorldBBox(this.targetMovable.object).size();
+        var tarSize = XMOT.util.getWorldBBox(this.targetTransformable.object).size();
 
         this._scaleAdjFactor = tarSize.length();
     },
@@ -96,7 +96,7 @@ XMOT.interaction.behaviors.Scaler = new XMOT.util.Class(
         var delta = this._startTarGrpScale.multiply(factor);
         var newScale = this._startTarGrpScale.add(delta);
         
-        this.targetMovable.setScale(newScale.toArray()); 
+        this.targetTransformable.setScale(newScale.toArray()); 
     },
 
     /** Calculates the scaling factor for uniform scaling.

@@ -20,18 +20,18 @@ function initScene()
 function attachSensor()
 {
     var fac = new XMOT.ClientMotionFactory(); 
-    var mov1 = fac.createMoveable($("#group1")[0]);
-    var mov2 = fac.createMoveable($("#group2")[0]);
-    var mov3 = fac.createMoveable($("#group3")[0]); 
+    var xfm1 = fac.createTransformable($("#group1")[0]);
+    var xfm2 = fac.createTransformable($("#group2")[0]);
+    var xfm3 = fac.createTransformable($("#group3")[0]); 
     
     sensors[0] = new XMOT.interaction.widgets.SingleAxisRotator(
-        "myxrot", mov1, "x"
+        "myxrot", xfm1, "x"
     );
     sensors[1] = new XMOT.interaction.widgets.SingleAxisRotator(
-        "myyrot", mov2, "y"
+        "myyrot", xfm2, "y"
     );
     sensors[2] = new XMOT.interaction.widgets.SingleAxisRotator(
-        "myzrot", mov3, "z"
+        "myzrot", xfm3, "z"
     );
 }
 

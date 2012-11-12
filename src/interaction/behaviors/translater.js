@@ -15,20 +15,20 @@ XMOT.interaction.behaviors.Translater = new XMOT.util.Class(
      *  
      *  @param {string} id the id of this sensor
      *  @param {Array.<Object>} pickGrps the group this sensor should look for
-     *  @param {XMOT.Moveable} targetMovable the movable this sensor will modify.
+     *  @param {XMOT.Transformable} targetTransformable the movable this sensor will modify.
      *                 If not given, a Movable will be created from the first element of pickGrps 
      *  @param {XML3DVec3|!Object} [planeOrient] the group or vector the sensor takes to decide where the plane
      *             normal should reside. If it's a group the local z=0 plane of the given group is taken.
      *             If a vector is given, the vector directly is taken. If not specified a plane
      *             parallel to the user's view is taken.
      */
-    initialize: function(id, pickGrps, targetMovable, planeOrient)
+    initialize: function(id, pickGrps, targetTransformable, planeOrient)
     {       
-        this.targetMovable = targetMovable; 
+        this.targetTransformable = targetTransformable; 
 
         // take local matrix as initial offset
         // we manipulate the transform node of the group, so take the local one
-        var transOff = this.targetMovable.transform.translation;
+        var transOff = this.targetTransformable.transform.translation;
 
         this.callSuper(id, pickGrps, planeOrient, transOff);
 
@@ -49,7 +49,7 @@ XMOT.interaction.behaviors.Translater = new XMOT.util.Class(
      */
     _onTransPlaneDragStart: function(sensor)
     {
-        this.translationOffset = new window.XML3DVec3(this.targetMovable.transform.translation);
+        this.translationOffset = new window.XML3DVec3(this.targetTransformable.transform.translation);
     },
 
     /** 
@@ -60,6 +60,6 @@ XMOT.interaction.behaviors.Translater = new XMOT.util.Class(
      */
     _onTranslChanged: function(sensor)
     {
-        this.targetMovable.setPosition(this.translation.toArray()); 
+        this.targetTransformable.setPosition(this.translation.toArray()); 
     }
 });

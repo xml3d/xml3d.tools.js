@@ -15,8 +15,8 @@ function initScene()
 
 function attachSensor()
 {
-    var mov = (new XMOT.ClientMotionFactory()).createMoveable($("#group1")[0]); 
-    sensor = new XMOT.interaction.widgets.TranslateBox("mybox", mov); 
+    var xfm = (new XMOT.ClientMotionFactory()).createTransformable($("#group1")[0]); 
+    sensor = new XMOT.interaction.widgets.TranslateBox("mybox", xfm); 
 }
 
 function detachSensor()

@@ -1,19 +1,19 @@
 (function() {
 
     /**
-     * A Moveable implementation.
+     * A Transformable implementation.
      * @constructor
-     * @implements{Moveable}
+     * @implements{Transformable}
      */
-    function ClientMoveable(object, transform, constraint) {
+    function ClientTransformable(object, transform, constraint) {
     	/**
-		 * Object which shall be moveable
+		 * Object which shall be transformable
 		 * @protected
 		 * @type {Object}
 		 */
 		this.object = object;
 		/**
-		 * Transform coords of the object and the Moveable
+		 * Transform coords of the object and the Transformable
 		 * @protected
 		 * @type {Object}
 		 */
@@ -36,18 +36,18 @@
 		this.motionQueue = new Array();
     };
 
-    var p = ClientMoveable.prototype;
+    var p = ClientTransformable.prototype;
 
     /** @inheritDoc */
     p.setPosition = function(position){
-		if(this.constraint.constrainTranslation(position, {moveable: this}))
+		if(this.constraint.constrainTranslation(position, {transformable: this}))
 			this.transform.translation.set(new XML3DVec3(position[0],position[1],position[2]));
 		return this;
     };
 
     /** @inheritDoc */
 	p.setOrientation = function(orientation){
-		if(this.constraint.constrainRotation(orientation, {moveable: this})){
+		if(this.constraint.constrainRotation(orientation, {transformable: this})){
 			this.transform.rotation.setQuaternion( new XML3DVec3(orientation[0],orientation[1],orientation[2]), orientation[3] );
 		}
 		return this;
@@ -55,7 +55,7 @@
 
     /** @inheritDoc */
     p.setScale = function(scale){
-        if(this.constraint.constrainScaling(scale, {moveable: this})){
+        if(this.constraint.constrainScaling(scale, {transformable: this})){
             this.transform.scale.set(new XML3DVec3(scale[0], scale[1], scale[2]));            
         }
     };
@@ -88,7 +88,7 @@
 		var modifier = new XML3DRotation();
 		modifier.setQuaternion( new XML3DVec3(orientation[0],orientation[1],orientation[2]), orientation[3] );
 		var destination = this.transform.rotation.multiply( modifier );
-		if(this.constraint.constrainRotation(orientation, {moveable: this}))
+		if(this.constraint.constrainRotation(orientation, {transformable: this}))
 			this.transform.rotation.set(destination);
 		return this;
     };
@@ -198,7 +198,7 @@
 	};
 
     /**
-     * Applies one movement step to the moveable
+     * Applies one movement step to the transformable
      * @private
      * @param {number}currentTime
      * @param {number} startTime
@@ -245,7 +245,7 @@
     };
 
     /**
-	 * Set position and animation of the moveable
+	 * Set position and animation of the transformable
 	 * @private
 	 * @param {Array.<number>|undefined} position
 	 * @param {Array.<number>|undefined} orientation
@@ -276,6 +276,6 @@
     };
 
     //export
-    XMOT.ClientMoveable = ClientMoveable;
+    XMOT.ClientTransformable = ClientTransformable;
 
 }());

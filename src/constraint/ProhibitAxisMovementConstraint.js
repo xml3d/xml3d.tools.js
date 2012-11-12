@@ -52,15 +52,15 @@
 
     /** @inheritDoc
      * 
-     *  @param {{moveable: Moveable}} opts constraint options. Must be filled with a Moveable.  
+     *  @param {{transformable: Transformable}} opts constraint options. Must be filled with a Transformable.  
      */
     c.constrainTranslation = function(newPosition, opts){
-        if(!opts || !opts.moveable)
-            throw "ProhibitAxisMovementConstraint.constrainTranslation: no moveable in options given."; 
+        if(!opts || !opts.transformable)
+            throw "ProhibitAxisMovementConstraint.constrainTranslation: no transformable in options given."; 
             
     	var center = this.center;
     	var epsilon = this.epsilon;
-    	var currentPosition = opts.moveable.getPosition();
+    	var currentPosition = opts.transformable.getPosition();
     	
 		if(this.x && Math.abs(center - newPosition[0]) > epsilon) newPosition[0] = currentPosition[0];
 		if(this.y && Math.abs(center - newPosition[1]) > epsilon) newPosition[1] = currentPosition[1];
