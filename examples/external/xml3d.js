@@ -21,14 +21,13 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-@version: DEVELOPMENT SNAPSHOT (09.11.2012 16:29:13 CET)
+@version: DEVELOPMENT SNAPSHOT (12.11.2012 15:43:16 CET)
 **/
-                    
 /** @namespace * */
 var XML3D = XML3D || {};
 
 /** @define {string} */
-XML3D.version = 'DEVELOPMENT SNAPSHOT (09.11.2012 16:29:13 CET)';
+XML3D.version = 'DEVELOPMENT SNAPSHOT (12.11.2012 15:43:16 CET)';
 /** @const */
 XML3D.xml3dNS = 'http://www.xml3d.org/2009/xml3d';
 /** @const */
@@ -38,6 +37,10 @@ XML3D.webglNS = 'http://www.xml3d.org/2009/xml3d/webgl';
 XML3D._xml3d = document.createElementNS(XML3D.xml3dNS, "xml3d");
 XML3D._native = !!XML3D._xml3d.style;
 XML3D._parallel = XML3D._parallel != undefined ? XML3D._parallel : false;
+
+XML3D.createElement = function(tagName) {
+    return document.createElementNS(XML3D.xml3dNS, tagName);
+};
 
 XML3D.extend = function(a, b) {
     for ( var prop in b) {
@@ -60,6 +63,7 @@ XML3D.extend = function(a, b) {
 XML3D.createClass = function(ctor, parent, methods) {
     methods = methods || {};
     if (parent) {
+        /** @constructor */
         var F = function() {
         };
         F.prototype = parent.prototype;
@@ -312,7 +316,7 @@ window.requestAnimFrame = (function(){
         XML3D.debug.logWarning("xml3d element has no view defined: creating one.");
         
         var vid = "xml3d.autocreatedview_" + __autoCreatedViewId++; 
-        var v = document.createElementNS(XML3D.xml3dNS, "view");
+        var v = XML3D.createElement("view");
         v.setAttribute("id", vid);
         
         xml3d.appendChild(v); 
@@ -4614,1612 +4618,6 @@ quat4.str = function(quat) {
     window.XML3DRay = XML3DRay;
 
 }(XML3D._native));
-var Xflow = {};
-
-Xflow.EPSILON = 0.000001;
-
-/**
- * Type of DataEntry
- * @enum
- */
-Xflow.DATA_TYPE = {
-    FLOAT: 0,
-    FLOAT2 : 1,
-    FLOAT3 : 2,
-    FLOAT4 : 3,
-    FLOAT4X4 : 10,
-    INT : 20,
-    INT4 : 21,
-    BOOL: 30,
-    TEXTURE: 40
-}
-
-Xflow.DATA_TYPE_TUPLE_SIZE = {};
-Xflow.DATA_TYPE_TUPLE_SIZE[Xflow.DATA_TYPE.FLOAT] = 1;
-Xflow.DATA_TYPE_TUPLE_SIZE[Xflow.DATA_TYPE.FLOAT2] = 2;
-Xflow.DATA_TYPE_TUPLE_SIZE[Xflow.DATA_TYPE.FLOAT3] = 3;
-Xflow.DATA_TYPE_TUPLE_SIZE[Xflow.DATA_TYPE.FLOAT4] = 4;
-Xflow.DATA_TYPE_TUPLE_SIZE[Xflow.DATA_TYPE.FLOAT4X4] = 16;
-Xflow.DATA_TYPE_TUPLE_SIZE[Xflow.DATA_TYPE.INT] = 1;
-Xflow.DATA_TYPE_TUPLE_SIZE[Xflow.DATA_TYPE.INT4] = 4;
-Xflow.DATA_TYPE_TUPLE_SIZE[Xflow.DATA_TYPE.BOOL] = 1;
-Xflow.DATA_TYPE_TUPLE_SIZE[Xflow.DATA_TYPE.TEXTURE] = 1;
-
-Xflow.DATA_TYPE_MAP = {
-    'float' : Xflow.DATA_TYPE.FLOAT,
-    'float2' : Xflow.DATA_TYPE.FLOAT2,
-    'float3' : Xflow.DATA_TYPE.FLOAT3,
-    'float4' : Xflow.DATA_TYPE.FLOAT4,
-    'float4x4' : Xflow.DATA_TYPE.FLOAT4X4,
-    'int' : Xflow.DATA_TYPE.INT,
-    'int4' : Xflow.DATA_TYPE.INT4,
-    'bool' : Xflow.DATA_TYPE.BOOL,
-    'texture' : Xflow.DATA_TYPE.TEXTURE
-}
-
-Xflow.getTypeName = function(type){
-    for(var i in Xflow.DATA_TYPE_MAP){
-        if(Xflow.DATA_TYPE_MAP[i] == type){
-            return i;
-        }
-    }
-}
-
-/**
- * @enum {number}
- */
-Xflow.TEX_FILTER_TYPE = {
-    NONE: 0,
-    REPEAT: 1,
-    LINEAR: 2
-};
-/**
- * @enum {number}
- */
-Xflow.TEX_WRAP_TYPE = {
-    CLAMP: 0,
-    REPEAT: 1,
-    BORDER: 2
-};
-/**
- * @enum {number}
- */
-Xflow.TEX_TYPE = {
-    TEXTURE_1D: 0,
-    TEXTURE_2D: 1,
-    TEXTURE_3D: 2
-};
-
-
-/**
- * Filter Type of DataNode
- * KEEP - Keep only the provided names
- * REMOVE - Remove provided names (ignores name mapping)
- * RENAME - Only apply name mapping
- * @enum
- */
-Xflow.DATA_FILTER_TYPE = {
-    RENAME: 0,
-    KEEP: 1,
-    REMOVE: 2
-}
-
-
-/**
- * @enum {number}
- */
-Xflow.DATA_ENTRY_STATE = {
-    CHANGED_NEW: 0,
-    CHANGED_VALUE: 1,
-    CHANGE_SIZE: 2,
-    CHANGE_REMOVED: 3
-};
-
-
-/**
- * Type of Modification, used internally only
- * @private
- * @enum
- */
-Xflow.RESULT_STATE = {
-    NONE: 0,
-    CHANGED_DATA: 1,
-    CHANGED_STRUCTURE: 2
-};
-
-
-/**
- * Type of Sequence access - used by operators
- * @private
- * @enum
- */
-Xflow.SEQUENCE = {
-    NO_ACCESS: 0,
-    PREV_BUFFER: 1,
-    NEXT_BUFFER: 2,
-    LINEAR_WEIGHT: 3
-}
-
-/**
- * Type of Information Extraction - used by operators
- * @private
- * @enum
- */
-Xflow.EXTRACT = {
-    NO_EXTRAC: 0,
-    TEX_WIDTH: 1,
-    TEX_HEIGHT: 2
-};
-(function(){
-
-/**
- * The Xflow graph includes the whole dataflow graph
- * @constructor
- */
-Xflow.Graph = function(){
-    this._nodes = [];
-};
-var Graph = Xflow.Graph;
-
-
-
-/**
- * @return {Xflow.InputNode}
- */
-Graph.prototype.createInputNode = function(){
-    var node = new Xflow.InputNode(this);
-    this._nodes.push(node);
-    return node;
-};
-
-/**
- * @return {Xflow.DataNode}
- */
-Graph.prototype.createDataNode = function(){
-    var node = new Xflow.DataNode(this);
-    this._nodes.push(node);
-    return node;
-};
-
-/**
- * @constructor
- * @param {Xflow.Graph} graph
- */
-Xflow.GraphNode = function(graph){
-    this._graph = graph;
-    this._parents = [];
-};
-var GraphNode = Xflow.GraphNode;
-
-/**
- * @constructor
- * @param {Xflow.Graph} graph
- * @extends {Xflow.GraphNode}
- */
-Xflow.InputNode = function(graph){
-    Xflow.GraphNode.call(this, graph);
-    this._name = "";
-    this._seqnr = 0;
-    this._data = null;
-    this._param = false;
-};
-XML3D.createClass(Xflow.InputNode, Xflow.GraphNode);
-var InputNode = Xflow.InputNode;
-
-InputNode.prototype.notify = function(newValue, notification) {
-    var downstreamNotification = notification == Xflow.DATA_ENTRY_STATE.CHANGED_VALUE ? Xflow.RESULT_STATE.CHANGED_DATA :
-                                                Xflow.RESULT_STATE.CHANGED_STRUCTURE;
-    notifyParentsOnChanged(this,downstreamNotification);
-};
-
-Object.defineProperty(InputNode.prototype, "name", {
-    /** @param {string} v */
-    set: function(v){
-        this._name = v;
-        notifyParentsOnChanged(this, Xflow.RESULT_STATE.CHANGED_STRUCTURE);
-    },
-    /** @return {string} */
-    get: function(){ return this._name; }
-});
-Object.defineProperty(InputNode.prototype, "seqnr", {
-    /** @param {number} v */
-    set: function(v){
-        this._seqnr = v;
-        notifyParentsOnChanged(this, Xflow.RESULT_STATE.CHANGED_STRUCTURE);
-    },
-    /** @return {number} */
-    get: function(){ return this._seqnr; }
-});
-Object.defineProperty(InputNode.prototype, "param", {
-    /** @param {boolean} v */
-    set: function(v){
-        this._param = v;
-        notifyParentsOnChanged(this, Xflow.RESULT_STATE.CHANGED_STRUCTURE);
-    },
-    /** @return {boolean} */
-    get: function(){ return this._param; }
-});
-Object.defineProperty(InputNode.prototype, "data", {
-    /** @param {Object} v */
-    set: function(v){
-        var oldLength = 0;
-        if(this._data) {
-            oldLength = this._data.getLength();
-            this._data.removeListener(this);
-        }
-        this._data = v;
-        if(this._data)
-            this._data.addListener(this);
-        var sizeChanged = (oldLength != (this._data ? this._data.getLength() : 0));
-        notifyParentsOnChanged(this, sizeChanged ? Xflow.RESULT_STATE.CHANGED_STRUCTURE :
-            Xflow.RESULT_STATE.CHANGED_DATA, this._name);
-    },
-    /** @return {Object} */
-    get: function(){ return this._data; }
-});
-
-
-
-/**
- * @constructor
- * @extends {Xflow.GraphNode}
- */
-Xflow.DataNode = function(graph){
-    Xflow.GraphNode.call(this, graph);
-
-    this.loading = false;
-
-    
-    this._prototype = false;
-    this._children = [];
-    this._sourceNode = null;
-    this._protoNode = null;
-
-    this._filterType = 0;
-    this._filterMapping = new Xflow.OrderMapping(this);
-
-    this._computeOperator = "";
-    this._computeInputMapping = new Xflow.OrderMapping(this);
-    this._computeOutputMapping = new Xflow.OrderMapping(this);
-
-
-    this._state = Xflow.RESULT_STATE.NONE;
-
-    this._initCompute();
-    this._requests = [];
-};
-XML3D.createClass(Xflow.DataNode, Xflow.GraphNode);
-var DataNode = Xflow.DataNode;
-
-
-/**
- * @constructor
- * @param {Xflow.DataNode} owner
- */
-Xflow.Mapping = function(owner){
-    this._owner = owner;
-};
-
-
-/**
- * @constructor
- * @extends {Xflow.Mapping}
- * @param {Xflow.DataNode} owner
- */
-Xflow.OrderMapping = function(owner){
-    Xflow.Mapping.call(this, owner);
-    this._names = [];
-};
-XML3D.createClass(Xflow.OrderMapping, Xflow.Mapping);
-
-/**
- * @constructor
- * @extends {Xflow.Mapping}
- * @param {Xflow.DataNode} owner
- */
-Xflow.NameMapping = function(owner){
-    Xflow.Mapping.call(this, owner);
-    this._destNames = [];
-    this._srcNames = [];
-
-};
-XML3D.createClass(Xflow.NameMapping, Xflow.Mapping);
-
-
-
-/**
- * @private
- * @param {Xflow.DataNode} parent
- * @param {Xflow.GraphNode} child
- */
-function addParent(parent, child){
-    child._parents.push(parent);
-}
-
-/**
- * @private
- * @param {Xflow.DataNode} parent
- * @param {Xflow.GraphNode} child
- */
-function removeParent(parent, child){
-    Array.erase(child._parents, parent);
-}
-
-Object.defineProperty(DataNode.prototype, "prototype", {
-    /** @param {boolean} v */
-    set: function(v){ this._prototype = v;
-    },
-    /** @return {boolean} */
-    get: function(){ return this._prototype; }
-});
-Object.defineProperty(DataNode.prototype, "sourceNode", {
-    /** @param {?Xflow.DataNode} v */
-    set: function(v){
-        if(this._sourceNode) removeParent(this, this._sourceNode);
-        this._sourceNode = v;
-        if(this._sourceNode) addParent(this, this._sourceNode);
-        this.notify(Xflow.RESULT_STATE.CHANGED_STRUCTURE);
-    },
-    /** @return {?Xflow.DataNode} */
-    get: function(){ return this._sourceNode; }
-});
-Object.defineProperty(DataNode.prototype, "protoNode", {
-    /** @param {?Xflow.DataNode} v */
-    set: function(v){
-        if(this._protoNode) removeParent(this, this._protoNode);
-        this._protoNode = v;
-        if(this._protoNode) addParent(this, this._protoNode);
-        this.notify(Xflow.RESULT_STATE.CHANGED_STRUCTURE);
-    },
-    /** @return {?Xflow.DataNode} */
-    get: function(){ return this._protoNode; }
-});
-
-Object.defineProperty(DataNode.prototype, "filterType", {
-    /** @param {Xflow.DATA_FILTER_TYPE} v */
-    set: function(v){
-        this._filterType = v;
-        this.notify( Xflow.RESULT_STATE.CHANGED_STRUCTURE);
-    },
-    /** @return {Xflow.DATA_FILTER_TYPE} */
-    get: function(){ return this._filterType; }
-});
-
-Object.defineProperty(DataNode.prototype, "filterMapping", {
-    /** @param {Xflow.Mapping} v */
-    set: function(v){ throw "filterMapping is readonly!";
-    },
-    /** @return {Xflow.Mapping} */
-    get: function(){ return this._filterMapping; }
-});
-
-Object.defineProperty(DataNode.prototype, "computeOperator", {
-    /** @param {string} v */
-    set: function(v){
-        this._computeOperator = v;
-        this.notify( Xflow.RESULT_STATE.CHANGED_STRUCTURE);
-    },
-    /** @return {string} */
-    get: function(){ return this._computeOperator; }
-});
-Object.defineProperty(DataNode.prototype, "computeInputMapping", {
-    /** @param {Xflow.Mapping} v */
-    set: function(v){ throw "computeInputMapping is readonly!";
-    },
-    /** @return {Xflow.Mapping} */
-    get: function(){ return this._computeInputMapping; }
-});
-Object.defineProperty(DataNode.prototype, "computeOutputMapping", {
-    /** @param {Xflow.Mapping} v */
-    set: function(v){ throw "computeOutputMapping is readonly!";
-    },
-    /** @return {Xflow.Mapping} */
-    get: function(){ return this._computeOutputMapping; }
-});
-
-/**
- * @param {Xflow.GraphNode} child
- */
-DataNode.prototype.appendChild = function(child){
-    this._children.push(child);
-    addParent(this, child)
-    this.notify( Xflow.RESULT_STATE.CHANGED_STRUCTURE);
-};
-/**
- * @param {Xflow.GraphNode} child
- */
-DataNode.prototype.removeChild = function(child){
-    Array.erase(this._children, child);
-    removeParent(this, child)
-    this.notify( Xflow.RESULT_STATE.CHANGED_STRUCTURE);
-};
-/**
- * @param {Xflow.GraphNode} child
- * @param {Xflow.GraphNode} beforeNode
- */
-DataNode.prototype.insertBefore = function(child, beforeNode){
-    var idx = this._children.indexOf(beforeNode);
-    if(idx == -1)
-        this._children.push(child);
-    else
-        this._children.splice(idx, 0, child);
-    addParent(this, child)
-    this.notify( Xflow.RESULT_STATE.CHANGED_STRUCTURE);
-};
-/**
- * remove all children of the DataNode
- */
-DataNode.prototype.clearChildren = function(){
-    for(var i =0; i < this._children.length; ++i){
-        removeParent(this, this._children[i]);
-    }
-    this._children = [];
-    this.notify( Xflow.RESULT_STATE.CHANGED_STRUCTURE);
-};
-
-/**
- * Detach this DataNode from all connections, including source- and proto-node references
- */
-DataNode.prototype.detachFromParents = function(){
-    for(var i =0; i < this._parents.length; ++i){
-        var parent = this._parents[i];
-        if(parent._sourceNode == this)
-            parent.sourceNode = null;
-        else if(parent._protoNode == this){
-            parent.protoNode = null;
-        }
-        else{
-            parent.removeChild(this);
-        }
-    }
-    this._children = [];
-};
-
-/**
- * @const
- */
-var filterParser = /^([A-Za-z\s]*)\(([^()]+)\)$/;
-
-/**
- * Set filter by string
- * @param {string} filterString
- */
-DataNode.prototype.setFilter = function(filterString){
-    filterString = filterString || "";
-    var newType = Xflow.DATA_FILTER_TYPE.RENAME;
-    var newMapping = null;
-    var result = filterString.trim().match(filterParser);
-    if(result){
-        var type = result[1].trim();
-        switch(type){
-            case "keep": newType = Xflow.DATA_FILTER_TYPE.KEEP; break;
-            case "remove": newType = Xflow.DATA_FILTER_TYPE.REMOVE; break;
-            case "rename": newType = Xflow.DATA_FILTER_TYPE.RENAME; break;
-        }
-        newMapping = Xflow.Mapping.parse(result[2], this);
-    }
-    if(!newMapping){
-        newMapping = new Xflow.OrderMapping(this);
-    }
-    removeMappingOwner(this._filterMapping);
-    this._filterMapping = newMapping;
-    this._filterType = newType;
-    this.notify( Xflow.RESULT_STATE.CHANGED_STRUCTURE);
-};
-
-var computeParser = /^(([^=]+)\=)?([^(]+)\(([^()]*)\)$/;
-var bracketsParser = /^\(([^()]*)\)$/;
-
-/**
- * Set compute by string
- * @param {string} computeString
- */
-DataNode.prototype.setCompute = function(computeString){
-    computeString = computeString || "";
-    var newOperator = "";
-    var inputMapping = null, outputMapping = null;
-    var result = computeString.trim().match(computeParser);
-    if(result){
-        var output = result[2] ? result[2].trim() : "";
-        newOperator = result[3].trim();
-        var input = result[4] ? result[4].trim() : "";
-        if(result = output.match(bracketsParser)){
-            output = result[1];
-        }
-        inputMapping = Xflow.Mapping.parse(input, this);
-        outputMapping = Xflow.Mapping.parse(output, this);
-    }
-    if(!inputMapping) inputMapping = new Xflow.OrderMapping(this);
-    if(!outputMapping) outputMapping = new Xflow.OrderMapping(this);
-    removeMappingOwner(this._computeInputMapping);
-    removeMappingOwner(this._computeOutputMapping);
-    this._computeInputMapping = inputMapping;
-    this._computeOutputMapping = outputMapping;
-    this._computeOperator = newOperator;
-    this.notify( Xflow.RESULT_STATE.CHANGED_STRUCTURE);
-}
-/**
- * Notifies DataNode about a change. Notification will be forwarded to parents, if necessary
- * @param {Xflow.RESULT_STATE} changeType
- * @param {?string} name
- */
-DataNode.prototype.notify = function(changeType, name){
-    if(changeType == Xflow.RESULT_STATE.CHANGED_STRUCTURE && this._state != changeType)
-    {
-        this._state = changeType;
-        notifyParentsOnChanged(this, changeType, name);
-        this._updateComputeCache(changeType);
-        for(var i in this._requests)
-            this._requests[i].notify(changeType);
-    }
-    else if(changeType == Xflow.RESULT_STATE.CHANGED_DATA && this._state < changeType){
-        this._state = changeType;
-        notifyParentsOnChanged(this, changeType, name);
-        this._updateComputeCache(changeType);
-        for(var i in this._requests)
-            this._requests[i].notify(changeType);
-    }
-};
-
-/**
- * Notify all parent nodes about a change
- * @param {Xflow.GraphNode} node
- * @param {number|Xflow.RESULT_STATE} changeType
- * @param {?string=} name
- * @private
- */
-function notifyParentsOnChanged(node, changeType, name){
-    for(var i = 0; i < node._parents.length; ++i){
-        node._parents[i].notify(changeType, name || null);
-    }
-};
-/**
- * Remove owner from mapping, small helper function
- * @param {Xflow.Mapping} mapping
- * @private
- */
-function removeMappingOwner(mapping){
-    if(mapping)
-        mapping._owner = null;
-};
-
-
-})();(function(){
-
-
-var Mapping = Xflow.Mapping;
-
-Mapping.parse = function(string, dataNode){
-    string = string.trim()
-    var results = string.trim().match(orderMappingParser);
-    if(results)
-        return OrderMapping.parse(string, dataNode);
-    results = string.trim().match(nameMappingParser);
-    if(results)
-        return NameMapping.parse(results[1], dataNode);
-    return null;
-}
-
-
-/**
- * OrderMapping implementation
- */
-
-var OrderMapping = Xflow.OrderMapping;
-
-
-OrderMapping.parse = function(string, dataNode){
-    var mapping = new Xflow.OrderMapping(dataNode)
-    var token = string.split(",");
-    for(var i = 0; i < token.length; i++){
-        mapping._names.push(token[i].trim());
-    }
-    return mapping;
-}
-
-
-Object.defineProperty(OrderMapping.prototype, "length", {
-    set: function(v){ throw "length is read-only";
-    },
-    get: function(){ return this._name.length; }
-});
-
-OrderMapping.prototype.getName = function(idx){
-    return this._names[idx];
-};
-
-OrderMapping.prototype.clear = function(){
-    this._names = [];
-    mappingNotifyOwner(this);
-};
-
-OrderMapping.prototype.setName = function(index, name){
-    this._names[index] = name;
-    mappingNotifyOwner(this);
-};
-
-OrderMapping.prototype.removeName = function(index){
-    this._names.splice(index);
-    mappingNotifyOwner(this);
-};
-
-OrderMapping.prototype.isEmpty = function(){
-    return this._names.length == 0;
-}
-
-
-/**
- * NameMapping implementation
- */
-
-var NameMapping = Xflow.NameMapping;
-
-
-NameMapping.parse = function(string, dataNode)
-{
-    var mapping = new Xflow.NameMapping(dataNode)
-    var token = string.split(",");
-    for(var i = 0; i < token.length; i++){
-        var pair = token[i].split(":");
-        var dest = pair[0].trim(); var src = pair[1].trim();
-        mapping.setNamePair(dest, src);
-    }
-    return mapping;
-}
-
-Object.defineProperty(NameMapping.prototype, "length", {
-    set: function(v){ throw "length is read-only";
-    },
-    get: function(){ return this._srcNames.length; }
-});
-
-NameMapping.prototype.getDestName = function(idx){
-    return this._destNames[idx];
-};
-NameMapping.prototype.getSrcName = function(idx){
-    return this._srcNames[idx];
-};
-
-NameMapping.prototype.getSrcNameFromDestName = function(destName){
-    var idx = this._destNames.indexOf(destName);
-    return idx == -1 ? null : this._srcNames[idx];
-};
-
-NameMapping.prototype.clear = function(){
-    this._srcNames = [];
-    this._destNames = [];
-    mappingNotifyOwner(this);
-};
-
-NameMapping.prototype.setNamePair = function(destName, srcName){
-    var idx = this._destNames.indexOf(destName);
-    if(idx != -1){
-        this._destNames.splice(idx,1);
-        this._srcNames.splice(idx,1);
-    }
-    this._destNames.push(destName);
-    this._srcNames.push(srcName);
-    mappingNotifyOwner(this);
-};
-
-NameMapping.prototype.removeNamePair = function(destName){
-    var idx = this._destNames.indexOf(destName);
-    if(idx != -1){
-        this._destNames.splice(idx,1);
-        this._srcNames.splice(idx,1);
-    }
-    mappingNotifyOwner(this);
-};
-
-NameMapping.prototype.isEmpty = function(){
-    return this._destNames.length == 0;
-}
-
-var orderMappingParser = /^([^:,{}]+)(,[^:{},]+)*$/;
-var nameMappingParser = /^\{(([^:,{}]+:[^:{},]+)(,[^:{},]+:[^:},]+)*)\}$/;
-
-
-function mappingNotifyOwner(mapping){
-    if(mapping._owner)
-        mapping._owner.notify(Xflow.RESULT_STATE.CHANGED_STRUCTURE);
-};
-
-OrderMapping.prototype.filterNameset = function(nameset, filterType)
-{
-    if(filterType == Xflow.DATA_FILTER_TYPE.RENAME)
-        return nameset.splice();
-    else {
-        var keep = (filterType == Xflow.DATA_FILTER_TYPE.KEEP);
-        var result = [];
-        for(var i in nameset){
-            var idx = this._names.indexOf(nameset[i]);
-            if( (keep && idx!= -1) || (!keep && idx == -1) )
-                result.push(nameset[i]);
-        }
-        return result;
-    }
-}
-NameMapping.prototype.filterNameset = function(nameset, filterType)
-{
-
-}
-
-OrderMapping.prototype.applyFilterOnMap = function(destMap, sourceMap, filterType){
-    for(var i in sourceMap){
-        var idx = this._names.indexOf(i);
-        if(filterType == Xflow.DATA_FILTER_TYPE.RENAME ||
-           ( filterType == Xflow.DATA_FILTER_TYPE.KEEP && idx != -1) ||
-            (filterType == Xflow.DATA_FILTER_TYPE.REMOVE && idx == -1))
-            destMap[i] = sourceMap[i];
-    }
-};
-OrderMapping.prototype.getScriptInputName = function(index, destName){
-    if(this._names[index])
-        return this._names[index];
-    else
-        return null;
-};
-OrderMapping.prototype.applyScriptOutputOnMap = function(destMap, sourceMap){
-    var index = 0;
-    for(var i in sourceMap){
-        if(index < this._names.length){
-            destMap[this._names[index]] = sourceMap[i];
-            ++index;
-        }
-        else
-            break;
-    }
-};
-
-NameMapping.prototype.applyFilterOnMap = function(destMap, sourceMap, filterType)
-{
-    if(filterType == Xflow.DATA_FILTER_TYPE.REMOVE){
-        for(var i in sourceMap)
-            if(this._srcNames.indexOf(i) == -1)
-                destMap[i] = sourceMap[i];
-    }
-    else{
-        if(filterType == Xflow.DATA_FILTER_TYPE.RENAME){
-            for(var i in sourceMap)
-                if(this._srcNames.indexOf(i) == -1)
-                    destMap[i] = sourceMap[i];
-        }
-        for(var i in this._destNames){
-            destMap[this._destNames[i]] = sourceMap[this._srcNames[i]]
-        }
-    }
-};
-
-NameMapping.prototype.getScriptInputName= function(index, destName){
-    var srcName = this.getSrcNameFromDestName(destName);
-    return srcName ? srcName : null;
-}
-
-
-NameMapping.prototype.applyScriptOutputOnMap= function(destMap, sourceMap){
-    for(var i in this._destNames){
-        var destName = this._destNames[i], srcName = this._srcNames[i];
-        destMap[destName] = sourceMap[srcName];
-    }
-}
-
-})();(function(){
-
-
-/**
- * @constructor
- */
-Xflow.SamplerConfig = function(){
-    this.filterMin = 0;
-    this.filterMag = 0;
-    this.filterMip = 0;
-    this.wrapS = 0;
-    this.wrapT = 0;
-    this.wrapU = 0;
-    this.textureType = 0;
-    this.colorR = 0;
-    this.colorG = 0;
-    this.colorB = 0;
-    this.generateMipMap = 0;
-};
-var SamplerConfig = Xflow.SamplerConfig;
-
-
-
-
-/**
- * @constructor
- * @param {Xflow.DATA_TYPE} type Type of DataEntry
- */
-Xflow.DataEntry = function(type){
-    this._type = type;
-    this._listeners = [];
-    this.userData = {};
-};
-var DataEntry = Xflow.DataEntry;
-
-Object.defineProperty(DataEntry.prototype, "type", {
-    /** @param {Xflow.DATA_TYPE} v */
-    set: function(v){
-        throw "type is read-only";
-    },
-    /** @return {Xflow.DATA_TYPE} */
-    get: function(){ return this._type; }
-});
-
-/**
- * @param {function(Xflow.DataEntry, Xflow.DATA_ENTRY_STATE)} callback
- */
-DataEntry.prototype.addListener = function(callback){
-    this._listeners.push(callback);
-};
-
-/**
- * @param {function(Xflow.DataEntry, Xflow.DATA_ENTRY_STATE)} callback
- */
-DataEntry.prototype.removeListener = function(callback){
-    Array.erase(this._listeners, callback);
-};
-
-DataEntry.prototype.notifyChanged = function(){
-    notifyListeners(this, Xflow.DATA_ENTRY_STATE.CHANGED_VALUE);
-}
-
-
-
-/**
- * @constructor
- * @extends {Xflow.DataEntry}
- * @param {Xflow.DATA_TYPE} type
- * @param {Object} value
- */
-Xflow.BufferEntry = function(type, value){
-    Xflow.DataEntry.call(this, type);
-    this._value = value;
-    notifyListeners(this, Xflow.DATA_ENTRY_STATE.CHANGED_NEW);
-};
-XML3D.createClass(Xflow.BufferEntry, Xflow.DataEntry);
-var BufferEntry = Xflow.BufferEntry;
-
-
-/** @param {Object} v */
-BufferEntry.prototype.setValue = function(v){
-    var newSize = (this._value ? this._value.length : 0) != (v ? v.length : 0);
-    this._value = v;
-    notifyListeners(this, newSize ? Xflow.DATA_ENTRY_STATE.CHANGE_SIZE : Xflow.DATA_ENTRY_STATE.CHANGED_VALUE);
-}
-
-/** @return {Object} */
-BufferEntry.prototype.getValue = function(){
-    return this._value;
-};
-
-/** @return {Object} */
-BufferEntry.prototype.getLength = function(){
-    return this._value ? this._value.length : 0;
-};
-
-
-BufferEntry.prototype.getTupleSize = function() {
-    if (!this._tupleSize) {
-        this._tupleSize = Xflow.DATA_TYPE_TUPLE_SIZE[this._type];
-    }
-    return this._tupleSize;
-};
-
-/**
- * @return {number}
- */
-BufferEntry.prototype.getIterateCount = function(){
-    return this.getLength() / this.getTupleSize();
-};
-
-/**
- * @constructor
- * @extends {Xflow.DataEntry}
- * @param {Object} image
- */
-Xflow.TextureEntry = function(image){
-    Xflow.DataEntry.call(this, Xflow.DATA_TYPE.TEXTURE);
-    this._image = image;
-    this._samplerConfig = new SamplerConfig();
-    notifyListeners(this, Xflow.DATA_ENTRY_STATE.CHANGED_NEW);
-};
-XML3D.createClass(Xflow.TextureEntry, Xflow.DataEntry);
-var TextureEntry = Xflow.TextureEntry;
-
-/** @param {Object} v */
-TextureEntry.prototype.setImage = function(v){
-    this._image = v;
-    notifyListeners(this, Xflow.DATA_ENTRY_STATE.CHANGED_VALUE);
-}
-
-/** @return {Object} */
-TextureEntry.prototype.getImage = function(){
-    return this._image;
-}
-
-/** @return {Object} */
-TextureEntry.prototype.getSamplerConfig = function(){
-    return this._samplerConfig;
-};
-
-/** @return {number} */
-TextureEntry.prototype.getLength = function(){
-    return 1;
-};
-
-
-Xflow.DataChangeNotifier = {
-    _listeners: []
-}
-var DataChangeNotifier = Xflow.DataChangeNotifier;
-
-/**
- * @param {function(Xflow.DataEntry, Xflow.DATA_ENTRY_STATE)} callback
- */
-DataChangeNotifier.addListener = function(callback){
-    this._listeners.push(callback);
-};
-
-/**
- * @param {function(Xflow.DataEntry, Xflow.DATA_ENTRY_STATE)} callback
- */
-DataChangeNotifier.removeListener = function(callback){
-    Array.erase(this._listeners, callback);
-};
-
-/**
- * @param {Xflow.DataEntry} dataEntry
- * @param {Xflow.DATA_ENTRY_STATE} notification
- */
-function notifyListeners(dataEntry, notification){
-    for(var i = 0; i < DataChangeNotifier._listeners.length; ++i){
-        DataChangeNotifier._listeners[i](dataEntry, notification);
-    }
-    for(var i = 0; i < dataEntry._listeners.length; ++i){
-        dataEntry._listeners[i].notify(dataEntry, notification);
-    }
-};
-})();(function(){
-
-/**
- * @constructor
- * @param {Xflow.DataNode} owner Owner of the channel - always a DataNode
- * @param {Xflow.DataEntry=} dataEntry Optional DataEntry added to the channel
- * @param {number=} key Optional key of the added DataEntry
- */
-var Channel = function(owner, dataEntry, key){
-    this.entries = [];
-    this.owner = owner;
-
-    if(dataEntry){
-        this.addDataEntry(dataEntry, key);
-    }
-}
-Xflow.Channel = Channel;
-
-Channel.prototype.addDataEntry = function(dataEntry, key){
-    var insertObj = {
-        key: key,
-        value: dataEntry
-    }
-    for(var i = 0; i < this.entries.length; ++i){
-        var entry = this.entries[i];
-        if(entry.key >= key - Xflow.EPSILON ){
-            if(Math.abs(entry.key - key) <= Xflow.EPSILON){
-                this.entries.splice(i, 1, insertObj);
-            }
-            else{
-                this.entries.splice(i, 0, insertObj);
-            }
-            break;
-        }
-    }
-    this.entries.push(insertObj);
-};
-
-Channel.prototype.getDataEntry = function(sequenceAccessType, sequenceKey){
-    if(this.entries.length == 0)
-        return null;
-    if(!sequenceAccessType)
-        return this.entries[0].value;
-
-    var i = 0, max = this.entries.length;
-    while(i < max && this.entries[i].key < sequenceKey) ++i;
-    if(sequenceAccessType == Xflow.SEQUENCE.PREV_BUFFER){
-        return this.entries[i ? i -1 : 0].value;
-    }
-    else if(sequenceAccessType == Xflow.SEQUENCE.NEXT_BUFFER){
-        return this.entries[i < max ? i : max - 1].value;
-    }
-    else if(sequenceAccessType == Xflow.SEQUENCE.LINEAR_WEIGHT){
-        var weight1 = this.entries[i ? i - 1 : 0].key;
-        var weight2 = this.entries[i < max ? i : max - 1].key;
-        var value = new Float32Array(1);
-        value[0] = weight2 == weight1 ? 0 : (sequenceKey - weight1) / (weight2 - weight1);
-        // TODO: Check if repeated BufferEntry and Float32Array allocation is a serious bottleneck
-        return new Xflow.BufferEntry(Xflow.DATA_TYPE.FLOAT, value);
-    }
-    return null;
-};
-
-
-var DataNode = Xflow.DataNode;
-
-
-function getForwardNode(dataNode){
-    if(!dataNode._filterMapping.isEmpty()  || dataNode._computeOperator)
-        return null;
-    if(dataNode._sourceNode && dataNode._children.length == 0)
-        return dataNode._sourceNode;
-    if(dataNode._children.length == 1 && dataNode._children[0] instanceof DataNode)
-        return dataNode._children[0];
-    return null;
-}
-
-DataNode.prototype._initCompute = function(){
-    this._results = [];
-    this._dataMap = {};
-}
-
-DataNode.prototype._updateComputeCache = function(state){
-    this._dataMap = {};
-
-    for(var i in this._results){
-        this._results[i].notifyChanged(state);
-    }
-
-    if(state == Xflow.RESULT_STATE.CHANGED_STRUCTURE){
-        this._operatorData = null;
-    }
-}
-
-DataNode.prototype._getComputeResult = function(filter){
-    var forwardNode = getForwardNode(this);
-    if(forwardNode){
-        this._state = Xflow.RESULT_STATE.NONE;
-        return forwardNode._getComputeResult(filter);
-    }
-
-    var key = filter ? filter.join(";") : "[null]";
-    if(!this._results[key])
-        this._results[key] = new Xflow.ComputeResult();
-
-    if(!this._results[key].valid)
-        this._createComputeResult(filter, this._results[key]);
-
-    return this._results[key];
-}
-
-DataNode.prototype._createComputeResult = function(filter, result){
-    result._outputNames = [];
-    result._dataEntries = {};
-    var loading = this._populateDataMap();
-
-    for(var i in this._dataMap){
-        if(!filter || filter.indexOf(i) != -1){
-            result._outputNames.push(i);
-            result._dataEntries[i] = this._dataMap[i].getDataEntry();
-        }
-    }
-    result.loading = loading;
-    result.valid = true;
-}
-DataNode.prototype._populateDataMap = function(){
-    if(this._state == Xflow.RESULT_STATE.NONE) return;
-    this._state = Xflow.RESULT_STATE.NONE;
-
-    if(this.loading)
-        return true;
-
-    // Prepare input:
-    var inputMap = {};
-    if(this._sourceNode){
-        if(transferDataMap(inputMap, this._sourceNode))
-            return true;
-    }
-    else{
-        for(var i in this._children){
-            if(this._children[i] instanceof Xflow.DataNode){
-                if(transferDataMap(inputMap, this._children[i]))
-                    return true;
-            }
-        }
-        for(var i in this._children)
-        {
-            if(this._children[i] instanceof Xflow.InputNode){
-                var inputNode = this._children[i];
-                var channel = inputMap[inputNode._name];
-                if(!channel || channel.owner != this){
-                    channel = new Channel(this);
-                }
-                channel.addDataEntry(inputNode._data, inputNode._seqnr);
-                inputMap[inputNode._name] = channel;
-            }
-        }
-    }
-    this._applyOperator(inputMap);
-
-    this._filterMapping.applyFilterOnMap(this._dataMap, inputMap, this._filterType);
-
-    return false;
-}
-
-function transferDataMap(destMap, node){
-    var loading = node._populateDataMap();
-    if(loading)
-        return true;
-
-    for(var i in node._dataMap){
-        destMap[i] = node._dataMap[i];
-    }
-    return false;
-}
-
-})();
-
-(function(){
-
-    var operators = {};
-
-    function initOperator(operator){
-        var indexMap = {};
-        // Init types of outputs and params
-        for(var i= 0; i < operator.outputs.length; ++i){
-            operator.outputs[i].type = Xflow.DATA_TYPE_MAP[operator.outputs[i].type];
-        }
-        for(var i= 0; i < operator.params.length; ++i){
-            operator.params[i].type = Xflow.DATA_TYPE_MAP[operator.params[i].type];
-            indexMap[operator.params[i].source] = i;
-        }
-        if(!operator.mapping)
-            operator.mapping = operator.params;
-
-        // Init interTypes of mapping
-        for(var i = 0; i < operator.mapping.length; ++i){
-            var mapping = operator.mapping[i];
-            var paramIdx = indexMap[mapping.source];
-            mapping.paramIdx = paramIdx;
-            var type = operator.params[paramIdx].type;
-            if(mapping.sequence)
-                mapping.keyParamIdx = indexMap[mapping.keySource];
-            if(operator.mapping[i].sequence == Xflow.SEQUENCE.LINEAR_WEIGHT)
-                type = Xflow.DATA_TYPE.FLOAT;
-            operator.mapping[i].internalType = type;
-        }
-    }
-
-    Xflow.registerOperator = function(name, data){
-        var actualName = "xflow." + name;
-        initOperator(data);
-        operators[actualName] = data;
-        data.name = actualName;
-    };
-
-    Xflow.getOperator = function(name){
-        return operators[name];
-    };
-
-    var DataNode = Xflow.DataNode;
-
-    function prepareInputs(operator, inputMapping, inputChannels, operatorInput){
-        for(var i in operator.mapping){
-            var mapping = operator.mapping[i];
-            var sourceName = mapping.source;
-            var dataName = inputMapping.getScriptInputName(mapping.paramIdx, sourceName);
-            if(dataName){
-                var channel = inputChannels[dataName];
-                var keyValue = 0;
-                if(mapping.sequence){
-                    var keyName = inputMapping.getScriptInputName(mapping.keyParamIdx, mapping.keySource);
-                    var keyChannel = inputChannels[keyName];
-                    var keyEntry =  keyChannel ? keyChannel.getDataEntry() : null;
-                    keyValue = keyEntry && keyEntry._value ? keyEntry._value[0] : 0;
-                }
-                operatorInput.push(channel ? channel.getDataEntry(mapping.sequence, keyValue) : null);
-            }
-            else{
-                operatorInput.push(null);
-            }
-
-        }
-    }
-
-    function checkInput(operator, inputMapping, inputChannels){
-        for(var i in operator.params){
-            var entry = operator.params[i];
-            var dataName = inputMapping.getScriptInputName(i, entry.source);
-            if(!entry.optional && !dataName){
-                XML3D.debug.logError("Xflow: operator " + operator.name + ": Missing input argument for "
-                    + entry.source);
-                return false;
-            }
-            if(dataName){
-                var channel = inputChannels[dataName];
-                if(!channel){
-                    XML3D.debug.logError("Xflow: operator " + operator.name + ": Input of name '" + dataName +
-                        "' not found. Use for parameter " + entry.source);
-                    return false;
-                }
-                var dataEntry = channel.getDataEntry();
-                if(!entry.optional && (!dataEntry || dataEntry.getLength() == 0)){
-                    XML3D.debug.logError("Xflow: operator " + operator.name + ": Input for " + entry.source +
-                        ' contains no data.');
-                    return false;
-                }
-                if(dataEntry && dataEntry.type != entry.type){
-                    XML3D.debug.logError("Xflow: operator " + operator.name + ": Input for " + entry.source +
-                        " has wrong type. Expected: " + Xflow.getTypeName(entry.type)
-                            + ", but got: " +  Xflow.getTypeName(dataEntry.type) );
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-
-    function prepareOutputs(operator, outputs){
-        for(var i in operator.outputs){
-            var d = operator.outputs[i];
-            if(!outputs[d.name])
-                outputs[d.name] = new Xflow.Channel(this);
-            var entry = outputs[d.name].getDataEntry();
-            if(!entry){
-                var type = d.type;
-                if(type != Xflow.DATA_TYPE.TEXTURE){
-                    entry = new Xflow.BufferEntry(type, null);
-                }
-                else{
-                    entry = new Xflow.TextureEntry(null);
-                }
-                outputs[d.name].addDataEntry(entry, 0);
-            }
-        }
-    }
-
-    function inputIsIterating(inputInfo, dataEntry){
-        return !inputInfo.array && dataEntry && dataEntry.getIterateCount() > 1;
-    }
-
-    function getIterateCount(operator, inputData, operatorData){
-        var minCnt = -1;
-        if(operatorData){
-            operatorData.iterateKey = "";
-            operatorData.iterFlag = {};
-        }
-        for(var i in operator.mapping){
-            var inputInfo = operator.mapping[i];
-            var dataEntry = inputData[i];
-            if(!inputIsIterating(inputInfo, dataEntry)){
-                if(operatorData) operatorData.iterateKey += "a";
-                continue;
-            }
-            if(operatorData){
-                operatorData.iterateKey += "i";
-                operatorData.iterFlag[i] = true;
-            }
-            var cnt = dataEntry.getIterateCount();
-            minCnt = minCnt == -1 ? cnt : Math.min(cnt, minCnt);
-        }
-        minCnt = minCnt == -1 ? 1 : minCnt;
-        if(operatorData) operatorData.iterateCount = minCnt;
-        return minCnt;
-    }
-
-    var c_FunctionPattern = /function\s+([^(]*)\(([^)]*)\)\s*\{([\s\S]*)\}/;
-
-    function parseFunction(func){
-        var result = {};
-        var matches = func.toString().match(c_FunctionPattern);
-        if(!matches){
-            XML3D.debug.logError("Xflow Internal: Could not parse function: " + func);
-            return null;
-        }
-        result.args = matches[2].split(",");
-        for(var i in result.args) result.args[i] = result.args[i].trim();
-        result.body = matches[3];
-        return result;
-    }
-
-    var c_bracketPattern = /([^+\-*/\s\[]+)(\[)/;
-
-    function replaceArrayAccess(code, args, operator, operatorData){
-        var result = "";
-        var index = 0, bracketIndex = code.indexOf("[", index);
-        while(bracketIndex != -1){
-            var key = code.substr(index).match(c_bracketPattern)[1];
-
-            var argIdx = args.indexOf(key);
-            var addIndex = false, tupleCnt = 0;
-            if(argIdx != -1){
-                if(argIdx < operator.outputs.length){
-                    addIndex = true;
-                    tupleCnt = Xflow.DATA_TYPE_TUPLE_SIZE[[operator.outputs[argIdx].type]];
-                }
-                else{
-                    var i = argIdx - operator.outputs.length;
-                    addIndex = operatorData.iterFlag[i];
-                    tupleCnt = Xflow.DATA_TYPE_TUPLE_SIZE[operator.mapping[i].internalType];
-                }
-            }
-
-            result += code.substring(index, bracketIndex) + "["
-            if(addIndex){
-                result += tupleCnt + "*__xflowI + ";
-            }
-            index = bracketIndex + 1;
-            bracketIndex = code.indexOf("[", index);
-        }
-        result +=  code.substring(index);
-        return result;
-    }
-
-    var c_VarPattern = /var\s+(.)+[;\n]/;
-    var c_InnerVarPattern = /[^=,\s]+\s*(=[^,]+)?(,)?/;
-    function createOperatorInlineLoop(operator, operatorData){
-
-        var code = "function (";
-        var funcData = parseFunction(operator.evaluate_core);
-        code += funcData.args.join(",") + ",__xflowMax) {\n";
-        code += "    var __xflowI = __xflowMax\n" +
-            "    while(__xflowI--){\n";
-
-        var body = funcData.body;
-        body = replaceArrayAccess(body, funcData.args, operator, operatorData);
-        code += body + "\n  }\n}";
-
-        var inlineFunc = null;
-        eval("inlineFunc = " + code + ";");
-        return inlineFunc;
-    }
-
-    var c_sizes = {};
-
-    function allocateOuput(operator, inputData, operatorData){
-        if(operator.alloc){
-            var args = [c_sizes];
-            addInputToArgs(args, inputData);
-            operator.alloc.apply(operatorData, args);
-        }
-
-        for(var i in operator.outputs){
-            var d = operator.outputs[i];
-            var entry = operatorData.outputs[d.name].getDataEntry();
-
-            var size = (d.customAlloc ? c_sizes[d.name] : operatorData.iterateCount) * entry.getTupleSize();
-
-            if( !entry._value || entry._value.length != size){
-                switch(entry.type){
-                    case Xflow.DATA_TYPE.FLOAT:
-                    case Xflow.DATA_TYPE.FLOAT2:
-                    case Xflow.DATA_TYPE.FLOAT3:
-                    case Xflow.DATA_TYPE.FLOAT4:
-                    case Xflow.DATA_TYPE.FLOAT4X4: entry.setValue(new Float32Array(size)); break;
-                    case Xflow.DATA_TYPE.INT:
-                    case Xflow.DATA_TYPE.INT4:
-                    case Xflow.DATA_TYPE.BOOL: entry.setValue(new Int32Array(size)); break;
-                    default: XML3D.debug.logWarning("Could not allocate output buffer of TYPE: " + entry.type);
-                }
-            }
-            else{
-                entry.notifyChanged();
-            }
-        }
-    }
-
-    function assembleFunctionArgs(operator, inputData, operatorData){
-        var args = [];
-        for(var i in operator.outputs){
-            var d = operator.outputs[i];
-            var entry = operatorData.outputs[d.name].getDataEntry();
-            args.push(entry ? entry._value : null);
-        }
-        addInputToArgs(args, inputData);
-        return args;
-    }
-
-    function addInputToArgs(args, inputData){
-        for(var i = 0; i < inputData.length; ++i){
-            args.push(inputData[i] ? inputData[i]._value : null);
-        }
-    }
-
-    function applyDefaultOperation(operator, inputData, operatorData){
-        var args = assembleFunctionArgs(operator, inputData, operatorData);
-        args.push(operatorData);
-        operator.evaluate.apply(operatorData, args);
-    }
-
-    function applyCoreOperation(operator, inputData, operatorData){
-        var args = assembleFunctionArgs(operator, inputData, operatorData);
-        args.push(operatorData.iterateCount);
-
-        var key = operatorData.iterateKey;
-        if(!operator._inlineLoop) operator._inlineLoop = {};
-        if(!operator._inlineLoop[key]){
-            operator._inlineLoop[key] = createOperatorInlineLoop(operator, operatorData);
-        }
-        operator._inlineLoop[key].apply(operatorData, args);
-    }
-
-    DataNode.prototype._applyOperator = function(inputChannels){
-        if(!this._operatorData)
-            this._operatorData = {
-                outputs: {},
-                iterateKey: null,
-                iterFlag: {},
-                iterateCount: 0
-            }
-        var operator = Xflow.getOperator(this._computeOperator);
-        if(operator){
-
-            var inputData = [];
-            if(!checkInput(operator, this._computeInputMapping, inputChannels)){
-                return false;
-            }
-            prepareInputs(operator, this._computeInputMapping, inputChannels, inputData);
-            prepareOutputs(operator, this._operatorData.outputs);
-            var count = getIterateCount(operator, inputData, this._operatorData);
-            allocateOuput(operator, inputData, this._operatorData);
-
-            if(operator.evaluate_core){
-                applyCoreOperation(operator, inputData, this._operatorData);
-            }
-            else{
-                applyDefaultOperation(operator, inputData, this._operatorData);
-            }
-
-            this._computeOutputMapping.applyScriptOutputOnMap(inputChannels, this._operatorData.outputs);
-        }
-        return true;
-    }
-
-})();(function(){
-
-
-/**
- * @constructor
- * @param {Xflow.DataNode} dataNode
- * @param {Array.<string>} filter
- */
-var Request = function(dataNode, filter, callback){
-    this._dataNode = dataNode;
-    this._filter = filter ? filter.slice().sort() : null;
-    this._listener = callback;
-
-    this._dataNode._requests.push(this);
-};
-Xflow.Request = Request;
-
-Object.defineProperty(Request.prototype, "dataNode", {
-    set: function(v){
-       throw "dataNode is readonly"
-    },
-    get: function(){ return this._dataNode; }
-});
-
-Object.defineProperty(Request.prototype, "filter", {
-    set: function(v){
-        throw "filter is read-only"
-    },
-    get: function(){ return this._filter; }
-});
-
-/**
- * Call this function, whenever the request is not required anymore.
- */
-Request.prototype.clear = function(callback){
-    this._listener = null;
-    Array.erase(this._dataNode._requests, callback);
-};
-
-/**
- * @param {Xflow.Request} request
- * @param {Xflow.RESULT_STATE} notification
- */
-function notifyListeners(request, notification){
-    if(request._listener)
-        request._listener(request, notification)
-};
-
-/**
- * @param {Xflow.RESULT_STATE} notification
- */
-Request.prototype.notify = function(notification){
-    notifyListeners(this, notification);
-}
-
-/**
- * @constructor
- * @extends {Xflow.Request}
- * @param {Xflow.DataNode} dataNode
- * @param {Array.<string>} filter
- */
-var ComputeRequest = function(dataNode, filter, callback){
-    Xflow.Request.call(this, dataNode, filter, callback);
-};
-XML3D.createClass(ComputeRequest, Xflow.Request);
-Xflow.ComputeRequest = ComputeRequest;
-
-ComputeRequest.prototype.getResult = function(){
-    return this._dataNode._getComputeResult(this._filter);
-}
-
-})();(function(){
-
-/**
- * @constructor
- * @param {Xflow.DataNode} dataNode
- * @param {Array.<string>} filter
- */
-Xflow.Result = function(){
-    this.loading = false;
-    this.valid = false;
-    this._outputNames = [];
-    /** @type {Object.<string,DataEntry>} */
-    this._dataEntries = {};
-    this._listeners = [];
-};
-var Result = Xflow.Result;
-
-Object.defineProperty(Result.prototype, "outputNames", {
-    set: function(v){
-       throw "outputNames is readonly";
-    },
-    get: function(){ return this._outputNames; }
-});
-
-Result.prototype.getOutputData = function(name){
-    return this._dataEntries[name];
-};
-
-/**
- * @returns {Object.<string,DataEntry>}
- */
-Result.prototype.getOutputMap = function() {
-    return this._dataEntries;
-};
-
-
-/**
- * @param {function(Xflow.Result, Xflow.RESULT_STATE)} callback
- */
-Result.prototype.addListener = function(callback){
-    this._listeners.push(callback);
-};
-
-/**
- * @param {function(Xflow.Result, Xflow.RESULT_STATE)} callback
- */
-Result.prototype.removeListener = function(callback){
-    Array.erase(this._listeners, callback);
-};
-
-Result.prototype.notifyChanged = function(state){
-    this.valid = false;
-    for(var i = 0; i < this._listeners.length; ++i){
-        this._listeners[i].notify(this, state);
-    }
-}
-
-
-/**
- * @constructor
- * @extends {Xflow.Result}
- */
-Xflow.ComputeResult = function(){
-    Xflow.Result.call(this);
-};
-XML3D.createClass(Xflow.ComputeResult, Xflow.Result);
-var ComputeResult = Xflow.ComputeResult;
-
-})();XML3D.data = {
-    toString : function() {
-        return "data";
-    }
-};
 (function() {
 
 
@@ -8366,6 +6764,2558 @@ XML3D.classInfo['view'] = {
     _term: undefined
 };
 /* END GENERATED */
+var Xflow = {};
+
+Xflow.EPSILON = 0.000001;
+
+/**
+ * Type of DataEntry
+ * @enum
+ */
+Xflow.DATA_TYPE = {
+    FLOAT: 0,
+    FLOAT2 : 1,
+    FLOAT3 : 2,
+    FLOAT4 : 3,
+    FLOAT4X4 : 10,
+    INT : 20,
+    INT4 : 21,
+    BOOL: 30,
+    TEXTURE: 40
+}
+
+Xflow.DATA_TYPE_TUPLE_SIZE = {};
+Xflow.DATA_TYPE_TUPLE_SIZE[Xflow.DATA_TYPE.FLOAT] = 1;
+Xflow.DATA_TYPE_TUPLE_SIZE[Xflow.DATA_TYPE.FLOAT2] = 2;
+Xflow.DATA_TYPE_TUPLE_SIZE[Xflow.DATA_TYPE.FLOAT3] = 3;
+Xflow.DATA_TYPE_TUPLE_SIZE[Xflow.DATA_TYPE.FLOAT4] = 4;
+Xflow.DATA_TYPE_TUPLE_SIZE[Xflow.DATA_TYPE.FLOAT4X4] = 16;
+Xflow.DATA_TYPE_TUPLE_SIZE[Xflow.DATA_TYPE.INT] = 1;
+Xflow.DATA_TYPE_TUPLE_SIZE[Xflow.DATA_TYPE.INT4] = 4;
+Xflow.DATA_TYPE_TUPLE_SIZE[Xflow.DATA_TYPE.BOOL] = 1;
+Xflow.DATA_TYPE_TUPLE_SIZE[Xflow.DATA_TYPE.TEXTURE] = 1;
+
+Xflow.DATA_TYPE_MAP = {
+    'float' : Xflow.DATA_TYPE.FLOAT,
+    'float2' : Xflow.DATA_TYPE.FLOAT2,
+    'float3' : Xflow.DATA_TYPE.FLOAT3,
+    'float4' : Xflow.DATA_TYPE.FLOAT4,
+    'float4x4' : Xflow.DATA_TYPE.FLOAT4X4,
+    'int' : Xflow.DATA_TYPE.INT,
+    'int4' : Xflow.DATA_TYPE.INT4,
+    'bool' : Xflow.DATA_TYPE.BOOL,
+    'texture' : Xflow.DATA_TYPE.TEXTURE
+}
+
+Xflow.getTypeName = function(type){
+    for(var i in Xflow.DATA_TYPE_MAP){
+        if(Xflow.DATA_TYPE_MAP[i] == type){
+            return i;
+        }
+    }
+}
+
+/**
+ * @enum {number}
+ */
+Xflow.TEX_FILTER_TYPE = {
+    NONE: 0,
+    REPEAT: 1,
+    LINEAR: 2
+};
+/**
+ * @enum {number}
+ */
+Xflow.TEX_WRAP_TYPE = {
+    CLAMP: 0,
+    REPEAT: 1,
+    BORDER: 2
+};
+/**
+ * @enum {number}
+ */
+Xflow.TEX_TYPE = {
+    TEXTURE_1D: 0,
+    TEXTURE_2D: 1,
+    TEXTURE_3D: 2
+};
+
+
+/**
+ * Filter Type of DataNode
+ * KEEP - Keep only the provided names
+ * REMOVE - Remove provided names (ignores name mapping)
+ * RENAME - Only apply name mapping
+ * @enum
+ */
+Xflow.DATA_FILTER_TYPE = {
+    RENAME: 0,
+    KEEP: 1,
+    REMOVE: 2
+}
+
+
+/**
+ * @enum {number}
+ */
+Xflow.DATA_ENTRY_STATE = {
+    CHANGED_NEW: 0,
+    CHANGED_VALUE: 1,
+    CHANGE_SIZE: 2,
+    CHANGE_REMOVED: 3
+};
+
+
+/**
+ * Type of Modification, used internally only
+ * @private
+ * @enum
+ */
+Xflow.RESULT_STATE = {
+    NONE: 0,
+    CHANGED_DATA: 1,
+    CHANGED_STRUCTURE: 2
+};
+
+
+/**
+ * Type of Sequence access - used by operators
+ * @private
+ * @enum
+ */
+Xflow.SEQUENCE = {
+    NO_ACCESS: 0,
+    PREV_BUFFER: 1,
+    NEXT_BUFFER: 2,
+    LINEAR_WEIGHT: 3
+}
+
+/**
+ * Type of Information Extraction - used by operators
+ * @private
+ * @enum
+ */
+Xflow.EXTRACT = {
+    NO_EXTRAC: 0,
+    TEX_WIDTH: 1,
+    TEX_HEIGHT: 2
+};
+(function(){
+
+/**
+ * The Xflow graph includes the whole dataflow graph
+ * @constructor
+ */
+Xflow.Graph = function(){
+    this._nodes = [];
+};
+var Graph = Xflow.Graph;
+
+
+
+/**
+ * @return {Xflow.InputNode}
+ */
+Graph.prototype.createInputNode = function(){
+    var node = new Xflow.InputNode(this);
+    this._nodes.push(node);
+    return node;
+};
+
+/**
+ * @return {Xflow.DataNode}
+ */
+Graph.prototype.createDataNode = function(){
+    var node = new Xflow.DataNode(this);
+    this._nodes.push(node);
+    return node;
+};
+
+/**
+ * @constructor
+ * @param {Xflow.Graph} graph
+ */
+Xflow.GraphNode = function(graph){
+    this._graph = graph;
+    this._parents = [];
+};
+var GraphNode = Xflow.GraphNode;
+
+/**
+ * @constructor
+ * @param {Xflow.Graph} graph
+ * @extends {Xflow.GraphNode}
+ */
+Xflow.InputNode = function(graph){
+    Xflow.GraphNode.call(this, graph);
+    this._name = "";
+    this._seqnr = 0;
+    this._data = null;
+    this._param = false;
+};
+XML3D.createClass(Xflow.InputNode, Xflow.GraphNode);
+var InputNode = Xflow.InputNode;
+
+InputNode.prototype.notify = function(newValue, notification) {
+    var downstreamNotification = notification == Xflow.DATA_ENTRY_STATE.CHANGED_VALUE ? Xflow.RESULT_STATE.CHANGED_DATA :
+                                                Xflow.RESULT_STATE.CHANGED_STRUCTURE;
+    notifyParentsOnChanged(this,downstreamNotification);
+};
+
+Object.defineProperty(InputNode.prototype, "name", {
+    /** @param {string} v */
+    set: function(v){
+        this._name = v;
+        notifyParentsOnChanged(this, Xflow.RESULT_STATE.CHANGED_STRUCTURE);
+    },
+    /** @return {string} */
+    get: function(){ return this._name; }
+});
+Object.defineProperty(InputNode.prototype, "seqnr", {
+    /** @param {number} v */
+    set: function(v){
+        this._seqnr = v;
+        notifyParentsOnChanged(this, Xflow.RESULT_STATE.CHANGED_STRUCTURE);
+    },
+    /** @return {number} */
+    get: function(){ return this._seqnr; }
+});
+Object.defineProperty(InputNode.prototype, "param", {
+    /** @param {boolean} v */
+    set: function(v){
+        this._param = v;
+        notifyParentsOnChanged(this, Xflow.RESULT_STATE.CHANGED_STRUCTURE);
+    },
+    /** @return {boolean} */
+    get: function(){ return this._param; }
+});
+Object.defineProperty(InputNode.prototype, "data", {
+    /** @param {Object} v */
+    set: function(v){
+        var oldLength = 0;
+        if(this._data) {
+            oldLength = this._data.getLength();
+            this._data.removeListener(this);
+        }
+        this._data = v;
+        if(this._data)
+            this._data.addListener(this);
+        var sizeChanged = (oldLength != (this._data ? this._data.getLength() : 0));
+        notifyParentsOnChanged(this, sizeChanged ? Xflow.RESULT_STATE.CHANGED_STRUCTURE :
+            Xflow.RESULT_STATE.CHANGED_DATA, this._name);
+    },
+    /** @return {Object} */
+    get: function(){ return this._data; }
+});
+
+
+
+/**
+ * @constructor
+ * @extends {Xflow.GraphNode}
+ */
+Xflow.DataNode = function(graph){
+    Xflow.GraphNode.call(this, graph);
+
+    this.loading = false;
+
+    
+    this._prototype = false;
+    this._children = [];
+    this._sourceNode = null;
+    this._protoNode = null;
+
+    this._filterType = 0;
+    this._filterMapping = new Xflow.OrderMapping(this);
+
+    this._computeOperator = "";
+    this._computeInputMapping = new Xflow.OrderMapping(this);
+    this._computeOutputMapping = new Xflow.OrderMapping(this);
+
+
+    this._state = Xflow.RESULT_STATE.NONE;
+
+    this._initCompute();
+    this._requests = [];
+};
+XML3D.createClass(Xflow.DataNode, Xflow.GraphNode);
+var DataNode = Xflow.DataNode;
+
+
+/**
+ * @constructor
+ * @param {Xflow.DataNode} owner
+ */
+Xflow.Mapping = function(owner){
+    this._owner = owner;
+};
+
+
+/**
+ * @constructor
+ * @extends {Xflow.Mapping}
+ * @param {Xflow.DataNode} owner
+ */
+Xflow.OrderMapping = function(owner){
+    Xflow.Mapping.call(this, owner);
+    this._names = [];
+};
+XML3D.createClass(Xflow.OrderMapping, Xflow.Mapping);
+
+/**
+ * @constructor
+ * @extends {Xflow.Mapping}
+ * @param {Xflow.DataNode} owner
+ */
+Xflow.NameMapping = function(owner){
+    Xflow.Mapping.call(this, owner);
+    this._destNames = [];
+    this._srcNames = [];
+
+};
+XML3D.createClass(Xflow.NameMapping, Xflow.Mapping);
+
+
+
+/**
+ * @private
+ * @param {Xflow.DataNode} parent
+ * @param {Xflow.GraphNode} child
+ */
+function addParent(parent, child){
+    child._parents.push(parent);
+}
+
+/**
+ * @private
+ * @param {Xflow.DataNode} parent
+ * @param {Xflow.GraphNode} child
+ */
+function removeParent(parent, child){
+    Array.erase(child._parents, parent);
+}
+
+Object.defineProperty(DataNode.prototype, "prototype", {
+    /** @param {boolean} v */
+    set: function(v){ this._prototype = v;
+    },
+    /** @return {boolean} */
+    get: function(){ return this._prototype; }
+});
+Object.defineProperty(DataNode.prototype, "sourceNode", {
+    /** @param {?Xflow.DataNode} v */
+    set: function(v){
+        if(this._sourceNode) removeParent(this, this._sourceNode);
+        this._sourceNode = v;
+        if(this._sourceNode) addParent(this, this._sourceNode);
+        this.notify(Xflow.RESULT_STATE.CHANGED_STRUCTURE);
+    },
+    /** @return {?Xflow.DataNode} */
+    get: function(){ return this._sourceNode; }
+});
+Object.defineProperty(DataNode.prototype, "protoNode", {
+    /** @param {?Xflow.DataNode} v */
+    set: function(v){
+        if(this._protoNode) removeParent(this, this._protoNode);
+        this._protoNode = v;
+        if(this._protoNode) addParent(this, this._protoNode);
+        this.notify(Xflow.RESULT_STATE.CHANGED_STRUCTURE);
+    },
+    /** @return {?Xflow.DataNode} */
+    get: function(){ return this._protoNode; }
+});
+
+Object.defineProperty(DataNode.prototype, "filterType", {
+    /** @param {Xflow.DATA_FILTER_TYPE} v */
+    set: function(v){
+        this._filterType = v;
+        this.notify( Xflow.RESULT_STATE.CHANGED_STRUCTURE);
+    },
+    /** @return {Xflow.DATA_FILTER_TYPE} */
+    get: function(){ return this._filterType; }
+});
+
+Object.defineProperty(DataNode.prototype, "filterMapping", {
+    /** @param {Xflow.Mapping} v */
+    set: function(v){ throw "filterMapping is readonly!";
+    },
+    /** @return {Xflow.Mapping} */
+    get: function(){ return this._filterMapping; }
+});
+
+Object.defineProperty(DataNode.prototype, "computeOperator", {
+    /** @param {string} v */
+    set: function(v){
+        this._computeOperator = v;
+        this.notify( Xflow.RESULT_STATE.CHANGED_STRUCTURE);
+    },
+    /** @return {string} */
+    get: function(){ return this._computeOperator; }
+});
+Object.defineProperty(DataNode.prototype, "computeInputMapping", {
+    /** @param {Xflow.Mapping} v */
+    set: function(v){ throw "computeInputMapping is readonly!";
+    },
+    /** @return {Xflow.Mapping} */
+    get: function(){ return this._computeInputMapping; }
+});
+Object.defineProperty(DataNode.prototype, "computeOutputMapping", {
+    /** @param {Xflow.Mapping} v */
+    set: function(v){ throw "computeOutputMapping is readonly!";
+    },
+    /** @return {Xflow.Mapping} */
+    get: function(){ return this._computeOutputMapping; }
+});
+
+/**
+ * @param {Xflow.GraphNode} child
+ */
+DataNode.prototype.appendChild = function(child){
+    this._children.push(child);
+    addParent(this, child)
+    this.notify( Xflow.RESULT_STATE.CHANGED_STRUCTURE);
+};
+/**
+ * @param {Xflow.GraphNode} child
+ */
+DataNode.prototype.removeChild = function(child){
+    Array.erase(this._children, child);
+    removeParent(this, child)
+    this.notify( Xflow.RESULT_STATE.CHANGED_STRUCTURE);
+};
+/**
+ * @param {Xflow.GraphNode} child
+ * @param {Xflow.GraphNode} beforeNode
+ */
+DataNode.prototype.insertBefore = function(child, beforeNode){
+    var idx = this._children.indexOf(beforeNode);
+    if(idx == -1)
+        this._children.push(child);
+    else
+        this._children.splice(idx, 0, child);
+    addParent(this, child)
+    this.notify( Xflow.RESULT_STATE.CHANGED_STRUCTURE);
+};
+/**
+ * remove all children of the DataNode
+ */
+DataNode.prototype.clearChildren = function(){
+    for(var i =0; i < this._children.length; ++i){
+        removeParent(this, this._children[i]);
+    }
+    this._children = [];
+    this.notify( Xflow.RESULT_STATE.CHANGED_STRUCTURE);
+};
+
+/**
+ * Detach this DataNode from all connections, including source- and proto-node references
+ */
+DataNode.prototype.detachFromParents = function(){
+    for(var i =0; i < this._parents.length; ++i){
+        var parent = this._parents[i];
+        if(parent._sourceNode == this)
+            parent.sourceNode = null;
+        else if(parent._protoNode == this){
+            parent.protoNode = null;
+        }
+        else{
+            parent.removeChild(this);
+        }
+    }
+    this._children = [];
+};
+
+/**
+ * @const
+ */
+var filterParser = /^([A-Za-z\s]*)\(([^()]+)\)$/;
+
+/**
+ * Set filter by string
+ * @param {string} filterString
+ */
+DataNode.prototype.setFilter = function(filterString){
+    filterString = filterString || "";
+    var newType = Xflow.DATA_FILTER_TYPE.RENAME;
+    var newMapping = null;
+    var result = filterString.trim().match(filterParser);
+    if(result){
+        var type = result[1].trim();
+        switch(type){
+            case "keep": newType = Xflow.DATA_FILTER_TYPE.KEEP; break;
+            case "remove": newType = Xflow.DATA_FILTER_TYPE.REMOVE; break;
+            case "rename": newType = Xflow.DATA_FILTER_TYPE.RENAME; break;
+        }
+        newMapping = Xflow.Mapping.parse(result[2], this);
+    }
+    if(!newMapping){
+        newMapping = new Xflow.OrderMapping(this);
+    }
+    removeMappingOwner(this._filterMapping);
+    this._filterMapping = newMapping;
+    this._filterType = newType;
+    this.notify( Xflow.RESULT_STATE.CHANGED_STRUCTURE);
+};
+
+var computeParser = /^(([^=]+)\=)?([^(]+)\(([^()]*)\)$/;
+var bracketsParser = /^\(([^()]*)\)$/;
+
+/**
+ * Set compute by string
+ * @param {string} computeString
+ */
+DataNode.prototype.setCompute = function(computeString){
+    computeString = computeString || "";
+    var newOperator = "";
+    var inputMapping = null, outputMapping = null;
+    var result = computeString.trim().match(computeParser);
+    if(result){
+        var output = result[2] ? result[2].trim() : "";
+        newOperator = result[3].trim();
+        var input = result[4] ? result[4].trim() : "";
+        if(result = output.match(bracketsParser)){
+            output = result[1];
+        }
+        inputMapping = Xflow.Mapping.parse(input, this);
+        outputMapping = Xflow.Mapping.parse(output, this);
+    }
+    if(!inputMapping) inputMapping = new Xflow.OrderMapping(this);
+    if(!outputMapping) outputMapping = new Xflow.OrderMapping(this);
+    removeMappingOwner(this._computeInputMapping);
+    removeMappingOwner(this._computeOutputMapping);
+    this._computeInputMapping = inputMapping;
+    this._computeOutputMapping = outputMapping;
+    this._computeOperator = newOperator;
+    this.notify( Xflow.RESULT_STATE.CHANGED_STRUCTURE);
+}
+/**
+ * Notifies DataNode about a change. Notification will be forwarded to parents, if necessary
+ * @param {Xflow.RESULT_STATE} changeType
+ * @param {?string} name
+ */
+DataNode.prototype.notify = function(changeType, name){
+    if(changeType == Xflow.RESULT_STATE.CHANGED_STRUCTURE && this._state != changeType)
+    {
+        this._state = changeType;
+        notifyParentsOnChanged(this, changeType, name);
+        this._updateComputeCache(changeType);
+        for(var i in this._requests)
+            this._requests[i].notify(changeType);
+    }
+    else if(changeType == Xflow.RESULT_STATE.CHANGED_DATA && this._state < changeType){
+        this._state = changeType;
+        notifyParentsOnChanged(this, changeType, name);
+        this._updateComputeCache(changeType);
+        for(var i in this._requests)
+            this._requests[i].notify(changeType);
+    }
+};
+
+/**
+ * Notify all parent nodes about a change
+ * @param {Xflow.GraphNode} node
+ * @param {number|Xflow.RESULT_STATE} changeType
+ * @param {?string=} name
+ * @private
+ */
+function notifyParentsOnChanged(node, changeType, name){
+    for(var i = 0; i < node._parents.length; ++i){
+        node._parents[i].notify(changeType, name || null);
+    }
+};
+/**
+ * Remove owner from mapping, small helper function
+ * @param {Xflow.Mapping} mapping
+ * @private
+ */
+function removeMappingOwner(mapping){
+    if(mapping)
+        mapping._owner = null;
+};
+
+
+})();(function(){
+
+
+var Mapping = Xflow.Mapping;
+
+Mapping.parse = function(string, dataNode){
+    string = string.trim()
+    var results = string.trim().match(orderMappingParser);
+    if(results)
+        return OrderMapping.parse(string, dataNode);
+    results = string.trim().match(nameMappingParser);
+    if(results)
+        return NameMapping.parse(results[1], dataNode);
+    return null;
+}
+
+
+/**
+ * OrderMapping implementation
+ */
+
+var OrderMapping = Xflow.OrderMapping;
+
+
+OrderMapping.parse = function(string, dataNode){
+    var mapping = new Xflow.OrderMapping(dataNode)
+    var token = string.split(",");
+    for(var i = 0; i < token.length; i++){
+        mapping._names.push(token[i].trim());
+    }
+    return mapping;
+}
+
+
+Object.defineProperty(OrderMapping.prototype, "length", {
+    set: function(v){ throw "length is read-only";
+    },
+    get: function(){ return this._name.length; }
+});
+
+OrderMapping.prototype.getName = function(idx){
+    return this._names[idx];
+};
+
+OrderMapping.prototype.clear = function(){
+    this._names = [];
+    mappingNotifyOwner(this);
+};
+
+OrderMapping.prototype.setName = function(index, name){
+    this._names[index] = name;
+    mappingNotifyOwner(this);
+};
+
+OrderMapping.prototype.removeName = function(index){
+    this._names.splice(index);
+    mappingNotifyOwner(this);
+};
+
+OrderMapping.prototype.isEmpty = function(){
+    return this._names.length == 0;
+}
+
+
+/**
+ * NameMapping implementation
+ */
+
+var NameMapping = Xflow.NameMapping;
+
+
+NameMapping.parse = function(string, dataNode)
+{
+    var mapping = new Xflow.NameMapping(dataNode)
+    var token = string.split(",");
+    for(var i = 0; i < token.length; i++){
+        var pair = token[i].split(":");
+        var dest = pair[0].trim(); var src = pair[1].trim();
+        mapping.setNamePair(dest, src);
+    }
+    return mapping;
+}
+
+Object.defineProperty(NameMapping.prototype, "length", {
+    set: function(v){ throw "length is read-only";
+    },
+    get: function(){ return this._srcNames.length; }
+});
+
+NameMapping.prototype.getDestName = function(idx){
+    return this._destNames[idx];
+};
+NameMapping.prototype.getSrcName = function(idx){
+    return this._srcNames[idx];
+};
+
+NameMapping.prototype.getSrcNameFromDestName = function(destName){
+    var idx = this._destNames.indexOf(destName);
+    return idx == -1 ? null : this._srcNames[idx];
+};
+
+NameMapping.prototype.clear = function(){
+    this._srcNames = [];
+    this._destNames = [];
+    mappingNotifyOwner(this);
+};
+
+NameMapping.prototype.setNamePair = function(destName, srcName){
+    var idx = this._destNames.indexOf(destName);
+    if(idx != -1){
+        this._destNames.splice(idx,1);
+        this._srcNames.splice(idx,1);
+    }
+    this._destNames.push(destName);
+    this._srcNames.push(srcName);
+    mappingNotifyOwner(this);
+};
+
+NameMapping.prototype.removeNamePair = function(destName){
+    var idx = this._destNames.indexOf(destName);
+    if(idx != -1){
+        this._destNames.splice(idx,1);
+        this._srcNames.splice(idx,1);
+    }
+    mappingNotifyOwner(this);
+};
+
+NameMapping.prototype.isEmpty = function(){
+    return this._destNames.length == 0;
+}
+
+var orderMappingParser = /^([^:,{}]+)(,[^:{},]+)*$/;
+var nameMappingParser = /^\{(([^:,{}]+:[^:{},]+)(,[^:{},]+:[^:},]+)*)\}$/;
+
+
+function mappingNotifyOwner(mapping){
+    if(mapping._owner)
+        mapping._owner.notify(Xflow.RESULT_STATE.CHANGED_STRUCTURE);
+};
+
+OrderMapping.prototype.filterNameset = function(nameset, filterType)
+{
+    if(filterType == Xflow.DATA_FILTER_TYPE.RENAME)
+        return nameset.splice();
+    else {
+        var keep = (filterType == Xflow.DATA_FILTER_TYPE.KEEP);
+        var result = [];
+        for(var i in nameset){
+            var idx = this._names.indexOf(nameset[i]);
+            if( (keep && idx!= -1) || (!keep && idx == -1) )
+                result.push(nameset[i]);
+        }
+        return result;
+    }
+}
+NameMapping.prototype.filterNameset = function(nameset, filterType)
+{
+
+}
+
+OrderMapping.prototype.applyFilterOnMap = function(destMap, sourceMap, filterType){
+    for(var i in sourceMap){
+        var idx = this._names.indexOf(i);
+        if(filterType == Xflow.DATA_FILTER_TYPE.RENAME ||
+           ( filterType == Xflow.DATA_FILTER_TYPE.KEEP && idx != -1) ||
+            (filterType == Xflow.DATA_FILTER_TYPE.REMOVE && idx == -1))
+            destMap[i] = sourceMap[i];
+    }
+};
+OrderMapping.prototype.getScriptInputName = function(index, destName){
+    if(this._names[index])
+        return this._names[index];
+    else
+        return null;
+};
+OrderMapping.prototype.applyScriptOutputOnMap = function(destMap, sourceMap){
+    var index = 0;
+    for(var i in sourceMap){
+        if(index < this._names.length){
+            destMap[this._names[index]] = sourceMap[i];
+            ++index;
+        }
+        else
+            break;
+    }
+};
+
+NameMapping.prototype.applyFilterOnMap = function(destMap, sourceMap, filterType)
+{
+    if(filterType == Xflow.DATA_FILTER_TYPE.REMOVE){
+        for(var i in sourceMap)
+            if(this._srcNames.indexOf(i) == -1)
+                destMap[i] = sourceMap[i];
+    }
+    else{
+        if(filterType == Xflow.DATA_FILTER_TYPE.RENAME){
+            for(var i in sourceMap)
+                if(this._srcNames.indexOf(i) == -1)
+                    destMap[i] = sourceMap[i];
+        }
+        for(var i in this._destNames){
+            destMap[this._destNames[i]] = sourceMap[this._srcNames[i]]
+        }
+    }
+};
+
+NameMapping.prototype.getScriptInputName= function(index, destName){
+    var srcName = this.getSrcNameFromDestName(destName);
+    return srcName ? srcName : null;
+}
+
+
+NameMapping.prototype.applyScriptOutputOnMap= function(destMap, sourceMap){
+    for(var i in this._destNames){
+        var destName = this._destNames[i], srcName = this._srcNames[i];
+        destMap[destName] = sourceMap[srcName];
+    }
+}
+
+})();(function(){
+
+
+/**
+ * @constructor
+ */
+Xflow.SamplerConfig = function(){
+    this.filterMin = 0;
+    this.filterMag = 0;
+    this.filterMip = 0;
+    this.wrapS = 0;
+    this.wrapT = 0;
+    this.wrapU = 0;
+    this.textureType = 0;
+    this.colorR = 0;
+    this.colorG = 0;
+    this.colorB = 0;
+    this.generateMipMap = 0;
+};
+var SamplerConfig = Xflow.SamplerConfig;
+
+
+
+
+/**
+ * @constructor
+ * @param {Xflow.DATA_TYPE} type Type of DataEntry
+ */
+Xflow.DataEntry = function(type){
+    this._type = type;
+    this._listeners = [];
+    this.userData = {};
+};
+var DataEntry = Xflow.DataEntry;
+
+Object.defineProperty(DataEntry.prototype, "type", {
+    /** @param {Xflow.DATA_TYPE} v */
+    set: function(v){
+        throw "type is read-only";
+    },
+    /** @return {Xflow.DATA_TYPE} */
+    get: function(){ return this._type; }
+});
+
+/**
+ * @param {function(Xflow.DataEntry, Xflow.DATA_ENTRY_STATE)} callback
+ */
+DataEntry.prototype.addListener = function(callback){
+    this._listeners.push(callback);
+};
+
+/**
+ * @param {function(Xflow.DataEntry, Xflow.DATA_ENTRY_STATE)} callback
+ */
+DataEntry.prototype.removeListener = function(callback){
+    Array.erase(this._listeners, callback);
+};
+
+DataEntry.prototype.notifyChanged = function(){
+    notifyListeners(this, Xflow.DATA_ENTRY_STATE.CHANGED_VALUE);
+}
+
+
+
+/**
+ * @constructor
+ * @extends {Xflow.DataEntry}
+ * @param {Xflow.DATA_TYPE} type
+ * @param {Object} value
+ */
+Xflow.BufferEntry = function(type, value){
+    Xflow.DataEntry.call(this, type);
+    this._value = value;
+    notifyListeners(this, Xflow.DATA_ENTRY_STATE.CHANGED_NEW);
+};
+XML3D.createClass(Xflow.BufferEntry, Xflow.DataEntry);
+var BufferEntry = Xflow.BufferEntry;
+
+
+/** @param {Object} v */
+BufferEntry.prototype.setValue = function(v){
+    var newSize = (this._value ? this._value.length : 0) != (v ? v.length : 0);
+    this._value = v;
+    notifyListeners(this, newSize ? Xflow.DATA_ENTRY_STATE.CHANGE_SIZE : Xflow.DATA_ENTRY_STATE.CHANGED_VALUE);
+}
+
+/** @return {Object} */
+BufferEntry.prototype.getValue = function(){
+    return this._value;
+};
+
+/** @return {Object} */
+BufferEntry.prototype.getLength = function(){
+    return this._value ? this._value.length : 0;
+};
+
+
+BufferEntry.prototype.getTupleSize = function() {
+    if (!this._tupleSize) {
+        this._tupleSize = Xflow.DATA_TYPE_TUPLE_SIZE[this._type];
+    }
+    return this._tupleSize;
+};
+
+/**
+ * @return {number}
+ */
+BufferEntry.prototype.getIterateCount = function(){
+    return this.getLength() / this.getTupleSize();
+};
+
+/**
+ * @constructor
+ * @extends {Xflow.DataEntry}
+ * @param {Object} image
+ */
+Xflow.TextureEntry = function(image){
+    Xflow.DataEntry.call(this, Xflow.DATA_TYPE.TEXTURE);
+    this._image = image;
+    this._samplerConfig = new SamplerConfig();
+    notifyListeners(this, Xflow.DATA_ENTRY_STATE.CHANGED_NEW);
+};
+XML3D.createClass(Xflow.TextureEntry, Xflow.DataEntry);
+var TextureEntry = Xflow.TextureEntry;
+
+/** @param {Object} v */
+TextureEntry.prototype.setImage = function(v){
+    this._image = v;
+    notifyListeners(this, Xflow.DATA_ENTRY_STATE.CHANGED_VALUE);
+}
+
+/** @return {Object} */
+TextureEntry.prototype.getImage = function(){
+    return this._image;
+}
+
+/** @return {Object} */
+TextureEntry.prototype.getSamplerConfig = function(){
+    return this._samplerConfig;
+};
+
+/** @return {number} */
+TextureEntry.prototype.getLength = function(){
+    return 1;
+};
+
+
+Xflow.DataChangeNotifier = {
+    _listeners: []
+}
+var DataChangeNotifier = Xflow.DataChangeNotifier;
+
+/**
+ * @param {function(Xflow.DataEntry, Xflow.DATA_ENTRY_STATE)} callback
+ */
+DataChangeNotifier.addListener = function(callback){
+    this._listeners.push(callback);
+};
+
+/**
+ * @param {function(Xflow.DataEntry, Xflow.DATA_ENTRY_STATE)} callback
+ */
+DataChangeNotifier.removeListener = function(callback){
+    Array.erase(this._listeners, callback);
+};
+
+/**
+ * @param {Xflow.DataEntry} dataEntry
+ * @param {Xflow.DATA_ENTRY_STATE} notification
+ */
+function notifyListeners(dataEntry, notification){
+    for(var i = 0; i < DataChangeNotifier._listeners.length; ++i){
+        DataChangeNotifier._listeners[i](dataEntry, notification);
+    }
+    for(var i = 0; i < dataEntry._listeners.length; ++i){
+        dataEntry._listeners[i].notify(dataEntry, notification);
+    }
+};
+})();(function(){
+
+/**
+ * @constructor
+ * @param {Xflow.DataNode} owner Owner of the channel - always a DataNode
+ * @param {Xflow.DataEntry=} dataEntry Optional DataEntry added to the channel
+ * @param {number=} key Optional key of the added DataEntry
+ */
+var Channel = function(owner, dataEntry, key){
+    this.entries = [];
+    this.owner = owner;
+
+    if(dataEntry){
+        this.addDataEntry(dataEntry, key);
+    }
+}
+Xflow.Channel = Channel;
+
+Channel.prototype.addDataEntry = function(dataEntry, key){
+    var insertObj = {
+        key: key,
+        value: dataEntry
+    }
+    for(var i = 0; i < this.entries.length; ++i){
+        var entry = this.entries[i];
+        if(entry.key >= key - Xflow.EPSILON ){
+            if(Math.abs(entry.key - key) <= Xflow.EPSILON){
+                this.entries.splice(i, 1, insertObj);
+            }
+            else{
+                this.entries.splice(i, 0, insertObj);
+            }
+            break;
+        }
+    }
+    this.entries.push(insertObj);
+};
+
+Channel.prototype.getDataEntry = function(sequenceAccessType, sequenceKey){
+    if(this.entries.length == 0)
+        return null;
+    if(!sequenceAccessType)
+        return this.entries[0].value;
+
+    var i = 0, max = this.entries.length;
+    while(i < max && this.entries[i].key < sequenceKey) ++i;
+    if(sequenceAccessType == Xflow.SEQUENCE.PREV_BUFFER){
+        return this.entries[i ? i -1 : 0].value;
+    }
+    else if(sequenceAccessType == Xflow.SEQUENCE.NEXT_BUFFER){
+        return this.entries[i < max ? i : max - 1].value;
+    }
+    else if(sequenceAccessType == Xflow.SEQUENCE.LINEAR_WEIGHT){
+        var weight1 = this.entries[i ? i - 1 : 0].key;
+        var weight2 = this.entries[i < max ? i : max - 1].key;
+        var value = new Float32Array(1);
+        value[0] = weight2 == weight1 ? 0 : (sequenceKey - weight1) / (weight2 - weight1);
+        // TODO: Check if repeated BufferEntry and Float32Array allocation is a serious bottleneck
+        return new Xflow.BufferEntry(Xflow.DATA_TYPE.FLOAT, value);
+    }
+    return null;
+};
+
+
+var DataNode = Xflow.DataNode;
+
+
+function getForwardNode(dataNode){
+    if(!dataNode._filterMapping.isEmpty()  || dataNode._computeOperator)
+        return null;
+    if(dataNode._sourceNode && dataNode._children.length == 0)
+        return dataNode._sourceNode;
+    if(dataNode._children.length == 1 && dataNode._children[0] instanceof DataNode)
+        return dataNode._children[0];
+    return null;
+}
+
+DataNode.prototype._initCompute = function(){
+    this._results = [];
+    this._dataMap = {};
+}
+
+DataNode.prototype._updateComputeCache = function(state){
+    this._dataMap = {};
+
+    for(var i in this._results){
+        this._results[i].notifyChanged(state);
+    }
+
+    if(state == Xflow.RESULT_STATE.CHANGED_STRUCTURE){
+        this._operatorData = null;
+    }
+}
+
+DataNode.prototype._getComputeResult = function(filter){
+    var forwardNode = getForwardNode(this);
+    if(forwardNode){
+        this._state = Xflow.RESULT_STATE.NONE;
+        return forwardNode._getComputeResult(filter);
+    }
+
+    var key = filter ? filter.join(";") : "[null]";
+    if(!this._results[key])
+        this._results[key] = new Xflow.ComputeResult();
+
+    if(!this._results[key].valid)
+        this._createComputeResult(filter, this._results[key]);
+
+    return this._results[key];
+}
+
+DataNode.prototype._createComputeResult = function(filter, result){
+    result._outputNames = [];
+    result._dataEntries = {};
+    var loading = this._populateDataMap();
+
+    for(var i in this._dataMap){
+        if(!filter || filter.indexOf(i) != -1){
+            result._outputNames.push(i);
+            result._dataEntries[i] = this._dataMap[i].getDataEntry();
+        }
+    }
+    result.loading = loading;
+    result.valid = true;
+}
+DataNode.prototype._populateDataMap = function(){
+    if(this._state == Xflow.RESULT_STATE.NONE) return;
+    this._state = Xflow.RESULT_STATE.NONE;
+
+    if(this.loading)
+        return true;
+
+    // Prepare input:
+    var inputMap = {};
+    if(this._sourceNode){
+        if(transferDataMap(inputMap, this._sourceNode))
+            return true;
+    }
+    else{
+        for(var i in this._children){
+            if(this._children[i] instanceof Xflow.DataNode){
+                if(transferDataMap(inputMap, this._children[i]))
+                    return true;
+            }
+        }
+        for(var i in this._children)
+        {
+            if(this._children[i] instanceof Xflow.InputNode){
+                var inputNode = this._children[i];
+                var channel = inputMap[inputNode._name];
+                if(!channel || channel.owner != this){
+                    channel = new Channel(this);
+                }
+                channel.addDataEntry(inputNode._data, inputNode._seqnr);
+                inputMap[inputNode._name] = channel;
+            }
+        }
+    }
+    this._applyOperator(inputMap);
+
+    this._filterMapping.applyFilterOnMap(this._dataMap, inputMap, this._filterType);
+
+    return false;
+}
+
+function transferDataMap(destMap, node){
+    var loading = node._populateDataMap();
+    if(loading)
+        return true;
+
+    for(var i in node._dataMap){
+        destMap[i] = node._dataMap[i];
+    }
+    return false;
+}
+
+})();
+
+(function(){
+
+    var operators = {};
+
+    function initOperator(operator){
+        var indexMap = {};
+        // Init types of outputs and params
+        for(var i= 0; i < operator.outputs.length; ++i){
+            operator.outputs[i].type = Xflow.DATA_TYPE_MAP[operator.outputs[i].type];
+        }
+        for(var i= 0; i < operator.params.length; ++i){
+            operator.params[i].type = Xflow.DATA_TYPE_MAP[operator.params[i].type];
+            indexMap[operator.params[i].source] = i;
+        }
+        if(!operator.mapping)
+            operator.mapping = operator.params;
+
+        // Init interTypes of mapping
+        for(var i = 0; i < operator.mapping.length; ++i){
+            var mapping = operator.mapping[i];
+            var paramIdx = indexMap[mapping.source];
+            mapping.paramIdx = paramIdx;
+            var type = operator.params[paramIdx].type;
+            if(mapping.sequence)
+                mapping.keyParamIdx = indexMap[mapping.keySource];
+            if(operator.mapping[i].sequence == Xflow.SEQUENCE.LINEAR_WEIGHT)
+                type = Xflow.DATA_TYPE.FLOAT;
+            operator.mapping[i].internalType = type;
+        }
+    }
+
+    Xflow.registerOperator = function(name, data){
+        var actualName = "xflow." + name;
+        initOperator(data);
+        operators[actualName] = data;
+        data.name = actualName;
+    };
+
+    Xflow.getOperator = function(name){
+        return operators[name];
+    };
+
+    var DataNode = Xflow.DataNode;
+
+    function prepareInputs(operator, inputMapping, inputChannels, operatorInput){
+        for(var i in operator.mapping){
+            var mapping = operator.mapping[i];
+            var sourceName = mapping.source;
+            var dataName = inputMapping.getScriptInputName(mapping.paramIdx, sourceName);
+            if(dataName){
+                var channel = inputChannels[dataName];
+                var keyValue = 0;
+                if(mapping.sequence){
+                    var keyName = inputMapping.getScriptInputName(mapping.keyParamIdx, mapping.keySource);
+                    var keyChannel = inputChannels[keyName];
+                    var keyEntry =  keyChannel ? keyChannel.getDataEntry() : null;
+                    keyValue = keyEntry && keyEntry._value ? keyEntry._value[0] : 0;
+                }
+                operatorInput.push(channel ? channel.getDataEntry(mapping.sequence, keyValue) : null);
+            }
+            else{
+                operatorInput.push(null);
+            }
+
+        }
+    }
+
+    function checkInput(operator, inputMapping, inputChannels){
+        for(var i in operator.params){
+            var entry = operator.params[i];
+            var dataName = inputMapping.getScriptInputName(i, entry.source);
+            if(!entry.optional && !dataName){
+                XML3D.debug.logError("Xflow: operator " + operator.name + ": Missing input argument for "
+                    + entry.source);
+                return false;
+            }
+            if(dataName){
+                var channel = inputChannels[dataName];
+                if(!channel){
+                    XML3D.debug.logError("Xflow: operator " + operator.name + ": Input of name '" + dataName +
+                        "' not found. Use for parameter " + entry.source);
+                    return false;
+                }
+                var dataEntry = channel.getDataEntry();
+                if(!entry.optional && (!dataEntry || dataEntry.getLength() == 0)){
+                    XML3D.debug.logError("Xflow: operator " + operator.name + ": Input for " + entry.source +
+                        ' contains no data.');
+                    return false;
+                }
+                if(dataEntry && dataEntry.type != entry.type){
+                    XML3D.debug.logError("Xflow: operator " + operator.name + ": Input for " + entry.source +
+                        " has wrong type. Expected: " + Xflow.getTypeName(entry.type)
+                            + ", but got: " +  Xflow.getTypeName(dataEntry.type) );
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+
+    function prepareOutputs(operator, outputs){
+        for(var i in operator.outputs){
+            var d = operator.outputs[i];
+            if(!outputs[d.name])
+                outputs[d.name] = new Xflow.Channel(this);
+            var entry = outputs[d.name].getDataEntry();
+            if(!entry){
+                var type = d.type;
+                if(type != Xflow.DATA_TYPE.TEXTURE){
+                    entry = new Xflow.BufferEntry(type, null);
+                }
+                else{
+                    entry = new Xflow.TextureEntry(null);
+                }
+                outputs[d.name].addDataEntry(entry, 0);
+            }
+        }
+    }
+
+    function inputIsIterating(inputInfo, dataEntry){
+        return !inputInfo.array && dataEntry && dataEntry.getIterateCount() > 1;
+    }
+
+    function getIterateCount(operator, inputData, operatorData){
+        var minCnt = -1;
+        if(operatorData){
+            operatorData.iterateKey = "";
+            operatorData.iterFlag = {};
+        }
+        for(var i in operator.mapping){
+            var inputInfo = operator.mapping[i];
+            var dataEntry = inputData[i];
+            if(!inputIsIterating(inputInfo, dataEntry)){
+                if(operatorData) operatorData.iterateKey += "a";
+                continue;
+            }
+            if(operatorData){
+                operatorData.iterateKey += "i";
+                operatorData.iterFlag[i] = true;
+            }
+            var cnt = dataEntry.getIterateCount();
+            minCnt = minCnt == -1 ? cnt : Math.min(cnt, minCnt);
+        }
+        minCnt = minCnt == -1 ? 1 : minCnt;
+        if(operatorData) operatorData.iterateCount = minCnt;
+        return minCnt;
+    }
+
+    var c_FunctionPattern = /function\s+([^(]*)\(([^)]*)\)\s*\{([\s\S]*)\}/;
+
+    function parseFunction(func){
+        var result = {};
+        var matches = func.toString().match(c_FunctionPattern);
+        if(!matches){
+            XML3D.debug.logError("Xflow Internal: Could not parse function: " + func);
+            return null;
+        }
+        result.args = matches[2].split(",");
+        for(var i in result.args) result.args[i] = result.args[i].trim();
+        result.body = matches[3];
+        return result;
+    }
+
+    var c_bracketPattern = /([^+\-*/\s\[]+)(\[)/;
+
+    function replaceArrayAccess(code, args, operator, operatorData){
+        var result = "";
+        var index = 0, bracketIndex = code.indexOf("[", index);
+        while(bracketIndex != -1){
+            var key = code.substr(index).match(c_bracketPattern)[1];
+
+            var argIdx = args.indexOf(key);
+            var addIndex = false, tupleCnt = 0;
+            if(argIdx != -1){
+                if(argIdx < operator.outputs.length){
+                    addIndex = true;
+                    tupleCnt = Xflow.DATA_TYPE_TUPLE_SIZE[[operator.outputs[argIdx].type]];
+                }
+                else{
+                    var i = argIdx - operator.outputs.length;
+                    addIndex = operatorData.iterFlag[i];
+                    tupleCnt = Xflow.DATA_TYPE_TUPLE_SIZE[operator.mapping[i].internalType];
+                }
+            }
+
+            result += code.substring(index, bracketIndex) + "["
+            if(addIndex){
+                result += tupleCnt + "*__xflowI + ";
+            }
+            index = bracketIndex + 1;
+            bracketIndex = code.indexOf("[", index);
+        }
+        result +=  code.substring(index);
+        return result;
+    }
+
+    var c_VarPattern = /var\s+(.)+[;\n]/;
+    var c_InnerVarPattern = /[^=,\s]+\s*(=[^,]+)?(,)?/;
+    function createOperatorInlineLoop(operator, operatorData){
+
+        var code = "function (";
+        var funcData = parseFunction(operator.evaluate_core);
+        code += funcData.args.join(",") + ",__xflowMax) {\n";
+        code += "    var __xflowI = __xflowMax\n" +
+            "    while(__xflowI--){\n";
+
+        var body = funcData.body;
+        body = replaceArrayAccess(body, funcData.args, operator, operatorData);
+        code += body + "\n  }\n}";
+
+        var inlineFunc = null;
+        eval("inlineFunc = " + code + ";");
+        return inlineFunc;
+    }
+
+    var c_sizes = {};
+
+    function allocateOuput(operator, inputData, operatorData){
+        if(operator.alloc){
+            var args = [c_sizes];
+            addInputToArgs(args, inputData);
+            operator.alloc.apply(operatorData, args);
+        }
+
+        for(var i in operator.outputs){
+            var d = operator.outputs[i];
+            var entry = operatorData.outputs[d.name].getDataEntry();
+
+            var size = (d.customAlloc ? c_sizes[d.name] : operatorData.iterateCount) * entry.getTupleSize();
+
+            if( !entry._value || entry._value.length != size){
+                switch(entry.type){
+                    case Xflow.DATA_TYPE.FLOAT:
+                    case Xflow.DATA_TYPE.FLOAT2:
+                    case Xflow.DATA_TYPE.FLOAT3:
+                    case Xflow.DATA_TYPE.FLOAT4:
+                    case Xflow.DATA_TYPE.FLOAT4X4: entry.setValue(new Float32Array(size)); break;
+                    case Xflow.DATA_TYPE.INT:
+                    case Xflow.DATA_TYPE.INT4:
+                    case Xflow.DATA_TYPE.BOOL: entry.setValue(new Int32Array(size)); break;
+                    default: XML3D.debug.logWarning("Could not allocate output buffer of TYPE: " + entry.type);
+                }
+            }
+            else{
+                entry.notifyChanged();
+            }
+        }
+    }
+
+    function assembleFunctionArgs(operator, inputData, operatorData){
+        var args = [];
+        for(var i in operator.outputs){
+            var d = operator.outputs[i];
+            var entry = operatorData.outputs[d.name].getDataEntry();
+            args.push(entry ? entry._value : null);
+        }
+        addInputToArgs(args, inputData);
+        return args;
+    }
+
+    function addInputToArgs(args, inputData){
+        for(var i = 0; i < inputData.length; ++i){
+            args.push(inputData[i] ? inputData[i]._value : null);
+        }
+    }
+
+    function applyDefaultOperation(operator, inputData, operatorData){
+        var args = assembleFunctionArgs(operator, inputData, operatorData);
+        args.push(operatorData);
+        operator.evaluate.apply(operatorData, args);
+    }
+
+    function applyCoreOperation(operator, inputData, operatorData){
+        var args = assembleFunctionArgs(operator, inputData, operatorData);
+        args.push(operatorData.iterateCount);
+
+        var key = operatorData.iterateKey;
+        if(!operator._inlineLoop) operator._inlineLoop = {};
+        if(!operator._inlineLoop[key]){
+            operator._inlineLoop[key] = createOperatorInlineLoop(operator, operatorData);
+        }
+        operator._inlineLoop[key].apply(operatorData, args);
+    }
+
+    DataNode.prototype._applyOperator = function(inputChannels){
+        if(!this._operatorData)
+            this._operatorData = {
+                outputs: {},
+                iterateKey: null,
+                iterFlag: {},
+                iterateCount: 0
+            }
+        var operator = Xflow.getOperator(this._computeOperator);
+        if(operator){
+
+            var inputData = [];
+            if(!checkInput(operator, this._computeInputMapping, inputChannels)){
+                return false;
+            }
+            prepareInputs(operator, this._computeInputMapping, inputChannels, inputData);
+            prepareOutputs(operator, this._operatorData.outputs);
+            var count = getIterateCount(operator, inputData, this._operatorData);
+            allocateOuput(operator, inputData, this._operatorData);
+
+            if(operator.evaluate_core){
+                applyCoreOperation(operator, inputData, this._operatorData);
+            }
+            else{
+                applyDefaultOperation(operator, inputData, this._operatorData);
+            }
+
+            this._computeOutputMapping.applyScriptOutputOnMap(inputChannels, this._operatorData.outputs);
+        }
+        return true;
+    }
+
+})();(function(){
+
+
+/**
+ * @constructor
+ * @param {Xflow.DataNode} dataNode
+ * @param {Array.<string>} filter
+ */
+var Request = function(dataNode, filter, callback){
+    this._dataNode = dataNode;
+    this._filter = filter ? filter.slice().sort() : null;
+    this._listener = callback;
+
+    this._dataNode._requests.push(this);
+};
+Xflow.Request = Request;
+
+Object.defineProperty(Request.prototype, "dataNode", {
+    set: function(v){
+       throw "dataNode is readonly"
+    },
+    get: function(){ return this._dataNode; }
+});
+
+Object.defineProperty(Request.prototype, "filter", {
+    set: function(v){
+        throw "filter is read-only"
+    },
+    get: function(){ return this._filter; }
+});
+
+/**
+ * Call this function, whenever the request is not required anymore.
+ */
+Request.prototype.clear = function(callback){
+    this._listener = null;
+    Array.erase(this._dataNode._requests, callback);
+};
+
+/**
+ * @param {Xflow.Request} request
+ * @param {Xflow.RESULT_STATE} notification
+ */
+function notifyListeners(request, notification){
+    if(request._listener)
+        request._listener(request, notification)
+};
+
+/**
+ * @param {Xflow.RESULT_STATE} notification
+ */
+Request.prototype.notify = function(notification){
+    notifyListeners(this, notification);
+}
+
+/**
+ * @constructor
+ * @extends {Xflow.Request}
+ * @param {Xflow.DataNode} dataNode
+ * @param {Array.<string>} filter
+ */
+var ComputeRequest = function(dataNode, filter, callback){
+    Xflow.Request.call(this, dataNode, filter, callback);
+};
+XML3D.createClass(ComputeRequest, Xflow.Request);
+Xflow.ComputeRequest = ComputeRequest;
+
+ComputeRequest.prototype.getResult = function(){
+    return this._dataNode._getComputeResult(this._filter);
+}
+
+})();(function(){
+
+/**
+ * @constructor
+ * @param {Xflow.DataNode} dataNode
+ * @param {Array.<string>} filter
+ */
+Xflow.Result = function(){
+    this.loading = false;
+    this.valid = false;
+    this._outputNames = [];
+    /** @type {Object.<string,DataEntry>} */
+    this._dataEntries = {};
+    this._listeners = [];
+};
+var Result = Xflow.Result;
+
+Object.defineProperty(Result.prototype, "outputNames", {
+    set: function(v){
+       throw "outputNames is readonly";
+    },
+    get: function(){ return this._outputNames; }
+});
+
+Result.prototype.getOutputData = function(name){
+    return this._dataEntries[name];
+};
+
+/**
+ * @returns {Object.<string,DataEntry>}
+ */
+Result.prototype.getOutputMap = function() {
+    return this._dataEntries;
+};
+
+
+/**
+ * @param {function(Xflow.Result, Xflow.RESULT_STATE)} callback
+ */
+Result.prototype.addListener = function(callback){
+    this._listeners.push(callback);
+};
+
+/**
+ * @param {function(Xflow.Result, Xflow.RESULT_STATE)} callback
+ */
+Result.prototype.removeListener = function(callback){
+    Array.erase(this._listeners, callback);
+};
+
+Result.prototype.notifyChanged = function(state){
+    this.valid = false;
+    for(var i = 0; i < this._listeners.length; ++i){
+        this._listeners[i].notify(this, state);
+    }
+}
+
+
+/**
+ * @constructor
+ * @extends {Xflow.Result}
+ */
+Xflow.ComputeResult = function(){
+    Xflow.Result.call(this);
+};
+XML3D.createClass(Xflow.ComputeResult, Xflow.Result);
+var ComputeResult = Xflow.ComputeResult;
+
+})();Xflow.registerOperator("morph", {
+    outputs: [{type: 'float3', name: 'result'}],
+    params:  [
+        { type: 'float3', source: 'value' },
+        { type: 'float3', source: 'valueAdd'},
+        { type: 'float', source: 'weight'}
+    ],
+    evaluate: function(result, value, valueAdd, weight, info) {
+        for(var i = 0; i < info.iterateCount; i++){
+            var w = weight[info.iterFlag[2] ? i : 0];
+            result[3*i] = value[ info.iterFlag[0] ? 3*i : 0] + w * valueAdd[info.iterFlag[1] ? 3*i : 0];
+            result[3*i+1] = value[ info.iterFlag[0] ? 3*i+1 : 1] + w * valueAdd[info.iterFlag[1] ? 3*i+1 : 1];
+            result[3*i+2] = value[ info.iterFlag[0] ? 3*i+2 : 2] + w * valueAdd[info.iterFlag[1] ? 3*i+2 : 2];
+        }
+        return true;
+    },
+    evaluate_core: function(result, value, valueAdd, weight){
+        result[0] = value[0] + weight[0] * valueAdd[0];
+        result[1] = value[1] + weight[0] * valueAdd[1];
+        result[2] = value[2] + weight[0] * valueAdd[2];
+    }
+});Xflow.registerOperator("sub", {
+    outputs: [{name: 'result', tupleSize: '3'}],
+    params:  ['value1','value2'],
+    evaluate: function(value1, value2) {
+        if(!(value1 && value2))
+            throw "Xflow::sub3: Not all parameters are set";
+
+        if(value1.length != value1.length)
+            throw "Xflow::sub3: Input arrays differ in size";
+
+        if (!this.tmp || this.tmp.length != value1.length)
+            this.tmp = new Float32Array(value1.length);
+
+        var result = this.tmp;
+        for(var i = 0; i<value1.length; i++)
+            result[i] = value1[i] - value2[i];
+
+        this.result.result = result;
+        return true;
+    }
+});Xflow.registerOperator("normalize", {
+    outputs: [  {type: 'float3', name: 'result'}],
+    params:  [  {type: 'float3', source: 'value'}],
+    evaluate: function(result, value, info) {
+        for(var i = 0; i < info.iterateCount; i++) {
+            var offset = 3*i;
+            var x = value[offset];
+            var y = value[offset+1];
+            var z = value[offset+2];
+            var l = 1.0/Math.sqrt(x*x+y*y+z*z);
+            result[offset] = x*l;
+            result[offset+1] = y*l;
+            result[offset+2] = z*l;
+        }
+    }
+});Xflow.registerOperator("lerpSeq", {
+    outputs: [  {type: 'float3', name: 'result'}],
+    params:  [  {type: 'float3', source: 'sequence'},
+                {type: 'float', source: 'key'}],
+    mapping: [  {source: 'sequence', sequence: Xflow.SEQUENCE.PREV_BUFFER, keySource: 'key'},
+                {source: 'sequence', sequence: Xflow.SEQUENCE.NEXT_BUFFER, keySource: 'key'},
+                {source: 'sequence', sequence: Xflow.SEQUENCE.LINEAR_WEIGHT, keySource: 'key'}],
+    evaluate_core: function(result, value1, value2, weight){
+        var invWeight = 1 - weight[0];
+        result[0] = invWeight*value1[0] + weight[0]*value2[0];
+        result[1] = invWeight*value1[1] + weight[0]*value2[1];
+        result[2] = invWeight*value1[2] + weight[0]*value2[2];
+    },
+    evaluate_parallel: function(sequence, weight, info) {
+        /*
+        var me = this;
+        this.result.result = sequence.interpolate(weight[0], function(v1,v2,t) {
+            if (!me.tmp || me.tmp.length != v1.length)
+                me.tmp = new Float32Array(v1.length);
+            var result = me.tmp;
+            var it = 1.0 - t;
+
+            for(var i = 0; i < v1.length; i++) {
+                result[i] = v1[i] * it + v2[i] * t;
+            };
+            return result;
+        });
+        */
+        return true;
+    }
+});Xflow.registerOperator("slerpSeq", {
+    outputs: [  {type: 'float4', name: 'result'}],
+    params:  [  {type: 'float4', source: 'sequence'},
+                {type: 'float', source: 'key'}],
+    mapping: [  {source: 'sequence', sequence: Xflow.SEQUENCE.PREV_BUFFER, keySource: 'key'},
+                {source: 'sequence', sequence: Xflow.SEQUENCE.NEXT_BUFFER, keySource: 'key'},
+                {source: 'sequence', sequence: Xflow.SEQUENCE.LINEAR_WEIGHT, keySource: 'key'}],
+    evaluate: function(result, value1, value2, weight, info) {
+        for(var i = 0; i < info.iterateCount; ++i){
+            quat4.slerpOffset(  value1,info.iterFlag[0] ? i*4 : 0,
+                                value2,info.iterFlag[1] ? i*4 : 0,
+                                weight[0],
+                                result, i*4, true);
+        }
+    },
+
+    evaluate_parallel: function(sequence, weight) {
+        /*
+        var me = this;
+        this.result.result = sequence.interpolate(weight[0], function(v1,v2,t) {
+            var count = v1.length;
+            if (!me.tmp || me.tmp.length != count)
+                me.tmp = new Float32Array(count);
+            var result = me.tmp;
+            for(var i = 0; i < count / 4; i++) {
+                var offset = i*4;
+                quat4.slerpOffset(v1,v2,offset,t,result, true);
+            };
+            return result;
+        });
+        */
+        return true;
+    }
+});Xflow.registerOperator("createTransform", {
+    outputs: [  {type: 'float4x4', name: 'result'}],
+    params:  [  {type: 'float3', source: 'translation', optional: true},
+                {type: 'float4', source: 'rotation', optional: true},
+                {type: 'float3', source: 'scale', optional: true},
+                {type: 'float3', source: 'center', optional: true},
+                {type: 'float4', source: 'scaleOrientation', optional: true}],
+    evaluate: function(result, translation,rotation,scale,center,scaleOrientation, info) {
+        for(var i = 0; i < info.iterateCount; i++) {
+            mat4.makeTransformXflow(
+                translation ? translation.subarray(info.iterFlag[0] ? i*3 : 0) : null,
+                rotation ? rotation.subarray(info.iterFlag[1] ? i*4 : 0) : null,
+                scale ? scale.subarray(info.iterFlag[2] ? i*3 : 0) : null,
+                center ? center.subarray(info.iterFlag[3] ? i*3 : 0) : null,
+                scaleOrientation ? scaleOrientation.subarray(info.iterFlag[4] ? i*4 : 0) : null,
+                result.subarray(i*16)
+            )
+        }
+        return true;
+    }
+    /*
+    evaluate_parallel: function( translation,rotation,scale,center,scaleOrientation) {
+    	 var count = translation ? translation.length / 3 :
+            rotation ? rotation.length / 4 :
+            scale ? scale.length / 3 :
+            center ? center.length / 3 :
+            scaleOrientation ? scaleOrientation / 4: 0;
+    	if(!count)
+            throw ("createTransform: No input found");
+
+        if (!this.elementalFunc) {
+	        this.elementalFunc = function(index, translation,rotation) {
+	            var off4 = index * 4;
+	            var off3 = index * 3;
+	            var dest = [1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1];
+
+	            //Translation
+	            dest[12] = translation[off3+0];
+	            dest[13] = translation[off3+1];
+	            dest[14] = translation[off3+2];
+
+	            //Rotation to matrix
+	            var x = rotation[off4+1], y = rotation[off4+2], z = rotation[off4+3], w = -rotation[off4];
+
+	            var x2 = x + x;
+	            var y2 = y + y;
+	            var z2 = z + z;
+
+	            var xx = x*x2;
+	            var xy = x*y2;
+	            var xz = x*z2;
+
+	            var yy = y*y2;
+	            var yz = y*z2;
+	            var zz = z*z2;
+
+	            var wx = w*x2;
+	            var wy = w*y2;
+	            var wz = w*z2;
+
+	            var rotMat = [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,1];
+	            rotMat[0] = 1 - (yy + zz);
+	            rotMat[1] = xy - wz;
+	            rotMat[2] = xz + wy;
+	            rotMat[3] = 0;
+
+	            rotMat[4] = xy + wz;
+	            rotMat[5] = 1 - (xx + zz);
+	            rotMat[6] = yz - wx;
+	            rotMat[7] = 0;
+
+	            rotMat[8] = xz - wy;
+	            rotMat[9] = yz + wx;
+	            rotMat[10] = 1 - (xx + yy);
+	            rotMat[11] = 0;
+
+	            //Combine translation and rotation (is the kernel faster if we cache the matrix values?)
+	            var a00 = dest[0], a01 = dest[1], a02 = dest[2], a03 = dest[3];
+	            var a10 = dest[4], a11 = dest[5], a12 = dest[6], a13 = dest[7];
+	            var a20 = dest[8], a21 = dest[9], a22 = dest[10], a23 = dest[11];
+	            var a30 = dest[12], a31 = dest[13], a32 = dest[14], a33 = dest[15];
+
+	            var b00 = rotMat[0], b01 = rotMat[1], b02 = rotMat[2], b03 = rotMat[3];
+	            var b10 = rotMat[4], b11 = rotMat[5], b12 = rotMat[6], b13 = rotMat[7];
+	            var b20 = rotMat[8], b21 = rotMat[9], b22 = rotMat[10], b23 = rotMat[11];
+	            var b30 = rotMat[12], b31 = rotMat[13], b32 = rotMat[14], b33 = rotMat[15];
+
+	            dest[0] = b00*a00 + b01*a10 + b02*a20 + b03*a30;
+	            dest[1] = b00*a01 + b01*a11 + b02*a21 + b03*a31;
+	            dest[2] = b00*a02 + b01*a12 + b02*a22 + b03*a32;
+	            dest[3] = b00*a03 + b01*a13 + b02*a23 + b03*a33;
+	            dest[4] = b10*a00 + b11*a10 + b12*a20 + b13*a30;
+	            dest[5] = b10*a01 + b11*a11 + b12*a21 + b13*a31;
+	            dest[6] = b10*a02 + b11*a12 + b12*a22 + b13*a32;
+	            dest[7] = b10*a03 + b11*a13 + b12*a23 + b13*a33;
+	            dest[8] = b20*a00 + b21*a10 + b22*a20 + b23*a30;
+	            dest[9] = b20*a01 + b21*a11 + b22*a21 + b23*a31;
+	            dest[10] = b20*a02 + b21*a12 + b22*a22 + b23*a32;
+	            dest[11] = b20*a03 + b21*a13 + b22*a23 + b23*a33;
+	            dest[12] = b30*a00 + b31*a10 + b32*a20 + b33*a30;
+	            dest[13] = b30*a01 + b31*a11 + b32*a21 + b33*a31;
+	            dest[14] = b30*a02 + b31*a12 + b32*a22 + b33*a32;
+	            dest[15] = b30*a03 + b31*a13 + b32*a23 + b33*a33;
+
+	            return dest;
+	        };
+        }
+
+        var tmp = new ParallelArray(
+                count,
+                this.elementalFunc,
+                translation,
+                rotation
+        );
+        this.result.result = tmp.flatten();
+
+        return true;
+    }
+     */
+});Xflow.registerOperator("createTransformInv", {
+    outputs: [  {type: 'float4x4', name: 'result'}],
+    params:  [  {type: 'float3', source: 'translation', optional: true},
+                {type: 'float4', source: 'rotation', optional: true},
+                {type: 'float3', source: 'scale', optional: true},
+                {type: 'float3', source: 'center', optional: true},
+                {type: 'float4', source: 'scaleOrientation', optional: true}],
+    evaluate: function(result, translation,rotation,scale,center,scaleOrientation, info) {
+        for(var i = 0; i < info.iterateCount; i++) {
+            mat4.makeTransformInvXflow(
+                translation ? translation.subarray(info.iterFlag[0] ? i*3 : 0) : null,
+                rotation ? rotation.subarray(info.iterFlag[1] ? i*4 : 0) : null,
+                scale ? scale.subarray(info.iterFlag[2] ? i*3 : 0) : null,
+                center ? center.subarray(info.iterFlag[3] ? i*3 : 0) : null,
+                scaleOrientation ? scaleOrientation.subarray(info.iterFlag[4] ? i*4 : 0) : null,
+                result.subarray(i*16)
+            )
+        }
+    },
+    evaluate_parallel: function( translation,rotation,scale,center,scaleOrientation) {
+
+        //this.parallel_data = new ParallelArray(result).partition(16);
+        /*
+    	var count = translation ? translation.length / 3 :
+            rotation ? rotation.length / 4 :
+            scale ? scale.length / 3 :
+            center ? center.length / 3 :
+            scaleOrientation ? scaleOrientation / 4: 0;
+    	if(!count)
+            throw ("createTransform: No input found");
+
+        if (!this.elementalFunc) {
+	        this.elementalFunc = function(index, translation,rotation) {
+	            var off4 = index * 4;
+	            var off3 = index * 3;
+	            var dest = [1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1];
+
+	            //Translation
+	            dest[12] = translation[off3+0];
+	            dest[13] = translation[off3+1];
+	            dest[14] = translation[off3+2];
+
+	            //Rotation to matrix
+	            var x = rotation[off4+1], y = rotation[off4+2], z = rotation[off4+3], w = -rotation[off4];
+
+	            var x2 = x + x;
+	            var y2 = y + y;
+	            var z2 = z + z;
+
+	            var xx = x*x2;
+	            var xy = x*y2;
+	            var xz = x*z2;
+
+	            var yy = y*y2;
+	            var yz = y*z2;
+	            var zz = z*z2;
+
+	            var wx = w*x2;
+	            var wy = w*y2;
+	            var wz = w*z2;
+
+	            var rotMat = [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,1];
+	            rotMat[0] = 1 - (yy + zz);
+	            rotMat[1] = xy - wz;
+	            rotMat[2] = xz + wy;
+	            rotMat[3] = 0;
+
+	            rotMat[4] = xy + wz;
+	            rotMat[5] = 1 - (xx + zz);
+	            rotMat[6] = yz - wx;
+	            rotMat[7] = 0;
+
+	            rotMat[8] = xz - wy;
+	            rotMat[9] = yz + wx;
+	            rotMat[10] = 1 - (xx + yy);
+	            rotMat[11] = 0;
+
+	            //Combine translation and rotation (is the kernel faster if we cache the matrix values?)
+	            var a00 = dest[0], a01 = dest[1], a02 = dest[2], a03 = dest[3];
+	            var a10 = dest[4], a11 = dest[5], a12 = dest[6], a13 = dest[7];
+	            var a20 = dest[8], a21 = dest[9], a22 = dest[10], a23 = dest[11];
+	            var a30 = dest[12], a31 = dest[13], a32 = dest[14], a33 = dest[15];
+
+	            var b00 = rotMat[0], b01 = rotMat[1], b02 = rotMat[2], b03 = rotMat[3];
+	            var b10 = rotMat[4], b11 = rotMat[5], b12 = rotMat[6], b13 = rotMat[7];
+	            var b20 = rotMat[8], b21 = rotMat[9], b22 = rotMat[10], b23 = rotMat[11];
+	            var b30 = rotMat[12], b31 = rotMat[13], b32 = rotMat[14], b33 = rotMat[15];
+
+	            dest[0] = b00*a00 + b01*a10 + b02*a20 + b03*a30;
+	            dest[1] = b00*a01 + b01*a11 + b02*a21 + b03*a31;
+	            dest[2] = b00*a02 + b01*a12 + b02*a22 + b03*a32;
+	            dest[3] = b00*a03 + b01*a13 + b02*a23 + b03*a33;
+	            dest[4] = b10*a00 + b11*a10 + b12*a20 + b13*a30;
+	            dest[5] = b10*a01 + b11*a11 + b12*a21 + b13*a31;
+	            dest[6] = b10*a02 + b11*a12 + b12*a22 + b13*a32;
+	            dest[7] = b10*a03 + b11*a13 + b12*a23 + b13*a33;
+	            dest[8] = b20*a00 + b21*a10 + b22*a20 + b23*a30;
+	            dest[9] = b20*a01 + b21*a11 + b22*a21 + b23*a31;
+	            dest[10] = b20*a02 + b21*a12 + b22*a22 + b23*a32;
+	            dest[11] = b20*a03 + b21*a13 + b22*a23 + b23*a33;
+	            dest[12] = b30*a00 + b31*a10 + b32*a20 + b33*a30;
+	            dest[13] = b30*a01 + b31*a11 + b32*a21 + b33*a31;
+	            dest[14] = b30*a02 + b31*a12 + b32*a22 + b33*a32;
+	            dest[15] = b30*a03 + b31*a13 + b32*a23 + b33*a33;
+
+	            return dest;
+	        };
+        }
+
+        var tmp = new ParallelArray(
+                count,
+                this.elementalFunc,
+                translation,
+                rotation
+        );
+        this.result.result = tmp.flatten();
+	*/
+        return true;
+    }
+});Xflow.registerOperator("mul", {
+    outputs: [  {type: 'float4x4', name: 'result'}],
+    params:  [  {type: 'float4x4', source: 'value1'},
+                {type: 'float4x4', source: 'value2'}],
+    evaluate: function(result, value1, value2, info) {
+        for(var i = 0; i < info.iterateCount; i++)
+        {
+            mat4.multiplyOffset(result, i*16,
+                value1,  info.iterFlag[0] ? i*16 : 0,
+                value2, info.iterFlag[0] ? i*16 : 0);
+        }
+    },
+
+
+
+    evaluate_parallel: function(value1, value2) {
+        /*if (!this.tmp) {
+             this.tmp = new Float32Array(value1.length);
+        }
+        var result = this.tmp;
+        var count = value1.length;
+        for(var i = 0; i < count; i++)
+        {
+            var offset = i*16;
+            mat4.multiplyOffset(result, offset, value1, offset, value2, offset);
+        }
+        //this.parallel_data = new ParallelArray(result).partition(16);
+        this.result.result = result;
+
+
+        if (!this.elementalFunc) {
+            this.elementalFunc = function(index, value1, value2) {
+                var mo = index*16;
+
+                var a00 = value2[mo+0], a01 = value2[mo+1], a02 = value2[mo+2], a03 = value2[mo+3];
+                var a10 = value2[mo+4], a11 = value2[mo+5], a12 = value2[mo+6], a13 = value2[mo+7];
+                var a20 = value2[mo+8], a21 = value2[mo+9], a22 = value2[mo+10], a23 = value2[mo+11];
+                var a30 = value2[mo+12], a31 = value2[mo+13], a32 = value2[mo+14], a33 = value2[mo+15];
+
+                var b00 = value1[mo+0], b01 = value1[mo+1], b02 = value1[mo+2], b03 = value1[mo+3];
+                var b10 = value1[mo+4], b11 = value1[mo+5], b12 = value1[mo+6], b13 = value1[mo+7];
+                var b20 = value1[mo+8], b21 = value1[mo+9], b22 = value1[mo+10], b23 = value1[mo+11];
+                var b30 = value1[mo+12], b31 = value1[mo+13], b32 = value1[mo+14], b33 = value1[mo+15];
+
+                var dest = [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0];
+                dest[0] = b00*a00 + b01*a10 + b02*a20 + b03*a30;
+                dest[1] = b00*a01 + b01*a11 + b02*a21 + b03*a31;
+                dest[2] = b00*a02 + b01*a12 + b02*a22 + b03*a32;
+                dest[3] = b00*a03 + b01*a13 + b02*a23 + b03*a33;
+                dest[4] = b10*a00 + b11*a10 + b12*a20 + b13*a30;
+                dest[5] = b10*a01 + b11*a11 + b12*a21 + b13*a31;
+                dest[6] = b10*a02 + b11*a12 + b12*a22 + b13*a32;
+                dest[7] = b10*a03 + b11*a13 + b12*a23 + b13*a33;
+                dest[8] = b20*a00 + b21*a10 + b22*a20 + b23*a30;
+                dest[9] = b20*a01 + b21*a11 + b22*a21 + b23*a31;
+                dest[10] = b20*a02 + b21*a12 + b22*a22 + b23*a32;
+                dest[11] = b20*a03 + b21*a13 + b22*a23 + b23*a33;
+                dest[12] = b30*a00 + b31*a10 + b32*a20 + b33*a30;
+                dest[13] = b30*a01 + b31*a11 + b32*a21 + b33*a31;
+                dest[14] = b30*a02 + b31*a12 + b32*a22 + b33*a32;
+                dest[15] = b30*a03 + b31*a13 + b32*a23 + b33*a33;
+                return dest;
+            };
+        }
+
+        var numMatrices = value1.length/16;
+
+        var tmp = new ParallelArray(
+                numMatrices,
+                this.elementalFunc,
+                value1,
+                value2
+        );
+
+        this.result.result = tmp.flatten();
+         */
+        return true;
+    }
+});Xflow.registerOperator("skinDirection", {
+    outputs: [  {type: 'float3', name: 'result' }],
+    params:  [  {type: 'float3', source: 'dir' },
+                {type: 'int4', source: 'boneIdx' },
+                {type: 'float4', source: 'boneWeight' },
+                {type: 'float4x4', source: 'boneXform', array: true } ],
+    evaluate: function(result, dir,boneIdx,boneWeight,boneXform, info) {
+        var r = vec3.create();
+        var tmp =  vec3.create();
+
+        for(var i = 0; i< info.iterateCount;++i) {
+            var offset = i*3;
+            r[0] = r[1] = r[2] = +0;
+            for(var j = 0; j < 4; j++) {
+                var weight = boneWeight[info.iterFlag[2] ? i*4+j : j];
+                if (weight) {
+                    var mo = boneIdx[info.iterFlag[1] ? i*4+j : j]*16;
+
+                    mat4.multiplyOffsetDirection(boneXform, mo, dir, offset, tmp);
+                    vec3.scale(tmp, weight);
+                    vec3.add(r, tmp);
+                }
+            }
+            vec3.normalize(r);
+            result[offset] = r[0];
+            result[offset+1] = r[1];
+            result[offset+2] = r[2];
+        }
+    },
+
+    evaluate_parallel: function(dir, boneIndex, boneWeight, boneXform) {
+        /*
+        if (!this.elementalFunc) {
+            this.elementalFunc = function(index, direction, boneIndex, boneWeight, boneXform) {
+                var r = [0,0,0];
+                var off4 = index*4;
+                var off3 = index*3;
+
+                var x = direction[off3], y = direction[off3+1], z = direction[off3+2];
+
+                for (var j=0; j < 4; j++) {
+                    var weight = boneWeight[off4+j];
+                    if (weight > 0) {
+                        var mo = boneIndex[off4+j] * 16;
+
+                        //Multiply dir with boneXform
+                        r[0] += (boneXform[mo+0]*x + boneXform[mo+4]*y + boneXform[mo+8]*z) * weight;
+                        r[1] += (boneXform[mo+1]*x + boneXform[mo+5]*y + boneXform[mo+9]*z) * weight;
+                        r[2] += (boneXform[mo+2]*x + boneXform[mo+6]*y + boneXform[mo+10]*z) * weight;
+                    }
+                }
+                return r;
+            };
+        }
+        var numVertices = dir.length / 3;
+        var result = new ParallelArray(
+                numVertices,
+                this.elementalFunc,
+                dir,
+                boneIndex,
+                boneWeight,
+                boneXform
+        );
+
+        this.result.result = result;
+        */
+        return true;
+    }
+});Xflow.registerOperator("skinPosition", {
+    outputs: [  {type: 'float3', name: 'result' }],
+    params:  [  {type: 'float3', source: 'pos' },
+                {type: 'int4', source: 'boneIdx' },
+                {type: 'float4', source: 'boneWeight' },
+                {type: 'float4x4', source: 'boneXform', array: true } ],
+    evaluate: function(result, pos,boneIdx,boneWeight,boneXform, info) {
+        var r = vec3.create();
+        var tmp =  vec3.create();
+
+        for(var i = 0; i< info.iterateCount;++i) {
+            var offset = i*3;
+            r[0] = r[1] = r[2] = +0;
+            for(var j = 0; j < 4; j++) {
+                var weight = boneWeight[info.iterFlag[2] ? i*4+j : j];
+                if (weight) {
+                    var mo = boneIdx[info.iterFlag[1] ? i*4+j : j]*16;
+
+                    mat4.multiplyOffsetVec3(boneXform, mo, pos, offset, tmp);
+                    vec3.scale(tmp, weight);
+                    vec3.add(r, tmp);
+                }
+            }
+            result[offset] = r[0];
+            result[offset+1] = r[1];
+            result[offset+2] = r[2];
+        }
+    },
+
+    evaluate_parallel: function(pos, boneIndex, boneWeight, boneXform, info) {
+        /*
+        if (!this.elementalFunc) {
+            this.elementalFunc = function(index, position, boneIndex, boneWeight, boneXform) {
+                var r = [0,0,0];
+                var off4 = index*4;
+                var off3 = index*3;
+
+                var x = position[off3], y = position[off3+1], z = position[off3+2];
+
+                for (var j=0; j < 4; j++) {
+                    var weight = boneWeight[off4+j];
+                    if (weight > 0) {
+                        var mo = boneIndex[off4+j] * 16;
+
+                        //Multiply pos with boneXform
+                        r[0] += (boneXform[mo+0]*x + boneXform[mo+4]*y + boneXform[mo+8]*z + boneXform[mo+12]) * weight;
+                        r[1] += (boneXform[mo+1]*x + boneXform[mo+5]*y + boneXform[mo+9]*z + boneXform[mo+13]) * weight;
+                        r[2] += (boneXform[mo+2]*x + boneXform[mo+6]*y + boneXform[mo+10]*z + boneXform[mo+14]) * weight;
+                    }
+                }
+                return r;
+            };
+        }
+        var numVertices = pos.length / 3;
+        var result = new ParallelArray(
+                numVertices,
+                this.elementalFunc,
+                pos,
+                boneIndex,
+                boneWeight,
+                boneXform
+        );
+
+        this.result.result = result;
+        */
+        return true;
+    }
+});Xflow.registerOperator("forwardKinematics", {
+    outputs: [  {type: 'float4x4',  name: 'result', customAlloc: true}],
+    params:  [  {type: 'int',       source: 'parent', array: true },
+                {type: 'float4x4',  source: 'xform', array: true }],
+    alloc: function(sizes, parent, xform)
+    {
+        var length = Math.min(parent.length, xform.length / 16);
+        sizes['result'] = length;
+    },
+    evaluate: function(result, parent,xform, info) {
+
+        var boneCount = result.length / 16;
+
+        var computed = [];
+        //For each bone do:
+        for(var i = 0; i < boneCount;){
+            if(!computed[i]) {
+                var p = parent[i];
+                if(p >= 0){
+                    //This bone has a parent bone
+                    if(!computed[p]){
+                        //The parent bone's transformation matrix hasn't been computed yet
+                        while(parent[p] >= 0 && !computed[parent[p]]) {
+                            //The current bone has a parent and its transform hasn't been computed yet
+                            p = parent[p];
+
+                            if(parent[p] >= 0)
+                                mat4.multiplyOffset(result, p*16, xform, p*16, result, parent[p]*16);
+                            else
+                                for(var j = 0; j < 16; j++) {
+                                    result[p*16+j] = xform[p*16+j];
+                                }
+                            computed[p] = true;
+                        }
+                    }
+                    else {
+                        mat4.multiplyOffset(result, i*16, xform, i*16, result,  p*16);
+                    }
+                }
+                else{
+                    for(var j = 0; j < 16; j++) {
+                        result[i*16+j] = xform[i*16+j];
+                    }
+                }
+                computed[i] = true;
+            }
+            i++;
+        }
+    },
+
+    evaluate_parallel: function(parent, xform) {
+
+          /*
+           if (!this.parallel_data) {
+              this.parallel_data = new ParallelArray(xform.data).partition(16);
+          }
+        var elementalFunc = function(index, parent,xform) {
+            var result = [1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1];
+            var xf = xform.get(index);
+
+            for(var j = 0; j < 16; j++) {
+                result[j] = xf.get(j);
+            }
+
+            var p = parent.get(index);
+
+            while (p[0] >= 0) {
+                //Multiply the current bone matrix with its parent
+                xf = xform.get(p[0]);
+                var a00 = xf.get(0), a01 = xf.get(1), a02 = xf.get(2), a03 = xf.get(3);
+                var a10 = xf.get(4), a11 = xf.get(5), a12 = xf.get(6), a13 = xf.get(7);
+                var a20 = xf.get(8), a21 = xf.get(9), a22 = xf.get(10), a23 = xf.get(11);
+                var a30 = xf.get(12), a31 = xf.get(13), a32 = xf.get(14), a33 = xf.get(15);
+
+                var b00 = result[0], b01 = result[1], b02 = result[2], b03 = result[3];
+                var b10 = result[4], b11 = result[5], b12 = result[6], b13 = result[7];
+                var b20 = result[8], b21 = result[9], b22 = result[10], b23 = result[11];
+                var b30 = result[12], b31 = result[13], b32 = result[14], b33 = result[15];
+
+                result[0] = b00*a00 + b01*a10 + b02*a20 + b03*a30;
+                result[1] = b00*a01 + b01*a11 + b02*a21 + b03*a31;
+                result[2] = b00*a02 + b01*a12 + b02*a22 + b03*a32;
+                result[3] = b00*a03 + b01*a13 + b02*a23 + b03*a33;
+                result[4] = b10*a00 + b11*a10 + b12*a20 + b13*a30;
+                result[5] = b10*a01 + b11*a11 + b12*a21 + b13*a31;
+                result[6] = b10*a02 + b11*a12 + b12*a22 + b13*a32;
+                result[7] = b10*a03 + b11*a13 + b12*a23 + b13*a33;
+                result[8] = b20*a00 + b21*a10 + b22*a20 + b23*a30;
+                result[9] = b20*a01 + b21*a11 + b22*a21 + b23*a31;
+                result[10] = b20*a02 + b21*a12 + b22*a22 + b23*a32;
+                result[11] = b20*a03 + b21*a13 + b22*a23 + b23*a33;
+                result[12] = b30*a00 + b31*a10 + b32*a20 + b33*a30;
+                result[13] = b30*a01 + b31*a11 + b32*a21 + b33*a31;
+                result[14] = b30*a02 + b31*a12 + b32*a22 + b33*a32;
+                result[15] = b30*a03 + b31*a13 + b32*a23 + b33*a33;
+                p = parent.get(p[0]);
+            }
+
+            return result;
+        };
+
+        this.parallel_data = this.parallel_data.combine(
+                1,
+                low_precision(elementalFunc),
+                parent,
+                xform
+        );
+        this.result.result = this.parallel_data;
+        */
+
+        return true;
+    }
+});Xflow.registerOperator("forwardKinematicsInv", {
+    outputs: [  {type: 'float4x4',  name: 'result', customAlloc: true}],
+    params:  [  {type: 'int',       source: 'parent', array: true },
+                {type: 'float4x4',  source: 'xform', array: true }],
+    alloc: function(sizes, parent, xform)
+    {
+        var length = Math.min(parent.length, xform.length / 16);
+        sizes['result'] = length;
+    },
+    evaluate: function(result, parent,xform, info) {
+        var boneCount = xform.length / 16;
+
+        var computed = [];
+        //For each bone do:
+        for(var i = 0; i < boneCount;){
+            if(!computed[i]) {
+                var p = parent[i];
+                if(p >= 0){
+                    //This bone has a parent bone
+                    if(!computed[p]){
+                        //The parent bone's transformation matrix hasn't been computed yet
+                        while(parent[p] >= 0 && !computed[parent[p]]) {
+                            //The current bone has a parent and its transform hasn't been computed yet
+                            p = parent[p];
+
+                            if(parent[p] >= 0)
+                                mat4.multiplyOffset(result, p*16, result, parent[p]*16, xform, p*16);
+                            else
+                                for(var j = 0; j < 16; j++) {
+                                    result[p*16+j] = xform[p*16+j];
+                                }
+                            computed[p] = true;
+                        }
+                    }
+                    else {
+                        mat4.multiplyOffset(result, i*16,  result,  p*16, xform, i*16);
+                    }
+                }
+                else{
+                    for(var j = 0; j < 16; j++) {
+                        result[i*16+j] = xform[i*16+j];
+                    }
+                }
+                computed[i] = true;
+            }
+            i++;
+        }
+    }
+});Xflow.registerOperator("flipNormal", {
+    outputs: [  {type: 'float3', name: 'result'}],
+    params:  [  {type: 'float3', source: 'value'}],
+    evaluate: function(result, value, info) {
+        for(var i = 0; i<info.iterateCount*3; i++)
+            result[i] = -value[i];
+    }
+});// Additional methods in glMatrix style
+
+
+vec3.reciprocal = function(vec, dest) {
+    if(!dest) { dest = vec; }
+
+    dest[0] = 1 / vec[0];
+    dest[1] = 1 / vec[1];
+    dest[2] = 1 / vec[2];
+    return dest;
+};
+
+mat4.multiplyOffsetVec3 = function(mat, matOffset, vec, vecOffset, dest) {
+    if(!dest) { dest = vec; }
+    if(!vecOffset) { vecOffset = 0; }
+
+    var x = vec[vecOffset+0], y = vec[vecOffset+1], z = vec[vecOffset+2];
+
+    dest[0] = mat[matOffset+0]*x + mat[matOffset+4]*y + mat[matOffset+8]*z + mat[matOffset+12];
+    dest[1] = mat[matOffset+1]*x + mat[matOffset+5]*y + mat[matOffset+9]*z + mat[matOffset+13];
+    dest[2] = mat[matOffset+2]*x + mat[matOffset+6]*y + mat[matOffset+10]*z + mat[matOffset+14];
+
+    return dest;
+};
+
+
+
+mat4.multiplyOffsetDirection = function(mat, matOffset, vec, vecOffset, dest) {
+    if(!dest) { dest = vec; }
+    if(!vecOffset) { vecOffset = 0; }
+
+    var x = vec[vecOffset+0], y = vec[vecOffset+1], z = vec[vecOffset+2], w;
+
+    dest[0] = mat[matOffset+0]*x + mat[matOffset+4]*y + mat[matOffset+8]*z;
+    dest[1] = mat[matOffset+1]*x + mat[matOffset+5]*y + mat[matOffset+9]*z;
+    dest[2] = mat[matOffset+2]*x + mat[matOffset+6]*y + mat[matOffset+10]*z;
+
+    return dest;
+};
+
+var IDENT_MAT = mat4.identity(mat4.create());
+var TMP_MATRIX = mat4.create();
+var TMP_VEC = vec3.create();
+
+mat4.makeTransformXflow = function(translation,rotation,scale,center,scaleOrientation,dest){
+    mat4.identity(dest);
+    if(translation) mat4.translate(dest, translation);
+    if(center) mat4.translate(dest, center);
+    if(rotation){
+        quat4.toMat4([rotation[1],rotation[2],rotation[3],-rotation[0]], TMP_MATRIX);
+        mat4.multiply(dest, TMP_MATRIX);
+    }
+    if(scaleOrientation){
+        quat4.toMat4([scaleOrientation[1],scaleOrientation[2],scaleOrientation[3],-scaleOrientation[0]], TMP_MATRIX);
+        mat4.multiply(dest, TMP_MATRIX);
+    }
+    if(scale) mat4.scale(dest, scale);
+    if(scaleOrientation){
+        quat4.toMat4([scaleOrientation[1],scaleOrientation[2],scaleOrientation[3],scaleOrientation[0]], TMP_MATRIX);
+        mat4.multiply(dest, TMP_MATRIX);
+    }
+    if(center){
+        mat4.translate(dest, vec3.negate(center, TMP_VEC));
+    }
+};
+
+mat4.makeTransformInvXflow = function(translation,rotation,scale,center,scaleOrientation,dest){
+    mat4.identity(dest);
+    if(center){
+        mat4.translate(dest, center);
+    }
+    if(scaleOrientation){
+        quat4.toMat4([scaleOrientation[1],scaleOrientation[2],scaleOrientation[3],-scaleOrientation[0]], TMP_MATRIX);
+        mat4.multiply(dest, TMP_MATRIX);
+    }
+    if(scale) mat4.scale(dest, vec3.reciprocal(scale,TMP_VEC) );
+    if(scaleOrientation){
+        quat4.toMat4([scaleOrientation[1],scaleOrientation[2],scaleOrientation[3],scaleOrientation[0]], TMP_MATRIX);
+        mat4.multiply(dest, TMP_MATRIX);
+    }
+    if(rotation){
+        quat4.toMat4([rotation[1],rotation[2],rotation[3],rotation[0]], TMP_MATRIX);
+        mat4.multiply(dest, TMP_MATRIX);
+    }
+    if(center) mat4.translate(dest, vec3.negate(center, TMP_VEC) );
+    if(translation) mat4.translate(dest, vec3.negate(translation, TMP_VEC) );
+};
+
+/*
+mat4.makeTransformInvOffset = function(translation,rotation,scale,center,scaleOrientation,offset,dest) {
+    var mo = offset*16;
+    var vo = offset*3;
+    var qo = offset*4;
+
+    dest[mo+0] = 1;
+    dest[mo+1] = 0;
+    dest[mo+2] = 0;
+    dest[mo+3] = 0;
+    dest[mo+4] = 0;
+    dest[mo+5] = 1;
+    dest[mo+6] = 0;
+    dest[mo+7] = 0;
+    dest[mo+8] = 0;
+    dest[mo+9] = 0;
+    dest[mo+10] = 1;
+    dest[mo+11] = 0;
+    dest[mo+12] = -translation[vo];
+    dest[mo+13] = -translation[vo+1];
+    dest[mo+14] = -translation[vo+2];
+    dest[mo+15] = 1;
+
+    if (rotation) {
+        var rotM = quat4.toMat4([rotation[qo+1],rotation[qo+2],rotation[qo+3],rotation[qo]]);
+        mat4.multiplyOffset(dest, mo,  rotM, 0,  dest, mo);
+    }
+};
+
+mat4.makeTransformOffset = function(translation,rotation,scale,center,scaleOrientation,offset,dest) {
+    var mo = offset*16;
+    var vo = offset*3;
+    var qo = offset*4;
+
+    dest[mo+0] = 1;
+    dest[mo+1] = 0;
+    dest[mo+2] = 0;
+    dest[mo+3] = 0;
+    dest[mo+4] = 0;
+    dest[mo+5] = 1;
+    dest[mo+6] = 0;
+    dest[mo+7] = 0;
+    dest[mo+8] = 0;
+    dest[mo+9] = 0;
+    dest[mo+10] = 1;
+    dest[mo+11] = 0;
+    dest[mo+12] = translation[vo];
+    dest[mo+13] = translation[vo+1];
+    dest[mo+14] = translation[vo+2];
+    dest[mo+15] = 1;
+
+    if (rotation) {
+        var rotM = quat4.toMat4([rotation[qo+1],rotation[qo+2],rotation[qo+3],-rotation[qo]]);
+        mat4.multiplyOffset(dest, mo,  rotM, 0,  dest, mo);
+    }
+};
+*/
+mat4.multiplyOffset = function(dest, destOffset, mat, offset1, mat2, offset2) {
+    var a00 = mat2[offset2+0], a01 = mat2[offset2+1], a02 = mat2[offset2+2], a03 = mat2[offset2+3];
+    var a10 = mat2[offset2+4], a11 = mat2[offset2+5], a12 = mat2[offset2+6], a13 = mat2[offset2+7];
+    var a20 = mat2[offset2+8], a21 = mat2[offset2+9], a22 = mat2[offset2+10], a23 = mat2[offset2+11];
+    var a30 = mat2[offset2+12], a31 = mat2[offset2+13], a32 = mat2[offset2+14], a33 = mat2[offset2+15];
+
+    var b00 = mat[offset1+0], b01 = mat[offset1+1], b02 = mat[offset1+2], b03 = mat[offset1+3];
+    var b10 = mat[offset1+4], b11 = mat[offset1+5], b12 = mat[offset1+6], b13 = mat[offset1+7];
+    var b20 = mat[offset1+8], b21 = mat[offset1+9], b22 = mat[offset1+10], b23 = mat[offset1+11];
+    var b30 = mat[offset1+12], b31 = mat[offset1+13], b32 = mat[offset1+14], b33 = mat[offset1+15];
+
+    dest[destOffset+0] = b00*a00 + b01*a10 + b02*a20 + b03*a30;
+    dest[destOffset+1] = b00*a01 + b01*a11 + b02*a21 + b03*a31;
+    dest[destOffset+2] = b00*a02 + b01*a12 + b02*a22 + b03*a32;
+    dest[destOffset+3] = b00*a03 + b01*a13 + b02*a23 + b03*a33;
+    dest[destOffset+4] = b10*a00 + b11*a10 + b12*a20 + b13*a30;
+    dest[destOffset+5] = b10*a01 + b11*a11 + b12*a21 + b13*a31;
+    dest[destOffset+6] = b10*a02 + b11*a12 + b12*a22 + b13*a32;
+    dest[destOffset+7] = b10*a03 + b11*a13 + b12*a23 + b13*a33;
+    dest[destOffset+8] = b20*a00 + b21*a10 + b22*a20 + b23*a30;
+    dest[destOffset+9] = b20*a01 + b21*a11 + b22*a21 + b23*a31;
+    dest[destOffset+10] = b20*a02 + b21*a12 + b22*a22 + b23*a32;
+    dest[destOffset+11] = b20*a03 + b21*a13 + b22*a23 + b23*a33;
+    dest[destOffset+12] = b30*a00 + b31*a10 + b32*a20 + b33*a30;
+    dest[destOffset+13] = b30*a01 + b31*a11 + b32*a21 + b33*a31;
+    dest[destOffset+14] = b30*a02 + b31*a12 + b32*a22 + b33*a32;
+    dest[destOffset+15] = b30*a03 + b31*a13 + b32*a23 + b33*a33;
+};
+
+quat4.slerpOffset = function(quat, offset1, quat2, offset2, t, dest, destOffset, shortest) {
+    if(!dest) { dest = quat; }
+
+    var ix1 = offset1, iy1 = offset1+1, iz1 = offset1+2, iw1 = offset1+3;
+    var ix2 = offset2, iy2 = offset2+1, iz2 = offset2+2, iw2 = offset2+3;
+    var ixd = destOffset, iyd = destOffset+1, izd = destOffset+2, iwd = destOffset+3;
+
+    var cosAngle =  quat[ix1]*quat2[ix2] + quat[iy1]*quat2[iy2] + quat[iz1]*quat2[iz2] + quat[iw1]*quat2[iw2];
+
+    var c1, c2;
+
+    // Linear interpolation for close orientations
+    if ((1.0 - Math.abs(cosAngle)) < 0.01)
+      {
+        c1 = 1.0 - t;
+        c2 = t;
+      }
+    else
+      {
+        // Spherical interpolation
+        var angle    = Math.acos(Math.abs(cosAngle));
+        var sinAngle = Math.sin(angle);
+        c1 = Math.sin(angle * (1.0 - t)) / sinAngle;
+        c2 = Math.sin(angle * t) / sinAngle;
+      }
+
+    // Use the shortest path
+    if (shortest && (cosAngle < 0.0))
+      c1 = -c1;
+
+    dest[ixd] = c1*quat[ix1] + c2*quat2[ix2];
+    dest[iyd] = c1*quat[iy1] + c2*quat2[iy2];
+    dest[izd] = c1*quat[iz1] + c2*quat2[iz2];
+    dest[iwd] = c1*quat[iw1] + c2*quat2[iw2];
+};
+XML3D.data = {
+    toString : function() {
+        return "data";
+    }
+};
 XML3D.data = XML3D.data || {};
 
 (function() {
@@ -13607,949 +14557,4 @@ XML3D.shaders.register("pickedNormals", {
     ].join("\n"),
 
     uniforms : {}
-});Xflow.registerOperator("morph", {
-    outputs: [{type: 'float3', name: 'result'}],
-    params:  [
-        { type: 'float3', source: 'value' },
-        { type: 'float3', source: 'valueAdd'},
-        { type: 'float', source: 'weight'}
-    ],
-    evaluate: function(result, value, valueAdd, weight, info) {
-        for(var i = 0; i < info.iterateCount; i++){
-            var w = weight[info.iterFlag[2] ? i : 0];
-            result[3*i] = value[ info.iterFlag[0] ? 3*i : 0] + w * valueAdd[info.iterFlag[1] ? 3*i : 0];
-            result[3*i+1] = value[ info.iterFlag[0] ? 3*i+1 : 1] + w * valueAdd[info.iterFlag[1] ? 3*i+1 : 1];
-            result[3*i+2] = value[ info.iterFlag[0] ? 3*i+2 : 2] + w * valueAdd[info.iterFlag[1] ? 3*i+2 : 2];
-        }
-        return true;
-    },
-    evaluate_core: function(result, value, valueAdd, weight){
-        result[0] = value[0] + weight[0] * valueAdd[0];
-        result[1] = value[1] + weight[0] * valueAdd[1];
-        result[2] = value[2] + weight[0] * valueAdd[2];
-    }
-});Xflow.registerOperator("sub", {
-    outputs: [{name: 'result', tupleSize: '3'}],
-    params:  ['value1','value2'],
-    evaluate: function(value1, value2) {
-        if(!(value1 && value2))
-            throw "Xflow::sub3: Not all parameters are set";
-
-        if(value1.length != value1.length)
-            throw "Xflow::sub3: Input arrays differ in size";
-
-        if (!this.tmp || this.tmp.length != value1.length)
-            this.tmp = new Float32Array(value1.length);
-
-        var result = this.tmp;
-        for(var i = 0; i<value1.length; i++)
-            result[i] = value1[i] - value2[i];
-
-        this.result.result = result;
-        return true;
-    }
-});Xflow.registerOperator("normalize", {
-    outputs: [  {type: 'float3', name: 'result'}],
-    params:  [  {type: 'float3', source: 'value'}],
-    evaluate: function(result, value, info) {
-        for(var i = 0; i < info.iterateCount; i++) {
-            var offset = 3*i;
-            var x = value[offset];
-            var y = value[offset+1];
-            var z = value[offset+2];
-            var l = 1.0/Math.sqrt(x*x+y*y+z*z);
-            result[offset] = x*l;
-            result[offset+1] = y*l;
-            result[offset+2] = z*l;
-        }
-    }
-});Xflow.registerOperator("lerpSeq", {
-    outputs: [  {type: 'float3', name: 'result'}],
-    params:  [  {type: 'float3', source: 'sequence'},
-                {type: 'float', source: 'key'}],
-    mapping: [  {source: 'sequence', sequence: Xflow.SEQUENCE.PREV_BUFFER, keySource: 'key'},
-                {source: 'sequence', sequence: Xflow.SEQUENCE.NEXT_BUFFER, keySource: 'key'},
-                {source: 'sequence', sequence: Xflow.SEQUENCE.LINEAR_WEIGHT, keySource: 'key'}],
-    evaluate_core: function(result, value1, value2, weight){
-        var invWeight = 1 - weight[0];
-        result[0] = invWeight*value1[0] + weight[0]*value2[0];
-        result[1] = invWeight*value1[1] + weight[0]*value2[1];
-        result[2] = invWeight*value1[2] + weight[0]*value2[2];
-    },
-    evaluate_parallel: function(sequence, weight, info) {
-        /*
-        var me = this;
-        this.result.result = sequence.interpolate(weight[0], function(v1,v2,t) {
-            if (!me.tmp || me.tmp.length != v1.length)
-                me.tmp = new Float32Array(v1.length);
-            var result = me.tmp;
-            var it = 1.0 - t;
-
-            for(var i = 0; i < v1.length; i++) {
-                result[i] = v1[i] * it + v2[i] * t;
-            };
-            return result;
-        });
-        */
-        return true;
-    }
-});Xflow.registerOperator("slerpSeq", {
-    outputs: [  {type: 'float4', name: 'result'}],
-    params:  [  {type: 'float4', source: 'sequence'},
-                {type: 'float', source: 'key'}],
-    mapping: [  {source: 'sequence', sequence: Xflow.SEQUENCE.PREV_BUFFER, keySource: 'key'},
-                {source: 'sequence', sequence: Xflow.SEQUENCE.NEXT_BUFFER, keySource: 'key'},
-                {source: 'sequence', sequence: Xflow.SEQUENCE.LINEAR_WEIGHT, keySource: 'key'}],
-    evaluate: function(result, value1, value2, weight, info) {
-        for(var i = 0; i < info.iterateCount; ++i){
-            quat4.slerpOffset(  value1,info.iterFlag[0] ? i*4 : 0,
-                                value2,info.iterFlag[1] ? i*4 : 0,
-                                weight[0],
-                                result, i*4, true);
-        }
-    },
-
-    evaluate_parallel: function(sequence, weight) {
-        /*
-        var me = this;
-        this.result.result = sequence.interpolate(weight[0], function(v1,v2,t) {
-            var count = v1.length;
-            if (!me.tmp || me.tmp.length != count)
-                me.tmp = new Float32Array(count);
-            var result = me.tmp;
-            for(var i = 0; i < count / 4; i++) {
-                var offset = i*4;
-                quat4.slerpOffset(v1,v2,offset,t,result, true);
-            };
-            return result;
-        });
-        */
-        return true;
-    }
-});Xflow.registerOperator("createTransform", {
-    outputs: [  {type: 'float4x4', name: 'result'}],
-    params:  [  {type: 'float3', source: 'translation', optional: true},
-                {type: 'float4', source: 'rotation', optional: true},
-                {type: 'float3', source: 'scale', optional: true},
-                {type: 'float3', source: 'center', optional: true},
-                {type: 'float4', source: 'scaleOrientation', optional: true}],
-    evaluate: function(result, translation,rotation,scale,center,scaleOrientation, info) {
-        for(var i = 0; i < info.iterateCount; i++) {
-            mat4.makeTransformXflow(
-                translation ? translation.subarray(info.iterFlag[0] ? i*3 : 0) : null,
-                rotation ? rotation.subarray(info.iterFlag[1] ? i*4 : 0) : null,
-                scale ? scale.subarray(info.iterFlag[2] ? i*3 : 0) : null,
-                center ? center.subarray(info.iterFlag[3] ? i*3 : 0) : null,
-                scaleOrientation ? scaleOrientation.subarray(info.iterFlag[4] ? i*4 : 0) : null,
-                result.subarray(i*16)
-            )
-        }
-        return true;
-    }
-    /*
-    evaluate_parallel: function( translation,rotation,scale,center,scaleOrientation) {
-    	 var count = translation ? translation.length / 3 :
-            rotation ? rotation.length / 4 :
-            scale ? scale.length / 3 :
-            center ? center.length / 3 :
-            scaleOrientation ? scaleOrientation / 4: 0;
-    	if(!count)
-            throw ("createTransform: No input found");
-
-        if (!this.elementalFunc) {
-	        this.elementalFunc = function(index, translation,rotation) {
-	            var off4 = index * 4;
-	            var off3 = index * 3;
-	            var dest = [1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1];
-
-	            //Translation
-	            dest[12] = translation[off3+0];
-	            dest[13] = translation[off3+1];
-	            dest[14] = translation[off3+2];
-
-	            //Rotation to matrix
-	            var x = rotation[off4+1], y = rotation[off4+2], z = rotation[off4+3], w = -rotation[off4];
-
-	            var x2 = x + x;
-	            var y2 = y + y;
-	            var z2 = z + z;
-
-	            var xx = x*x2;
-	            var xy = x*y2;
-	            var xz = x*z2;
-
-	            var yy = y*y2;
-	            var yz = y*z2;
-	            var zz = z*z2;
-
-	            var wx = w*x2;
-	            var wy = w*y2;
-	            var wz = w*z2;
-
-	            var rotMat = [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,1];
-	            rotMat[0] = 1 - (yy + zz);
-	            rotMat[1] = xy - wz;
-	            rotMat[2] = xz + wy;
-	            rotMat[3] = 0;
-
-	            rotMat[4] = xy + wz;
-	            rotMat[5] = 1 - (xx + zz);
-	            rotMat[6] = yz - wx;
-	            rotMat[7] = 0;
-
-	            rotMat[8] = xz - wy;
-	            rotMat[9] = yz + wx;
-	            rotMat[10] = 1 - (xx + yy);
-	            rotMat[11] = 0;
-
-	            //Combine translation and rotation (is the kernel faster if we cache the matrix values?)
-	            var a00 = dest[0], a01 = dest[1], a02 = dest[2], a03 = dest[3];
-	            var a10 = dest[4], a11 = dest[5], a12 = dest[6], a13 = dest[7];
-	            var a20 = dest[8], a21 = dest[9], a22 = dest[10], a23 = dest[11];
-	            var a30 = dest[12], a31 = dest[13], a32 = dest[14], a33 = dest[15];
-
-	            var b00 = rotMat[0], b01 = rotMat[1], b02 = rotMat[2], b03 = rotMat[3];
-	            var b10 = rotMat[4], b11 = rotMat[5], b12 = rotMat[6], b13 = rotMat[7];
-	            var b20 = rotMat[8], b21 = rotMat[9], b22 = rotMat[10], b23 = rotMat[11];
-	            var b30 = rotMat[12], b31 = rotMat[13], b32 = rotMat[14], b33 = rotMat[15];
-
-	            dest[0] = b00*a00 + b01*a10 + b02*a20 + b03*a30;
-	            dest[1] = b00*a01 + b01*a11 + b02*a21 + b03*a31;
-	            dest[2] = b00*a02 + b01*a12 + b02*a22 + b03*a32;
-	            dest[3] = b00*a03 + b01*a13 + b02*a23 + b03*a33;
-	            dest[4] = b10*a00 + b11*a10 + b12*a20 + b13*a30;
-	            dest[5] = b10*a01 + b11*a11 + b12*a21 + b13*a31;
-	            dest[6] = b10*a02 + b11*a12 + b12*a22 + b13*a32;
-	            dest[7] = b10*a03 + b11*a13 + b12*a23 + b13*a33;
-	            dest[8] = b20*a00 + b21*a10 + b22*a20 + b23*a30;
-	            dest[9] = b20*a01 + b21*a11 + b22*a21 + b23*a31;
-	            dest[10] = b20*a02 + b21*a12 + b22*a22 + b23*a32;
-	            dest[11] = b20*a03 + b21*a13 + b22*a23 + b23*a33;
-	            dest[12] = b30*a00 + b31*a10 + b32*a20 + b33*a30;
-	            dest[13] = b30*a01 + b31*a11 + b32*a21 + b33*a31;
-	            dest[14] = b30*a02 + b31*a12 + b32*a22 + b33*a32;
-	            dest[15] = b30*a03 + b31*a13 + b32*a23 + b33*a33;
-
-	            return dest;
-	        };
-        }
-
-        var tmp = new ParallelArray(
-                count,
-                this.elementalFunc,
-                translation,
-                rotation
-        );
-        this.result.result = tmp.flatten();
-
-        return true;
-    }
-     */
-});Xflow.registerOperator("createTransformInv", {
-    outputs: [  {type: 'float4x4', name: 'result'}],
-    params:  [  {type: 'float3', source: 'translation', optional: true},
-                {type: 'float4', source: 'rotation', optional: true},
-                {type: 'float3', source: 'scale', optional: true},
-                {type: 'float3', source: 'center', optional: true},
-                {type: 'float4', source: 'scaleOrientation', optional: true}],
-    evaluate: function(result, translation,rotation,scale,center,scaleOrientation, info) {
-        for(var i = 0; i < info.iterateCount; i++) {
-            mat4.makeTransformInvXflow(
-                translation ? translation.subarray(info.iterFlag[0] ? i*3 : 0) : null,
-                rotation ? rotation.subarray(info.iterFlag[1] ? i*4 : 0) : null,
-                scale ? scale.subarray(info.iterFlag[2] ? i*3 : 0) : null,
-                center ? center.subarray(info.iterFlag[3] ? i*3 : 0) : null,
-                scaleOrientation ? scaleOrientation.subarray(info.iterFlag[4] ? i*4 : 0) : null,
-                result.subarray(i*16)
-            )
-        }
-    },
-    evaluate_parallel: function( translation,rotation,scale,center,scaleOrientation) {
-
-        //this.parallel_data = new ParallelArray(result).partition(16);
-        /*
-    	var count = translation ? translation.length / 3 :
-            rotation ? rotation.length / 4 :
-            scale ? scale.length / 3 :
-            center ? center.length / 3 :
-            scaleOrientation ? scaleOrientation / 4: 0;
-    	if(!count)
-            throw ("createTransform: No input found");
-
-        if (!this.elementalFunc) {
-	        this.elementalFunc = function(index, translation,rotation) {
-	            var off4 = index * 4;
-	            var off3 = index * 3;
-	            var dest = [1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1];
-
-	            //Translation
-	            dest[12] = translation[off3+0];
-	            dest[13] = translation[off3+1];
-	            dest[14] = translation[off3+2];
-
-	            //Rotation to matrix
-	            var x = rotation[off4+1], y = rotation[off4+2], z = rotation[off4+3], w = -rotation[off4];
-
-	            var x2 = x + x;
-	            var y2 = y + y;
-	            var z2 = z + z;
-
-	            var xx = x*x2;
-	            var xy = x*y2;
-	            var xz = x*z2;
-
-	            var yy = y*y2;
-	            var yz = y*z2;
-	            var zz = z*z2;
-
-	            var wx = w*x2;
-	            var wy = w*y2;
-	            var wz = w*z2;
-
-	            var rotMat = [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,1];
-	            rotMat[0] = 1 - (yy + zz);
-	            rotMat[1] = xy - wz;
-	            rotMat[2] = xz + wy;
-	            rotMat[3] = 0;
-
-	            rotMat[4] = xy + wz;
-	            rotMat[5] = 1 - (xx + zz);
-	            rotMat[6] = yz - wx;
-	            rotMat[7] = 0;
-
-	            rotMat[8] = xz - wy;
-	            rotMat[9] = yz + wx;
-	            rotMat[10] = 1 - (xx + yy);
-	            rotMat[11] = 0;
-
-	            //Combine translation and rotation (is the kernel faster if we cache the matrix values?)
-	            var a00 = dest[0], a01 = dest[1], a02 = dest[2], a03 = dest[3];
-	            var a10 = dest[4], a11 = dest[5], a12 = dest[6], a13 = dest[7];
-	            var a20 = dest[8], a21 = dest[9], a22 = dest[10], a23 = dest[11];
-	            var a30 = dest[12], a31 = dest[13], a32 = dest[14], a33 = dest[15];
-
-	            var b00 = rotMat[0], b01 = rotMat[1], b02 = rotMat[2], b03 = rotMat[3];
-	            var b10 = rotMat[4], b11 = rotMat[5], b12 = rotMat[6], b13 = rotMat[7];
-	            var b20 = rotMat[8], b21 = rotMat[9], b22 = rotMat[10], b23 = rotMat[11];
-	            var b30 = rotMat[12], b31 = rotMat[13], b32 = rotMat[14], b33 = rotMat[15];
-
-	            dest[0] = b00*a00 + b01*a10 + b02*a20 + b03*a30;
-	            dest[1] = b00*a01 + b01*a11 + b02*a21 + b03*a31;
-	            dest[2] = b00*a02 + b01*a12 + b02*a22 + b03*a32;
-	            dest[3] = b00*a03 + b01*a13 + b02*a23 + b03*a33;
-	            dest[4] = b10*a00 + b11*a10 + b12*a20 + b13*a30;
-	            dest[5] = b10*a01 + b11*a11 + b12*a21 + b13*a31;
-	            dest[6] = b10*a02 + b11*a12 + b12*a22 + b13*a32;
-	            dest[7] = b10*a03 + b11*a13 + b12*a23 + b13*a33;
-	            dest[8] = b20*a00 + b21*a10 + b22*a20 + b23*a30;
-	            dest[9] = b20*a01 + b21*a11 + b22*a21 + b23*a31;
-	            dest[10] = b20*a02 + b21*a12 + b22*a22 + b23*a32;
-	            dest[11] = b20*a03 + b21*a13 + b22*a23 + b23*a33;
-	            dest[12] = b30*a00 + b31*a10 + b32*a20 + b33*a30;
-	            dest[13] = b30*a01 + b31*a11 + b32*a21 + b33*a31;
-	            dest[14] = b30*a02 + b31*a12 + b32*a22 + b33*a32;
-	            dest[15] = b30*a03 + b31*a13 + b32*a23 + b33*a33;
-
-	            return dest;
-	        };
-        }
-
-        var tmp = new ParallelArray(
-                count,
-                this.elementalFunc,
-                translation,
-                rotation
-        );
-        this.result.result = tmp.flatten();
-	*/
-        return true;
-    }
-});Xflow.registerOperator("mul", {
-    outputs: [  {type: 'float4x4', name: 'result'}],
-    params:  [  {type: 'float4x4', source: 'value1'},
-                {type: 'float4x4', source: 'value2'}],
-    evaluate: function(result, value1, value2, info) {
-        for(var i = 0; i < info.iterateCount; i++)
-        {
-            mat4.multiplyOffset(result, i*16,
-                value1,  info.iterFlag[0] ? i*16 : 0,
-                value2, info.iterFlag[0] ? i*16 : 0);
-        }
-    },
-
-
-
-    evaluate_parallel: function(value1, value2) {
-        /*if (!this.tmp) {
-             this.tmp = new Float32Array(value1.length);
-        }
-        var result = this.tmp;
-        var count = value1.length;
-        for(var i = 0; i < count; i++)
-        {
-            var offset = i*16;
-            mat4.multiplyOffset(result, offset, value1, offset, value2, offset);
-        }
-        //this.parallel_data = new ParallelArray(result).partition(16);
-        this.result.result = result;
-
-
-        if (!this.elementalFunc) {
-            this.elementalFunc = function(index, value1, value2) {
-                var mo = index*16;
-
-                var a00 = value2[mo+0], a01 = value2[mo+1], a02 = value2[mo+2], a03 = value2[mo+3];
-                var a10 = value2[mo+4], a11 = value2[mo+5], a12 = value2[mo+6], a13 = value2[mo+7];
-                var a20 = value2[mo+8], a21 = value2[mo+9], a22 = value2[mo+10], a23 = value2[mo+11];
-                var a30 = value2[mo+12], a31 = value2[mo+13], a32 = value2[mo+14], a33 = value2[mo+15];
-
-                var b00 = value1[mo+0], b01 = value1[mo+1], b02 = value1[mo+2], b03 = value1[mo+3];
-                var b10 = value1[mo+4], b11 = value1[mo+5], b12 = value1[mo+6], b13 = value1[mo+7];
-                var b20 = value1[mo+8], b21 = value1[mo+9], b22 = value1[mo+10], b23 = value1[mo+11];
-                var b30 = value1[mo+12], b31 = value1[mo+13], b32 = value1[mo+14], b33 = value1[mo+15];
-
-                var dest = [0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0];
-                dest[0] = b00*a00 + b01*a10 + b02*a20 + b03*a30;
-                dest[1] = b00*a01 + b01*a11 + b02*a21 + b03*a31;
-                dest[2] = b00*a02 + b01*a12 + b02*a22 + b03*a32;
-                dest[3] = b00*a03 + b01*a13 + b02*a23 + b03*a33;
-                dest[4] = b10*a00 + b11*a10 + b12*a20 + b13*a30;
-                dest[5] = b10*a01 + b11*a11 + b12*a21 + b13*a31;
-                dest[6] = b10*a02 + b11*a12 + b12*a22 + b13*a32;
-                dest[7] = b10*a03 + b11*a13 + b12*a23 + b13*a33;
-                dest[8] = b20*a00 + b21*a10 + b22*a20 + b23*a30;
-                dest[9] = b20*a01 + b21*a11 + b22*a21 + b23*a31;
-                dest[10] = b20*a02 + b21*a12 + b22*a22 + b23*a32;
-                dest[11] = b20*a03 + b21*a13 + b22*a23 + b23*a33;
-                dest[12] = b30*a00 + b31*a10 + b32*a20 + b33*a30;
-                dest[13] = b30*a01 + b31*a11 + b32*a21 + b33*a31;
-                dest[14] = b30*a02 + b31*a12 + b32*a22 + b33*a32;
-                dest[15] = b30*a03 + b31*a13 + b32*a23 + b33*a33;
-                return dest;
-            };
-        }
-
-        var numMatrices = value1.length/16;
-
-        var tmp = new ParallelArray(
-                numMatrices,
-                this.elementalFunc,
-                value1,
-                value2
-        );
-
-        this.result.result = tmp.flatten();
-         */
-        return true;
-    }
-});Xflow.registerOperator("skinDirection", {
-    outputs: [  {type: 'float3', name: 'result' }],
-    params:  [  {type: 'float3', source: 'dir' },
-                {type: 'int4', source: 'boneIdx' },
-                {type: 'float4', source: 'boneWeight' },
-                {type: 'float4x4', source: 'boneXform', array: true } ],
-    evaluate: function(result, dir,boneIdx,boneWeight,boneXform, info) {
-        var r = vec3.create();
-        var tmp =  vec3.create();
-
-        for(var i = 0; i< info.iterateCount;++i) {
-            var offset = i*3;
-            r[0] = r[1] = r[2] = +0;
-            for(var j = 0; j < 4; j++) {
-                var weight = boneWeight[info.iterFlag[2] ? i*4+j : j];
-                if (weight) {
-                    var mo = boneIdx[info.iterFlag[1] ? i*4+j : j]*16;
-
-                    mat4.multiplyOffsetDirection(boneXform, mo, dir, offset, tmp);
-                    vec3.scale(tmp, weight);
-                    vec3.add(r, tmp);
-                }
-            }
-            vec3.normalize(r);
-            result[offset] = r[0];
-            result[offset+1] = r[1];
-            result[offset+2] = r[2];
-        }
-    },
-
-    evaluate_parallel: function(dir, boneIndex, boneWeight, boneXform) {
-        /*
-        if (!this.elementalFunc) {
-            this.elementalFunc = function(index, direction, boneIndex, boneWeight, boneXform) {
-                var r = [0,0,0];
-                var off4 = index*4;
-                var off3 = index*3;
-
-                var x = direction[off3], y = direction[off3+1], z = direction[off3+2];
-
-                for (var j=0; j < 4; j++) {
-                    var weight = boneWeight[off4+j];
-                    if (weight > 0) {
-                        var mo = boneIndex[off4+j] * 16;
-
-                        //Multiply dir with boneXform
-                        r[0] += (boneXform[mo+0]*x + boneXform[mo+4]*y + boneXform[mo+8]*z) * weight;
-                        r[1] += (boneXform[mo+1]*x + boneXform[mo+5]*y + boneXform[mo+9]*z) * weight;
-                        r[2] += (boneXform[mo+2]*x + boneXform[mo+6]*y + boneXform[mo+10]*z) * weight;
-                    }
-                }
-                return r;
-            };
-        }
-        var numVertices = dir.length / 3;
-        var result = new ParallelArray(
-                numVertices,
-                this.elementalFunc,
-                dir,
-                boneIndex,
-                boneWeight,
-                boneXform
-        );
-
-        this.result.result = result;
-        */
-        return true;
-    }
-});Xflow.registerOperator("skinPosition", {
-    outputs: [  {type: 'float3', name: 'result' }],
-    params:  [  {type: 'float3', source: 'pos' },
-                {type: 'int4', source: 'boneIdx' },
-                {type: 'float4', source: 'boneWeight' },
-                {type: 'float4x4', source: 'boneXform', array: true } ],
-    evaluate: function(result, pos,boneIdx,boneWeight,boneXform, info) {
-        var r = vec3.create();
-        var tmp =  vec3.create();
-
-        for(var i = 0; i< info.iterateCount;++i) {
-            var offset = i*3;
-            r[0] = r[1] = r[2] = +0;
-            for(var j = 0; j < 4; j++) {
-                var weight = boneWeight[info.iterFlag[2] ? i*4+j : j];
-                if (weight) {
-                    var mo = boneIdx[info.iterFlag[1] ? i*4+j : j]*16;
-
-                    mat4.multiplyOffsetVec3(boneXform, mo, pos, offset, tmp);
-                    vec3.scale(tmp, weight);
-                    vec3.add(r, tmp);
-                }
-            }
-            result[offset] = r[0];
-            result[offset+1] = r[1];
-            result[offset+2] = r[2];
-        }
-    },
-
-    evaluate_parallel: function(pos, boneIndex, boneWeight, boneXform, info) {
-        /*
-        if (!this.elementalFunc) {
-            this.elementalFunc = function(index, position, boneIndex, boneWeight, boneXform) {
-                var r = [0,0,0];
-                var off4 = index*4;
-                var off3 = index*3;
-
-                var x = position[off3], y = position[off3+1], z = position[off3+2];
-
-                for (var j=0; j < 4; j++) {
-                    var weight = boneWeight[off4+j];
-                    if (weight > 0) {
-                        var mo = boneIndex[off4+j] * 16;
-
-                        //Multiply pos with boneXform
-                        r[0] += (boneXform[mo+0]*x + boneXform[mo+4]*y + boneXform[mo+8]*z + boneXform[mo+12]) * weight;
-                        r[1] += (boneXform[mo+1]*x + boneXform[mo+5]*y + boneXform[mo+9]*z + boneXform[mo+13]) * weight;
-                        r[2] += (boneXform[mo+2]*x + boneXform[mo+6]*y + boneXform[mo+10]*z + boneXform[mo+14]) * weight;
-                    }
-                }
-                return r;
-            };
-        }
-        var numVertices = pos.length / 3;
-        var result = new ParallelArray(
-                numVertices,
-                this.elementalFunc,
-                pos,
-                boneIndex,
-                boneWeight,
-                boneXform
-        );
-
-        this.result.result = result;
-        */
-        return true;
-    }
-});Xflow.registerOperator("forwardKinematics", {
-    outputs: [  {type: 'float4x4',  name: 'result', customAlloc: true}],
-    params:  [  {type: 'int',       source: 'parent', array: true },
-                {type: 'float4x4',  source: 'xform', array: true }],
-    alloc: function(sizes, parent, xform)
-    {
-        var length = Math.min(parent.length, xform.length / 16);
-        sizes['result'] = length;
-    },
-    evaluate: function(result, parent,xform, info) {
-
-        var boneCount = result.length / 16;
-
-        var computed = [];
-        //For each bone do:
-        for(var i = 0; i < boneCount;){
-            if(!computed[i]) {
-                var p = parent[i];
-                if(p >= 0){
-                    //This bone has a parent bone
-                    if(!computed[p]){
-                        //The parent bone's transformation matrix hasn't been computed yet
-                        while(parent[p] >= 0 && !computed[parent[p]]) {
-                            //The current bone has a parent and its transform hasn't been computed yet
-                            p = parent[p];
-
-                            if(parent[p] >= 0)
-                                mat4.multiplyOffset(result, p*16, xform, p*16, result, parent[p]*16);
-                            else
-                                for(var j = 0; j < 16; j++) {
-                                    result[p*16+j] = xform[p*16+j];
-                                }
-                            computed[p] = true;
-                        }
-                    }
-                    else {
-                        mat4.multiplyOffset(result, i*16, xform, i*16, result,  p*16);
-                    }
-                }
-                else{
-                    for(var j = 0; j < 16; j++) {
-                        result[i*16+j] = xform[i*16+j];
-                    }
-                }
-                computed[i] = true;
-            }
-            i++;
-        }
-    },
-
-    evaluate_parallel: function(parent, xform) {
-
-          /*
-           if (!this.parallel_data) {
-              this.parallel_data = new ParallelArray(xform.data).partition(16);
-          }
-        var elementalFunc = function(index, parent,xform) {
-            var result = [1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1];
-            var xf = xform.get(index);
-
-            for(var j = 0; j < 16; j++) {
-                result[j] = xf.get(j);
-            }
-
-            var p = parent.get(index);
-
-            while (p[0] >= 0) {
-                //Multiply the current bone matrix with its parent
-                xf = xform.get(p[0]);
-                var a00 = xf.get(0), a01 = xf.get(1), a02 = xf.get(2), a03 = xf.get(3);
-                var a10 = xf.get(4), a11 = xf.get(5), a12 = xf.get(6), a13 = xf.get(7);
-                var a20 = xf.get(8), a21 = xf.get(9), a22 = xf.get(10), a23 = xf.get(11);
-                var a30 = xf.get(12), a31 = xf.get(13), a32 = xf.get(14), a33 = xf.get(15);
-
-                var b00 = result[0], b01 = result[1], b02 = result[2], b03 = result[3];
-                var b10 = result[4], b11 = result[5], b12 = result[6], b13 = result[7];
-                var b20 = result[8], b21 = result[9], b22 = result[10], b23 = result[11];
-                var b30 = result[12], b31 = result[13], b32 = result[14], b33 = result[15];
-
-                result[0] = b00*a00 + b01*a10 + b02*a20 + b03*a30;
-                result[1] = b00*a01 + b01*a11 + b02*a21 + b03*a31;
-                result[2] = b00*a02 + b01*a12 + b02*a22 + b03*a32;
-                result[3] = b00*a03 + b01*a13 + b02*a23 + b03*a33;
-                result[4] = b10*a00 + b11*a10 + b12*a20 + b13*a30;
-                result[5] = b10*a01 + b11*a11 + b12*a21 + b13*a31;
-                result[6] = b10*a02 + b11*a12 + b12*a22 + b13*a32;
-                result[7] = b10*a03 + b11*a13 + b12*a23 + b13*a33;
-                result[8] = b20*a00 + b21*a10 + b22*a20 + b23*a30;
-                result[9] = b20*a01 + b21*a11 + b22*a21 + b23*a31;
-                result[10] = b20*a02 + b21*a12 + b22*a22 + b23*a32;
-                result[11] = b20*a03 + b21*a13 + b22*a23 + b23*a33;
-                result[12] = b30*a00 + b31*a10 + b32*a20 + b33*a30;
-                result[13] = b30*a01 + b31*a11 + b32*a21 + b33*a31;
-                result[14] = b30*a02 + b31*a12 + b32*a22 + b33*a32;
-                result[15] = b30*a03 + b31*a13 + b32*a23 + b33*a33;
-                p = parent.get(p[0]);
-            }
-
-            return result;
-        };
-
-        this.parallel_data = this.parallel_data.combine(
-                1,
-                low_precision(elementalFunc),
-                parent,
-                xform
-        );
-        this.result.result = this.parallel_data;
-        */
-
-        return true;
-    }
-});Xflow.registerOperator("forwardKinematicsInv", {
-    outputs: [  {type: 'float4x4',  name: 'result', customAlloc: true}],
-    params:  [  {type: 'int',       source: 'parent', array: true },
-                {type: 'float4x4',  source: 'xform', array: true }],
-    alloc: function(sizes, parent, xform)
-    {
-        var length = Math.min(parent.length, xform.length / 16);
-        sizes['result'] = length;
-    },
-    evaluate: function(result, parent,xform, info) {
-        var boneCount = xform.length / 16;
-
-        var computed = [];
-        //For each bone do:
-        for(var i = 0; i < boneCount;){
-            if(!computed[i]) {
-                var p = parent[i];
-                if(p >= 0){
-                    //This bone has a parent bone
-                    if(!computed[p]){
-                        //The parent bone's transformation matrix hasn't been computed yet
-                        while(parent[p] >= 0 && !computed[parent[p]]) {
-                            //The current bone has a parent and its transform hasn't been computed yet
-                            p = parent[p];
-
-                            if(parent[p] >= 0)
-                                mat4.multiplyOffset(result, p*16, result, parent[p]*16, xform, p*16);
-                            else
-                                for(var j = 0; j < 16; j++) {
-                                    result[p*16+j] = xform[p*16+j];
-                                }
-                            computed[p] = true;
-                        }
-                    }
-                    else {
-                        mat4.multiplyOffset(result, i*16,  result,  p*16, xform, i*16);
-                    }
-                }
-                else{
-                    for(var j = 0; j < 16; j++) {
-                        result[i*16+j] = xform[i*16+j];
-                    }
-                }
-                computed[i] = true;
-            }
-            i++;
-        }
-    }
-});Xflow.registerOperator("flipNormal", {
-    outputs: [  {type: 'float3', name: 'result'}],
-    params:  [  {type: 'float3', source: 'value'}],
-    evaluate: function(result, value, info) {
-        for(var i = 0; i<info.iterateCount*3; i++)
-            result[i] = -value[i];
-    }
-});// Additional methods in glMatrix style
-
-
-vec3.reciprocal = function(vec, dest) {
-    if(!dest) { dest = vec; }
-
-    dest[0] = 1 / vec[0];
-    dest[1] = 1 / vec[1];
-    dest[2] = 1 / vec[2];
-    return dest;
-};
-
-mat4.multiplyOffsetVec3 = function(mat, matOffset, vec, vecOffset, dest) {
-    if(!dest) { dest = vec; }
-    if(!vecOffset) { vecOffset = 0; }
-
-    var x = vec[vecOffset+0], y = vec[vecOffset+1], z = vec[vecOffset+2];
-
-    dest[0] = mat[matOffset+0]*x + mat[matOffset+4]*y + mat[matOffset+8]*z + mat[matOffset+12];
-    dest[1] = mat[matOffset+1]*x + mat[matOffset+5]*y + mat[matOffset+9]*z + mat[matOffset+13];
-    dest[2] = mat[matOffset+2]*x + mat[matOffset+6]*y + mat[matOffset+10]*z + mat[matOffset+14];
-
-    return dest;
-};
-
-
-
-mat4.multiplyOffsetDirection = function(mat, matOffset, vec, vecOffset, dest) {
-    if(!dest) { dest = vec; }
-    if(!vecOffset) { vecOffset = 0; }
-
-    var x = vec[vecOffset+0], y = vec[vecOffset+1], z = vec[vecOffset+2], w;
-
-    dest[0] = mat[matOffset+0]*x + mat[matOffset+4]*y + mat[matOffset+8]*z;
-    dest[1] = mat[matOffset+1]*x + mat[matOffset+5]*y + mat[matOffset+9]*z;
-    dest[2] = mat[matOffset+2]*x + mat[matOffset+6]*y + mat[matOffset+10]*z;
-
-    return dest;
-};
-
-var IDENT_MAT = mat4.identity(mat4.create());
-var TMP_MATRIX = mat4.create();
-var TMP_VEC = vec3.create();
-
-mat4.makeTransformXflow = function(translation,rotation,scale,center,scaleOrientation,dest){
-    mat4.identity(dest);
-    if(translation) mat4.translate(dest, translation);
-    if(center) mat4.translate(dest, center);
-    if(rotation){
-        quat4.toMat4([rotation[1],rotation[2],rotation[3],-rotation[0]], TMP_MATRIX);
-        mat4.multiply(dest, TMP_MATRIX);
-    }
-    if(scaleOrientation){
-        quat4.toMat4([scaleOrientation[1],scaleOrientation[2],scaleOrientation[3],-scaleOrientation[0]], TMP_MATRIX);
-        mat4.multiply(dest, TMP_MATRIX);
-    }
-    if(scale) mat4.scale(dest, scale);
-    if(scaleOrientation){
-        quat4.toMat4([scaleOrientation[1],scaleOrientation[2],scaleOrientation[3],scaleOrientation[0]], TMP_MATRIX);
-        mat4.multiply(dest, TMP_MATRIX);
-    }
-    if(center){
-        mat4.translate(dest, vec3.negate(center, TMP_VEC));
-    }
-};
-
-mat4.makeTransformInvXflow = function(translation,rotation,scale,center,scaleOrientation,dest){
-    mat4.identity(dest);
-    if(center){
-        mat4.translate(dest, center);
-    }
-    if(scaleOrientation){
-        quat4.toMat4([scaleOrientation[1],scaleOrientation[2],scaleOrientation[3],-scaleOrientation[0]], TMP_MATRIX);
-        mat4.multiply(dest, TMP_MATRIX);
-    }
-    if(scale) mat4.scale(dest, vec3.reciprocal(scale,TMP_VEC) );
-    if(scaleOrientation){
-        quat4.toMat4([scaleOrientation[1],scaleOrientation[2],scaleOrientation[3],scaleOrientation[0]], TMP_MATRIX);
-        mat4.multiply(dest, TMP_MATRIX);
-    }
-    if(rotation){
-        quat4.toMat4([rotation[1],rotation[2],rotation[3],rotation[0]], TMP_MATRIX);
-        mat4.multiply(dest, TMP_MATRIX);
-    }
-    if(center) mat4.translate(dest, vec3.negate(center, TMP_VEC) );
-    if(translation) mat4.translate(dest, vec3.negate(translation, TMP_VEC) );
-};
-
-/*
-mat4.makeTransformInvOffset = function(translation,rotation,scale,center,scaleOrientation,offset,dest) {
-    var mo = offset*16;
-    var vo = offset*3;
-    var qo = offset*4;
-
-    dest[mo+0] = 1;
-    dest[mo+1] = 0;
-    dest[mo+2] = 0;
-    dest[mo+3] = 0;
-    dest[mo+4] = 0;
-    dest[mo+5] = 1;
-    dest[mo+6] = 0;
-    dest[mo+7] = 0;
-    dest[mo+8] = 0;
-    dest[mo+9] = 0;
-    dest[mo+10] = 1;
-    dest[mo+11] = 0;
-    dest[mo+12] = -translation[vo];
-    dest[mo+13] = -translation[vo+1];
-    dest[mo+14] = -translation[vo+2];
-    dest[mo+15] = 1;
-
-    if (rotation) {
-        var rotM = quat4.toMat4([rotation[qo+1],rotation[qo+2],rotation[qo+3],rotation[qo]]);
-        mat4.multiplyOffset(dest, mo,  rotM, 0,  dest, mo);
-    }
-};
-
-mat4.makeTransformOffset = function(translation,rotation,scale,center,scaleOrientation,offset,dest) {
-    var mo = offset*16;
-    var vo = offset*3;
-    var qo = offset*4;
-
-    dest[mo+0] = 1;
-    dest[mo+1] = 0;
-    dest[mo+2] = 0;
-    dest[mo+3] = 0;
-    dest[mo+4] = 0;
-    dest[mo+5] = 1;
-    dest[mo+6] = 0;
-    dest[mo+7] = 0;
-    dest[mo+8] = 0;
-    dest[mo+9] = 0;
-    dest[mo+10] = 1;
-    dest[mo+11] = 0;
-    dest[mo+12] = translation[vo];
-    dest[mo+13] = translation[vo+1];
-    dest[mo+14] = translation[vo+2];
-    dest[mo+15] = 1;
-
-    if (rotation) {
-        var rotM = quat4.toMat4([rotation[qo+1],rotation[qo+2],rotation[qo+3],-rotation[qo]]);
-        mat4.multiplyOffset(dest, mo,  rotM, 0,  dest, mo);
-    }
-};
-*/
-mat4.multiplyOffset = function(dest, destOffset, mat, offset1, mat2, offset2) {
-    var a00 = mat2[offset2+0], a01 = mat2[offset2+1], a02 = mat2[offset2+2], a03 = mat2[offset2+3];
-    var a10 = mat2[offset2+4], a11 = mat2[offset2+5], a12 = mat2[offset2+6], a13 = mat2[offset2+7];
-    var a20 = mat2[offset2+8], a21 = mat2[offset2+9], a22 = mat2[offset2+10], a23 = mat2[offset2+11];
-    var a30 = mat2[offset2+12], a31 = mat2[offset2+13], a32 = mat2[offset2+14], a33 = mat2[offset2+15];
-
-    var b00 = mat[offset1+0], b01 = mat[offset1+1], b02 = mat[offset1+2], b03 = mat[offset1+3];
-    var b10 = mat[offset1+4], b11 = mat[offset1+5], b12 = mat[offset1+6], b13 = mat[offset1+7];
-    var b20 = mat[offset1+8], b21 = mat[offset1+9], b22 = mat[offset1+10], b23 = mat[offset1+11];
-    var b30 = mat[offset1+12], b31 = mat[offset1+13], b32 = mat[offset1+14], b33 = mat[offset1+15];
-
-    dest[destOffset+0] = b00*a00 + b01*a10 + b02*a20 + b03*a30;
-    dest[destOffset+1] = b00*a01 + b01*a11 + b02*a21 + b03*a31;
-    dest[destOffset+2] = b00*a02 + b01*a12 + b02*a22 + b03*a32;
-    dest[destOffset+3] = b00*a03 + b01*a13 + b02*a23 + b03*a33;
-    dest[destOffset+4] = b10*a00 + b11*a10 + b12*a20 + b13*a30;
-    dest[destOffset+5] = b10*a01 + b11*a11 + b12*a21 + b13*a31;
-    dest[destOffset+6] = b10*a02 + b11*a12 + b12*a22 + b13*a32;
-    dest[destOffset+7] = b10*a03 + b11*a13 + b12*a23 + b13*a33;
-    dest[destOffset+8] = b20*a00 + b21*a10 + b22*a20 + b23*a30;
-    dest[destOffset+9] = b20*a01 + b21*a11 + b22*a21 + b23*a31;
-    dest[destOffset+10] = b20*a02 + b21*a12 + b22*a22 + b23*a32;
-    dest[destOffset+11] = b20*a03 + b21*a13 + b22*a23 + b23*a33;
-    dest[destOffset+12] = b30*a00 + b31*a10 + b32*a20 + b33*a30;
-    dest[destOffset+13] = b30*a01 + b31*a11 + b32*a21 + b33*a31;
-    dest[destOffset+14] = b30*a02 + b31*a12 + b32*a22 + b33*a32;
-    dest[destOffset+15] = b30*a03 + b31*a13 + b32*a23 + b33*a33;
-};
-
-quat4.slerpOffset = function(quat, offset1, quat2, offset2, t, dest, destOffset, shortest) {
-    if(!dest) { dest = quat; }
-
-    var ix1 = offset1, iy1 = offset1+1, iz1 = offset1+2, iw1 = offset1+3;
-    var ix2 = offset2, iy2 = offset2+1, iz2 = offset2+2, iw2 = offset2+3;
-    var ixd = destOffset, iyd = destOffset+1, izd = destOffset+2, iwd = destOffset+3;
-
-    var cosAngle =  quat[ix1]*quat2[ix2] + quat[iy1]*quat2[iy2] + quat[iz1]*quat2[iz2] + quat[iw1]*quat2[iw2];
-
-    var c1, c2;
-
-    // Linear interpolation for close orientations
-    if ((1.0 - Math.abs(cosAngle)) < 0.01)
-      {
-        c1 = 1.0 - t;
-        c2 = t;
-      }
-    else
-      {
-        // Spherical interpolation
-        var angle    = Math.acos(Math.abs(cosAngle));
-        var sinAngle = Math.sin(angle);
-        c1 = Math.sin(angle * (1.0 - t)) / sinAngle;
-        c2 = Math.sin(angle * t) / sinAngle;
-      }
-
-    // Use the shortest path
-    if (shortest && (cosAngle < 0.0))
-      c1 = -c1;
-
-    dest[ixd] = c1*quat[ix1] + c2*quat2[ix2];
-    dest[iyd] = c1*quat[iy1] + c2*quat2[iy2];
-    dest[izd] = c1*quat[iz1] + c2*quat2[iz2];
-    dest[iwd] = c1*quat[iw1] + c2*quat2[iw2];
-};
+});
