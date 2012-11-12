@@ -46,7 +46,7 @@
         if(typeof tagName !== "string")
             throw "XMOT.creation.element(): invalid argument";
 
-        var el = document.createElementNS(XML3D.xml3dNS, tagName);
+        var el = XML3D.createElement(tagName);
         
         if(!opts)
             return el; 
