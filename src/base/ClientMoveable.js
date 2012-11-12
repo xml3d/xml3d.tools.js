@@ -40,14 +40,14 @@
 
     /** @inheritDoc */
     p.setPosition = function(position){
-		if(this.constraint.constrainTranslation(position, this))
+		if(this.constraint.constrainTranslation(position, {moveable: this}))
 			this.transform.translation.set(new XML3DVec3(position[0],position[1],position[2]));
 		return this;
     };
 
     /** @inheritDoc */
 	p.setOrientation = function(orientation){
-		if(this.constraint.constrainRotation(orientation, this)){
+		if(this.constraint.constrainRotation(orientation, {moveable: this})){
 			this.transform.rotation.setQuaternion( new XML3DVec3(orientation[0],orientation[1],orientation[2]), orientation[3] );
 		}
 		return this;
@@ -55,7 +55,7 @@
 
     /** @inheritDoc */
     p.setScale = function(scale){
-        if(this.constraint.constrainScaling(scale, this)){
+        if(this.constraint.constrainScaling(scale, {moveable: this})){
             this.transform.scale.set(new XML3DVec3(scale[0], scale[1], scale[2]));            
         }
     };
@@ -88,7 +88,7 @@
 		var modifier = new XML3DRotation();
 		modifier.setQuaternion( new XML3DVec3(orientation[0],orientation[1],orientation[2]), orientation[3] );
 		var destination = this.transform.rotation.multiply( modifier );
-		if(this.constraint.constrainRotation(orientation, this))
+		if(this.constraint.constrainRotation(orientation, {moveable: this}))
 			this.transform.rotation.set(destination);
 		return this;
     };

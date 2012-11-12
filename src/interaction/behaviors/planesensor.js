@@ -181,7 +181,7 @@ XMOT.interaction.behaviors.PlaneSensor = new XMOT.util.Class(
             return;
         this._planeHitPoint = hitP;
 
-        this.translation = this._calcTranslation(); 
+        this._calcTranslation(); 
 
         this.notifyListeners("translchanged", this);
     },
@@ -222,12 +222,11 @@ XMOT.interaction.behaviors.PlaneSensor = new XMOT.util.Class(
     },
     
     /** Calculate translation based on the current _planeHitPoint 
-     *  and apply translation offset and clipping 
+     *  and apply translation offset and constrain it. It will set 
+     *  the translation property of this instance. 
      * 
      *  @this {XMOT.interaction.behaviors.PlaneSensor}
      *  @private
-     * 
-     *  @return {XML3DVec3} the translation vector on the plane
      */
     _calcTranslation: function() 
     {        
@@ -236,9 +235,12 @@ XMOT.interaction.behaviors.PlaneSensor = new XMOT.util.Class(
         if(this.useTransOffset)
             transl = transl.add(this.translationOffset);
 
-        var ct = this.constraint.constrainTranslation(transl.toArray()); 
-        transl = new window.XML3DVec3(ct[0], ct[1], ct[2]); 
-        
-        return transl; 
+        var newTranslArr = transl.toArray(); 
+        if(this.constraint.constrainTranslation(newTranslArr))
+        {
+            transl = new window.XML3DVec3(newTranslArr[0], newTranslArr[1], newTranslArr[2]); 
+            
+            this.translation = transl;             
+        }
     } 
 });

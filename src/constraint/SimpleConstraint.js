@@ -30,16 +30,16 @@
     var s = SimpleConstraint.prototype;
 
     /** @inheritDoc */
-    s.constrainRotation = function(newRotation, moveable){
+    s.constrainRotation = function(newRotation, opts){
         return this.allowedToRotate;
     };
 
     /** @inheritDoc */
-    s.constrainTranslation = function(newPosition, moveable){
+    s.constrainTranslation = function(newPosition, opts){
         return this.allowedToMove;
     };
 
-    s.constrainScaling = function(newScale, moveable){
+    s.constrainScaling = function(newScale, opts){
         return this.allowedToScale;
     };
 

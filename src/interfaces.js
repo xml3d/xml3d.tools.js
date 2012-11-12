@@ -213,58 +213,34 @@ XMOT.version = '%VERSION%';
      */
     var Constraint = function(){};
     var c = Constraint.prototype;
-
+    
     /**
-     * Checks if a rotation operation is valid.
-     * @param {Array.<number>} newRotation Quaternion, absolute Orientation
-     * @param {Moveable} moveable Moveable
-     * @return {boolean} returns true if the operation is valid, false otherwise
-     */
-    c.constrainRotation = function(newRotation, moveable){};
-
-    /**
-     * Checks if a translation operation is valid.
-     * @param {Array.<number>} newTranslation 3d Vector representing the absolute position in local space
-     * @param {Moveable} moveable Moveable
-     * @return {boolean} returns true if the operation is valid, false otherwise
-     */
-    c.constrainTranslation = function(newTranslation, moveable){};
-
-    /**
-     * Checks if a scaling operation is valid.
-     * @param {Array.<number>} newScale 3d Vector representing the scaling in local space
-     * @param {Moveable} moveable Moveable
-     * @return {boolean} returns true if the operation is valid, false otherwise
-     */
-    c.constrainScaling = function(newScale, moveable){};
-
-
-    /**
-     * A Constraint that does not rely on Movables
-     * @interface
-     */
-    var PureConstraint = function(){};
-    var pc = PureConstraint.prototype;
-
-    /**
-     * Checks if a rotation operation is valid.
+     * Checks if a rotation operation is valid. The first argument might be 
+     * further constrained inside the method. 
      * 
-     * @param {Array.<number>} newRotation Quaternion, absolute Orientation
-     * @return {Array.<number>} the constrained rotation
+     * @param {Array.<number>} newRotation Quaternion, the new rotation 
+     * @param {Object} [opts] options for the constraint-check
+     * @return {boolean} returns true if the operation is valid, false otherwise
      */
-    pc.constrainRotation = function(newRotation){};
+    c.constrainRotation = function(newRotation, opts){};
 
     /**
-     * Checks if a translation operation is valid.
-     * @param {Array.<number>} newTranslation 3d Vector representing the absolute position in local space
-     * @return {Array.<number>} the constrained translation
+     * Checks if a translation operation is valid. The first argument might be 
+     * further constrained inside the method. 
+     * 
+     * @param {Array.<number>} newTranslation, the new translation 
+     * @param {Object} [opts] options for the constraint-check
+     * @return {boolean} returns true if the operation is valid, false otherwise
      */
-    pc.constrainTranslation = function(newTranslation){};
+    c.constrainTranslation = function(newTranslation, opts){};
 
     /**
-     * Checks if a scaling operation is valid.
-     * @param {Array.<number>} newScale 3d Vector representing the scaling in local space
-     * @return {Array.<number>} the constrained scaling
+     * Checks if a scaling operation is valid. The first argument might be 
+     * further constrained inside the method. 
+     * 
+     * @param {Array.<number>} newScale the new scaling  
+     * @param {Object} [opts] options for the constraint-check
+     * @return {boolean} returns true if the operation is valid, false otherwise
      */
-    pc.constrainScaling = function(newScale){};
+    c.constrainScaling = function(newScale, opts){};
 }());

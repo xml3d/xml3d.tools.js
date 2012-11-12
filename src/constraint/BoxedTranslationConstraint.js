@@ -6,7 +6,7 @@
      *  
      * @constructor
      * @param {XML3DBox} [box] the box constraint. Default: infinitely large box, i.e. no constraint
-     * @implements {PureConstraint}
+     * @implements {Constraint}
      */
     var BoxedTranslationConstraint = function(box){
         
@@ -31,24 +31,24 @@
 
     /** @inheritDoc */
     c.constrainTranslation = function(newTranslation){
-
-        var t = newTranslation.slice(); 
+        
+        var t = newTranslation; 
         
         t[0] = this.clipValue(t[0], this.box.min.x, this.box.max.x);
         t[1] = this.clipValue(t[1], this.box.min.y, this.box.max.y); 
         t[2] = this.clipValue(t[2], this.box.min.z, this.box.max.z);
         
-        return t; 
+        return true; 
     };
 
     /** @inheritDoc */
     c.constrainRotation = function(newRotation){
-        return newRotation;
+        return true;
     };
 
     /** @inheritDoc */
     c.constrainScaling = function(newScale){
-        return newScale;
+        return true;
     };
     
     /** Clips a single value by min and maximum value. It returns 
