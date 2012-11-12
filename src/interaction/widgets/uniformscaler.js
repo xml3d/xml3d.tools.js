@@ -7,7 +7,7 @@ XMOT.namespace("XMOT.interaction.widgets");
  * 
  * @extends XMOT.interaction.widgets.Widget
  */
-XMOT.interaction.widgets.UniformScaler = new XMOT.util.Class(
+XMOT.interaction.widgets.UniformScaler = new XMOT.Class(
     XMOT.interaction.widgets.Widget, {
         
     /** 

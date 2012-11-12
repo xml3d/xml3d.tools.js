@@ -14,7 +14,7 @@ XMOT.namespace("XMOT.interaction.behaviors");
  * of the target node will be overriden, as well as the translation and
  * rotation properties of the child nodes.  
  */
-XMOT.interaction.behaviors.RingMenu = new XMOT.util.Class({
+XMOT.interaction.behaviors.RingMenu = new XMOT.Class({
 
     /** Creates the ring menu with the given arguments. This method
      *  creates everything it needs for the menu but does not do

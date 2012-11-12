@@ -11,7 +11,7 @@ XMOT.namespace("XMOT.interaction.widgets");
  * 
  * @extends XMOT.interaction.widgets.Widget
  */
-XMOT.interaction.widgets.SingleAxisRotator = new XMOT.util.Class(
+XMOT.interaction.widgets.SingleAxisRotator = new XMOT.Class(
     XMOT.interaction.widgets.Widget, {
      
     /** Initializes the AxisRotator.

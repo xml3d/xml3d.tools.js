@@ -21,7 +21,7 @@ if(!XMOT.interaction.behaviors)
  * @extends XMOT.util.Observable
  *
  */
-XMOT.interaction.behaviors.PDSensor = new XMOT.util.Class(
+XMOT.interaction.behaviors.PDSensor = new XMOT.Class(
     XMOT.util.Observable, {
 
     /** Constructor of PDSensor

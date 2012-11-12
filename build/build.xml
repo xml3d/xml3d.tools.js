@@ -20,6 +20,7 @@
         <file name="contrib/Tween.js" />
         <!-- our sources -->
         <file name="base/math.js" />
+    	<file name="base/class.js" /> 
         <file name="base/util.js" />
         <file name="base/ClientMoveable.js" />
         <file name="base/ClientMotionFactory.js" />
@@ -36,7 +37,6 @@
         <file name="util/xml3d_datatype_extensions.js" />
 
         <file name="util/util.js" />
-        <file name="util/class.js" /> 
         <file name="util/creation.js" /> 
 
         <file name="util/geoobject.js" />   	

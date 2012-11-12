@@ -7,7 +7,7 @@ XMOT.namespace("XMOT.interaction.widgets");
  * 
  * @extends XMOT.interaction.widgets.Widget
  */
-XMOT.interaction.widgets.RingMenu = new XMOT.util.Class(
+XMOT.interaction.widgets.RingMenu = new XMOT.Class(
     XMOT.interaction.widgets.Widget, {
 
     /** Setup the ring menu and attach it to the target group.

@@ -67,7 +67,7 @@ function toggleSensors()
 // ============================================================================
 // Event Handlers
 // ============================================================================
-Counter = new XMOT.util.Class({
+Counter = new XMOT.Class({
 
     initialize: function(_targetDiv)
     {

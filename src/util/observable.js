@@ -9,7 +9,7 @@
  *  All listeners of an event type can be called with notifyListeners(), which expects the 
  *  corresponding event name. 
  */
-XMOT.util.Observable = new XMOT.util.Class({
+XMOT.util.Observable = new XMOT.Class({
 
     /** 
      *  @this {XMOT.util.Observable}

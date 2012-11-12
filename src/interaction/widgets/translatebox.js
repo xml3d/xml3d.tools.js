@@ -8,7 +8,7 @@ XMOT.namespace("XMOT.interaction.widgets");
  * 
  * @extends XMOT.interaction.widgets.Widget
  */
-XMOT.interaction.widgets.TranslateBox = new XMOT.util.Class(
+XMOT.interaction.widgets.TranslateBox = new XMOT.Class(
     XMOT.interaction.widgets.Widget, {
     
     /** 

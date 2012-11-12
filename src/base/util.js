@@ -161,6 +161,17 @@ function namespace(fullName)
     }
 }
 
+/** Extend the target object with all attributes from the source object
+ * 
+ *  @param tarobj the object to be extended 
+ *  @param srcobj the object from which to take the attributes 
+ */
+function extend(tarobj, srcobj)
+{ 
+    for(var attr in srcobj)
+        tarobj[attr] = srcobj[attr]; 
+};
+
 //export
 XMOT.inherit = inherit;
 XMOT.base = base;
@@ -170,4 +181,5 @@ XMOT.animationHook = animationHook;
 XMOT.registeredCameraController = registeredCameraController;
 XMOT.mergeOptions = mergeOptions;
 XMOT.namespace = namespace; 
+XMOT.extend = extend; 
 }());

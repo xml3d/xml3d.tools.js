@@ -17,7 +17,7 @@ XMOT.namespace("XMOT.interaction.behaviors");
  * See XML3D.Xml3dSceneController.prototype.mouseMoveEvent() "case(this.ROTATE)"
  * for more info.
  */
-XMOT.interaction.behaviors.TrackBall = new XMOT.util.Class({
+XMOT.interaction.behaviors.TrackBall = new XMOT.Class({
 
     /** Initializes the trackball with the dimensions of the tracking space. 
      * 

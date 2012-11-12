@@ -21,7 +21,7 @@ XMOT.namespace("XMOT.interaction.behaviors");
  * 
  * @extends XMOT.interaction.behaviors.PlaneSensor
  */
-XMOT.interaction.behaviors.Scaler = new XMOT.util.Class(
+XMOT.interaction.behaviors.Scaler = new XMOT.Class(
     XMOT.interaction.behaviors.PlaneSensor,
 {
     /** Constructor of Scaler

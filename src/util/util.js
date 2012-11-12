@@ -7,18 +7,7 @@
         XMOT.util = {};
     
     var u = XMOT.util;      
-    
-    /** Extend the target object with all attributes from the source object
-     * 
-     *  @param tarobj the object to be extended 
-     *  @param srcobj the object from which to take the attributes 
-     */
-    u.extend = function(tarobj, srcobj)
-    { 
-        for(var attr in srcobj)
-            tarobj[attr] = srcobj[attr]; 
-    };
-    
+        
     /** 
      * Can be used to wrap the given method into a closure that preserves the 
      * this pointer inside the given function. Internally an object 

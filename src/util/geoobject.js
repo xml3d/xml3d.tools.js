@@ -15,7 +15,7 @@
  * For example addShaders() or addTransforms() take local IDs, but construct elements with global 
  * IDs, formed by the method globalID(). 
  */
-XMOT.util.GeoObject = new XMOT.util.Class({
+XMOT.util.GeoObject = new XMOT.Class({
 
     /** Initializes the object.
      *

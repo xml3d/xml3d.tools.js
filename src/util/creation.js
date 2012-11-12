@@ -278,7 +278,7 @@
      * 
      *  @constructor
      */
-    var DataObject = new XMOT.util.Class({
+    var DataObject = new XMOT.Class({
 
         /** 
          * @param {!Object} data

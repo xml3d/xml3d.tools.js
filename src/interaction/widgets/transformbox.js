@@ -7,7 +7,7 @@ XMOT.namespace("XMOT.interaction.widgets");
  * 
  * @extends XMOT.interaction.widgets.Widget
  */
-XMOT.interaction.widgets.TransformBox = new XMOT.util.Class(
+XMOT.interaction.widgets.TransformBox = new XMOT.Class(
     XMOT.interaction.widgets.Widget, {
 
 

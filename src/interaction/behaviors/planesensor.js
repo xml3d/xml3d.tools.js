@@ -18,7 +18,7 @@ XMOT.namespace("XMOT.interaction.behaviors");
  *  @extends XMOT.interaction.behaviors.PDSensor
  */
 
-XMOT.interaction.behaviors.PlaneSensor = new XMOT.util.Class(
+XMOT.interaction.behaviors.PlaneSensor = new XMOT.Class(
     XMOT.interaction.behaviors.PDSensor,
 {
     /** Constructor of PlaneSensor

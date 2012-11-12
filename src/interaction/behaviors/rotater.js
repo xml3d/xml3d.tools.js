@@ -6,7 +6,7 @@ XMOT.namespace("XMOT.interaction.behaviors");
  *  
  *  @extends XMOT.interaction.behaviors.PlaneSensor
  */
-XMOT.interaction.behaviors.Rotater = new XMOT.util.Class(
+XMOT.interaction.behaviors.Rotater = new XMOT.Class(
     XMOT.interaction.behaviors.PlaneSensor,
 {
     /** Constructor of Rotater

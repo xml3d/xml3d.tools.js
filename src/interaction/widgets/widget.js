@@ -13,7 +13,7 @@ XMOT.namespace("XMOT.interaction.widgets");
  * 
  * @extends XMOT.util.Observable
  */
-XMOT.interaction.widgets.Widget = new XMOT.util.Class(
+XMOT.interaction.widgets.Widget = new XMOT.Class(
     XMOT.util.Observable, {
 
     /** Sets up the basic construct for a widget and attaches it. 
@@ -43,15 +43,13 @@ XMOT.interaction.widgets.Widget = new XMOT.util.Class(
         
         this.callSuper();
         
-        this.motFactory = new XMOT.ClientMotionFactory();
-        
         this.xml3d = XMOT.util.getXml3dRoot(_target.object);
         this.ID = _id;  
         this.target = _target; 
 
         // root: the container node whose transform a widget modifies.
         var rootGrp = this.target.object.parentNode;
-        this.root = this.motFactory.createTransformable(rootGrp); 
+        this.root = XMOT.ClientMotionFactory.createTransformable(rootGrp); 
         
         this.geo = new XMOT.util.GeoObject(this.ID, this.xml3d, rootGrp); 
         this.behavior = {}; // localID -> behavior, storage for all sensors and alike

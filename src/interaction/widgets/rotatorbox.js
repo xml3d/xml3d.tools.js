@@ -11,7 +11,7 @@ XMOT.namespace("XMOT.interaction.widgets");
  * 
  * @extends XMOT.interaction.widgets.Widget
  */
-XMOT.interaction.widgets.RotatorBox = new XMOT.util.Class(
+XMOT.interaction.widgets.RotatorBox = new XMOT.Class(
     XMOT.interaction.widgets.Widget, {
 
     /** Creates the geometry and behavior for the XMOT.interaction.widgets.RotatorBox and attaches it to

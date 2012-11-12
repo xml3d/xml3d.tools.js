@@ -11,7 +11,7 @@
  * 
  * @extends XMOT.util.Observable
  */
-XMOT.TransformSensor = new XMOT.util.Class(
+XMOT.TransformSensor = new XMOT.Class(
     XMOT.util.Observable, {
 
     /** Initializes the sensor with the given values and attaches the sensor to
