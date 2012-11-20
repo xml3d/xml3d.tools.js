@@ -91,7 +91,8 @@
         var y = p * from[1] + q * to[1];
         var z = p * from[2] + q * to[2];
         var w = p * from[3] + q * to[3];
-        return result.setQuaternion( new XML3DVec3(x, y, z), w);
+        result.setQuaternion( new XML3DVec3(x, y, z), w);
+		return result;
     };
 
     /** Convert degrees to radians. 
