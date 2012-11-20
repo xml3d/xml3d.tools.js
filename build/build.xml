@@ -22,7 +22,7 @@
         <file name="base/math.js" />
     	<file name="base/class.js" /> 
         <file name="base/util.js" />
-        <file name="base/ClientMoveable.js" />
+        <file name="base/ClientTransformable.js" />
         <file name="base/ClientMotionFactory.js" />
         <file name="base/ClientAnimatable.js" />
         <file name="base/ClientKeyframeAnimation.js" />
