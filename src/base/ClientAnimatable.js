@@ -4,7 +4,7 @@
 	 * An implementation of Animatable
 	 * @constructor
 	 * @implements Animatable
-	 * @extends ClientMoveable
+	 * @extends ClientTransformable
 	 */
 	var ClientAnimatable = function(obj, transform, constraint){
 
@@ -38,7 +38,7 @@
 	};
 
 	//inheritence is done here
-	XMOT.inherit(ClientAnimatable, XMOT.ClientMoveable);
+	XMOT.inherit(ClientAnimatable, XMOT.ClientTransformable);
 
     var ca = ClientAnimatable.prototype;
 

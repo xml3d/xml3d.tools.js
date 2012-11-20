@@ -14,12 +14,12 @@ XMOT.version = '%VERSION%';
     var m = MotionFactory.prototype;
 
     /**
-     * Creates a Moveable out of the given object
-     * @param {Object} object base for the Moveable
+     * Creates a Transformable out of the given object
+     * @param {Object} object base for the Transformable
      * @param {Constraint} constraint Constrain movement
-     * @return {Moveable} created Moveable
+     * @return {Transformable} created Transformable
      */
-    m.createMoveable = function(object, constraint){};
+    m.createTransformable = function(object, constraint){};
 
     /**
      * Creates an Animatable out of the given object
@@ -50,23 +50,23 @@ XMOT.version = '%VERSION%';
 
 
     /**
-     * A Moveable.
+     * A Transformable.
      * @interface
      */
-    var Moveable = function() {};
-    var p = Moveable.prototype;
+    var Transformable = function() {};
+    var p = Transformable.prototype;
 
     /**
-     * Sets the absolute position of the Moveable in local space.
+     * Sets the absolute position of the Transformable in local space.
      * @param {Array.<number>} position position as 3d vector in local space
-     * @return {Moveable} the Moveable
+     * @return {Transformable} the Transformable
      */
     p.setPosition = function(position){};
 
     /**
      * Sets the absolute orientation of the Movebale in local space.
      * @param {Array.<number>} orientation orientation as quaternion in local space
-     * @return {Moveable} the Moveable
+     * @return {Transformable} the Transformable
      */
     p.setOrientation = function(orientation){};
 
@@ -90,28 +90,28 @@ XMOT.version = '%VERSION%';
 
     /**
      * Gets the current scale factor
-     * @return {number} scale factor
+     * @return {Array.<number>} scale factor
      */
     p.getScale = function(){};
 
     /**
-     * Translate the Moveable by a given Vector.
+     * Translate the Transformable by a given Vector.
      * @param {Array.<number>} translation 3d Vector
-     * @return {Moveable} the Moveable
+     * @return {Transformable} the Transformable
      */
     p.translate = function(translation){};
 
     /**
-     * Rotates the Moveable by a given Quaternion.
+     * Rotates the Transformable by a given Quaternion.
      * @param {Array.<number>} rotation Quaternion
-     * @return {Moveable} the Moveable
+     * @return {Transformable} the Transformable
      */
     p.rotate = function(rotation){};
 
     /**
-     * Scales the moveable by a given vector
+     * Scales the transformable by a given vector
      * @param{Array.<number>} factor scale factor
-     * @return {Moveable} the Moveable
+     * @return {Transformable} the Transformable
      */
     p.scale = function(factor){};
 
@@ -122,7 +122,7 @@ XMOT.version = '%VERSION%';
      * @param {Array.<number>|undefined} orientation orientation Quaternion
      * @param {number} time when to reach the position, in milliseconds
      * @param {{delay: number, easing: Function, queueing: Boolean, callback: Function}=} opt options
-     * @return {Moveable} the Moveable
+     * @return {Transformable} the Transformable
      */
     p.moveTo = function(position, orientation, time, opt){};
 
@@ -134,20 +134,20 @@ XMOT.version = '%VERSION%';
 
     /**
      * Stops the current movement and cancels every queued movement.
-     * @return {Moveable} the Moveable
+     * @return {Transformable} the Transformable
      */
     p.stop = function(){};
 
     /**
-     * Sets a constraint for the Moveable. The constraint is checked
-     * @param {Constraint} constraint Set a constraint to the Moveable
+     * Sets a constraint for the Transformable. The constraint is checked
+     * @param {Constraint} constraint Set a constraint to the Transformable
      */
-    p.setContraint = function(constraint){};
+    p.setConstraint = function(constraint){};
 
 
     /**
      * An Animatable
-     * @extends Moveable
+     * @extends Transformable
      * @interface
      */
     var Animatable = function(){};
@@ -213,21 +213,34 @@ XMOT.version = '%VERSION%';
      */
     var Constraint = function(){};
     var c = Constraint.prototype;
-
+    
     /**
-     * Checks if a rotation operation is valid.
-     * @param {Array.<number>} newRotation Quaternion, absolute Orientation
-     * @param {Moveable} moveable Moveable
+     * Checks if a rotation operation is valid. The first argument might be 
+     * further constrained inside the method. 
+     * 
+     * @param {Array.<number>} newRotation Quaternion, the new rotation 
+     * @param {Object} [opts] options for the constraint-check
      * @return {boolean} returns true if the operation is valid, false otherwise
      */
-    c.constrainRotation = function(newRotation, moveable){};
+    c.constrainRotation = function(newRotation, opts){};
 
     /**
-     * Checks if a translation operation is valid.
-     * @param {Array.<number>} newTranslation 3d Vector representing the absolute position in local space
-     * @param {Moveable} moveable Moveable
+     * Checks if a translation operation is valid. The first argument might be 
+     * further constrained inside the method. 
+     * 
+     * @param {Array.<number>} newTranslation, the new translation 
+     * @param {Object} [opts] options for the constraint-check
      * @return {boolean} returns true if the operation is valid, false otherwise
      */
-    c.constrainTranslation = function(newTranslation, moveable){};
+    c.constrainTranslation = function(newTranslation, opts){};
 
+    /**
+     * Checks if a scaling operation is valid. The first argument might be 
+     * further constrained inside the method. 
+     * 
+     * @param {Array.<number>} newScale the new scaling  
+     * @param {Object} [opts] options for the constraint-check
+     * @return {boolean} returns true if the operation is valid, false otherwise
+     */
+    c.constrainScaling = function(newScale, opts){};
 }());

@@ -24,7 +24,7 @@
 	var c = ConstraintCollection.prototype;
 
 	/** @inheritDoc */
-    c.constrainRotation = function(newRotation, moveable){
+    c.constrainRotation = function(newRotation, opts){
     	var constraints = this.constraints;
     	var length = constraints.length;
 		var i = 0;
@@ -32,24 +32,38 @@
 		var breakEarly = this.breakEarly;
 		
 		while( i<length && (ret || !breakEarly) ){
-			ret = ret && constraints[i].constrainRotation(newRotation, moveable);
+			ret = ret && constraints[i].constrainRotation(newRotation, opts);
 			i++;
 		}
     	return ret;
     };
 
     /** @inheritDoc */
-    c.constrainTranslation = function(newPosition, moveable){
+    c.constrainTranslation = function(newPosition, opts){
     	var constraints = this.constraints;
 		var length = constraints.length;
 		var i = 0;
 		var ret = true;
 		var breakEarly = this.breakEarly;
 		while( i<length && (ret || !breakEarly) ){
-			ret = ret && constraints[i].constrainTranslation(newPosition, moveable);
+			ret = ret && constraints[i].constrainTranslation(newPosition, opts);
 			i++;
 		}
     	return ret;
+    };
+    
+    /** @inheritDoc */ 
+    c.constraintScaling = function(newScale, opts) { 
+        var constraints = this.constraints;
+        var length = constraints.length;
+        var i = 0;
+        var ret = true;
+        var breakEarly = this.breakEarly;
+        while( i<length && (ret || !breakEarly) ){
+            ret = ret && constraints[i].constraintScaling(newScale, opts);
+            i++;
+        }
+        return ret;        
     };
 
     /**

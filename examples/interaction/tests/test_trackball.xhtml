@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd" >
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:webgl="http://www.xml3d.org/2009/xml3d/webgl">
+<head>
+  <title>TrackBall</title>
+  <link rel="stylesheet" type="text/css" media="all" href="../../style/default.css" />
+  
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+  <script type="text/javascript" src="../../external/xml3d.js"></script>
+  <script type="text/javascript" src="../../external/xml3d-tools.js"></script>
+  <script type="text/javascript" src="../../../build/output/xml3d-motion.js"></script>
+  <script type="text/javascript" src="../page.js" />
+
+  <script type="text/javascript" src="test_trackball.js"></script>
+</head>
+
+<body onload="initScene()">
+<div id="overall">
+    <div id="content">
+  <h1>TrackBall</h1>
+  <div style="padding: 16px" >
+    <div id="Xml3dWrapper" style="color: red" >
+      <xml3d id="MyXml3d"
+        xmlns="http://www.xml3d.org/2009/xml3d"
+        xmlns:xlink="http://www.w3.org/1999/xlink"
+        webgl:showLog="false"
+        activeView="#controller_view"
+        pickableBackground="true"
+        style="width:350px; height:350px;"
+      >
+          <view id="controller_view" position="0 0 10" />
+          <light id="light1" intensity="10.8" global="false" />
+
+          <defs>
+            <data id="mySimpleMesh">
+              <int name="index">0 1 2 1 2 3</int>
+              <float3 name="position">
+               -1.0 -1.0 -0.0
+                1.0 -1.0 -0.0
+               -1.0  1.0 -0.0
+                1.0  1.0 -0.0
+              </float3>
+              <float3 name="normal">
+                0.0 0.0 1.0
+                0.0 0.0 1.0
+                0.0 0.0 1.0
+                0.0 0.0 1.0
+              </float3>
+              <float2 name="texcoord">
+                0.0 1.0
+                1.0 1.0
+                0.0 0.0
+                1.0 0.0
+              </float2>
+            </data>
+
+            <transform id="t_target" />
+            <transform id="transall" />
+          </defs>
+
+          <group id="group_all" transform="#transall">
+            <group id="g_target" transform="#t_target">
+              <mesh id="mesh_group1" type="triangles" src="#mySimpleMesh" />
+            </group>
+          </group>
+      </xml3d>
+    </div>
+  </div>
+
+  <!-- enable key handling of scene controller -->
+  <div id="useKeys" />
+
+  <div class="actions">
+    <input type="button" value="Activate Trackball" id="toggletrackball" onclick="toggleTrackBall();" />
+    <input type="button" value="Reset Rotation" onclick="resetRotation();" />
+  </div>
+
+  <div class="message">
+    <p>Upon activation the rotation of the rectangle can be controlled by dragging it.
+    This is done using a TrackBall.</p>
+
+    <p>A TrackBall delivers the rotation behavior given a mouse position. It is
+    the base class for the Rotater.</p>
+
+    <p>The status can be reviewed below.
+      <ul>
+        <li><b>Dragging:</b> whether the mouse is dragging and thus rotating.</li>
+        <li><b>Rotation:</b> the rotation attribute of the target element's transform node.</li>
+      </ul>
+    </p>
+
+    <p>If a TrackBall is attached, the rotation can be reset to the state
+    before the manipulation. This behavior can be tested using the corresponding
+    button above.</p>
+  </div>
+
+  <div class="message">
+    Dragging: <span id="dragstatus">false</span>
+  </div>
+  <div class="message">Rotation: <span id="rotation">no dragging done yet</span></div>
+    </div>
+  </div>
+</body>
+</html>

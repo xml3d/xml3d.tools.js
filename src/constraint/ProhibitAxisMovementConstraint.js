@@ -46,18 +46,26 @@
 	var c = ProhibitAxisMovementConstraint.prototype;
 
 	/** @inheritDoc */
-    c.constrainRotation = function(newRotation, moveable){
+    c.constrainRotation = function(newRotation, opts){
 		return true;
     };
 
-    /** @inheritDoc */
-    c.constrainTranslation = function(newPosition, moveable){
+    /** @inheritDoc
+     * 
+     *  @param {{transformable: Transformable}} opts constraint options. Must be filled with a Transformable.  
+     */
+    c.constrainTranslation = function(newPosition, opts){
+        if(!opts || !opts.transformable)
+            throw "ProhibitAxisMovementConstraint.constrainTranslation: no transformable in options given."; 
+            
     	var center = this.center;
     	var epsilon = this.epsilon;
-    	var currentPosition = moveable.getPosition();
+    	var currentPosition = opts.transformable.getPosition();
+    	
 		if(this.x && Math.abs(center - newPosition[0]) > epsilon) newPosition[0] = currentPosition[0];
 		if(this.y && Math.abs(center - newPosition[1]) > epsilon) newPosition[1] = currentPosition[1];
 		if(this.z && Math.abs(center - newPosition[2]) > epsilon) newPosition[2] = currentPosition[2];
+		
     	return true;
     };
 

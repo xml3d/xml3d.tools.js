@@ -168,7 +168,7 @@
 		if(this.orientationValues == undefined) return undefined;
 		var start = this.getOrientation(index);
 		var end = this.getOrientation(index+1);
-		return XMOT.slerp(start, end, t);
+		return XMOT.math.slerp(start, end, t);
 	};
 
 	/**
