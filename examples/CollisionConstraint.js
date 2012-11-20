@@ -54,8 +54,8 @@
 
     /** @inheritDoc */
     c.constrainTranslation = function(newPosition, opts){
-		var checkAtX = newPosition[0] / this.sceneWidth * this.img.width;
-		var checkAtY = newPosition[2] / this.sceneDepth * this.img.height;
+		var checkAtX = newPosition.x / this.sceneWidth * this.img.width;
+		var checkAtY = newPosition.z / this.sceneDepth * this.img.height;
 		if(!checkAtX) checkAtX = 0;
 		if(!checkAtY) checkAtY = 0;
 		var data = this.context.getImageData(checkAtX,checkAtY,1,1).data;
