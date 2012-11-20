@@ -110,7 +110,7 @@ XMOT.version = '%VERSION%';
 
     /**
      * Scales the transformable by a given vector
-     * @param{XML3DVec3} factor scale factor
+     * @param {XML3DVec3} factor scale factor
      * @return {Transformable} the Transformable
      */
     p.scale = function(factor){};
@@ -218,8 +218,8 @@ XMOT.version = '%VERSION%';
      * Checks if a rotation operation is valid. The first argument might be 
      * further constrained inside the method. 
      * 
-     * @param {Array.<number>} newRotation Quaternion, the new rotation 
-     * @param {Object} [opts] options for the constraint-check
+     * @param {XML3DRotation} newRotation Quaternion, the new rotation
+     * @param {{transformable: Transformable}} [opts] options for the constraint-check
      * @return {boolean} returns true if the operation is valid, false otherwise
      */
     c.constrainRotation = function(newRotation, opts){};
@@ -228,8 +228,8 @@ XMOT.version = '%VERSION%';
      * Checks if a translation operation is valid. The first argument might be 
      * further constrained inside the method. 
      * 
-     * @param {Array.<number>} newTranslation, the new translation 
-     * @param {Object} [opts] options for the constraint-check
+     * @param {XML3DVec3} newTranslation, the new translation
+     * @param {{transformable: Transformable}} [opts] options for the constraint-check
      * @return {boolean} returns true if the operation is valid, false otherwise
      */
     c.constrainTranslation = function(newTranslation, opts){};
@@ -238,8 +238,8 @@ XMOT.version = '%VERSION%';
      * Checks if a scaling operation is valid. The first argument might be 
      * further constrained inside the method. 
      * 
-     * @param {Array.<number>} newScale the new scaling  
-     * @param {Object} [opts] options for the constraint-check
+     * @param {XML3DVec3} newScale the new scaling
+     * @param {{transformable: Transformable}} [opts] options for the constraint-check
      * @return {boolean} returns true if the operation is valid, false otherwise
      */
     c.constrainScaling = function(newScale, opts){};

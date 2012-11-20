@@ -34,9 +34,9 @@
         
         var t = newTranslation; 
         
-        t[0] = this.clipValue(t[0], this.box.min.x, this.box.max.x);
-        t[1] = this.clipValue(t[1], this.box.min.y, this.box.max.y); 
-        t[2] = this.clipValue(t[2], this.box.min.z, this.box.max.z);
+		t.x = this.clipValue(t.x, this.box.min.x, this.box.max.x);
+		t.y = this.clipValue(t.y, this.box.min.y, this.box.max.y);
+		t.z = this.clipValue(t.z, this.box.min.z, this.box.max.z);
         
         return true; 
     };
