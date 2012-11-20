@@ -83,7 +83,7 @@
     /** @inheritDoc */
     p.rotate = function(orientation){
 		var destination = new XML3DRotation(this.transform.rotation, undefined, undefined);
-		destination.multiply( orientation );
+		destination = destination.multiply( orientation );
 		if(this.constraint.constrainRotation(orientation, {transformable: this}))
 			this.transform.rotation.set(destination);
 		return this;
