@@ -46,7 +46,7 @@
     ca.addAnimation = function(animation, opt){
 		//do not change options of the animation, store options of the animation of this animatable
 		//same animation might have different options on another animatable
-		this.availableAnimations[animation.name] = new Object();
+		this.availableAnimations[animation.name] = {};
 		var tmp = this.availableAnimations[animation.name];
 		tmp.opt = XMOT.mergeOptions(opt, animation.getOptions());
 		tmp.animation = animation;
@@ -93,8 +93,7 @@
 					that.startClockGenerator(id);
 				}else {
 					//no more loops, we are finished and now the callback
-					var cb = opt.callback;
-					if(typeof(cb) === "function") cb();
+					if(typeof(opt.callback) === "function") opt.callback();
 					a = undefined; //clean up
 				}
 			}
