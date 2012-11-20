@@ -33,22 +33,22 @@
 		 * @private
 		 * @type {Array.<{tween: tween, startPosition:Array.<number>, endPosition:Array.<number>, startOrientation:Array.<number>, endOrientation:Array.<number>}>}
 		 */
-		this.motionQueue = new Array();
-    };
+		this.motionQueue = [];
+    }
 
     var p = ClientTransformable.prototype;
 
     /** @inheritDoc */
     p.setPosition = function(position){
 		if(this.constraint.constrainTranslation(position, {transformable: this}))
-			this.transform.translation.set(new XML3DVec3(position[0],position[1],position[2]));
+			this.transform.translation.set(position);
 		return this;
     };
 
     /** @inheritDoc */
 	p.setOrientation = function(orientation){
 		if(this.constraint.constrainRotation(orientation, {transformable: this})){
-			this.transform.rotation.setQuaternion( new XML3DVec3(orientation[0],orientation[1],orientation[2]), orientation[3] );
+			this.transform.rotation.setQuaternion(orientation);
 		}
 		return this;
     };
@@ -56,38 +56,34 @@
     /** @inheritDoc */
     p.setScale = function(scale){
         if(this.constraint.constrainScaling(scale, {transformable: this})){
-            this.transform.scale.set(new XML3DVec3(scale[0], scale[1], scale[2]));            
+            this.transform.scale.set(scale);
         }
     };
 
     /** @inheritDoc */
     p.getPosition = function(){
-    	return this.transform.translation.toArray(); 
+    	return this.transform.translation;
     };
 
     /** @inheritDoc */
     p.getOrientation = function(){
-    	var axis = this.transform.rotation.axis;
-    	var angle = this.transform.rotation.angle;
-    	return XMOT.math.axisAngleToQuaternion([axis.x, axis.y, axis.z], angle);
+		return this.transform.rotation;
     };
 
     /** @inheritDoc */
     p.getScale = function(){
-    	return this.transform.scale.toArray();
+    	return this.transform.scale;
     };
 
     /** @inheritDoc */
     p.translate = function(translation){
-    	var currentPos = this.getPosition();
-    	return this.setPosition([currentPos[0]+translation[0], currentPos[1]+translation[1], currentPos[2]+translation[2]]);
+    	return this.setPosition( translation.add(this.getPosition()) );
     };
 
     /** @inheritDoc */
     p.rotate = function(orientation){
-		var modifier = new XML3DRotation();
-		modifier.setQuaternion( new XML3DVec3(orientation[0],orientation[1],orientation[2]), orientation[3] );
-		var destination = this.transform.rotation.multiply( modifier );
+		var destination = new XML3DRotation(this.transform.rotation, undefined, undefined);
+		destination.multiply( orientation );
 		if(this.constraint.constrainRotation(orientation, {transformable: this}))
 			this.transform.rotation.set(destination);
 		return this;
@@ -95,7 +91,7 @@
 
     /** @inheritDoc */
     p.scale = function(factor){
-    	this.transform.scale.multiply(new XML3DVec3(factor[0], factor[1], factor[2]));
+    	this.transform.scale.multiply(factor);
     	return this;
     };
 
@@ -183,7 +179,7 @@
 	 */
 	p.checkPosition = function(position){
 		var curPos = this.transform.translation;
-		return (curPos.x == position[0] && curPos.y == position[1] && curPos.z == position[2]);
+		return (curPos.x == position.x && curPos.y == position.y && curPos.z == position.z);
 	};
 
 	/**
@@ -194,7 +190,7 @@
 	 */
 	p.checkOrientation = function(orientation){
 		var curOri = this.transform.orientation;
-		return (curOri.x === orientation[0] && curOri.y === orientation[1] && curOri.z === orientation[2] && curOri.w === orientation[3]);
+		return (curOri.x === orientation.x && curOri.y === orientation.y && curOri.z === orientation.z && curOri.w === orientation.w);
 	};
 
     /**
@@ -223,12 +219,10 @@
 		var end = this.motionQueue[0].endPosition;
 		if(end == undefined) return undefined;
 		var start = this.motionQueue[0].startPosition;
-		var ret = [];
-		var i = 0;
-		for(i=0; i<start.length; i++ ){
-			ret[i] = start[i] + ( end[i] - start[i] ) * t;
-		}
-		return ret;
+		var interpolatedX = start.x + ( end.x - start.x ) * t;
+		var interpolatedY = start.y + ( end.y - start.y ) * t;
+		var interpolatedZ = start.z + ( end.z - start.z ) * t;
+		return new XML3DVec3( interpolatedX, interpolatedY, interpolatedZ );
     };
 
     /**
