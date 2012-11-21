@@ -11,9 +11,9 @@ function rotateCube()
 {
 	document.getElementById("notification").innerHTML = "Rotating the Cube ...";
 	if(muh%2)
-		transformable.setOrientation(new XML3DVec3(0.0, 1.0, 0.0, 0.5));
+		transformable.setOrientation(new XML3DRotation( new XML3DVec3(0.0, 1.0, 0.0), 0.5));
 	else
-		transformable.setOrientation(new XML3DVec3(0.0, 1.0, 0.0, 0.25));
+		transformable.setOrientation(new XML3DRotation( new XML3DVec3(0.0, 1.0, 0.0), 0.25));
 	muh++;
 	document.getElementById("notification").innerHTML = "Rotated the Cube ...";
 }
