@@ -61,15 +61,17 @@
     m.slerp = function(from, to, t) {
         var result = new XML3DRotation();
         // Calculate angle between them -> dotProduct
-        var dotProduct = from.x * to.x + from.y * to.y + from.z * to.z + from.w * to.w;
+        var fromAsArray = from.getQuaternion();
+        var toAsArray = to.getQuaternion();
+        var dotProduct = fromAsArray[0] * toAsArray[0] + fromAsArray[1] * toAsArray[1] + fromAsArray[2] * toAsArray[2] + fromAsArray[3] * toAsArray[3];
         //invert, to make sure we interpolate the shortest way
         if( dotProduct < 0 )
         {
             dotProduct = -dotProduct;
-            to[0] = -to[0];
-            to[1] = -to[1];
-            to[2] = -to[2];
-            to[3] = -to[3];
+            toAsArray[0] = -toAsArray[0];
+            toAsArray[1] = -toAsArray[1];
+            toAsArray[2] = -toAsArray[2];
+            toAsArray[3] = -toAsArray[3];
         }
 
         var p = 0;
@@ -87,10 +89,10 @@
             q = t;
         }
 
-        var x = p * from[0] + q * to[0];
-        var y = p * from[1] + q * to[1];
-        var z = p * from[2] + q * to[2];
-        var w = p * from[3] + q * to[3];
+        var x = p * fromAsArray[0] + q * toAsArray[0];
+        var y = p * fromAsArray[1] + q * toAsArray[1];
+        var z = p * fromAsArray[2] + q * toAsArray[2];
+        var w = p * fromAsArray[3] + q * toAsArray[3];
         result.setQuaternion( new XML3DVec3(x, y, z), w);
 		return result;
     };
