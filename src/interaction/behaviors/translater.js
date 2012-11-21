@@ -60,6 +60,6 @@ XMOT.interaction.behaviors.Translater = new XMOT.Class(
      */
     _onTranslChanged: function(sensor)
     {
-        this.targetTransformable.setPosition(this.translation.toArray()); 
+        this.targetTransformable.setPosition(this.translation);
     }
 });

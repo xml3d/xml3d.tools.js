@@ -96,7 +96,7 @@ XMOT.interaction.behaviors.Scaler = new XMOT.Class(
         var delta = this._startTarGrpScale.multiply(factor);
         var newScale = this._startTarGrpScale.add(delta);
         
-        this.targetTransformable.setScale(newScale.toArray()); 
+        this.targetTransformable.setScale(newScale);
     },
 
     /** Calculates the scaling factor for uniform scaling.

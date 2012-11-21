@@ -235,8 +235,7 @@ XMOT.interaction.behaviors.PlaneSensor = new XMOT.Class(
         if(this.useTransOffset)
             transl = transl.add(this.translationOffset);
 
-        var newTranslArr = transl.toArray(); 
-        if(this.constraint.constrainTranslation(newTranslArr))
+        if(this.constraint.constrainTranslation(transl))
         {
             transl = new window.XML3DVec3(newTranslArr[0], newTranslArr[1], newTranslArr[2]); 
             
