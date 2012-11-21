@@ -58,59 +58,59 @@ XMOT.version = '%VERSION%';
 
     /**
      * Sets the absolute position of the Transformable in local space.
-     * @param {Array.<number>} position position as 3d vector in local space
+     * @param {XML3DVec3} position position as 3d vector in local space
      * @return {Transformable} the Transformable
      */
     p.setPosition = function(position){};
 
     /**
      * Sets the absolute orientation of the Movebale in local space.
-     * @param {Array.<number>} orientation orientation as quaternion in local space
+     * @param {XML3DRotation>} orientation orientation as quaternion in local space
      * @return {Transformable} the Transformable
      */
     p.setOrientation = function(orientation){};
 
     /**
      * Sets a new scale factor
-     * @param {Array.<number>} scale scale factor
+     * @param {XML3DVec3} scale scale factor
      */
     p.setScale = function(scale){};
 
     /**
      * Gets the current position
-     * @return {Array.<number>} position
+     * @return {XML3DVec3} position
      */
     p.getPosition = function(){};
 
     /**
      * Gets the current orientation as quaternion
-     * @return {Array.<number>} orientation
+     * @return {XML3DRotation} orientation
      */
     p.getOrientation = function(){};
 
     /**
      * Gets the current scale factor
-     * @return {Array.<number>} scale factor
+     * @return {XML3DVec3} scale factor
      */
     p.getScale = function(){};
 
     /**
      * Translate the Transformable by a given Vector.
-     * @param {Array.<number>} translation 3d Vector
+     * @param {XML3DVec3} translation 3d Vector
      * @return {Transformable} the Transformable
      */
     p.translate = function(translation){};
 
     /**
      * Rotates the Transformable by a given Quaternion.
-     * @param {Array.<number>} rotation Quaternion
+     * @param {XML3DRotation} rotation Quaternion
      * @return {Transformable} the Transformable
      */
     p.rotate = function(rotation){};
 
     /**
      * Scales the transformable by a given vector
-     * @param{Array.<number>} factor scale factor
+     * @param {XML3DVec3} factor scale factor
      * @return {Transformable} the Transformable
      */
     p.scale = function(factor){};
@@ -118,8 +118,8 @@ XMOT.version = '%VERSION%';
     /**
      * Interpolated translation over time to position in local space.
      * The animation is put into a fifo-queue and will be eventually executed.
-     * @param {Array.<number>|undefined} position local space Vector
-     * @param {Array.<number>|undefined} orientation orientation Quaternion
+     * @param {XML3DVec3|undefined} position local space Vector
+     * @param {XML3DRotation|undefined} orientation orientation Quaternion
      * @param {number} time when to reach the position, in milliseconds
      * @param {{delay: number, easing: Function, queueing: Boolean, callback: Function}=} opt options
      * @return {Transformable} the Transformable
@@ -218,8 +218,8 @@ XMOT.version = '%VERSION%';
      * Checks if a rotation operation is valid. The first argument might be 
      * further constrained inside the method. 
      * 
-     * @param {Array.<number>} newRotation Quaternion, the new rotation 
-     * @param {Object} [opts] options for the constraint-check
+     * @param {XML3DRotation} newRotation Quaternion, the new rotation
+     * @param {{transformable: Transformable}} [opts] options for the constraint-check
      * @return {boolean} returns true if the operation is valid, false otherwise
      */
     c.constrainRotation = function(newRotation, opts){};
@@ -228,8 +228,8 @@ XMOT.version = '%VERSION%';
      * Checks if a translation operation is valid. The first argument might be 
      * further constrained inside the method. 
      * 
-     * @param {Array.<number>} newTranslation, the new translation 
-     * @param {Object} [opts] options for the constraint-check
+     * @param {XML3DVec3} newTranslation, the new translation
+     * @param {{transformable: Transformable}} [opts] options for the constraint-check
      * @return {boolean} returns true if the operation is valid, false otherwise
      */
     c.constrainTranslation = function(newTranslation, opts){};
@@ -238,8 +238,8 @@ XMOT.version = '%VERSION%';
      * Checks if a scaling operation is valid. The first argument might be 
      * further constrained inside the method. 
      * 
-     * @param {Array.<number>} newScale the new scaling  
-     * @param {Object} [opts] options for the constraint-check
+     * @param {XML3DVec3} newScale the new scaling
+     * @param {{transformable: Transformable}} [opts] options for the constraint-check
      * @return {boolean} returns true if the operation is valid, false otherwise
      */
     c.constrainScaling = function(newScale, opts){};

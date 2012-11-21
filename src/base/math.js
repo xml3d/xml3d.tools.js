@@ -54,22 +54,24 @@
 
     /**
      * Interpolate between two quaternions the shortest way
-     * @param{Array.<number>} from quaternion from
-     * @param{Array.<number>} to quaternion to
+     * @param{XML3DRotation} from quaternion from
+     * @param{XML3DRotation} to quaternion to
      * @param{number} t interpolation parameter
      */
     m.slerp = function(from, to, t) {
-        var result = [];
+        var result = new XML3DRotation();
         // Calculate angle between them -> dotProduct
-        var dotProduct = from[0] * to[0] + from[1] * to[1] + from[2] * to[2] + from[3] * to[3];
+        var fromAsArray = from.getQuaternion();
+        var toAsArray = to.getQuaternion();
+        var dotProduct = fromAsArray[0] * toAsArray[0] + fromAsArray[1] * toAsArray[1] + fromAsArray[2] * toAsArray[2] + fromAsArray[3] * toAsArray[3];
         //invert, to make sure we interpolate the shortest way
         if( dotProduct < 0 )
         {
             dotProduct = -dotProduct;
-            to[0] = -to[0];
-            to[1] = -to[1];
-            to[2] = -to[2];
-            to[3] = -to[3];
+            toAsArray[0] = -toAsArray[0];
+            toAsArray[1] = -toAsArray[1];
+            toAsArray[2] = -toAsArray[2];
+            toAsArray[3] = -toAsArray[3];
         }
 
         var p = 0;
@@ -87,11 +89,12 @@
             q = t;
         }
 
-        result[0] = p * from[0] + q * to[0];
-        result[1] = p * from[1] + q * to[1];
-        result[2] = p * from[2] + q * to[2];
-        result[3] = p * from[3] + q * to[3];
-        return result;
+        var x = p * fromAsArray[0] + q * toAsArray[0];
+        var y = p * fromAsArray[1] + q * toAsArray[1];
+        var z = p * fromAsArray[2] + q * toAsArray[2];
+        var w = p * fromAsArray[3] + q * toAsArray[3];
+        result.setQuaternion( new XML3DVec3(x, y, z), w);
+		return result;
     };
 
     /** Convert degrees to radians. 

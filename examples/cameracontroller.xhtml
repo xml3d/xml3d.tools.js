@@ -75,8 +75,8 @@
 
 			function initCamera(){
 				var rotatearoundpoint = false;
-				movObjects.cam = new XMOT.CameraController("node-camera_player", "scene", [0,0,0,0], "left", rotatearoundpoint);
-				movObjects.cam.pointToRotateAround = [0,0,0];
+				var initialRotation = new XML3DRotation(new XML3DVec3(0, 0, 0), 0);
+				movObjects.cam = new XMOT.CameraController("node-camera_player", "scene", initialRotation, "left", rotatearoundpoint);
 				createPois();
 			}
 
@@ -90,14 +90,9 @@
 			function createPois(){
 				var cam = movObjects.cam;
 				var i = 0;
-				// FU JAVASCRIPT!!!
-				cam.addPointOfInterest([i,i,i], [i,i,i,i]);
-				cam.addPointOfInterest([i,i,i], [i,i,i,i]);i++;
-				cam.addPointOfInterest([i,i,i], [i,i,i,i]);i++;
-				cam.addPointOfInterest([i,i,i], [i,i,i,i]);i++;
-				cam.addPointOfInterest([i,i,i], [i,i,i,i]);i++;
-				cam.addPointOfInterest([i,i,i], [i,i,i,i]);i++;
-				cam.addPointOfInterest([i,i,i], [i,i,i,i]);
+				for(i=0; i!=5; i++)
+					cam.addPointOfInterest( new XML3DVec3(i, i, i), new XML3DRotation(new XML3DVec3(i, i, i), i) );
+				cam.addPointOfInterest( new XML3DVec3(i, i, i), new XML3DRotation(new XML3DVec3(i, i, i), i) );
 			}
 		</script>
 		</div> 

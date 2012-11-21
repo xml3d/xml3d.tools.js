@@ -10,7 +10,7 @@
 	 * @constructor
 	 * @param {string} camera_id name of the group of the camera
 	 * @param {string} xml3dElementId name of the group of the complete scene
-	 * @param {Array.<number>} initialRotation rotation to rotate the camera in a manner, that "forward" is a movement along -z
+	 * @param {XML3DRotation} initialRotation rotation to rotate the camera in a manner, that "forward" is a movement along -z
 	 * @param {string} mouseButton "left", "right", "middle"
 	 * @param {boolean} inspectMode determine wether to use inspectMode or not
 	 */
@@ -114,7 +114,7 @@
 		 * @type {Transformable}
 		 */
 		this.transformable = factory.createTransformable(cam, this.constraint);
-		var initRot = initialRotation || [0,0,0,0];
+		var initRot = initialRotation || new XML3DRotation().setQuaternion(new XML3DVec3(0,0,0), 0);
 		this.transformable.rotate(initialRotation);
 		/**
 		 * starting point of the transformable, used to reset position and orientation
@@ -129,8 +129,7 @@
 		 */
 		this.mouseButton = 0;
 		this.setMouseButtonValue(mouseButton);
-		var pointToRotateAroundAsXML3dVec = this.sceneBoundingBox.center();
-		this.pointToRotateAround = [pointToRotateAroundAsXML3dVec.x, pointToRotateAroundAsXML3dVec.y, pointToRotateAroundAsXML3dVec.z];
+		this.pointToRotateAround = this.sceneBoundingBox.center();
 
 		/**
 		 * camera mode freeflight
@@ -175,7 +174,7 @@
 	/**
 	 * Get current position in local space
 	 * @public
-	 * @return {Array.<number>} 3D vector
+	 * @return {XML3DVec3} 3D vector
 	 */
 	cc.getPosition = function(){
 		return this.transformable.getPosition();
@@ -184,7 +183,7 @@
 	/**
 	 * Get current orientation in local space
 	 * @public
-	 * @return {Array.<number>} quaternion
+	 * @return {XML3DRotation} quaternion
 	 */
 	cc.getOrientation = function(){
 		return this.transformable.getOrientation();
@@ -194,8 +193,8 @@
 	/**
 	 * Add a Point of Interest
 	 * @public
-	 * @param {Array.<number>} position
-	 * @param {Array.<number>} orientation
+	 * @param {XML3DVec3} position
+	 * @param {XML3DRotation} orientation
 	 * @return {CameraController} this
 	 */
 	cc.addPointOfInterest = function(position, orientation){
@@ -239,10 +238,10 @@
 	 */
 	cc.moveBackAndForward = function(l){
 		if(l === 0) return;
-		var vecX = [0, 0, 1];
-		var result = vec3.create();
-		quat4.multiplyVec3(this.transformable.getOrientation(),vecX, result);
-		this.transformable.translate(vec3.scale(vec3.normalize(result), l));
+		var vecZ = new XML3DVec3(0, 0, 1);
+		var moveVec = this.transformable.getOrientation().rotateVec3(vecZ);
+		moveVec = moveVec.normalize().scale(l);
+		this.transformable.translate(moveVec);
 	};
 
 	/**
@@ -252,12 +251,11 @@
 	 */
 	cc.moveLeftAndRight = function(l){
 		if(l === 0) return;
-		var vecY = [1, 0, 0]; // global x is local z of the camera
-		var result = vec3.create();
-		quat4.multiplyVec3(this.transformable.getOrientation(),vecY, result);
-		var moveVec = vec3.scale(vec3.normalize(result), l);
+		var vecX = new XML3DVec3(1, 0, 0); // global x is local z of the camera
+		var moveVec = this.transformable.getOrientation().rotateVec3(vecX);
+		moveVec = moveVec.normalize().scale(l);
 		this.transformable.translate(moveVec);
-		this.pointToRotateAround = vec3.add(this.pointToRotateAround, moveVec);
+		this.pointToRotateAround = this.pointToRotateAround.add(moveVec);
 	};
 
 	/**
@@ -267,10 +265,10 @@
 	 */
 	cc.moveUpAndDown = function(l){
 		if(l === 0) return;
-		var vecY = [0, 1, 0];
-		var result = vec3.create();
-		quat4.multiplyVec3(this.transformable.getOrientation(),vecY, result);
-		this.transformable.translate(vec3.scale(vec3.normalize(result), l));
+		var vecY = new XML3DVec3(0, 1, 0);
+		var moveVec = this.transformable.getOrientation().rotateVec3(vecY);
+		moveVec = moveVec.normalize().scale(l);
+		this.transformable.translate(moveVec);
 	};
 
 	/**
@@ -313,7 +311,7 @@
 	 * @private
 	 */
 	cc.preventRolling = function(){
-		this.transformable.rotate( XMOT.math.axisAngleToQuaternion( [1,0,0], -this.angleUp) );
+		this.transformable.rotate( new XML3DRotation( new XML3DVec3(1, 0, 0), -this.angleUp) );
 		this.angleUp = 0;
 	};
 
@@ -324,7 +322,7 @@
 	 */
 	cc.rotateCameraUpAndDown = function(angle){
 		this.angleUp += angle*Math.PI;
-		this.transformable.rotate( XMOT.math.axisAngleToQuaternion( [1,0,0], angle*Math.PI) );
+		this.transformable.rotate( new XML3DRotation(new XML3DVec3(1, 0, 0), angle*Math.PI) );
 	};
 
 	/**
@@ -334,64 +332,59 @@
 	 */
 	cc.rotateCameraLeftAndRight = function(angle){
 		//rotate up/down befor rotating sidewards, this prevends from rolling
-		this.transformable.rotate( XMOT.math.axisAngleToQuaternion( [1,0,0], -this.angleUp) );
-		this.transformable.rotate( XMOT.math.axisAngleToQuaternion( [0,1,0], angle*Math.PI) );
+		this.transformable.rotate( new XML3DRotation(new XML3DVec3(1, 0, 0), -this.angleUp) );
+		this.transformable.rotate( new XML3DRotation(new XML3DVec3(0, 1, 0), angle*Math.PI) );
 		//and rotate up/down again
-		this.transformable.rotate( XMOT.math.axisAngleToQuaternion( [1,0,0], this.angleUp) );
+		this.transformable.rotate( new XML3DRotation(new XML3DVec3(1, 0, 0), this.angleUp) );
 	};
 
 	cc.rotateCameraAroundPointLeftAndRight = function(angle){
-		var distanceToLookAt = this.distanceToLookAtPoint(this.pointToRotateAround);
-		//var cameraDirection = this.cameraDirectionAsXML3D();
-		//var translationToOrigin = this.transformable.transform.translation.negate();
-		this.transformable.setPosition([0,0,0]);
+		var distanceToLookAt = this.distanceBetweenCameraAndPoint(this.pointToRotateAround);
+		this.transformable.setPosition(new XML3DVec3(0, 0, 0));
 		this.rotateCameraLeftAndRight(angle);
 		var newDirection = this.cameraDirectionAsXML3D();
 		var tmp = newDirection.scale(distanceToLookAt).negate();
-		this.transformable.setPosition([tmp.x, tmp.y, tmp.z]);
+		this.transformable.setPosition(tmp);
 		this.transformable.translate(this.pointToRotateAround);
 	};
 
 	cc.rotateCameraAroundPointUpAndDown = function(angle){
-		var distanceToLookAt = this.distanceToLookAtPoint(this.pointToRotateAround);
-		//var cameraDirection = this.cameraDirectionAsXML3D();
-		//var translationToOrigin = this.transformable.transform.translation.negate();
-		this.transformable.setPosition([0,0,0]);
+		var distanceToLookAt = this.distanceBetweenCameraAndPoint(this.pointToRotateAround);
+		this.transformable.setPosition(new XML3DVec3(0, 0, 0));
 		this.rotateCameraUpAndDown(angle);
 		var newDirection = this.cameraDirectionAsXML3D();
 		var tmp = newDirection.scale(distanceToLookAt).negate();
-		this.transformable.setPosition([tmp.x, tmp.y, tmp.z]);
+		this.transformable.setPosition(tmp);
 		this.transformable.translate(this.pointToRotateAround);
 	};
 
 	/**
 	 * distance between camera and a point
-	 * @param point
+	 * @param {XML3DVec3} point
 	 * @return {Number|void}
 	 */
 	cc.distanceBetweenCameraAndPoint = function(point){
 		var camPosition = this.transformable.transform.translation;
-		var p = new XML3DVec3(point[0],point[1],point[2]);
 		return camPosition.subtract(p).length();
 	};
 
 	/**
 	 * look at a certain point
 	 * @public
-	 * @param point {Array}
+	 * @param {XML3DVec3} point
 	 */
 	cc.lookAtPoint = function(point){
 		var position = this.getPosition();
-		var direction = [point[0]-position[0],point[1]-position[1],point[2]-position[2]];
-		var orientation =this.getRotationFromDirection(direction);
+		var direction = point.subtract(position);
+		var orientation = this.getRotationFromDirection(direction);
 		this.transformable.setOrientation(orientation);
 	};
 
 	/**
 	 * Get rotation to look from a point at another
-	 * @param fromPoint
-	 * @param atPoint
-	 * @return {vec3|void}
+	 * @param {XML3DVec3} fromPoint
+	 * @param {XML3DVec3} atPoint
+	 * @return {XML3DVec3|void}
 	 */
 	cc.getRotationToLookFromPointAtPoint = function (fromPoint, atPoint) {
 		return this.getRotationFromDirection(atPoint.subtract(fromPoint));
@@ -399,38 +392,32 @@
 
 	/**
 	 * @private
-	 * @param direction
-	 * @return {vec3|void}
+	 * @param {XML3DVec3} direction
+	 * @return {{XML3DVec3}|void}
 	 */
 	cc.getRotationFromDirection = function (direction) {
 		//xml3DVec3 fails with error if normalizing null vector
-		if (direction) {
-			XMOT.math.normalizeVector(direction);
-			direction = new XML3DVec3(direction[0],direction[1],direction[2]);
-		}
-		else {
-			direction =  new window.XML3DVec3(0,0,-1);
+		if (!direction) direction =  new window.XML3DVec3(0,0,-1);
+
+		if( !(direction.x == 0 && direction.y == 0 && direction.z == 0) ){
 			direction = direction.normalize();
 		}
 
 
 		var up = new XML3DVec3(0,1,0);
-		var tmpX = new XML3DVec3();
-		var tmpY = new XML3DVec3();
-		var tmpZ = new XML3DVec3();
+		var tmpX = direction.cross(up);
 
-		vec3.cross(direction._data,up._data,tmpX);
-		if(!vec3.length(tmpX)) {
+		if(tmpX.length() != 0) {
 			tmpX = this.transformable.transform.rotation.rotateVec3(new window.XML3DVec3(1,0,0))._data;
 		}
-		vec3.cross(tmpX,direction._data,tmpY);
-		vec3.negate(direction._data,tmpZ);
+		var tmpY = tmpX.cross(direction);
+		var tmpZ = direction.negate();
 
 		var q = quat4.create();
 		quat4.setFromBasis(tmpX, up._data, tmpZ, q);
 		var lookAtVector = new XML3DRotation();
 		lookAtVector._setQuaternion(q);
-		return q;
+		return lookAtVector;
 	};
 
 	/**

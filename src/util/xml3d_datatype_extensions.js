@@ -271,7 +271,7 @@
     p.translation = function() 
     {   
         return new window.XML3DVec3(this.m41, this.m42, this.m43); 
-    }
+    };
 
     /** 
      * Return the scale of this matrix as XML3DVec3. 
