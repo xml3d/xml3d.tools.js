@@ -148,9 +148,9 @@
 	 * @return {XML3DVec3|undefined} interpolated array
 	 */
 	k.interpolateXML3DVec3 = function(vec1, vec2, t){
-		var interpolatedX = vec2.x + ( vec1.x - vec2.x ) * t;
-		var interpolatedY = vec2.y + ( vec1.y - vec2.y ) * t;
-		var interpolatedZ = vec2.z + ( vec1.z - vec2.z ) * t;
+		var interpolatedX = vec1.x + ( vec2.x - vec1.x ) * t;
+		var interpolatedY = vec1.y + ( vec2.y - vec1.y ) * t;
+		var interpolatedZ = vec1.z + ( vec2.z - vec1.z ) * t;
 		return new XML3DVec3( interpolatedX, interpolatedY, interpolatedZ );
 	};
 
