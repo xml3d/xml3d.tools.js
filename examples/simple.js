@@ -3,8 +3,7 @@ transformable = undefined;
 function initTransformable(){
 	var cube = document.getElementById("cube");
 	var factory = XMOT.ClientMotionFactory;
-	var constraint = new XMOT.CollisionConstraint(5.0, 5.0, "img/collision.png");
-	transformable = factory.createTransformable(cube, constraint);
+	transformable = factory.createTransformable(cube);
 }
 
 function rotateCube()
