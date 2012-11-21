@@ -75,7 +75,7 @@ XMOT.interaction.behaviors.Rotater = new XMOT.Class(
     {
         this.trackBall.resetRotationOffset();
         
-        this.targetTransformable.setOrientation((new window.XML3DRotation()).getQuaternion());
+        this.targetTransformable.setOrientation(new window.XML3DRotation());
     },
 
     /** restrict the rotation to x or y axis
@@ -173,6 +173,6 @@ XMOT.interaction.behaviors.Rotater = new XMOT.Class(
                 
         var finalRot = this._rotationOffset.multiply(canRot);
         
-        this.targetTransformable.setOrientation(finalRot.getQuaternion());
+        this.targetTransformable.setOrientation(finalRot);
     }
 });
