@@ -265,7 +265,7 @@
 	 */
 	cc.moveUpAndDown = function(l){
 		if(l === 0) return;
-		var vecY = [0, 1, 0];
+		var vecY = new XML3DVec3(0, 1, 0);
 		var moveVec = this.transformable.getOrientation().rotateVec3(vecY);
 		moveVec = moveVec.normalize().scale(l);
 		this.transformable.translate(moveVec);
