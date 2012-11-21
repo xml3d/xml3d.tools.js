@@ -48,7 +48,7 @@
     /** @inheritDoc */
 	p.setOrientation = function(orientation){
 		if(this.constraint.constrainRotation(orientation, {transformable: this})){
-			this.transform.rotation.setQuaternion(orientation);
+			this.transform.rotation.set(orientation);
 		}
 		return this;
     };
