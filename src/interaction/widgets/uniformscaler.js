@@ -38,6 +38,7 @@ XMOT.interaction.widgets.UniformScaler = new XMOT.Class(
     {
         // shaders
         this.geo.addShaders("s_scale", {diffCol: "0.9 0.9 0.9"});
+        this.geo.addShaders("s_scale_highlight", {diffCol: "0.9 0.9 0"});
         
         // cubes
         this.geo.addTransforms("t_scale");
@@ -113,11 +114,9 @@ XMOT.interaction.widgets.UniformScaler = new XMOT.Class(
      *  @private 
      */
     _activateHandles: function()
-    {
-        var sh = document.getElementById(this.globalID("s_scale")); 
-        var float3 = XMOT.util.getNamedChild(sh, "diffuseColor");
-
-        float3.firstChild.data = "0.9 0.9 0";
+    {        
+        XMOT.util.shader(this.element("scale"), 
+                         this.element("s_scale_highlight"));
     },
 
     /** 
@@ -125,11 +124,9 @@ XMOT.interaction.widgets.UniformScaler = new XMOT.Class(
      *  @private 
      */
     _deactivateHandles: function()
-    {
-        var sh = document.getElementById(this.globalID("s_scale")); 
-        var float3 = XMOT.util.getNamedChild(sh, "diffuseColor");
-
-        float3.firstChild.data = "0.9 0.9 0.9";
+    {        
+        XMOT.util.shader(this.element("scale"), 
+                         this.element("s_scale"));
     },
 
     // --------------------------------

@@ -71,7 +71,8 @@ XMOT.interaction.widgets.SingleAxisRotator = new XMOT.Class(
     onCreateDefsElements: function()
     {
         // shaders
-        this.geo.addShaders("s_rot_root", {diffCol: "0.9 0.9 0.9"});
+        this.geo.addShaders("s_rot_root", {diffCol: "0.9 0.9 0.9"});        
+        this.geo.addShaders("s_rot_root_highlight", {diffCol: "0.9 0.9 0"}); 
         
         // transforms
         this.geo.addTransforms("t_rot_1", {translation: "1 0 1"});
@@ -136,10 +137,10 @@ XMOT.interaction.widgets.SingleAxisRotator = new XMOT.Class(
      */
     _activateHandles: function()
     {
-        var sh = document.getElementById(this.globalID("s_rot_root")); 
-        var float3 = XMOT.util.getNamedChild(sh, "diffuseColor");
-
-        float3.firstChild.data = "0.9 0.9 0";
+        var grp = this.element("rot_root");
+        var sh = this.element("s_rot_root_highlight"); 
+        
+        XMOT.util.shader(grp, sh); 
 
         XML3D.debug.logInfo("_activateHandles");
     },
@@ -150,10 +151,10 @@ XMOT.interaction.widgets.SingleAxisRotator = new XMOT.Class(
      */
     _deactivateHandles: function()
     {
-        var sh = document.getElementById(this.globalID("s_rot_root")); 
-        var float3 = XMOT.util.getNamedChild(sh, "diffuseColor");
-
-        float3.firstChild.data = "0.9 0.9 0.9";
+        var grp = this.element("rot_root");
+        var sh = this.element("s_rot_root"); 
+        
+        XMOT.util.shader(grp, sh); 
 
         XML3D.debug.logInfo("_deactivateHandles");
     },

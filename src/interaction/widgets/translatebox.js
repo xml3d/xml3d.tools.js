@@ -53,12 +53,12 @@ XMOT.interaction.widgets.TranslateBox = new XMOT.Class(
     onCreateDefsElements: function()
     {
         // shaders
-        this.geo.addShaders([
-            "s_xytrans", "s_yztrans", "s_xztrans",
-            "s_xytrans_inv", "s_yztrans_inv", "s_xztrans_inv"
-        ], {
+        this.geo.addShaders("s_transl", {
             diffCol: "1 1 1", transp: "0.85"
-        }); 
+        });
+        this.geo.addShaders("s_transl_highlight", {
+            diffCol: "1 1 1", transp: "0.4"
+        });        
         
         // transforms        
         this.geo.addTransforms("t_xytrans", {
@@ -117,14 +117,11 @@ XMOT.interaction.widgets.TranslateBox = new XMOT.Class(
      * 
      *  @param {XMOT.interaction.behaviors.PDSensor} sensor
      *  @param {MouseEvent} ev
-     *  @param {string} localShaderID 
      */
-    _onDragStart: function(sensor, ev, localShaderID)
+    _onDragStart: function(sensor, ev)
     {
-        var sh = this.element(localShaderID); 
-        var transp = XMOT.util.getNamedChild(sh, "transparency"); 
-        
-        transp.firstChild.data = "0.4";
+        XMOT.util.shader(sensor.pickGroups[0], 
+            this.geo.defs["s_transl_highlight"]); 
         
         this.notifyListeners("dragstart", this, sensor, ev); 
     },
@@ -135,15 +132,12 @@ XMOT.interaction.widgets.TranslateBox = new XMOT.Class(
      *  @private 
      * 
      *  @param {XMOT.interaction.behaviors.PDSensor} sensor
-     *  @param {MouseEvent} ev
-     *  @param {string} localShaderID 
+     *  @param {MouseEvent} ev 
      */
-    _onDragEnd: function(sensor, ev, localShaderID)
+    _onDragEnd: function(sensor, ev)
     {
-        var sh = this.element(localShaderID); 
-        var transp = XMOT.util.getNamedChild(sh, "transparency");
-        
-        transp.firstChild.data = "0.9";
+        XMOT.util.shader(sensor.pickGroups[0], 
+            this.geo.defs["s_transl"]); 
         
         this.notifyListeners("dragend", this, sensor, ev);
     },
@@ -180,10 +174,9 @@ XMOT.interaction.widgets.TranslateBox = new XMOT.Class(
         
         // attach listeners
         var self = this;
-        var localShId = "s_" + localID; 
 
-        this.behavior[localID].addListener("dragstart", function(sensor, ev){self._onDragStart(sensor, ev, localShId);});
-        this.behavior[localID].addListener("dragend", function(sensor, ev){self._onDragEnd(sensor, ev, localShId);});
+        this.behavior[localID].addListener("dragstart", function(sensor, ev){self._onDragStart(sensor, ev);});
+        this.behavior[localID].addListener("dragend", function(sensor, ev){self._onDragEnd(sensor, ev);});
         this.behavior[localID].addListener("touch", this.callback("_onTouch")); 
     }, 
     
@@ -200,7 +193,7 @@ XMOT.interaction.widgets.TranslateBox = new XMOT.Class(
         var opts = {
             id: this.globalID(localID),
             transform: "#" + this.globalID("t_" + localID), 
-            shader: "#" + this.globalID("s_" + localID), 
+            shader: "#" + this.globalID("s_transl"), 
             children: [rect]
         }; 
         
