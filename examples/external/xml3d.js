@@ -21,13 +21,13 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-@version: DEVELOPMENT SNAPSHOT (12.11.2012 15:43:16 CET)
+@version: DEVELOPMENT SNAPSHOT (26.11.2012 16:29:39 CET)
 **/
 /** @namespace * */
 var XML3D = XML3D || {};
 
 /** @define {string} */
-XML3D.version = 'DEVELOPMENT SNAPSHOT (12.11.2012 15:43:16 CET)';
+XML3D.version = 'DEVELOPMENT SNAPSHOT (26.11.2012 16:29:39 CET)';
 /** @const */
 XML3D.xml3dNS = 'http://www.xml3d.org/2009/xml3d';
 /** @const */
@@ -11385,8 +11385,8 @@ XML3D.webgl.stopEvent = function(ev) {
             break; // gl.INT_VEC4
 
         case 5126:
-            if (value.length)
-                gl.uniform1f(u.location, value[0]);
+            if (value.length != null)
+                gl.uniform1fv(u.location, value);
             else
                 gl.uniform1f(u.location, value);
             break; // gl.FLOAT
@@ -11955,9 +11955,10 @@ var Renderer = function(handler, width, height) {
 
     //Light information is needed to create shaders, so process them first
 	this.lights = {
-	        changed : true,
-	        point: { length: 0, adapter: [], intensity: [], position: [], attenuation: [], visibility: [] },
-	        directional: { length: 0, adapter: [], intensity: [], direction: [], attenuation: [], visibility: [] }
+            changed : true,
+            point: { length: 0, adapter: [], intensity: [], position: [], attenuation: [], visibility: [] },
+            directional: { length: 0, adapter: [], intensity: [], direction: [], attenuation: [], visibility: [] },
+            spot: { length: 0, adapter: [], intensity: [], direction: [], attenuation: [], visibility: [], position: [], beamWidth: [], cutOffAngle: [] }
 	};
 
     this.drawableObjects = new Array();
@@ -12125,10 +12126,11 @@ Renderer.prototype.recompileShader = function(shaderAdapter) {
  * @return
  */
 Renderer.prototype.changeLightData = function(lightType, field, offset, newValue) {
-        var data = this.lights[lightType][field];
-        if (!data) return;
-        Array.set(data, offset, newValue);
-        this.lights.changed = true;
+    var data = this.lights[lightType][field];
+    if (!data) return;
+    if(field=="beamWidth" || field=="cutOffAngle") offset/=3; //some parameters are scalar
+    Array.set(data, offset, newValue);
+    this.lights.changed = true;
 };
 
 Renderer.prototype.removeDrawableObject = function(obj) {
@@ -12345,6 +12347,13 @@ Renderer.prototype.drawObjects = function(objectArray, shaderId, xform, lights, 
         parameters["directionalLightDirection[0]"] = lights.directional.direction;
         parameters["directionalLightVisibility[0]"] = lights.directional.visibility;
         parameters["directionalLightIntensity[0]"] = lights.directional.intensity;
+        parameters["spotLightAttenuation[0]"] = lights.spot.attenuation;
+        parameters["spotLightPosition[0]"] = lights.spot.position;
+        parameters["spotLightIntensity[0]"] = lights.spot.intensity;
+        parameters["spotLightVisibility[0]"] = lights.spot.visibility;
+        parameters["spotLightDirection[0]"] = lights.spot.direction;
+        parameters["spotLightCosBeamWidth[0]"] = lights.spot.beamWidth.map(Math.cos);
+        parameters["spotLightCosCutOffAngle[0]"] = lights.spot.cutOffAngle.map(Math.cos);
         shader.needsLights = false;
     }
 
@@ -12775,7 +12784,7 @@ Renderer.prototype.notifyDataChanged = function() {
         this.textureAdapter.notifyChanged(evt);
     };
 
-    var staticAttributes = ["position", "direction", "intensity", "attenuation"];
+    var staticAttributes = ["position", "direction", "intensity", "attenuation", "beamWidth", "cutOffAngle"];
 
     /**
      * Adapter for <lightshader>
@@ -12796,6 +12805,10 @@ Renderer.prototype.notifyDataChanged = function() {
     var LIGHT_DEFAULT_INTENSITY = vec3.create([1,1,1]);
     /** @const */
     var LIGHT_DEFAULT_ATTENUATION = vec3.create([0,0,1]);
+    /** @const */
+    var SPOTLIGHT_DEFAULT_BEAMWIDTH = 1.570796;
+    /** @const */
+    var SPOTLIGHT_DEFAULT_CUTOFFANGLE = 2.356194;
 
     /**
      *
@@ -12828,6 +12841,27 @@ Renderer.prototype.notifyDataChanged = function() {
         var intensity = dataTable["intensity"] ? dataTable["intensity"].getValue() : LIGHT_DEFAULT_INTENSITY;
 
         Array.set(directional.intensity, offset, [intensity[0]*i, intensity[1]*i, intensity[2]*i]);
+    };
+
+    /**
+    *
+    * @param {Object} directional
+    * @param {number} i
+    * @param {number} offset
+    */
+    XML3D.webgl.LightShaderRenderAdapter.prototype.fillSpotLight = function(spot, i, offset) {
+        this.callback = spot.dataChanged;
+        this.offsets.push(offset);
+        var dataTable = this.computeRequest.getResult().getOutputMap();
+        var intensity = dataTable["intensity"] ? dataTable["intensity"].getValue() : LIGHT_DEFAULT_INTENSITY;
+        var attenuation = dataTable["attenuation"] ? dataTable["attenuation"].getValue() : LIGHT_DEFAULT_ATTENUATION;
+        var beamWidth = dataTable["beamWidth"] ? dataTable["beamWidth"].getValue() : [SPOTLIGHT_DEFAULT_BEAMWIDTH];
+        var cutOffAngle = dataTable["cutOffAngle"] ? dataTable["cutOffAngle"].getValue() : [SPOTLIGHT_DEFAULT_CUTOFFANGLE];
+
+        Array.set(spot.intensity, offset, [intensity[0]*i, intensity[1]*i, intensity[2]*i]);
+        Array.set(spot.attenuation, offset, attenuation);
+        Array.set(spot.beamWidth, offset/3, [beamWidth[0]]);
+        Array.set(spot.cutOffAngle, offset/3, [cutOffAngle[0]]);
     };
 
     /**
@@ -13353,6 +13387,9 @@ XML3D.webgl.MAX_MESH_INDEX_COUNT = 65535;
      * @param {XML3D.events.Notification} evt
      */
     p.notifyChanged = function(evt) {
+        if(this._isDestroyed)
+            return; 
+        
         if( (evt.type == XML3D.events.ADAPTER_HANDLE_CHANGED ) && !evt.internalType ){
             if(evt.key == "shader"){
                 this.updateShader(evt.adapter);
@@ -13555,6 +13592,7 @@ XML3D.webgl.MAX_MESH_INDEX_COUNT = 65535;
         this.dataChanged();
         this.factory.renderer.removeDrawableObject(this.getMyDrawableObject());
         this.getMyDrawableObject = noDrawableObject;
+        this._isDestroyed = true;
     };
 
     /**
@@ -13961,10 +13999,14 @@ XML3D.webgl.MAX_MESH_INDEX_COUNT = 65535;
             break;
         case "parenttransform":
             this.transform = evt.newValue;
-            if (this.lightType == "directional")
-                this.renderer.changeLightData(this.lightType, "direction", this.offset, this.applyTransform(XML3D_DIRECTIONALLIGHT_DEFAULT_DIRECTION));
-            else
+            if (this.lightType == "directional") {
+                this.renderer.changeLightData(this.lightType, "direction", this.offset, this.applyTransformDir(XML3D_DIRECTIONALLIGHT_DEFAULT_DIRECTION));
+            } else if (this.lightType == "spot") {
+                this.renderer.changeLightData(this.lightType, "direction", this.offset, this.applyTransformDir(XML3D_SPOTLIGHT_DEFAULT_DIRECTION));
                 this.renderer.changeLightData(this.lightType, "position", this.offset, this.applyTransform([0,0,0]));
+            } else {
+                this.renderer.changeLightData(this.lightType, "position", this.offset, this.applyTransform([0,0,0]));
+            }
 
             break;
         }
@@ -13974,17 +14016,28 @@ XML3D.webgl.MAX_MESH_INDEX_COUNT = 65535;
 
     /** @const */
 	var XML3D_DIRECTIONALLIGHT_DEFAULT_DIRECTION = vec3.create([0,0,-1]), tmpDirection = vec3.create();
+    /** @const */
+	var XML3D_SPOTLIGHT_DEFAULT_DIRECTION = vec3.create([0,0,1]);
 
 
 	LightRenderAdapter.prototype.applyTransform = function(vec) {
 	    if (this.transform) {
             var t = this.transform;
-            var newVec = mat4.multiplyVec4(t, quat4.create([vec[0], vec[1], vec[2], 1]));
+            var newVec = mat4.multiplyVec4(t, [vec[0], vec[1], vec[2], 1]);
             return [newVec[0]/newVec[3], newVec[1]/newVec[3], newVec[2]/newVec[3]];
 	    }
 	    return vec;
 	};
-	
+
+	LightRenderAdapter.prototype.applyTransformDir = function(vec) {
+	    if (this.transform) {
+            var t = this.transform;
+            var newVec = mat4.multiplyVec4(t, [vec[0], vec[1], vec[2], 0]);
+            return [newVec[0], newVec[1], newVec[2]];
+	    }
+	    return vec;
+	};
+
 	/**
 	 *
 	 * @param {Object} lights
@@ -14017,9 +14070,20 @@ XML3D.webgl.MAX_MESH_INDEX_COUNT = 65535;
                     this.offset = lo.length * 3;
                     this.lightType = "directional";
 
-                    Array.set(lo.direction, this.offset, this.applyTransform(XML3D_DIRECTIONALLIGHT_DEFAULT_DIRECTION));
+                    Array.set(lo.direction, this.offset, this.applyTransformDir(XML3D_DIRECTIONALLIGHT_DEFAULT_DIRECTION));
                     Array.set(lo.visibility, this.offset, this.visible ? [1,1,1] : [0,0,0]);
                     shader.fillDirectionalLight(lo, this.node.intensity, this.offset);
+                    lo.length++;
+                    break;
+                case "spot":
+                    lo = lights.spot;
+                    this.offset = lo.length * 3;
+                    this.lightType = "spot";
+
+                    Array.set(lo.position, this.offset, this.applyTransform([0,0,0]));
+                    Array.set(lo.direction, this.offset, this.applyTransformDir(XML3D_SPOTLIGHT_DEFAULT_DIRECTION));
+                    Array.set(lo.visibility, this.offset, this.visible ? [1,1,1] : [0,0,0]);
+                    shader.fillSpotLight(lo, this.node.intensity, this.offset);
                     lo.length++;
                     break;
                 default:
@@ -14252,6 +14316,16 @@ XML3D.shaders.register("flat", XML3D.shaders.getScript("matte"));XML3D.shaders.r
         "uniform vec3 directionalLightVisibility[MAX_DIRECTIONALLIGHTS];",
         "#endif",
 
+        "#if MAX_SPOTLIGHTS > 0",
+        "uniform vec3 spotLightAttenuation[MAX_SPOTLIGHTS];",
+        "uniform vec3 spotLightPosition[MAX_SPOTLIGHTS];",
+        "uniform vec3 spotLightIntensity[MAX_SPOTLIGHTS];",
+        "uniform vec3 spotLightVisibility[MAX_SPOTLIGHTS];",
+        "uniform vec3 spotLightDirection[MAX_SPOTLIGHTS];",
+        "uniform float spotLightCosBeamWidth[MAX_SPOTLIGHTS];",
+        "uniform float spotLightCosCutOffAngle[MAX_SPOTLIGHTS];",
+        "#endif",
+
         "void main(void) {",
         "  float alpha =  max(0.0, 1.0 - transparency);",
         "  vec3 objDiffuse = diffuseColor;",
@@ -14291,6 +14365,28 @@ XML3D.shaders.register("flat", XML3D.shaders.getScript("matte"));XML3D.shaders.r
         "  }",
         "#endif",
 
+        "#if MAX_SPOTLIGHTS > 0",
+        "  for (int i=0; i<MAX_SPOTLIGHTS; i++) {",
+        "    vec4 lPosition = viewMatrix * vec4( spotLightPosition[ i ], 1.0 );",
+        "    vec3 L = lPosition.xyz - fragVertexPosition;",
+        "    float dist = length(L);",
+        "    L = normalize(L);",
+        "    float atten = 1.0 / (spotLightAttenuation[i].x + spotLightAttenuation[i].y * dist + spotLightAttenuation[i].z * dist * dist);",
+        "    vec3 Idiff = spotLightIntensity[i] * objDiffuse * max(dot(fragNormal,L),0.0);",
+        "    float spot = 0.0;",
+        "    vec4 lDirection = viewMatrix * vec4(spotLightDirection[i], 0.0);",
+        "    vec3 D = normalize(lDirection.xyz);",
+        "    float angle = dot(L, D);",
+        "    if(angle <= spotLightCosCutOffAngle[i])",
+        "      spot = 0.0;",
+        "    else if (angle >= spotLightCosBeamWidth[i])",
+        "      spot = 1.0;",
+        "    else",
+        "      spot = (angle - spotLightCosCutOffAngle[i]) / (spotLightCosBeamWidth[i] - spotLightCosCutOffAngle[i]);",
+        "    color = color + (spot*atten*Idiff) * spotLightVisibility[i];",
+        "  }",
+        "#endif",
+
         "  gl_FragColor = vec4(color, alpha);",
         "}"
     ].join("\n"),
@@ -14298,8 +14394,10 @@ XML3D.shaders.register("flat", XML3D.shaders.getScript("matte"));XML3D.shaders.r
     addDirectives: function(directives, lights, params) {
         var pointLights = lights.point ? lights.point.length : 0;
         var directionalLights = lights.directional ? lights.directional.length : 0;
+        var spotLights = lights.spot ? lights.spot.length : 0;
         directives.push("MAX_POINTLIGHTS " + pointLights);
         directives.push("MAX_DIRECTIONALLIGHTS " + directionalLights);
+        directives.push("MAX_SPOTLIGHTS " + spotLights);
         directives.push("HAS_DIFFUSETEXTURE " + ('diffuseTexture' in params ? "1" : "0"));
         directives.push("HAS_EMISSIVETEXTURE " + ('emissiveTexture' in params ? "1" : "0"));
     },
@@ -14392,6 +14490,16 @@ XML3D.shaders.register("flat", XML3D.shaders.getScript("matte"));XML3D.shaders.r
         "uniform vec3 directionalLightVisibility[MAX_DIRECTIONALLIGHTS];",
         "#endif",
 
+        "#if MAX_SPOTLIGHTS > 0",
+        "uniform vec3 spotLightAttenuation[MAX_SPOTLIGHTS];",
+        "uniform vec3 spotLightPosition[MAX_SPOTLIGHTS];",
+        "uniform vec3 spotLightIntensity[MAX_SPOTLIGHTS];",
+        "uniform vec3 spotLightVisibility[MAX_SPOTLIGHTS];",
+        "uniform vec3 spotLightDirection[MAX_SPOTLIGHTS];",
+        "uniform float spotLightCosBeamWidth[MAX_SPOTLIGHTS];",
+        "uniform float spotLightCosCutOffAngle[MAX_SPOTLIGHTS];",
+        "#endif",
+
         "void main(void) {",
         "  float alpha =  max(0.0, 1.0 - transparency);",
         "  vec3 objDiffuse = diffuseColor;",
@@ -14438,6 +14546,30 @@ XML3D.shaders.register("flat", XML3D.shaders.getScript("matte"));XML3D.shaders.r
         "  }",
         "#endif",
 
+        "#if MAX_SPOTLIGHTS > 0",
+        "  for (int i=0; i<MAX_SPOTLIGHTS; i++) {",
+        "    vec4 lPosition = viewMatrix * vec4( spotLightPosition[ i ], 1.0 );",
+        "    vec3 L = lPosition.xyz - fragVertexPosition;",
+        "    float dist = length(L);",
+        "    L = normalize(L);",
+        "    vec3 R = normalize(reflect(L,fragNormal));",
+        "    float atten = 1.0 / (spotLightAttenuation[i].x + spotLightAttenuation[i].y * dist + spotLightAttenuation[i].z * dist * dist);",
+        "    vec3 Idiff = spotLightIntensity[i] * objDiffuse * max(dot(fragNormal,L),0.0);",
+        "    vec3 Ispec = spotLightIntensity[i] * objSpecular * pow(max(dot(R,fragEyeVector),0.0), shininess*128.0);",
+        "    float spot = 0.0;",
+        "    vec4 lDirection = viewMatrix * vec4(spotLightDirection[i], 0.0);",
+        "    vec3 D = normalize(lDirection.xyz);",
+        "    float angle = dot(L, D);",
+        "    if(angle <= spotLightCosCutOffAngle[i])",
+        "      spot = 0.0;",
+        "    else if (angle >= spotLightCosBeamWidth[i])",
+        "      spot = 1.0;",
+        "    else",
+        "      spot = (angle - spotLightCosCutOffAngle[i]) / (spotLightCosBeamWidth[i] - spotLightCosCutOffAngle[i]);",
+        "    color = color + (spot*atten*(Idiff + Ispec)) * spotLightVisibility[i];",
+        "  }",
+        "#endif",
+
         "  gl_FragColor = vec4(color, alpha);",
         "}"
     ].join("\n"),
@@ -14445,8 +14577,10 @@ XML3D.shaders.register("flat", XML3D.shaders.getScript("matte"));XML3D.shaders.r
     addDirectives: function(directives, lights, params) {
         var pointLights = lights.point ? lights.point.length : 0;
         var directionalLights = lights.directional ? lights.directional.length : 0;
+        var spotLights = lights.spot ? lights.spot.length : 0;
         directives.push("MAX_POINTLIGHTS " + pointLights);
         directives.push("MAX_DIRECTIONALLIGHTS " + directionalLights);
+        directives.push("MAX_SPOTLIGHTS " + spotLights);
         directives.push("HAS_DIFFUSETEXTURE " + ('diffuseTexture' in params ? "1" : "0"));
         directives.push("HAS_SPECULARTEXTURE " + ('specularTexture' in params ? "1" : "0"));
         directives.push("HAS_EMISSIVETEXTURE " + ('emissiveTexture' in params ? "1" : "0"));
