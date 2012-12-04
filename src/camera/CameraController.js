@@ -140,7 +140,7 @@
 
 		this.gamepadEventProvider = XMOT.GamepadEventProvider();
 		this.padData = {};
-		this.initEvents();
+		this.activate();
 
 		//finally, register in the animation loop
 		if( !XMOT.registeredCameraController){
@@ -454,20 +454,46 @@
 
 	/**
 	 * Init Events
+	 */
+	cc.activate = function(){
+		this.toggleHandlers(true); 
+	};
+	
+	/**
+	 * Deregister from all events
+	 */
+	cc.deactivate = function(){
+		this.toggleHandlers(false); 
+	};
+
+	/** 
+	 * (de-)registers event handlers for the controller. 
 	 * @private
 	 */
-	cc.initEvents = function(){
-		//registered on window, since registring on div did not work, events never triggered
-		var that = this;
-		window.addEventListener("keydown", function(e){that.keyDownEventHandler(e);}, false);
-		window.addEventListener("keyup", function(e){that.keyUpEventHandler(e);}, false);
-		window.addEventListener("mousemove", function(e){that.mouseMovementHandler(e);}, false);
-		this.xml3dElement.addEventListener("mousedown", function(e){that.mouseDownHandler(e);}, false);
-		window.addEventListener("mouseup", function(e){that.mouseUpHandler(e);}, false);
+	cc.toggleHandlers = function(switchOn){
 
-		window.addEventListener("GamepadButtonDown", function(e){that.gamepadButtonDownHandler(e);}, false);
-		window.addEventListener("GamepadButtonUp", function(e){that.gamepadButtonUpHandler(e);}, false);
-		window.addEventListener("GamepadAxis", function(e){that.gamepadAxisHandler(e);}, false);
+		var cb = XMOT.util.wrapCallback;
+
+		// select the callbacks
+		var winListener = window.addEventListener; 
+		var xml3dListener = this.xml3dElement.addEventListener; 
+		
+		if(switchOn === false)
+		{
+			winListener = window.removeEventListener; 
+			xml3dListener = this.xml3dElement.removeEventListener; 
+		}
+
+		//registered on window, since registring on div did not work, events never triggered        
+		winListener.call(window, "keydown", cb(this, this.keyDownEventHandler), false);
+		winListener.call(window, "keyup", cb(this, this.keyUpEventHandler), false);
+		winListener.call(window, "mousemove", cb(this, this.mouseMovementHandler), false);
+		winListener.call(window, "mouseup", cb(this, this.mouseUpHandler), false);
+		xml3dListener.call(this.xml3dElement, "mousedown", cb(this, this.mouseDownHandler), false);
+		
+		winListener.call(window, "GamepadButtonDown", cb(this, this.gamepadButtonDownHandler), false);
+		winListener.call(window, "GamepadButtonUp", cb(this, this.gamepadButtonUpHandler), false);
+		winListener.call(window, "GamepadAxis", cb(this, this.gamepadAxisHandler), false);
 	};
 
 	/**

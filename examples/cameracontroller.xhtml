@@ -52,6 +52,7 @@
 		<div>
 			<div>
 				<button onclick="animate()">Animate for 100 seconds</button>
+				<button id="toggleCtrl" onclick="toggleController()">Deactivate Controller</button>
 			</div>
 			<br/>
 			<h2>Controls:</h2>
@@ -64,6 +65,7 @@
 			var movObjects = {};
 			var factory = XMOT.ClientMotionFactory;
 			var constraint = new XMOT.SimpleConstraint(true, true, true);
+			var controllerActive = true; 
 
 			function animate(){
 				var aobj = movObjects.cube;
@@ -94,6 +96,21 @@
 					cam.addPointOfInterest( new XML3DVec3(i, i, i), new XML3DRotation(new XML3DVec3(i, i, i), i) );
 				cam.addPointOfInterest( new XML3DVec3(i, i, i), new XML3DRotation(new XML3DVec3(i, i, i), i) );
 			}
+			
+			function toggleController(){
+				if(controllerActive)
+				{
+					movObjects.cam.deactivate();   
+					$("#toggleCtrl").html("Activate Controller"); 
+				}
+				else
+				{
+					movObjects.cam.activate();			     
+					$("#toggleCtrl").html("Deactivate Controller");    
+				}
+
+				controllerActive = !controllerActive; 
+			}			
 		</script>
 		</div> 
 		</div>
