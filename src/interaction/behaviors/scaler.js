@@ -47,6 +47,9 @@ XMOT.interaction.behaviors.Scaler = new XMOT.Class(
         this.uniformScale = true; 
         if(uniformScale)
             this.uniformScale = uniformScale;
+
+        if(!targetTransformable)
+            targetTransformable = XMOT.ClientMotionFactory.createTransformable(pickGrps[0]);
         
         this.targetTransformable = targetTransformable;
 

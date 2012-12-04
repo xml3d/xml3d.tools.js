@@ -58,7 +58,10 @@ XMOT.interaction.behaviors.Rotater = new XMOT.Class(
         else
             this.trackBall.rotationSpeed = 4; 
 
-        // --- setup this sensor ---          
+        // --- setup this sensor ---        
+        if(!targetTransformable)
+            targetTransformable = XMOT.ClientMotionFactory.createTransformable(pickGrps[0]);
+        
         this.targetTransformable = targetTransformable; 
 
         // listeners

@@ -23,9 +23,13 @@ XMOT.interaction.behaviors.Translater = new XMOT.Class(
      *             parallel to the user's view is taken.
      */
     initialize: function(id, pickGrps, targetTransformable, planeOrient)
-    {       
+    {      
+        
+        if(!targetTransformable)
+            targetTransformable = XMOT.ClientMotionFactory.createTransformable(pickGrps[0]);
+        
         this.targetTransformable = targetTransformable; 
-
+        
         // take local matrix as initial offset
         // we manipulate the transform node of the group, so take the local one
         var transOff = this.targetTransformable.transform.translation;
