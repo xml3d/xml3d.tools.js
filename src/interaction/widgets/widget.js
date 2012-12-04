@@ -268,18 +268,22 @@ XMOT.interaction.widgets.Widget = new XMOT.Class(
     _createDefsElements: function()
     {
         var targetXfm = this.target.transform;
+        var tarBBox = this.target.object.getBoundingBox(); 
 
-        var scale = new window.XML3DVec3(1,1,1); 
-        
+        // translation: offset of target's bbox 
+        var translation = new window.XML3DVec3(tarBBox.center()); 
+
+        // scale: little big bigger than target's bbox size 
+        var scale = new window.XML3DVec3(1,1,1);         
         if(this._autoScaleAdj)
-        {
-            var tarBBoxSize = this.target.object.getBoundingBox().size();
+        {            
+            var tarBBoxSize = tarBBox.size();
             scale = tarBBoxSize.multiply(new window.XML3DVec3(0.55, 0.55, 0.55));
         }
 
         // root
         this.geo.addTransforms("t_root", {
-            translation: targetXfm.translation.str(), 
+            translation: translation.str(), 
             scale: scale.str(), 
             rotation: targetXfm.rotation.str()
         }); 
