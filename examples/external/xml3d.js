@@ -21,13 +21,13 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-@version: DEVELOPMENT SNAPSHOT (26.11.2012 16:29:39 CET)
+@version: DEVELOPMENT SNAPSHOT (04.12.2012 17:57:02 CET)
 **/
 /** @namespace * */
 var XML3D = XML3D || {};
 
 /** @define {string} */
-XML3D.version = 'DEVELOPMENT SNAPSHOT (26.11.2012 16:29:39 CET)';
+XML3D.version = 'DEVELOPMENT SNAPSHOT (04.12.2012 17:57:02 CET)';
 /** @const */
 XML3D.xml3dNS = 'http://www.xml3d.org/2009/xml3d';
 /** @const */
@@ -152,35 +152,18 @@ XML3D.createClass = function(ctor, parent, methods) {
         try {
             XML3D.config.configure(xml3ds);
         } catch (e) {
-            debug && XML3D.debug.logError("Error initalizing interfaces: " + e);
+            debug && XML3D.debug.logException(e);
         }
         try {
             XML3D.webgl.configure(xml3ds);
         } catch (e) {
-            debug && XML3D.debug.logError("Error initalizing webgl: " + e);
+            debug && XML3D.debug.logException(e);
         }
 
         // initialize all attached adapters
         for (i in xml3ds) {
-            var adapters = xml3ds[i]._configured.adapters;
-            for (var adapter in adapters) {
-                if (adapters[adapter].onConfigured) {
-                    adapters[adapter].onConfigured();
-                }
-            }
+            XML3D.base.sendAdapterEvent(xml3ds[i], {onConfigured : []});
         }
-
-        var ready = (function(eventType) {
-            var evt = null;
-            if (document.createEvent) {
-                evt = document.createEvent("Events");
-                evt.initEvent(eventType, true, true);
-                document.dispatchEvent(evt);
-            } else if (document.createEventObject) {
-                evt = document.createEventObject();
-                document.fireEvent('on' + eventType, evt);
-            }
-        })('load');
     };
     var onunload = function() {
         if (XML3D.document)
@@ -464,54 +447,66 @@ XML3D.debug = {
         }
         return !XML3D.debug.params.xml3d_nolog;
     },
-    doLog : function(msg, logType) {
+    doLog : function(logType, args) {
         var params = XML3D.debug.params;
         if (params.xml3d_nolog || logType < XML3D.debug.loglevel) {
             return;
         }
-
+        args = Array.prototype.slice.call(args);
         if (window.console) {
             switch (logType) {
             case XML3D.debug.INFO:
-                window.console.info(msg);
+                window.console.info.apply(window.console, args);
                 break;
             case XML3D.debug.WARNING:
-                window.console.warn(msg);
+                window.console.warning.apply(window.console, args);
                 break;
             case XML3D.debug.ERROR:
-                window.console.error(msg);
+                window.console.error.apply(window.console, args);
                 break;
             case XML3D.debug.EXCEPTION:
-                window.console.debug(msg);
+                window.console.error(XML3D.debug.printStackTrace({e: args[0], guess: true}).join('\n'));
                 break;
             case XML3D.debug.DEBUG:
-                window.console.debug(msg);
+                window.console.debug.apply(window.console, args);
                 break;
             default:
                 break;
             }
         }
     },
-    logDebug : function(msg) {
-        XML3D.debug.doLog(msg, XML3D.debug.DEBUG);
+    logDebug : function() {
+        XML3D.debug.doLog(XML3D.debug.DEBUG, arguments);
     },
-    logInfo : function(msg) {
-        XML3D.debug.doLog(msg, XML3D.debug.INFO);
+    logInfo : function() {
+        XML3D.debug.doLog(XML3D.debug.INFO, arguments);
     },
-    logWarning : function(msg) {
-        XML3D.debug.doLog(msg, XML3D.debug.WARNING);
+    logWarning : function() {
+        XML3D.debug.doLog(XML3D.debug.WARNING, arguments);
     },
-    logError : function(msg) {
-        XML3D.debug.doLog(msg, XML3D.debug.ERROR);
+    logError : function() {
+        XML3D.debug.doLog(XML3D.debug.ERROR, arguments);
     },
-    logException : function(msg) {
-        XML3D.debug.doLog(msg, XML3D.debug.EXCEPTION);
+    logException : function() {
+        XML3D.debug.doLog(XML3D.debug.EXCEPTION, arguments);
     },
     assert : function(c, msg) {
         if (!c) {
-            XML3D.debug.doLog("Assertion failed in "
-                    + XML3D.debug.assert.caller.name + ': ' + msg,
-                    XML3D.debug.WARNING);
+            XML3D.debug.doLog(XML3D.debug.WARNING, ["Assertion failed in "
+                    + XML3D.debug.assert.caller.name, msg ]);
+        }
+    },
+    trace  : function(msg, logType) {
+        logType = logType !== undefined ? logType : XML3D.debug.ERROR;
+        if(window.console.trace) {
+            if (msg) {
+                XML3D.debug.doLog(logType, [msg]);
+            }
+            window.console.trace();
+        } else {
+            var stack = XML3D.debug.printStackTrace();
+            msg && stack.splice(0,0,msg);
+            XML3D.debug.doLog(logType, stack);
         }
     }
 };
@@ -712,7 +707,7 @@ XML3D.css.getCSSMatrix = function(node){
         result = new XML3D.css.CSSMatrix(style);
     }
     catch(e){
-        XML3D.debug.logError("Error parsing transform property: " + style)
+        XML3D.debug.logException(e, "Error parsing transform property: " + style);
     }
     return result;
 
@@ -3590,7 +3585,455 @@ quat4.str = function(quat) {
     return '[' + quat[0] + ', ' + quat[1] + ', ' + quat[2] + ', ' + quat[3] + ']'; 
 };
 
-// XML3DVec3
+// Domain Public by Eric Wendelin http://eriwen.com/ (2008)
+//                  Luke Smith http://lucassmith.name/ (2008)
+//                  Loic Dachary <loic@dachary.org> (2008)
+//                  Johan Euphrosine <proppy@aminche.com> (2008)
+//                  Oyvind Sean Kinsey http://kinsey.no/blog (2010)
+//                  Victor Homyakov <victor-homyakov@users.sourceforge.net> (2010)
+
+(function() {
+    /**
+     * Main function giving a function stack trace with a forced or passed in
+     * Error
+     *
+     * @cfg {Error} e The error to create a stacktrace from (optional)
+     * @cfg {Boolean} guess If we should try to resolve the names of anonymous
+     * functions
+     * @return {Array} of Strings with functions, lines, files, and arguments
+     * where possible
+     */
+    function printStackTrace(options) {
+        options = options || {
+            guess : true
+        };
+        var ex = options.e || null, guess = !!options.guess;
+        var p = new printStackTrace.implementation(), result = p.run(ex);
+        return (guess) ? p.guessAnonymousFunctions(result) : result;
+    }
+
+    printStackTrace.implementation = function() {};
+
+    printStackTrace.implementation.prototype = {
+        /**
+         * @param {Error} ex The error to create a stacktrace from (optional)
+         * @param {String} mode Forced mode (optional, mostly for unit tests)
+         */
+        run : function(ex, mode) {
+            ex = ex || this.createException();
+            // examine exception properties w/o debugger
+            // for (var prop in ex) {alert("Ex['" + prop + "']=" + ex[prop]);}
+            mode = mode || this.mode(ex);
+            if (mode === 'other') {
+                return this.other(arguments.callee);
+            } else {
+                return this[mode](ex);
+            }
+        },
+
+        createException : function() {
+            try {
+                this.undef();
+            } catch (e) {
+                return e;
+            }
+        },
+
+        /**
+         * Mode could differ for different exception, e.g. exceptions in Chrome
+         * may or may not have arguments or stack.
+         *
+         * @return {String} mode of operation for the exception
+         */
+        mode : function(e) {
+            if (e['arguments'] && e.stack) {
+                return 'chrome';
+            } else if (e.stack && e.sourceURL) {
+                return 'safari';
+            } else if (typeof e.message === 'string' && typeof window !== 'undefined' && window.opera) {
+                // e.message.indexOf("Backtrace:") > -1 -> opera
+                // !e.stacktrace -> opera
+                if (!e.stacktrace) {
+                    return 'opera9'; // use e.message
+                }
+                // 'opera#sourceloc' in e -> opera9, opera10a
+                if (e.message.indexOf('\n') > -1 && e.message.split('\n').length > e.stacktrace.split('\n').length) {
+                    return 'opera9'; // use e.message
+                }
+                // e.stacktrace && !e.stack -> opera10a
+                if (!e.stack) {
+                    return 'opera10a'; // use e.stacktrace
+                }
+                // e.stacktrace && e.stack -> opera10b
+                if (e.stacktrace.indexOf("called from line") < 0) {
+                    return 'opera10b'; // use e.stacktrace, format differs from
+                                        // 'opera10a'
+                }
+                // e.stacktrace && e.stack -> opera11
+                return 'opera11'; // use e.stacktrace, format differs from
+                                    // 'opera10a', 'opera10b'
+            } else if (e.stack) {
+                return 'firefox';
+            }
+            return 'other';
+        },
+
+        /**
+         * Given a context, function name, and callback function, overwrite it
+         * so that it calls printStackTrace() first with a callback and then
+         * runs the rest of the body.
+         *
+         * @param {Object} context of execution (e.g. window)
+         * @param {String} functionName to instrument
+         * @param {Function} function to call with a stack trace on invocation
+         */
+        instrumentFunction : function(context, functionName, callback) {
+            context = context || window;
+            var original = context[functionName];
+            context[functionName] = function instrumented() {
+                callback.call(this, printStackTrace().slice(4));
+                return context[functionName]._instrumented.apply(this, arguments);
+            };
+            context[functionName]._instrumented = original;
+        },
+
+        /**
+         * Given a context and function name of a function that has been
+         * instrumented, revert the function to it's original (non-instrumented)
+         * state.
+         *
+         * @param {Object} context of execution (e.g. window)
+         * @param {String} functionName to de-instrument
+         */
+        deinstrumentFunction : function(context, functionName) {
+            if (context[functionName].constructor === Function && context[functionName]._instrumented
+                    && context[functionName]._instrumented.constructor === Function) {
+                context[functionName] = context[functionName]._instrumented;
+            }
+        },
+
+        /**
+         * Given an Error object, return a formatted Array based on Chrome's
+         * stack string.
+         *
+         * @param e - Error object to inspect
+         * @return Array<String> of function calls, files and line numbers
+         */
+        chrome : function(e) {
+            var stack = (e.stack + '\n').replace(/^\S[^\(]+?[\n$]/gm, '').replace(/^\s+(at eval )?at\s+/gm, '').replace(/^([^\(]+?)([\n$])/gm,
+                    '{anonymous}()@$1$2').replace(/^Object.<anonymous>\s*\(([^\)]+)\)/gm, '{anonymous}()@$1').split('\n');
+            stack.pop();
+            return stack;
+        },
+
+        /**
+         * Given an Error object, return a formatted Array based on Safari's
+         * stack string.
+         *
+         * @param e - Error object to inspect
+         * @return Array<String> of function calls, files and line numbers
+         */
+        safari : function(e) {
+            return e.stack.replace(/\[native code\]\n/m, '').replace(/^@/gm, '{anonymous}()@').split('\n');
+        },
+
+        /**
+         * Given an Error object, return a formatted Array based on Firefox's
+         * stack string.
+         *
+         * @param e - Error object to inspect
+         * @return Array<String> of function calls, files and line numbers
+         */
+        firefox : function(e) {
+            return e.stack.replace(/(?:\n@:0)?\s+$/m, '').replace(/^[\(@]/gm, '{anonymous}()@').split('\n');
+        },
+
+        opera11 : function(e) {
+            var ANON = '{anonymous}', lineRE = /^.*line (\d+), column (\d+)(?: in (.+))? in (\S+):$/;
+            var lines = e.stacktrace.split('\n'), result = [];
+
+            for ( var i = 0, len = lines.length; i < len; i += 2) {
+                var match = lineRE.exec(lines[i]);
+                if (match) {
+                    var location = match[4] + ':' + match[1] + ':' + match[2];
+                    var fnName = match[3] || "global code";
+                    fnName = fnName.replace(/<anonymous function: (\S+)>/, "$1").replace(/<anonymous function>/, ANON);
+                    result.push(fnName + '@' + location + ' -- ' + lines[i + 1].replace(/^\s+/, ''));
+                }
+            }
+
+            return result;
+        },
+
+        opera10b : function(e) {
+            // "<anonymous function: run>([arguments not
+            // available])@file://localhost/G:/js/stacktrace.js:27\n" +
+            // "printStackTrace([arguments not
+            // available])@file://localhost/G:/js/stacktrace.js:18\n" +
+            // "@file://localhost/G:/js/test/functional/testcase1.html:15"
+            var lineRE = /^(.*)@(.+):(\d+)$/;
+            var lines = e.stacktrace.split('\n'), result = [];
+
+            for ( var i = 0, len = lines.length; i < len; i++) {
+                var match = lineRE.exec(lines[i]);
+                if (match) {
+                    var fnName = match[1] ? (match[1] + '()') : "global code";
+                    result.push(fnName + '@' + match[2] + ':' + match[3]);
+                }
+            }
+
+            return result;
+        },
+
+        /**
+         * Given an Error object, return a formatted Array based on Opera 10's
+         * stacktrace string.
+         *
+         * @param e - Error object to inspect
+         * @return Array<String> of function calls, files and line numbers
+         */
+        opera10a : function(e) {
+            // " Line 27 of linked script
+            // file://localhost/G:/js/stacktrace.js\n"
+            // " Line 11 of inline#1 script in
+            // file://localhost/G:/js/test/functional/testcase1.html: In
+            // function foo\n"
+            var ANON = '{anonymous}', lineRE = /Line (\d+).*script (?:in )?(\S+)(?:: In function (\S+))?$/i;
+            var lines = e.stacktrace.split('\n'), result = [];
+
+            for ( var i = 0, len = lines.length; i < len; i += 2) {
+                var match = lineRE.exec(lines[i]);
+                if (match) {
+                    var fnName = match[3] || ANON;
+                    result.push(fnName + '()@' + match[2] + ':' + match[1] + ' -- ' + lines[i + 1].replace(/^\s+/, ''));
+                }
+            }
+
+            return result;
+        },
+
+        // Opera 7.x-9.2x only!
+        opera9 : function(e) {
+            // " Line 43 of linked script
+            // file://localhost/G:/js/stacktrace.js\n"
+            // " Line 7 of inline#1 script in
+            // file://localhost/G:/js/test/functional/testcase1.html\n"
+            var ANON = '{anonymous}', lineRE = /Line (\d+).*script (?:in )?(\S+)/i;
+            var lines = e.message.split('\n'), result = [];
+
+            for ( var i = 2, len = lines.length; i < len; i += 2) {
+                var match = lineRE.exec(lines[i]);
+                if (match) {
+                    result.push(ANON + '()@' + match[2] + ':' + match[1] + ' -- ' + lines[i + 1].replace(/^\s+/, ''));
+                }
+            }
+
+            return result;
+        },
+
+        // Safari 5-, IE 9-, and others
+        other : function(curr) {
+            var ANON = '{anonymous}', fnRE = /function\s*([\w\-$]+)?\s*\(/i, stack = [], fn, args, maxStackSize = 10;
+            while (curr && curr['arguments'] && stack.length < maxStackSize) {
+                fn = fnRE.test(curr.toString()) ? RegExp.$1 || ANON : ANON;
+                args = Array.prototype.slice.call(curr['arguments'] || []);
+                stack[stack.length] = fn + '(' + this.stringifyArguments(args) + ')';
+                curr = curr.caller;
+            }
+            return stack;
+        },
+
+        /**
+         * Given arguments array as a String, subsituting type names for
+         * non-string types.
+         *
+         * @param {Arguments} args
+         * @return {Array} of Strings with stringified arguments
+         */
+        stringifyArguments : function(args) {
+            var result = [];
+            var slice = Array.prototype.slice;
+            for ( var i = 0; i < args.length; ++i) {
+                var arg = args[i];
+                if (arg === undefined) {
+                    result[i] = 'undefined';
+                } else if (arg === null) {
+                    result[i] = 'null';
+                } else if (arg.constructor) {
+                    if (arg.constructor === Array) {
+                        if (arg.length < 3) {
+                            result[i] = '[' + this.stringifyArguments(arg) + ']';
+                        } else {
+                            result[i] = '[' + this.stringifyArguments(slice.call(arg, 0, 1)) + '...' + this.stringifyArguments(slice.call(arg, -1)) + ']';
+                        }
+                    } else if (arg.constructor === Object) {
+                        result[i] = '#object';
+                    } else if (arg.constructor === Function) {
+                        result[i] = '#function';
+                    } else if (arg.constructor === String) {
+                        result[i] = '"' + arg + '"';
+                    } else if (arg.constructor === Number) {
+                        result[i] = arg;
+                    }
+                }
+            }
+            return result.join(',');
+        },
+
+        sourceCache : {},
+
+        /**
+         * @return the text from a given URL
+         */
+        ajax : function(url) {
+            var req = this.createXMLHTTPObject();
+            if (req) {
+                try {
+                    req.open('GET', url, false);
+                    // req.overrideMimeType('text/plain');
+                    // req.overrideMimeType('text/javascript');
+                    req.send(null);
+                    // return req.status == 200 ? req.responseText : '';
+                    return req.responseText;
+                } catch (e) {
+                }
+            }
+            return '';
+        },
+
+        /**
+         * Try XHR methods in order and store XHR factory.
+         *
+         * @return <Function> XHR function or equivalent
+         */
+        createXMLHTTPObject : function() {
+            var xmlhttp, XMLHttpFactories = [ function() {
+                return new XMLHttpRequest();
+            }, function() {
+                return new ActiveXObject('Msxml2.XMLHTTP');
+            }, function() {
+                return new ActiveXObject('Msxml3.XMLHTTP');
+            }, function() {
+                return new ActiveXObject('Microsoft.XMLHTTP');
+            } ];
+            for ( var i = 0; i < XMLHttpFactories.length; i++) {
+                try {
+                    xmlhttp = XMLHttpFactories[i]();
+                    // Use memoization to cache the factory
+                    this.createXMLHTTPObject = XMLHttpFactories[i];
+                    return xmlhttp;
+                } catch (e) {
+                }
+            }
+        },
+
+        /**
+         * Given a URL, check if it is in the same domain (so we can get the
+         * source via Ajax).
+         *
+         * @param url <String> source url
+         * @return False if we need a cross-domain request
+         */
+        isSameDomain : function(url) {
+            return typeof location !== "undefined" && url.indexOf(location.hostname) !== -1; // location
+                                                                                                // may
+                                                                                                // not
+                                                                                                // be
+                                                                                                // defined,
+                                                                                                // e.g.
+                                                                                                // when
+                                                                                                // running
+                                                                                                // from
+                                                                                                // nodejs.
+        },
+
+        /**
+         * Get source code from given URL if in the same domain.
+         *
+         * @param url <String> JS source URL
+         * @return <Array> Array of source code lines
+         */
+        getSource : function(url) {
+            // TODO reuse source from script tags?
+            if (!(url in this.sourceCache)) {
+                this.sourceCache[url] = this.ajax(url).split('\n');
+            }
+            return this.sourceCache[url];
+        },
+
+        guessAnonymousFunctions : function(stack) {
+            for ( var i = 0; i < stack.length; ++i) {
+                var reStack = /\{anonymous\}\(.*\)@(.*)/, reRef = /^(.*?)(?::(\d+))(?::(\d+))?(?: -- .+)?$/, frame = stack[i], ref = reStack.exec(frame);
+
+                if (ref) {
+                    var m = reRef.exec(ref[1]);
+                    if (m) { // If falsey, we did not get any file/line
+                                // information
+                        var file = m[1], lineno = m[2], charno = m[3] || 0;
+                        if (file && this.isSameDomain(file) && lineno) {
+                            var functionName = this.guessAnonymousFunction(file, lineno, charno);
+                            stack[i] = frame.replace('{anonymous}', functionName);
+                        }
+                    }
+                }
+            }
+            return stack;
+        },
+
+        guessAnonymousFunction : function(url, lineNo, charNo) {
+            var ret;
+            try {
+                ret = this.findFunctionName(this.getSource(url), lineNo);
+            } catch (e) {
+                ret = 'getSource failed with url: ' + url + ', exception: ' + e.toString();
+            }
+            return ret;
+        },
+
+        findFunctionName : function(source, lineNo) {
+            // FIXME findFunctionName fails for compressed source
+            // (more than one function on the same line)
+            // TODO use captured args
+            // function {name}({args}) m[1]=name m[2]=args
+            var reFunctionDeclaration = /function\s+([^(]*?)\s*\(([^)]*)\)/;
+            // {name} = function ({args}) TODO args capture
+            // /['"]?([0-9A-Za-z_]+)['"]?\s*[:=]\s*function(?:[^(]*)/
+            var reFunctionExpression = /['"]?([0-9A-Za-z_]+)['"]?\s*[:=]\s*function\b/;
+            // {name} = eval()
+            var reFunctionEvaluation = /['"]?([0-9A-Za-z_]+)['"]?\s*[:=]\s*(?:eval|new Function)\b/;
+            // Walk backwards in the source lines until we find
+            // the line which matches one of the patterns above
+            var code = "", line, maxLines = Math.min(lineNo, 20), m, commentPos;
+            for ( var i = 0; i < maxLines; ++i) {
+                // lineNo is 1-based, source[] is 0-based
+                line = source[lineNo - i - 1];
+                commentPos = line.indexOf('//');
+                if (commentPos >= 0) {
+                    line = line.substr(0, commentPos);
+                }
+                // TODO check other types of comments? Commented code may lead to false positive
+                if (line) {
+                    code = line + code;
+                    m = reFunctionExpression.exec(code);
+                    if (m && m[1]) {
+                        return m[1];
+                    }
+                    m = reFunctionDeclaration.exec(code);
+                    if (m && m[1]) {
+                        //return m[1] + "(" + (m[2] || "") + ")";
+                        return m[1];
+                    }
+                    m = reFunctionEvaluation.exec(code);
+                    if (m && m[1]) {
+                        return m[1];
+                    }
+                }
+            }
+            return '(?)';
+        }
+    };
+    XML3D.debug.printStackTrace = printStackTrace;
+}());// XML3DVec3
 
 (function($) {
     // Is native?
@@ -4650,17 +5093,39 @@ XML3D.base.Adapter.prototype.connectAdapterHandle = function(key, adapterHandle)
         this.connectedAdapterHandles = {};
         this._bindedAdapterHandleCallback = adapterHandleCallback.bind(this);
     }
+
+    this.disconnectAdapterHandle(key);
+
+    if(adapterHandle) {
+        this.connectedAdapterHandles[key] = adapterHandle;
+        this.connectedAdapterHandles[key].addListener(this._bindedAdapterHandleCallback);
+    }
+    else
+        delete this.connectedAdapterHandles[key];
+
+};
+
+/**
+ * Disconnects the adapter handle from the given key.
+ * @param {string} key - the key that was provided when this adapter handle was connected
+ */
+XML3D.base.Adapter.prototype.disconnectAdapterHandle = function(key){
+    if (this.connectedAdapterHandles && this.connectedAdapterHandles[key]) {
+        this.connectedAdapterHandles[key].removeListener(this._bindedAdapterHandleCallback);
+        delete this.connectedAdapterHandles[key];
+    }
+};
+
+/**
+ * Disconnects all adapter handles.
+ */
+XML3D.base.Adapter.prototype.clearAdapterHandles = function(){
     for(var i in this.connectedAdapterHandles){
         this.connectedAdapterHandles[i].removeListener(this._bindedAdapterHandleCallback);
     }
-    if(adapterHandle)
-        this.connectedAdapterHandles[key] = adapterHandle;
-    else
-        delete this.connectedAdapterHandles[key];
-    for(var i in this.connectedAdapterHandles){
-        this.connectedAdapterHandles[i].addListener(this._bindedAdapterHandleCallback);
-    }
-}
+
+    this.connectedAdapterHandles = {};
+};
 
 /**
 * Get the connected AdapterHandle of a certain key.
@@ -4670,7 +5135,7 @@ XML3D.base.Adapter.prototype.connectAdapterHandle = function(key, adapterHandle)
 */
 XML3D.base.Adapter.prototype.getConnectedAdapterHandle = function(key){
     return this.connectedAdapterHandles && this.connectedAdapterHandles[key];
-}
+};
 
 /**
  * Get the connected adapter of a certain key.
@@ -4681,7 +5146,7 @@ XML3D.base.Adapter.prototype.getConnectedAdapterHandle = function(key){
 XML3D.base.Adapter.prototype.getConnectedAdapter = function(key){
     var handle = this.getConnectedAdapterHandle(key);
     return handle && handle.getAdapter();
-}
+};
 
 
 /**
@@ -4696,7 +5161,7 @@ function adapterHandleCallback(evt){
             this.notifyChanged(subEvent);
         }
     }
-}
+};
 
 
 
@@ -4733,7 +5198,7 @@ XML3D.base.NodeAdapter.prototype.notifyChanged = function(e) {
 XML3D.base.NodeAdapter.prototype.getAdapterHandle = function(uri){
     return XML3D.base.resourceManager.getAdapterHandle(this.node.ownerDocument, uri,
         this.factory.aspect, this.factory.canvasId);
-}
+};
 /**
  * notifies all adapter that refer to this adapter through AdapterHandles.
  * @param {number,string} hint with type of change
@@ -4742,7 +5207,7 @@ XML3D.base.NodeAdapter.prototype.notifyOppositeAdapters = function(type){
     type = type || XML3D.events.ADAPTER_HANDLE_CHANGED;
     return XML3D.base.resourceManager.notifyNodeAdapterChange(this.node,
         this.factory.aspect, this.factory.canvasId, type);
-}
+};
 
 
 /**
@@ -4816,6 +5281,34 @@ XML3D.base.NodeAdapterFactory.prototype.getAdapter = function(node) {
         adapter.init();
     }
     return adapter;
+};
+
+/**
+ * This function sends single or multiple adapter events by calling functions
+ * specified in events parameter for each adapter associated with the node.
+ *
+ * events parameter is used as a dictionary where each key is used as name of a
+ * adapter function to call, and corresponding value is a list of arguments
+ * (i.e. must be an array). For example sendAdapterEvent(node, {method : [1,2,3]})
+ * will call function 'method' with arguments 1,2,3 for each adapter of the node.
+ *
+ * @param {Object} node
+ * @param {Object} events
+ * @return {Boolean} false if node is not configured.
+ */
+XML3D.base.sendAdapterEvent = function(node, events) {
+    if (!node || node._configured === undefined)
+        return false;
+    var adapters = node._configured.adapters;
+    for (var adapter in adapters) {
+        for (var event in events) {
+            var eventHandler = adapters[adapter][event];
+            if (eventHandler) {
+                eventHandler.apply(adapters[adapter], events[event]);
+            }
+        }
+    }
+    return true;
 };
 
 }());
@@ -5716,7 +6209,7 @@ if (navigator.userAgent.indexOf("WebKit") != -1) {
             try {
                 adapters[a].notifyChanged(evt);
             } catch (e) {
-                XML3D.debug.logError(e);
+                XML3D.debug.logException(e);
             }
         }
     };
@@ -6344,11 +6837,13 @@ new (function() {
         XML3D.debug.logError(this.nodeName + "::getOutputFieldNames is not implemeted yet.");
         return null;
     };
+    methods.protoGetOutputFieldNames = methods.dataGetOutputFieldNames;
 
     methods.dataGetResult = function() {
         XML3D.debug.logError(this.nodeName + "::getResult is not implemeted yet.");
         return null;
     };
+    methods.protoGetResult = methods.dataGetResult;
 
     // Export to xml3d namespace
     XML3D.extend(XML3D.methods, methods);
@@ -6513,6 +7008,7 @@ XML3D.classInfo['mesh'] = {
     getWorldMatrix : {m: XML3D.methods.XML3DGraphTypeGetWorldMatrix},
     getBoundingBox : {m: XML3D.methods.meshGetBoundingBox},
     src : {a: XML3D.ReferenceHandler},
+    proto : {a: XML3D.ReferenceHandler},
     _term: undefined
 };
 /**
@@ -6539,6 +7035,7 @@ XML3D.classInfo['shader'] = {
     compute : {a: XML3D.StringAttributeHandler},
     script : {a: XML3D.ReferenceHandler},
     src : {a: XML3D.ReferenceHandler},
+    proto : {a: XML3D.ReferenceHandler},
     _term: undefined
 };
 /**
@@ -6575,6 +7072,7 @@ XML3D.classInfo['lightshader'] = {
     compute : {a: XML3D.StringAttributeHandler},
     script : {a: XML3D.ReferenceHandler},
     src : {a: XML3D.ReferenceHandler},
+    proto : {a: XML3D.ReferenceHandler},
     _term: undefined
 };
 /**
@@ -6590,6 +7088,20 @@ XML3D.classInfo['script'] = {
     _term: undefined
 };
 /**
+ * Properties and methods for <proto>
+ **/
+XML3D.classInfo['proto'] = {
+    id : {a: XML3D.IDHandler},
+    className : {a: XML3D.StringAttributeHandler, id: 'class'},
+    // TODO: Handle style for proto
+    compute : {a: XML3D.StringAttributeHandler},
+    filter : {a: XML3D.StringAttributeHandler},
+    getOutputFieldNames : {m: XML3D.methods.protoGetOutputFieldNames},
+    src : {a: XML3D.ReferenceHandler},
+    proto : {a: XML3D.ReferenceHandler},
+    _term: undefined
+};
+/**
  * Properties and methods for <float>
  **/
 XML3D.classInfo['float'] = {
@@ -6597,7 +7109,7 @@ XML3D.classInfo['float'] = {
     className : {a: XML3D.StringAttributeHandler, id: 'class'},
     // TODO: Handle style for float
     name : {a: XML3D.StringAttributeHandler},
-    replaceby : {a: XML3D.StringAttributeHandler},
+    param : {a: XML3D.BoolAttributeHandler, params: false},
     seqnr : {a: XML3D.FloatAttributeHandler, params: 0.0},
     value : {a: XML3D.FloatArrayValueHandler},
     _term: undefined
@@ -6610,7 +7122,7 @@ XML3D.classInfo['float2'] = {
     className : {a: XML3D.StringAttributeHandler, id: 'class'},
     // TODO: Handle style for float2
     name : {a: XML3D.StringAttributeHandler},
-    replaceby : {a: XML3D.StringAttributeHandler},
+    param : {a: XML3D.BoolAttributeHandler, params: false},
     seqnr : {a: XML3D.FloatAttributeHandler, params: 0.0},
     value : {a: XML3D.Float2ArrayValueHandler},
     _term: undefined
@@ -6623,7 +7135,7 @@ XML3D.classInfo['float3'] = {
     className : {a: XML3D.StringAttributeHandler, id: 'class'},
     // TODO: Handle style for float3
     name : {a: XML3D.StringAttributeHandler},
-    replaceby : {a: XML3D.StringAttributeHandler},
+    param : {a: XML3D.BoolAttributeHandler, params: false},
     seqnr : {a: XML3D.FloatAttributeHandler, params: 0.0},
     value : {a: XML3D.Float3ArrayValueHandler},
     _term: undefined
@@ -6636,7 +7148,7 @@ XML3D.classInfo['float4'] = {
     className : {a: XML3D.StringAttributeHandler, id: 'class'},
     // TODO: Handle style for float4
     name : {a: XML3D.StringAttributeHandler},
-    replaceby : {a: XML3D.StringAttributeHandler},
+    param : {a: XML3D.BoolAttributeHandler, params: false},
     seqnr : {a: XML3D.FloatAttributeHandler, params: 0.0},
     value : {a: XML3D.Float4ArrayValueHandler},
     _term: undefined
@@ -6649,7 +7161,7 @@ XML3D.classInfo['float4x4'] = {
     className : {a: XML3D.StringAttributeHandler, id: 'class'},
     // TODO: Handle style for float4x4
     name : {a: XML3D.StringAttributeHandler},
-    replaceby : {a: XML3D.StringAttributeHandler},
+    param : {a: XML3D.BoolAttributeHandler, params: false},
     seqnr : {a: XML3D.FloatAttributeHandler, params: 0.0},
     value : {a: XML3D.Float4x4ArrayValueHandler},
     _term: undefined
@@ -6662,7 +7174,7 @@ XML3D.classInfo['int'] = {
     className : {a: XML3D.StringAttributeHandler, id: 'class'},
     // TODO: Handle style for int
     name : {a: XML3D.StringAttributeHandler},
-    replaceby : {a: XML3D.StringAttributeHandler},
+    param : {a: XML3D.BoolAttributeHandler, params: false},
     seqnr : {a: XML3D.FloatAttributeHandler, params: 0.0},
     value : {a: XML3D.IntArrayValueHandler},
     _term: undefined
@@ -6675,7 +7187,7 @@ XML3D.classInfo['int4'] = {
     className : {a: XML3D.StringAttributeHandler, id: 'class'},
     // TODO: Handle style for int4
     name : {a: XML3D.StringAttributeHandler},
-    replaceby : {a: XML3D.StringAttributeHandler},
+    param : {a: XML3D.BoolAttributeHandler, params: false},
     seqnr : {a: XML3D.FloatAttributeHandler, params: 0.0},
     value : {a: XML3D.IntArrayValueHandler},
     _term: undefined
@@ -6688,7 +7200,7 @@ XML3D.classInfo['bool'] = {
     className : {a: XML3D.StringAttributeHandler, id: 'class'},
     // TODO: Handle style for bool
     name : {a: XML3D.StringAttributeHandler},
-    replaceby : {a: XML3D.StringAttributeHandler},
+    param : {a: XML3D.BoolAttributeHandler, params: false},
     seqnr : {a: XML3D.FloatAttributeHandler, params: 0.0},
     value : {a: XML3D.BoolArrayValueHandler},
     _term: undefined
@@ -6701,7 +7213,7 @@ XML3D.classInfo['texture'] = {
     className : {a: XML3D.StringAttributeHandler, id: 'class'},
     // TODO: Handle style for texture
     name : {a: XML3D.StringAttributeHandler},
-    replaceby : {a: XML3D.StringAttributeHandler},
+    param : {a: XML3D.BoolAttributeHandler, params: false},
     seqnr : {a: XML3D.FloatAttributeHandler, params: 0.0},
     type : {a: XML3D.EnumAttributeHandler, params: {e: XML3D.TextureTypes, d: 0}},
     filterMin : {a: XML3D.EnumAttributeHandler, params: {e: XML3D.FilterTypes, d: 2}},
@@ -6773,10 +7285,11 @@ Xflow.EPSILON = 0.000001;
  * @enum
  */
 Xflow.DATA_TYPE = {
-    FLOAT: 0,
-    FLOAT2 : 1,
-    FLOAT3 : 2,
-    FLOAT4 : 3,
+    UNKNOWN: 0,
+    FLOAT: 1,
+    FLOAT2 : 2,
+    FLOAT3 : 3,
+    FLOAT4 : 4,
     FLOAT4X4 : 10,
     INT : 20,
     INT4 : 21,
@@ -6865,6 +7378,10 @@ Xflow.DATA_ENTRY_STATE = {
     CHANGE_REMOVED: 3
 };
 
+Xflow.RESULT_TYPE = {
+    COMPUTE: 0
+}
+
 
 /**
  * Type of Modification, used internally only
@@ -6902,6 +7419,220 @@ Xflow.EXTRACT = {
 };
 (function(){
 
+
+//----------------------------------------------------------------------------------------------------------------------
+// Xflow.SamplerConfig
+//----------------------------------------------------------------------------------------------------------------------
+
+
+/**
+ * @constructor
+ */
+Xflow.SamplerConfig = function(){
+    this.filterMin = 0;
+    this.filterMag = 0;
+    this.filterMip = 0;
+    this.wrapS = 0;
+    this.wrapT = 0;
+    this.wrapU = 0;
+    this.textureType = 0;
+    this.colorR = 0;
+    this.colorG = 0;
+    this.colorB = 0;
+    this.generateMipMap = 0;
+};
+var SamplerConfig = Xflow.SamplerConfig;
+
+
+//----------------------------------------------------------------------------------------------------------------------
+// Xflow.DataEntry
+//----------------------------------------------------------------------------------------------------------------------
+
+
+/**
+ * @constructor
+ * @param {Xflow.DATA_TYPE} type Type of DataEntry
+ */
+Xflow.DataEntry = function(type){
+    this._type = type;
+    this._listeners = [];
+    this.userData = {};
+};
+var DataEntry = Xflow.DataEntry;
+
+Object.defineProperty(DataEntry.prototype, "type", {
+    /** @param {Xflow.DATA_TYPE} v */
+    set: function(v){
+        throw new Error("type is read-only");
+    },
+    /** @return {Xflow.DATA_TYPE} */
+    get: function(){ return this._type; }
+});
+
+/**
+ * @param {function(Xflow.DataEntry, Xflow.DATA_ENTRY_STATE)} callback
+ */
+DataEntry.prototype.addListener = function(callback){
+    this._listeners.push(callback);
+};
+
+/**
+ * @param {function(Xflow.DataEntry, Xflow.DATA_ENTRY_STATE)} callback
+ */
+DataEntry.prototype.removeListener = function(callback){
+    Array.erase(this._listeners, callback);
+};
+
+DataEntry.prototype.notifyChanged = function(){
+    notifyListeners(this, Xflow.DATA_ENTRY_STATE.CHANGED_VALUE);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+// Xflow.BufferEntry
+//----------------------------------------------------------------------------------------------------------------------
+
+/**
+ * @constructor
+ * @extends {Xflow.DataEntry}
+ * @param {Xflow.DATA_TYPE} type
+ * @param {Object} value
+ */
+Xflow.BufferEntry = function(type, value){
+    Xflow.DataEntry.call(this, type);
+    this._value = value;
+    notifyListeners(this, Xflow.DATA_ENTRY_STATE.CHANGED_NEW);
+};
+XML3D.createClass(Xflow.BufferEntry, Xflow.DataEntry);
+var BufferEntry = Xflow.BufferEntry;
+
+
+/** @param {Object} v */
+BufferEntry.prototype.setValue = function(v){
+    var newSize = (this._value ? this._value.length : 0) != (v ? v.length : 0);
+    this._value = v;
+    notifyListeners(this, newSize ? Xflow.DATA_ENTRY_STATE.CHANGE_SIZE : Xflow.DATA_ENTRY_STATE.CHANGED_VALUE);
+}
+
+/** @return {Object} */
+BufferEntry.prototype.getValue = function(){
+    return this._value;
+};
+
+/** @return {Object} */
+BufferEntry.prototype.getLength = function(){
+    return this._value ? this._value.length : 0;
+};
+
+
+BufferEntry.prototype.getTupleSize = function() {
+    if (!this._tupleSize) {
+        this._tupleSize = Xflow.DATA_TYPE_TUPLE_SIZE[this._type];
+    }
+    return this._tupleSize;
+};
+
+/**
+ * @return {number}
+ */
+BufferEntry.prototype.getIterateCount = function(){
+    return this.getLength() / this.getTupleSize();
+};
+
+BufferEntry.prototype.isEmpty = function(){
+    return !this._value;
+};
+
+
+//----------------------------------------------------------------------------------------------------------------------
+// Xflow.TextureEntry
+//----------------------------------------------------------------------------------------------------------------------
+
+
+/**
+ * @constructor
+ * @extends {Xflow.DataEntry}
+ * @param {Object} image
+ */
+Xflow.TextureEntry = function(image){
+    Xflow.DataEntry.call(this, Xflow.DATA_TYPE.TEXTURE);
+    this._image = image;
+    this._samplerConfig = new SamplerConfig();
+    notifyListeners(this, Xflow.DATA_ENTRY_STATE.CHANGED_NEW);
+};
+XML3D.createClass(Xflow.TextureEntry, Xflow.DataEntry);
+var TextureEntry = Xflow.TextureEntry;
+
+TextureEntry.prototype.isEmpty = function(){
+    return !this._image;
+};
+
+/** @param {Object} v */
+TextureEntry.prototype.setImage = function(v){
+    this._image = v;
+    notifyListeners(this, Xflow.DATA_ENTRY_STATE.CHANGED_VALUE);
+}
+
+/** @return {Object} */
+TextureEntry.prototype.getImage = function(){
+    return this._image;
+}
+
+/** @return {Object} */
+TextureEntry.prototype.getSamplerConfig = function(){
+    return this._samplerConfig;
+};
+
+/** @return {number} */
+TextureEntry.prototype.getLength = function(){
+    return 1;
+};
+
+
+
+//----------------------------------------------------------------------------------------------------------------------
+// Xflow.DataChangeNotifier
+//----------------------------------------------------------------------------------------------------------------------
+
+
+
+Xflow.DataChangeNotifier = {
+    _listeners: []
+}
+var DataChangeNotifier = Xflow.DataChangeNotifier;
+
+/**
+ * @param {function(Xflow.DataEntry, Xflow.DATA_ENTRY_STATE)} callback
+ */
+DataChangeNotifier.addListener = function(callback){
+    this._listeners.push(callback);
+};
+
+/**
+ * @param {function(Xflow.DataEntry, Xflow.DATA_ENTRY_STATE)} callback
+ */
+DataChangeNotifier.removeListener = function(callback){
+    Array.erase(this._listeners, callback);
+};
+
+/**
+ * @param {Xflow.DataEntry} dataEntry
+ * @param {Xflow.DATA_ENTRY_STATE} notification
+ */
+function notifyListeners(dataEntry, notification){
+    for(var i = 0; i < DataChangeNotifier._listeners.length; ++i){
+        DataChangeNotifier._listeners[i](dataEntry, notification);
+    }
+    for(var i = 0; i < dataEntry._listeners.length; ++i){
+        dataEntry._listeners[i].notify(dataEntry, notification);
+    }
+};
+})();(function(){
+
+
+//----------------------------------------------------------------------------------------------------------------------
+// Xflow.Graph
+//----------------------------------------------------------------------------------------------------------------------
+
 /**
  * The Xflow graph includes the whole dataflow graph
  * @constructor
@@ -6925,11 +7656,16 @@ Graph.prototype.createInputNode = function(){
 /**
  * @return {Xflow.DataNode}
  */
-Graph.prototype.createDataNode = function(){
-    var node = new Xflow.DataNode(this);
+Graph.prototype.createDataNode = function(protoNode){
+    var node = new Xflow.DataNode(this, protoNode);
     this._nodes.push(node);
     return node;
 };
+
+
+//----------------------------------------------------------------------------------------------------------------------
+// Xflow.GraphNode
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * @constructor
@@ -6940,6 +7676,12 @@ Xflow.GraphNode = function(graph){
     this._parents = [];
 };
 var GraphNode = Xflow.GraphNode;
+
+
+
+//----------------------------------------------------------------------------------------------------------------------
+// Xflow.InputNode
+//----------------------------------------------------------------------------------------------------------------------
 
 /**
  * @constructor
@@ -6992,35 +7734,35 @@ Object.defineProperty(InputNode.prototype, "param", {
 Object.defineProperty(InputNode.prototype, "data", {
     /** @param {Object} v */
     set: function(v){
-        var oldLength = 0;
         if(this._data) {
-            oldLength = this._data.getLength();
             this._data.removeListener(this);
         }
         this._data = v;
         if(this._data)
             this._data.addListener(this);
-        var sizeChanged = (oldLength != (this._data ? this._data.getLength() : 0));
-        notifyParentsOnChanged(this, sizeChanged ? Xflow.RESULT_STATE.CHANGED_STRUCTURE :
-            Xflow.RESULT_STATE.CHANGED_DATA, this._name);
+        notifyParentsOnChanged(this, Xflow.RESULT_STATE.CHANGED_STRUCTURE);
     },
     /** @return {Object} */
     get: function(){ return this._data; }
 });
 
 
+//----------------------------------------------------------------------------------------------------------------------
+// Xflow.DataNode
+//----------------------------------------------------------------------------------------------------------------------
+
 
 /**
  * @constructor
  * @extends {Xflow.GraphNode}
  */
-Xflow.DataNode = function(graph){
+Xflow.DataNode = function(graph, protoNode){
     Xflow.GraphNode.call(this, graph);
 
     this.loading = false;
 
     
-    this._prototype = false;
+    this._isProtoNode = protoNode;
     this._children = [];
     this._sourceNode = null;
     this._protoNode = null;
@@ -7032,11 +7774,9 @@ Xflow.DataNode = function(graph){
     this._computeInputMapping = new Xflow.OrderMapping(this);
     this._computeOutputMapping = new Xflow.OrderMapping(this);
 
-
-    this._state = Xflow.RESULT_STATE.NONE;
-
-    this._initCompute();
+    this._channelNode = new Xflow.ChannelNode(this);
     this._requests = [];
+
 };
 XML3D.createClass(Xflow.DataNode, Xflow.GraphNode);
 var DataNode = Xflow.DataNode;
@@ -7077,31 +7817,7 @@ XML3D.createClass(Xflow.NameMapping, Xflow.Mapping);
 
 
 
-/**
- * @private
- * @param {Xflow.DataNode} parent
- * @param {Xflow.GraphNode} child
- */
-function addParent(parent, child){
-    child._parents.push(parent);
-}
 
-/**
- * @private
- * @param {Xflow.DataNode} parent
- * @param {Xflow.GraphNode} child
- */
-function removeParent(parent, child){
-    Array.erase(child._parents, parent);
-}
-
-Object.defineProperty(DataNode.prototype, "prototype", {
-    /** @param {boolean} v */
-    set: function(v){ this._prototype = v;
-    },
-    /** @return {boolean} */
-    get: function(){ return this._prototype; }
-});
 Object.defineProperty(DataNode.prototype, "sourceNode", {
     /** @param {?Xflow.DataNode} v */
     set: function(v){
@@ -7137,7 +7853,7 @@ Object.defineProperty(DataNode.prototype, "filterType", {
 
 Object.defineProperty(DataNode.prototype, "filterMapping", {
     /** @param {Xflow.Mapping} v */
-    set: function(v){ throw "filterMapping is readonly!";
+    set: function(v){ throw new Error("filterMapping is readonly!");
     },
     /** @return {Xflow.Mapping} */
     get: function(){ return this._filterMapping; }
@@ -7154,18 +7870,22 @@ Object.defineProperty(DataNode.prototype, "computeOperator", {
 });
 Object.defineProperty(DataNode.prototype, "computeInputMapping", {
     /** @param {Xflow.Mapping} v */
-    set: function(v){ throw "computeInputMapping is readonly!";
+    set: function(v){ throw new Error("computeInputMapping is readonly!");
     },
     /** @return {Xflow.Mapping} */
     get: function(){ return this._computeInputMapping; }
 });
 Object.defineProperty(DataNode.prototype, "computeOutputMapping", {
     /** @param {Xflow.Mapping} v */
-    set: function(v){ throw "computeOutputMapping is readonly!";
+    set: function(v){ throw new Error("computeOutputMapping is readonly!");
     },
     /** @return {Xflow.Mapping} */
     get: function(){ return this._computeOutputMapping; }
 });
+
+DataNode.prototype.isProtoNode = function(){
+    return this._isProtoNode;
+}
 
 /**
  * @param {Xflow.GraphNode} child
@@ -7291,38 +8011,79 @@ DataNode.prototype.setCompute = function(computeString){
 /**
  * Notifies DataNode about a change. Notification will be forwarded to parents, if necessary
  * @param {Xflow.RESULT_STATE} changeType
- * @param {?string} name
+ * @param {GraphNode} senderNode
  */
-DataNode.prototype.notify = function(changeType, name){
-    if(changeType == Xflow.RESULT_STATE.CHANGED_STRUCTURE && this._state != changeType)
+DataNode.prototype.notify = function(changeType, senderNode){
+    if(changeType == Xflow.RESULT_STATE.CHANGED_STRUCTURE)
     {
-        this._state = changeType;
-        notifyParentsOnChanged(this, changeType, name);
-        this._updateComputeCache(changeType);
+        this._channelNode.setStructureOutOfSync();
+
+        notifyParentsOnChanged(this, changeType);
+
         for(var i in this._requests)
             this._requests[i].notify(changeType);
     }
-    else if(changeType == Xflow.RESULT_STATE.CHANGED_DATA && this._state < changeType){
-        this._state = changeType;
-        notifyParentsOnChanged(this, changeType, name);
-        this._updateComputeCache(changeType);
-        for(var i in this._requests)
-            this._requests[i].notify(changeType);
+    else if(changeType == Xflow.RESULT_STATE.CHANGED_DATA){
+        this._channelNode.notifyDataChange(senderNode);
     }
 };
+
+
+DataNode.prototype._getComputeResult = function(filter){
+    var forwardNode = getForwardNode(this);
+    if(forwardNode){
+        return forwardNode._getComputeResult(filter);
+    }
+
+    return this._channelNode.getComputeResult(filter);
+}
+
+
+function getForwardNode(dataNode){
+    if(!dataNode._filterMapping.isEmpty()  || dataNode._computeOperator)
+        return null;
+    if(dataNode._sourceNode && dataNode._children.length == 0)
+        return dataNode._sourceNode;
+    if(dataNode._children.length == 1 && dataNode._children[0] instanceof DataNode)
+        return dataNode._children[0];
+    return null;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+// Helpers
+//----------------------------------------------------------------------------------------------------------------------
+
+
+/**
+ * @private
+ * @param {Xflow.DataNode} parent
+ * @param {Xflow.GraphNode} child
+ */
+function addParent(parent, child){
+    child._parents.push(parent);
+}
+
+/**
+ * @private
+ * @param {Xflow.DataNode} parent
+ * @param {Xflow.GraphNode} child
+ */
+function removeParent(parent, child){
+    Array.erase(child._parents, parent);
+}
 
 /**
  * Notify all parent nodes about a change
  * @param {Xflow.GraphNode} node
  * @param {number|Xflow.RESULT_STATE} changeType
- * @param {?string=} name
  * @private
  */
-function notifyParentsOnChanged(node, changeType, name){
+function notifyParentsOnChanged(node, changeType){
     for(var i = 0; i < node._parents.length; ++i){
-        node._parents[i].notify(changeType, name || null);
+        node._parents[i].notify(changeType, node);
     }
 };
+
 /**
  * Remove owner from mapping, small helper function
  * @param {Xflow.Mapping} mapping
@@ -7336,6 +8097,9 @@ function removeMappingOwner(mapping){
 
 })();(function(){
 
+//----------------------------------------------------------------------------------------------------------------------
+// Xflow.Mapping
+//----------------------------------------------------------------------------------------------------------------------
 
 var Mapping = Xflow.Mapping;
 
@@ -7349,6 +8113,11 @@ Mapping.parse = function(string, dataNode){
         return NameMapping.parse(results[1], dataNode);
     return null;
 }
+
+
+//----------------------------------------------------------------------------------------------------------------------
+// Xflow.OrderMapping
+//----------------------------------------------------------------------------------------------------------------------
 
 
 /**
@@ -7369,7 +8138,7 @@ OrderMapping.parse = function(string, dataNode){
 
 
 Object.defineProperty(OrderMapping.prototype, "length", {
-    set: function(v){ throw "length is read-only";
+    set: function(v){ throw new Error("length is read-only");
     },
     get: function(){ return this._name.length; }
 });
@@ -7397,6 +8166,62 @@ OrderMapping.prototype.isEmpty = function(){
     return this._names.length == 0;
 }
 
+var orderMappingParser = /^([^:,{}]+)(,[^:{},]+)*$/;
+
+OrderMapping.prototype.applyFilterOnChannelMap = function(destMap, sourceMap, substitution, filterType, callback){
+    for(var i in sourceMap.map){
+        var idx = this._names.indexOf(i);
+        if(filterType == Xflow.DATA_FILTER_TYPE.RENAME ||
+            ( filterType == Xflow.DATA_FILTER_TYPE.KEEP && idx != -1) ||
+            (filterType == Xflow.DATA_FILTER_TYPE.REMOVE && idx == -1))
+            callback(destMap, i, sourceMap, i, substitution);
+    }
+};
+OrderMapping.prototype.getScriptInputName = function(index, destName){
+    if(this._names[index])
+        return this._names[index];
+    else
+        return null;
+};
+OrderMapping.prototype.getScriptOutputName = function(index, srcName){
+    if(this._names[index])
+        return this._names[index];
+    else
+        return null;
+};
+OrderMapping.prototype.applyScriptOutputOnMap = function(destMap, sourceMap){
+    var index = 0;
+    for(var i in sourceMap){
+        if(index < this._names.length){
+            destMap[this._names[index]] = sourceMap[i];
+            ++index;
+        }
+        else
+            break;
+    }
+};
+
+
+OrderMapping.prototype.filterNameset = function(nameset, filterType)
+{
+    if(filterType == Xflow.DATA_FILTER_TYPE.RENAME)
+        return nameset.splice();
+    else {
+        var keep = (filterType == Xflow.DATA_FILTER_TYPE.KEEP);
+        var result = [];
+        for(var i in nameset){
+            var idx = this._names.indexOf(nameset[i]);
+            if( (keep && idx!= -1) || (!keep && idx == -1) )
+                result.push(nameset[i]);
+        }
+        return result;
+    }
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+// Xflow.NameMapping
+//----------------------------------------------------------------------------------------------------------------------
+
 
 /**
  * NameMapping implementation
@@ -7418,7 +8243,7 @@ NameMapping.parse = function(string, dataNode)
 }
 
 Object.defineProperty(NameMapping.prototype, "length", {
-    set: function(v){ throw "length is read-only";
+    set: function(v){ throw new Error("length is read-only");
     },
     get: function(){ return this._srcNames.length; }
 });
@@ -7433,6 +8258,10 @@ NameMapping.prototype.getSrcName = function(idx){
 NameMapping.prototype.getSrcNameFromDestName = function(destName){
     var idx = this._destNames.indexOf(destName);
     return idx == -1 ? null : this._srcNames[idx];
+};
+NameMapping.prototype.getDestNameFromSrcName = function(srcName){
+    var idx = this._srcNames.indexOf(srcName);
+    return idx == -1 ? null : this._destNames[idx];
 };
 
 NameMapping.prototype.clear = function(){
@@ -7465,86 +8294,40 @@ NameMapping.prototype.isEmpty = function(){
     return this._destNames.length == 0;
 }
 
-var orderMappingParser = /^([^:,{}]+)(,[^:{},]+)*$/;
+
 var nameMappingParser = /^\{(([^:,{}]+:[^:{},]+)(,[^:{},]+:[^:},]+)*)\}$/;
 
 
-function mappingNotifyOwner(mapping){
-    if(mapping._owner)
-        mapping._owner.notify(Xflow.RESULT_STATE.CHANGED_STRUCTURE);
-};
-
-OrderMapping.prototype.filterNameset = function(nameset, filterType)
-{
-    if(filterType == Xflow.DATA_FILTER_TYPE.RENAME)
-        return nameset.splice();
-    else {
-        var keep = (filterType == Xflow.DATA_FILTER_TYPE.KEEP);
-        var result = [];
-        for(var i in nameset){
-            var idx = this._names.indexOf(nameset[i]);
-            if( (keep && idx!= -1) || (!keep && idx == -1) )
-                result.push(nameset[i]);
-        }
-        return result;
-    }
-}
 NameMapping.prototype.filterNameset = function(nameset, filterType)
 {
 
 }
 
-OrderMapping.prototype.applyFilterOnMap = function(destMap, sourceMap, filterType){
-    for(var i in sourceMap){
-        var idx = this._names.indexOf(i);
-        if(filterType == Xflow.DATA_FILTER_TYPE.RENAME ||
-           ( filterType == Xflow.DATA_FILTER_TYPE.KEEP && idx != -1) ||
-            (filterType == Xflow.DATA_FILTER_TYPE.REMOVE && idx == -1))
-            destMap[i] = sourceMap[i];
-    }
-};
-OrderMapping.prototype.getScriptInputName = function(index, destName){
-    if(this._names[index])
-        return this._names[index];
-    else
-        return null;
-};
-OrderMapping.prototype.applyScriptOutputOnMap = function(destMap, sourceMap){
-    var index = 0;
-    for(var i in sourceMap){
-        if(index < this._names.length){
-            destMap[this._names[index]] = sourceMap[i];
-            ++index;
-        }
-        else
-            break;
-    }
-};
-
-NameMapping.prototype.applyFilterOnMap = function(destMap, sourceMap, filterType)
+NameMapping.prototype.applyFilterOnChannelMap = function(destMap, sourceMap, substitution, filterType, callback)
 {
     if(filterType == Xflow.DATA_FILTER_TYPE.REMOVE){
-        for(var i in sourceMap)
+        for(var i in sourceMap.map)
             if(this._srcNames.indexOf(i) == -1)
-                destMap[i] = sourceMap[i];
+                callback(destMap, i, sourceMap, i, substitution);
     }
     else{
         if(filterType == Xflow.DATA_FILTER_TYPE.RENAME){
-            for(var i in sourceMap)
+            for(var i in sourceMap.map)
                 if(this._srcNames.indexOf(i) == -1)
-                    destMap[i] = sourceMap[i];
+                    callback(destMap, i, sourceMap, i, substitution);
         }
         for(var i in this._destNames){
-            destMap[this._destNames[i]] = sourceMap[this._srcNames[i]]
+            callback(destMap, this._destNames[i], sourceMap, this._srcNames[i], substitution);
         }
     }
 };
 
 NameMapping.prototype.getScriptInputName= function(index, destName){
-    var srcName = this.getSrcNameFromDestName(destName);
-    return srcName ? srcName : null;
+    return this.getSrcNameFromDestName(destName);
 }
-
+NameMapping.prototype.getScriptOutputName = function(index, srcName){
+    return this.getDestNameFromSrcName(srcName);
+}
 
 NameMapping.prototype.applyScriptOutputOnMap= function(destMap, sourceMap){
     for(var i in this._destNames){
@@ -7553,680 +8336,1003 @@ NameMapping.prototype.applyScriptOutputOnMap= function(destMap, sourceMap){
     }
 }
 
+
+//----------------------------------------------------------------------------------------------------------------------
+// Helpers
+//----------------------------------------------------------------------------------------------------------------------
+
+
+function mappingNotifyOwner(mapping){
+    if(mapping._owner)
+        mapping._owner.notify(Xflow.RESULT_STATE.CHANGED_STRUCTURE);
+};
+
 })();(function(){
 
+//----------------------------------------------------------------------------------------------------------------------
+// Xflow.DataSlot
+//----------------------------------------------------------------------------------------------------------------------
 
-/**
- * @constructor
- */
-Xflow.SamplerConfig = function(){
-    this.filterMin = 0;
-    this.filterMag = 0;
-    this.filterMip = 0;
-    this.wrapS = 0;
-    this.wrapT = 0;
-    this.wrapU = 0;
-    this.textureType = 0;
-    this.colorR = 0;
-    this.colorG = 0;
-    this.colorB = 0;
-    this.generateMipMap = 0;
-};
-var SamplerConfig = Xflow.SamplerConfig;
+    /**
+     * @contructuor
+     * @param {Xflow.DataEntry} value
+     * @param {number=} key
+     */
+    Xflow.DataSlot = function(dataEntry, key){
+        this.key = key || 0;
+        this.dataEntry = dataEntry;
+        this.parentChannels = [];
 
-
-
-
-/**
- * @constructor
- * @param {Xflow.DATA_TYPE} type Type of DataEntry
- */
-Xflow.DataEntry = function(type){
-    this._type = type;
-    this._listeners = [];
-    this.userData = {};
-};
-var DataEntry = Xflow.DataEntry;
-
-Object.defineProperty(DataEntry.prototype, "type", {
-    /** @param {Xflow.DATA_TYPE} v */
-    set: function(v){
-        throw "type is read-only";
-    },
-    /** @return {Xflow.DATA_TYPE} */
-    get: function(){ return this._type; }
-});
-
-/**
- * @param {function(Xflow.DataEntry, Xflow.DATA_ENTRY_STATE)} callback
- */
-DataEntry.prototype.addListener = function(callback){
-    this._listeners.push(callback);
-};
-
-/**
- * @param {function(Xflow.DataEntry, Xflow.DATA_ENTRY_STATE)} callback
- */
-DataEntry.prototype.removeListener = function(callback){
-    Array.erase(this._listeners, callback);
-};
-
-DataEntry.prototype.notifyChanged = function(){
-    notifyListeners(this, Xflow.DATA_ENTRY_STATE.CHANGED_VALUE);
-}
-
-
-
-/**
- * @constructor
- * @extends {Xflow.DataEntry}
- * @param {Xflow.DATA_TYPE} type
- * @param {Object} value
- */
-Xflow.BufferEntry = function(type, value){
-    Xflow.DataEntry.call(this, type);
-    this._value = value;
-    notifyListeners(this, Xflow.DATA_ENTRY_STATE.CHANGED_NEW);
-};
-XML3D.createClass(Xflow.BufferEntry, Xflow.DataEntry);
-var BufferEntry = Xflow.BufferEntry;
-
-
-/** @param {Object} v */
-BufferEntry.prototype.setValue = function(v){
-    var newSize = (this._value ? this._value.length : 0) != (v ? v.length : 0);
-    this._value = v;
-    notifyListeners(this, newSize ? Xflow.DATA_ENTRY_STATE.CHANGE_SIZE : Xflow.DATA_ENTRY_STATE.CHANGED_VALUE);
-}
-
-/** @return {Object} */
-BufferEntry.prototype.getValue = function(){
-    return this._value;
-};
-
-/** @return {Object} */
-BufferEntry.prototype.getLength = function(){
-    return this._value ? this._value.length : 0;
-};
-
-
-BufferEntry.prototype.getTupleSize = function() {
-    if (!this._tupleSize) {
-        this._tupleSize = Xflow.DATA_TYPE_TUPLE_SIZE[this._type];
     }
-    return this._tupleSize;
-};
-
-/**
- * @return {number}
- */
-BufferEntry.prototype.getIterateCount = function(){
-    return this.getLength() / this.getTupleSize();
-};
-
-/**
- * @constructor
- * @extends {Xflow.DataEntry}
- * @param {Object} image
- */
-Xflow.TextureEntry = function(image){
-    Xflow.DataEntry.call(this, Xflow.DATA_TYPE.TEXTURE);
-    this._image = image;
-    this._samplerConfig = new SamplerConfig();
-    notifyListeners(this, Xflow.DATA_ENTRY_STATE.CHANGED_NEW);
-};
-XML3D.createClass(Xflow.TextureEntry, Xflow.DataEntry);
-var TextureEntry = Xflow.TextureEntry;
-
-/** @param {Object} v */
-TextureEntry.prototype.setImage = function(v){
-    this._image = v;
-    notifyListeners(this, Xflow.DATA_ENTRY_STATE.CHANGED_VALUE);
-}
-
-/** @return {Object} */
-TextureEntry.prototype.getImage = function(){
-    return this._image;
-}
-
-/** @return {Object} */
-TextureEntry.prototype.getSamplerConfig = function(){
-    return this._samplerConfig;
-};
-
-/** @return {number} */
-TextureEntry.prototype.getLength = function(){
-    return 1;
-};
-
-
-Xflow.DataChangeNotifier = {
-    _listeners: []
-}
-var DataChangeNotifier = Xflow.DataChangeNotifier;
-
-/**
- * @param {function(Xflow.DataEntry, Xflow.DATA_ENTRY_STATE)} callback
- */
-DataChangeNotifier.addListener = function(callback){
-    this._listeners.push(callback);
-};
-
-/**
- * @param {function(Xflow.DataEntry, Xflow.DATA_ENTRY_STATE)} callback
- */
-DataChangeNotifier.removeListener = function(callback){
-    Array.erase(this._listeners, callback);
-};
-
-/**
- * @param {Xflow.DataEntry} dataEntry
- * @param {Xflow.DATA_ENTRY_STATE} notification
- */
-function notifyListeners(dataEntry, notification){
-    for(var i = 0; i < DataChangeNotifier._listeners.length; ++i){
-        DataChangeNotifier._listeners[i](dataEntry, notification);
+    Xflow.DataSlot.prototype.addChannel = function(channel){
+        this.parentChannels.push(channel);
     }
-    for(var i = 0; i < dataEntry._listeners.length; ++i){
-        dataEntry._listeners[i].notify(dataEntry, notification);
+    Xflow.DataSlot.prototype.removeChannel = function(channel){
+        var idx = this.parentChannels.indexOf(channel);
+        if(idx != -1) this.parentChannels.splice(idx, 1);
     }
-};
-})();(function(){
 
-/**
- * @constructor
- * @param {Xflow.DataNode} owner Owner of the channel - always a DataNode
- * @param {Xflow.DataEntry=} dataEntry Optional DataEntry added to the channel
- * @param {number=} key Optional key of the added DataEntry
- */
-var Channel = function(owner, dataEntry, key){
-    this.entries = [];
-    this.owner = owner;
-
-    if(dataEntry){
-        this.addDataEntry(dataEntry, key);
+    Xflow.DataSlot.prototype.setDataEntry = function(dataEntry){
+        this.dataEntry = dataEntry;
+        this.notifyOnChange();
     }
-}
-Xflow.Channel = Channel;
 
-Channel.prototype.addDataEntry = function(dataEntry, key){
-    var insertObj = {
-        key: key,
-        value: dataEntry
-    }
-    for(var i = 0; i < this.entries.length; ++i){
-        var entry = this.entries[i];
-        if(entry.key >= key - Xflow.EPSILON ){
-            if(Math.abs(entry.key - key) <= Xflow.EPSILON){
-                this.entries.splice(i, 1, insertObj);
-            }
-            else{
-                this.entries.splice(i, 0, insertObj);
-            }
-            break;
+    Xflow.DataSlot.prototype.notifyOnChange = function(){
+        for(var i = 0; i < this.parentChannels.length; ++i){
+            this.parentChannels[i].notifyOnChange();
         }
     }
-    this.entries.push(insertObj);
-};
 
-Channel.prototype.getDataEntry = function(sequenceAccessType, sequenceKey){
-    if(this.entries.length == 0)
-        return null;
-    if(!sequenceAccessType)
-        return this.entries[0].value;
+//----------------------------------------------------------------------------------------------------------------------
+// Xflow.ChannelMap
+//----------------------------------------------------------------------------------------------------------------------
 
-    var i = 0, max = this.entries.length;
-    while(i < max && this.entries[i].key < sequenceKey) ++i;
-    if(sequenceAccessType == Xflow.SEQUENCE.PREV_BUFFER){
-        return this.entries[i ? i -1 : 0].value;
+    /**
+     * @constructor
+     */
+    Xflow.ChannelMap = function(){
+        this.map = {};
     }
-    else if(sequenceAccessType == Xflow.SEQUENCE.NEXT_BUFFER){
-        return this.entries[i < max ? i : max - 1].value;
-    }
-    else if(sequenceAccessType == Xflow.SEQUENCE.LINEAR_WEIGHT){
-        var weight1 = this.entries[i ? i - 1 : 0].key;
-        var weight2 = this.entries[i < max ? i : max - 1].key;
-        var value = new Float32Array(1);
-        value[0] = weight2 == weight1 ? 0 : (sequenceKey - weight1) / (weight2 - weight1);
-        // TODO: Check if repeated BufferEntry and Float32Array allocation is a serious bottleneck
-        return new Xflow.BufferEntry(Xflow.DATA_TYPE.FLOAT, value);
-    }
-    return null;
-};
+    var ChannelMap = Xflow.ChannelMap;
 
 
-var DataNode = Xflow.DataNode;
+    ChannelMap.prototype.getChannel = function(name, substitution)
+    {
+        if(!this.map[name])
+            return null;
 
-
-function getForwardNode(dataNode){
-    if(!dataNode._filterMapping.isEmpty()  || dataNode._computeOperator)
-        return null;
-    if(dataNode._sourceNode && dataNode._children.length == 0)
-        return dataNode._sourceNode;
-    if(dataNode._children.length == 1 && dataNode._children[0] instanceof DataNode)
-        return dataNode._children[0];
-    return null;
-}
-
-DataNode.prototype._initCompute = function(){
-    this._results = [];
-    this._dataMap = {};
-}
-
-DataNode.prototype._updateComputeCache = function(state){
-    this._dataMap = {};
-
-    for(var i in this._results){
-        this._results[i].notifyChanged(state);
+        var entry = this.map[name];
+        var key = getEntryKey(entry, substitution);
+        return entry.channels[key] ? entry.channels[key].channel : null;
     }
 
-    if(state == Xflow.RESULT_STATE.CHANGED_STRUCTURE){
-        this._operatorData = null;
-    }
-}
-
-DataNode.prototype._getComputeResult = function(filter){
-    var forwardNode = getForwardNode(this);
-    if(forwardNode){
-        this._state = Xflow.RESULT_STATE.NONE;
-        return forwardNode._getComputeResult(filter);
+    ChannelMap.prototype.getProtoNames = function(name){
+        if(!this.map[name])
+            return null;
+        return this.map[name].protoNames;
     }
 
-    var key = filter ? filter.join(";") : "[null]";
-    if(!this._results[key])
-        this._results[key] = new Xflow.ComputeResult();
-
-    if(!this._results[key].valid)
-        this._createComputeResult(filter, this._results[key]);
-
-    return this._results[key];
-}
-
-DataNode.prototype._createComputeResult = function(filter, result){
-    result._outputNames = [];
-    result._dataEntries = {};
-    var loading = this._populateDataMap();
-
-    for(var i in this._dataMap){
-        if(!filter || filter.indexOf(i) != -1){
-            result._outputNames.push(i);
-            result._dataEntries[i] = this._dataMap[i].getDataEntry();
+    ChannelMap.prototype.mergeProtoNames = function(otherChannelMap){
+        for(var name in otherChannelMap.map){
+            this.addProtoNames(name, otherChannelMap.getProtoNames(name));
         }
     }
-    result.loading = loading;
-    result.valid = true;
-}
-DataNode.prototype._populateDataMap = function(){
-    if(this._state == Xflow.RESULT_STATE.NONE) return;
-    this._state = Xflow.RESULT_STATE.NONE;
+    ChannelMap.prototype.addProtoNames = function(name, protoNames){
 
-    if(this.loading)
-        return true;
-
-    // Prepare input:
-    var inputMap = {};
-    if(this._sourceNode){
-        if(transferDataMap(inputMap, this._sourceNode))
-            return true;
+        var entry = getEntry(this.map, name);
+        Xflow.nameset.add(entry.protoNames, protoNames);
     }
-    else{
-        for(var i in this._children){
-            if(this._children[i] instanceof Xflow.DataNode){
-                if(transferDataMap(inputMap, this._children[i]))
-                    return true;
+
+
+    ChannelMap.prototype.merge = function(otherChannelMap, substitution){
+        for(var name in otherChannelMap.map){
+            this.addChannel(name, otherChannelMap.getChannel(name, substitution), substitution);
+        }
+    }
+
+    ChannelMap.prototype.addChannel = function(name, channel, substitution){
+        var entry = getEntry(this.map, name);
+        mergeChannelsIntoMapEntry(this, entry, channel, substitution);
+    }
+
+
+    ChannelMap.prototype.addDataEntry = function(name, dataSlot, param, substitution)
+    {
+        var entry = getEntry(this.map, name);
+        if(param && substitution){
+            if(substitution.map[name]){
+                mergeChannelsIntoMapEntry(this, entry, substitution.map[name], substitution);
+                return;
+            }else{
+                // TODO: at this point we use default values - we need to show an error, if a default values does not exists.
             }
         }
-        for(var i in this._children)
-        {
-            if(this._children[i] instanceof Xflow.InputNode){
-                var inputNode = this._children[i];
-                var channel = inputMap[inputNode._name];
-                if(!channel || channel.owner != this){
-                    channel = new Channel(this);
+        mergeDataSlotIntoMapEntry(this, entry, dataSlot, substitution);
+    }
+
+    ChannelMap.prototype.addOutputDataSlot = function(name, dataSlot, creatorNode, substitution){
+        var entry = getEntry(this.map, name);
+        var channel = mergeDataSlotIntoMapEntry(this, entry, dataSlot, substitution);
+        channel.creatorProcessNode = creatorNode;
+    }
+
+    ChannelMap.prototype.markAsDone = function(substitution){
+        for(var name in this.map){
+            var entry = this.map[name];
+            var entryKey = getEntryKey(entry, substitution);
+            entry.channels[entryKey].done = true;
+        }
+    }
+
+    ChannelMap.prototype.clearSubstitution = function(substitution){
+        for(var name in this.map){
+            var entry = this.map[name];
+            var entryKey = getEntryKey(entry, substitution);
+            var channel = entry.channels[entryKey] && entry.channels[entryKey].channel;
+            if(channel){
+                if(channel.map == this){
+                    channel.useCount--;
+                    if(channel.useCount == 0)
+                        channel.clear();
                 }
-                channel.addDataEntry(inputNode._data, inputNode._seqnr);
-                inputMap[inputNode._name] = channel;
+                if(channel.useCount == 0){
+                    delete entry.channels[entryKey];
+                }
             }
+
         }
     }
-    this._applyOperator(inputMap);
 
-    this._filterMapping.applyFilterOnMap(this._dataMap, inputMap, this._filterType);
-
-    return false;
-}
-
-function transferDataMap(destMap, node){
-    var loading = node._populateDataMap();
-    if(loading)
-        return true;
-
-    for(var i in node._dataMap){
-        destMap[i] = node._dataMap[i];
+    ChannelMap.prototype.clearAll = function(){
+        for(var name in this.map){
+            var entry = this.map[name];
+            for(var key in entry.channels){
+                var channel = entry.channels[key].channel;
+                if(channel && channel.map == this)
+                    channel.clear();
+            }
+        }
+        this.map = {};
     }
-    return false;
-}
+
+    Xflow.ChannelMap.Entry = function(){
+        this.protoNames = [];
+        this.channels = {};
+    };
+
+    function getEntry(map, name){
+        if(!map[name])
+            map[name] = new Xflow.ChannelMap.Entry();
+        return map[name];
+    }
+
+    function getEntryKey(entry, substitution){
+        if(substitution && entry.protoNames.length > 0){
+            return substitution.getKey(entry.protoNames);
+        }
+        else
+            return 0;
+    }
+
+    function mergeChannelsIntoMapEntry(map, entry, newChannel, substitution){
+        var entryKey = getEntryKey(entry, substitution);
+        if(!entry.channels[entryKey])
+            entry.channels[entryKey] = {done: false, channel: null};
+        var channelEntry = entry.channels[entryKey];
+        if(channelEntry.done){
+            if(channelEntry.channel.map == this)
+                channelEntry.useCount++;
+            return;
+        }
+
+        var finalChannel = mergeChannelIntoChannel(map, entry.channel, newChannel);
+        channelEntry.channel = finalChannel;
+    }
+
+    function mergeChannelIntoChannel(map, currentChannel, newChannel){
+        if(!currentChannel) return newChannel;
+        if(!currentChannel.willMergeWithChannel(newChannel))
+            return newChannel;
+        currentChannel = getMapOwnedChannel(map, currentChannel);
+        currentChannel.addChannelEntries(newChannel);
+        return currentChannel;
+    }
+
+
+    function mergeDataSlotIntoMapEntry(map, entry, dataSlot, substitution){
+        var entryKey = getEntryKey(entry, substitution);
+        if(!entry.channels[entryKey])
+            entry.channels[entryKey] = {done: false, channel: null};
+        var channelEntry = entry.channels[entryKey];
+        if(channelEntry.done){
+            if(channelEntry.channel.map == this)
+                channelEntry.useCount++;
+            return channelEntry.channel;
+        }
+        var finalChannel = mergeDataSlotIntoChannel(map, channelEntry.channel, dataSlot);
+        channelEntry.channel = finalChannel;
+        return finalChannel;
+    }
+
+    function mergeDataSlotIntoChannel(map, currentChannel, dataSlot){
+        if(!currentChannel)
+            return new Xflow.Channel(map, dataSlot);
+        if(!currentChannel.willMergeWithDataSlot(dataSlot))
+            return new Xflow.Channel(map, dataSlot);
+        currentChannel = getMapOwnedChannel(map, currentChannel);
+        currentChannel.addDataSlot(dataSlot);
+        return currentChannel;
+    }
+
+
+    function getMapOwnedChannel(map, channel){
+        if(channel.map != map){
+            var newChannel = new Xflow.Channel(map);
+            newChannel.addChannelEntries(channel);
+            newChannel.creatorProcessNode = channel.creatorProcessNode;
+            return newChannel
+        }
+        return channel;
+    }
+
+
+//----------------------------------------------------------------------------------------------------------------------
+// Xflow.Channel
+//----------------------------------------------------------------------------------------------------------------------
+
+
+    /**
+     * @constructor
+     * @param {Xflow.ChannelMap} owner Owner of the channel - always a DataNode
+     * @param {Xflow.DataSlot=} dataEntry Optional DataEntry added to the channel
+     * @param {number=} key Optional key of the added DataEntry
+     */
+    Xflow.Channel = function(map, dataSlot){
+        this.entries = [];
+        this.map = map;
+        this.id = generateChannelId();
+        this.listeners = [];
+        this.useCount = 1;
+        this.creatorProcessNode = null;
+
+        if(dataSlot){
+            this.addDataSlot(dataSlot);
+        }
+    }
+    var Channel = Xflow.Channel;
+
+    Channel.prototype.addDataSlot = function(dataSlot){
+        dataSlot.addChannel(this);
+        for(var i = 0; i < this.entries.length; ++i){
+            var entry = this.entries[i];
+            if(entry.key >= dataSlot.key - Xflow.EPSILON ){
+                if(Math.abs(entry.key - dataSlot.key) <= Xflow.EPSILON){
+                    entry.removeChannel(this);
+                    this.entries.splice(i, 1, dataSlot);
+                }
+                else{
+                    this.entries.splice(i, 0, dataSlot);
+                }
+                break;
+            }
+        }
+        this.entries.push(dataSlot);
+    };
+
+    Channel.prototype.getType = function(){
+        if(this.entries.length == 0)
+            return Xflow.DATA_TYPE.UNKNOWN;
+        else
+            return this.entries[0].dataEntry._type;
+    }
+
+    Channel.prototype.addChannelEntries = function(otherChannel){
+        for(var i = 0; i < otherChannel.entries.length; ++i){
+            var slot = otherChannel.entries[i];
+            this.addDataSlot(slot);
+        }
+    }
+
+    Channel.prototype.getDataEntry = function(sequenceAccessType, sequenceKey){
+        if(this.entries.length == 0)
+            return null;
+        if(!sequenceAccessType)
+            return this.entries[0].dataEntry;
+
+        var i = 0, max = this.entries.length;
+        while(i < max && this.entries[i].key < sequenceKey) ++i;
+        if(sequenceAccessType == Xflow.SEQUENCE.PREV_BUFFER){
+            return this.entries[i ? i -1 : 0].dataEntry;
+        }
+        else if(sequenceAccessType == Xflow.SEQUENCE.NEXT_BUFFER){
+            return this.entries[i < max ? i : max - 1].dataEntry;
+        }
+        else if(sequenceAccessType == Xflow.SEQUENCE.LINEAR_WEIGHT){
+            var weight1 = this.entries[i ? i - 1 : 0].key;
+            var weight2 = this.entries[i < max ? i : max - 1].key;
+            var value = new Float32Array(1);
+            value[0] = weight2 == weight1 ? 0 : (sequenceKey - weight1) / (weight2 - weight1);
+            // TODO: Check if repeated BufferEntry and Float32Array allocation is a serious bottleneck
+            return new Xflow.BufferEntry(Xflow.DATA_TYPE.FLOAT, value);
+        }
+        return null;
+    };
+
+
+    Channel.prototype.willMergeWithChannel = function(otherChannel){
+        if(this.entries.length != otherChannel.entries.length) return true;
+        if(this.getType() != otherChannel.getType())
+            return false;
+        for(var i = 0; i < this.entries.length; i++){
+            if(Math.abs(this.entries[i].key - otherChannel.entries[i].key) > Xflow.EPSILON)
+                return true;
+        }
+        return false;
+    }
+    Channel.prototype.willMergeWithDataSlot = function(dataSlot){
+        if(this.entries.length > 1) return true;
+        if(this.getType() != dataSlot.dataEntry._type) return false;
+        if(Math.abs(this.entries[0].key - dataSlot.key) > Xflow.EPSILON)
+            return true;
+        return false;
+    }
+
+    Channel.prototype.notifyOnChange = function(){
+        for(var i = 0; i < this.listeners.length; i++){
+            this.listeners[i](this);
+        }
+    }
+
+    Channel.prototype.addListener = function(processNode){
+        this.listeners.push(processNode);
+    }
+    Channel.prototype.removeListener = function(processNode){
+        var idx = this.listeners.indexOf(processNode);
+        if(idx != -1) this.listeners.splice(idx, 1);
+    }
+
+    Channel.prototype.clear = function(){
+        for(var i = 0; i < this.entries.length; ++i){
+            this.entries[i].removeChannel(this);
+        }
+    }
+
+    var c_channelKeyIdx = 0;
+    function generateChannelId(){
+        return ++c_channelKeyIdx;
+    }
+
+
+
+//----------------------------------------------------------------------------------------------------------------------
+// Xflow.Substitution
+//----------------------------------------------------------------------------------------------------------------------
+
+    Xflow.Substitution = function(channelMap, substitution){
+        this.map = {};
+        for(var name in channelMap.map){
+            this.map[name] = channelMap.getChannel(name, substitution);
+        }
+    }
+    var Substitution = Xflow.Substitution;
+
+    Substitution.prototype.getKey = function(nameFilter){
+        var result = [];
+        if(nameFilter){
+            for(var i = 0; i < nameFilter.length; ++i){
+                var channel = this.map[nameFilter[i]];
+                result[i] = nameFilter[i] + ">" + (channel && channel.id || "X" );
+            }
+        }
+        else{
+            var i = 0;
+            for(var name in this.map){
+                var channel = this.map[name];
+                result[i++] = name + ">" + (channel && channel.id || "X" );
+            }
+        }
+        return result.length > 0 ? result.join(";") : 0;
+    }
 
 })();
 
 (function(){
 
-    var operators = {};
 
-    function initOperator(operator){
-        var indexMap = {};
-        // Init types of outputs and params
-        for(var i= 0; i < operator.outputs.length; ++i){
-            operator.outputs[i].type = Xflow.DATA_TYPE_MAP[operator.outputs[i].type];
-        }
-        for(var i= 0; i < operator.params.length; ++i){
-            operator.params[i].type = Xflow.DATA_TYPE_MAP[operator.params[i].type];
-            indexMap[operator.params[i].source] = i;
-        }
-        if(!operator.mapping)
-            operator.mapping = operator.params;
+//----------------------------------------------------------------------------------------------------------------------
+// Xflow.ChannelNode
+//----------------------------------------------------------------------------------------------------------------------
 
-        // Init interTypes of mapping
-        for(var i = 0; i < operator.mapping.length; ++i){
-            var mapping = operator.mapping[i];
-            var paramIdx = indexMap[mapping.source];
-            mapping.paramIdx = paramIdx;
-            var type = operator.params[paramIdx].type;
-            if(mapping.sequence)
-                mapping.keyParamIdx = indexMap[mapping.keySource];
-            if(operator.mapping[i].sequence == Xflow.SEQUENCE.LINEAR_WEIGHT)
-                type = Xflow.DATA_TYPE.FLOAT;
-            operator.mapping[i].internalType = type;
-        }
-    }
+    /**
+     * @constructor
+     * @extends {Xflow.GraphNode}
+     */
+    Xflow.ChannelNode = function(dataNode){
+        this.owner = dataNode;
+        this.loading = false;
+        this.inputSlots = {};
+        this.inputChannels = new Xflow.ChannelMap();
+        this.protoInputChannels = new Xflow.ChannelMap();
+        this.finalOutputChannels = new Xflow.ChannelMap();
 
-    Xflow.registerOperator = function(name, data){
-        var actualName = "xflow." + name;
-        initOperator(data);
-        operators[actualName] = data;
-        data.name = actualName;
+        this.operator = null;
+        this.protoNames = [];
+        this.operatorProtoNames = [];
+        this.emptySubstitutionNode = null;
+        this.processNodes = {};
+        this.requestNodes = {};
+
+        // State:
+        this.outOfSync = true; // true if ChannelNode is not synchronized for no substitution
     };
+    var ChannelNode = Xflow.ChannelNode;
 
-    Xflow.getOperator = function(name){
-        return operators[name];
-    };
-
-    var DataNode = Xflow.DataNode;
-
-    function prepareInputs(operator, inputMapping, inputChannels, operatorInput){
-        for(var i in operator.mapping){
-            var mapping = operator.mapping[i];
-            var sourceName = mapping.source;
-            var dataName = inputMapping.getScriptInputName(mapping.paramIdx, sourceName);
-            if(dataName){
-                var channel = inputChannels[dataName];
-                var keyValue = 0;
-                if(mapping.sequence){
-                    var keyName = inputMapping.getScriptInputName(mapping.keyParamIdx, mapping.keySource);
-                    var keyChannel = inputChannels[keyName];
-                    var keyEntry =  keyChannel ? keyChannel.getDataEntry() : null;
-                    keyValue = keyEntry && keyEntry._value ? keyEntry._value[0] : 0;
-                }
-                operatorInput.push(channel ? channel.getDataEntry(mapping.sequence, keyValue) : null);
-            }
-            else{
-                operatorInput.push(null);
-            }
-
+    ChannelNode.prototype.synchronize = function(){
+        if(this.outOfSync){
+            synchronizeChildren(this, this.owner);
+            setInputProtoNames(this);
+            setOperatorProtoNames(this);
+            setProtoInputProtoNames(this);
+            setFinalOutputProtoNames(this);
+            this.outOfSync = false;
         }
     }
 
-    function checkInput(operator, inputMapping, inputChannels){
-        for(var i in operator.params){
-            var entry = operator.params[i];
-            var dataName = inputMapping.getScriptInputName(i, entry.source);
-            if(!entry.optional && !dataName){
-                XML3D.debug.logError("Xflow: operator " + operator.name + ": Missing input argument for "
-                    + entry.source);
-                return false;
-            }
-            if(dataName){
-                var channel = inputChannels[dataName];
-                if(!channel){
-                    XML3D.debug.logError("Xflow: operator " + operator.name + ": Input of name '" + dataName +
-                        "' not found. Use for parameter " + entry.source);
-                    return false;
-                }
-                var dataEntry = channel.getDataEntry();
-                if(!entry.optional && (!dataEntry || dataEntry.getLength() == 0)){
-                    XML3D.debug.logError("Xflow: operator " + operator.name + ": Input for " + entry.source +
-                        ' contains no data.');
-                    return false;
-                }
-                if(dataEntry && dataEntry.type != entry.type){
-                    XML3D.debug.logError("Xflow: operator " + operator.name + ": Input for " + entry.source +
-                        " has wrong type. Expected: " + Xflow.getTypeName(entry.type)
-                            + ", but got: " +  Xflow.getTypeName(dataEntry.type) );
-                    return false;
-                }
-            }
+    ChannelNode.prototype.getSubstitutionNode = function(substitution){
+        this.synchronize();
+        if(!substitution){
+            if(!this.emptySubstitutionNode)
+                this.emptySubstitutionNode = new Xflow.SubstitutionNode(this, null);
+
+            return this.emptySubstitutionNode;
         }
-        return true;
-    }
-
-
-    function prepareOutputs(operator, outputs){
-        for(var i in operator.outputs){
-            var d = operator.outputs[i];
-            if(!outputs[d.name])
-                outputs[d.name] = new Xflow.Channel(this);
-            var entry = outputs[d.name].getDataEntry();
-            if(!entry){
-                var type = d.type;
-                if(type != Xflow.DATA_TYPE.TEXTURE){
-                    entry = new Xflow.BufferEntry(type, null);
-                }
-                else{
-                    entry = new Xflow.TextureEntry(null);
-                }
-                outputs[d.name].addDataEntry(entry, 0);
-            }
+        else{
+            return new Xflow.SubstitutionNode(this, substitution);
         }
     }
 
-    function inputIsIterating(inputInfo, dataEntry){
-        return !inputInfo.array && dataEntry && dataEntry.getIterateCount() > 1;
-    }
-
-    function getIterateCount(operator, inputData, operatorData){
-        var minCnt = -1;
-        if(operatorData){
-            operatorData.iterateKey = "";
-            operatorData.iterFlag = {};
-        }
-        for(var i in operator.mapping){
-            var inputInfo = operator.mapping[i];
-            var dataEntry = inputData[i];
-            if(!inputIsIterating(inputInfo, dataEntry)){
-                if(operatorData) operatorData.iterateKey += "a";
-                continue;
-            }
-            if(operatorData){
-                operatorData.iterateKey += "i";
-                operatorData.iterFlag[i] = true;
-            }
-            var cnt = dataEntry.getIterateCount();
-            minCnt = minCnt == -1 ? cnt : Math.min(cnt, minCnt);
-        }
-        minCnt = minCnt == -1 ? 1 : minCnt;
-        if(operatorData) operatorData.iterateCount = minCnt;
-        return minCnt;
-    }
-
-    var c_FunctionPattern = /function\s+([^(]*)\(([^)]*)\)\s*\{([\s\S]*)\}/;
-
-    function parseFunction(func){
-        var result = {};
-        var matches = func.toString().match(c_FunctionPattern);
-        if(!matches){
-            XML3D.debug.logError("Xflow Internal: Could not parse function: " + func);
+    ChannelNode.prototype.getProcessNode = function(substitution){
+        if(!this.operator)
             return null;
-        }
-        result.args = matches[2].split(",");
-        for(var i in result.args) result.args[i] = result.args[i].trim();
-        result.body = matches[3];
-        return result;
+
+        var key = substitution ? substitution.getKey(this.operatorProtoNames) : 0;
+        if(!this.processNodes[key])
+            this.processNodes[key] = new Xflow.ProcessNode(this, this.operator, substitution);
+
+        this.processNodes[key].useCount++;
+        return this.processNodes[key];
     }
 
-    var c_bracketPattern = /([^+\-*/\s\[]+)(\[)/;
+    ChannelNode.prototype.clearProcessNode = function(substitution){
+        if(!this.operator)
+            return;
+        var key = substitution ? substitution.getKey(this.operatorProtoNames) : 0;
+        var procNode = this.processNodes[key];
+        if(procNode){
+            procNode.useCount--;
+            if(procNode.useCount == 0)
+                delete this.processNodes[key];
+        }
+    }
 
-    function replaceArrayAccess(code, args, operator, operatorData){
-        var result = "";
-        var index = 0, bracketIndex = code.indexOf("[", index);
-        while(bracketIndex != -1){
-            var key = code.substr(index).match(c_bracketPattern)[1];
+    ChannelNode.prototype.notifyDataChange = function(inputNode){
+        var key = inputNode._name + ";" + inputNode._seqnr;
+        if(this.inputSlots[key])
+            this.inputSlots[key].setDataEntry(inputNode._data);
+    }
 
-            var argIdx = args.indexOf(key);
-            var addIndex = false, tupleCnt = 0;
-            if(argIdx != -1){
-                if(argIdx < operator.outputs.length){
-                    addIndex = true;
-                    tupleCnt = Xflow.DATA_TYPE_TUPLE_SIZE[[operator.outputs[argIdx].type]];
-                }
-                else{
-                    var i = argIdx - operator.outputs.length;
-                    addIndex = operatorData.iterFlag[i];
-                    tupleCnt = Xflow.DATA_TYPE_TUPLE_SIZE[operator.mapping[i].internalType];
-                }
+
+    ChannelNode.prototype.setStructureOutOfSync = function()
+    {
+        if(!this.outOfSync){
+            this.outOfSync = true;
+            this.inputChannels.clearAll();
+            this.protoInputChannels.clearAll();
+            this.finalOutputChannels.clearAll();
+            if(this.emptySubstitutionNode)
+                this.emptySubstitutionNode.clear();
+            this.emptySubstitutionNode = null;
+
+            for(var key in this.requestNodes){
+                this.requestNodes[key].setStructureOutOfSync();
+            }
+            for(var key in this.processNodes){
+
             }
 
-            result += code.substring(index, bracketIndex) + "["
-            if(addIndex){
-                result += tupleCnt + "*__xflowI + ";
-            }
-            index = bracketIndex + 1;
-            bracketIndex = code.indexOf("[", index);
         }
-        result +=  code.substring(index);
-        return result;
     }
 
-    var c_VarPattern = /var\s+(.)+[;\n]/;
-    var c_InnerVarPattern = /[^=,\s]+\s*(=[^,]+)?(,)?/;
-    function createOperatorInlineLoop(operator, operatorData){
+    ChannelNode.prototype.getComputeResult = function(filter){
+        this.synchronize();
+        this.getSubstitutionNode(null); // create emptySubstitutionNode if not available
 
-        var code = "function (";
-        var funcData = parseFunction(operator.evaluate_core);
-        code += funcData.args.join(",") + ",__xflowMax) {\n";
-        code += "    var __xflowI = __xflowMax\n" +
-            "    while(__xflowI--){\n";
-
-        var body = funcData.body;
-        body = replaceArrayAccess(body, funcData.args, operator, operatorData);
-        code += body + "\n  }\n}";
-
-        var inlineFunc = null;
-        eval("inlineFunc = " + code + ";");
-        return inlineFunc;
+        var key = filter ? filter.join(";") : "[null]";
+        if(!this.requestNodes[key]){
+            this.requestNodes[key] = new Xflow.RequestNode(this, filter);
+        }
+        return this.requestNodes[key].getResult(Xflow.RESULT_TYPE.COMPUTE);
     }
 
-    var c_sizes = {};
-
-    function allocateOuput(operator, inputData, operatorData){
-        if(operator.alloc){
-            var args = [c_sizes];
-            addInputToArgs(args, inputData);
-            operator.alloc.apply(operatorData, args);
+    function synchronizeChildren(channelNode, dataNode){
+        channelNode.loading = dataNode.loading;
+        if(dataNode._sourceNode){
+            dataNode._sourceNode._channelNode.synchronize();
+            channelNode.loading = channelNode.loading || dataNode._sourceNode._channelNode.loading;
         }
-
-        for(var i in operator.outputs){
-            var d = operator.outputs[i];
-            var entry = operatorData.outputs[d.name].getDataEntry();
-
-            var size = (d.customAlloc ? c_sizes[d.name] : operatorData.iterateCount) * entry.getTupleSize();
-
-            if( !entry._value || entry._value.length != size){
-                switch(entry.type){
-                    case Xflow.DATA_TYPE.FLOAT:
-                    case Xflow.DATA_TYPE.FLOAT2:
-                    case Xflow.DATA_TYPE.FLOAT3:
-                    case Xflow.DATA_TYPE.FLOAT4:
-                    case Xflow.DATA_TYPE.FLOAT4X4: entry.setValue(new Float32Array(size)); break;
-                    case Xflow.DATA_TYPE.INT:
-                    case Xflow.DATA_TYPE.INT4:
-                    case Xflow.DATA_TYPE.BOOL: entry.setValue(new Int32Array(size)); break;
-                    default: XML3D.debug.logWarning("Could not allocate output buffer of TYPE: " + entry.type);
+        else{
+            var child;
+            for(var i = 0; i < dataNode._children.length; ++i){
+                if((child = dataNode._children[i]._channelNode) && !dataNode._children[i].isProtoNode()){
+                    child.synchronize();
+                    channelNode.loading = channelNode.loading || child.loading;
                 }
             }
-            else{
-                entry.notifyChanged();
+        }
+    }
+
+    function setInputProtoNames(channelNode){
+        var owner = channelNode.owner, child;
+        if(owner._sourceNode){
+            channelNode.inputChannels.mergeProtoNames(owner._sourceNode._channelNode.finalOutputChannels);
+        }
+        else{
+            for(var i = 0; i < owner._children.length; ++i){
+                if((child = owner._children[i]._channelNode)  && !owner._children[i].isProtoNode()){
+                    channelNode.inputChannels.mergeProtoNames(child.finalOutputChannels);
+                    Xflow.nameset.add(channelNode.protoNames, child.protoNames);
+                }
+            }
+            for(var i = 0; i < owner._children.length; ++i){
+                if((child = owner._children[i]) && !child._channelNode){
+                    if(child._param){
+                        channelNode.inputChannels.addProtoNames(child._name, child._name);
+                        Xflow.nameset.add(channelNode.protoNames, child._name);
+                    }
+                    var key = child._name + ";" + child._seqnr;
+                    channelNode.inputSlots[key] = new Xflow.DataSlot(child._data, child._seqnr);
+
+                }
             }
         }
     }
 
-    function assembleFunctionArgs(operator, inputData, operatorData){
-        var args = [];
-        for(var i in operator.outputs){
-            var d = operator.outputs[i];
-            var entry = operatorData.outputs[d.name].getDataEntry();
-            args.push(entry ? entry._value : null);
-        }
-        addInputToArgs(args, inputData);
-        return args;
-    }
-
-    function addInputToArgs(args, inputData){
-        for(var i = 0; i < inputData.length; ++i){
-            args.push(inputData[i] ? inputData[i]._value : null);
-        }
-    }
-
-    function applyDefaultOperation(operator, inputData, operatorData){
-        var args = assembleFunctionArgs(operator, inputData, operatorData);
-        args.push(operatorData);
-        operator.evaluate.apply(operatorData, args);
-    }
-
-    function applyCoreOperation(operator, inputData, operatorData){
-        var args = assembleFunctionArgs(operator, inputData, operatorData);
-        args.push(operatorData.iterateCount);
-
-        var key = operatorData.iterateKey;
-        if(!operator._inlineLoop) operator._inlineLoop = {};
-        if(!operator._inlineLoop[key]){
-            operator._inlineLoop[key] = createOperatorInlineLoop(operator, operatorData);
-        }
-        operator._inlineLoop[key].apply(operatorData, args);
-    }
-
-    DataNode.prototype._applyOperator = function(inputChannels){
-        if(!this._operatorData)
-            this._operatorData = {
-                outputs: {},
-                iterateKey: null,
-                iterFlag: {},
-                iterateCount: 0
+    function setOperatorProtoNames(channelNode){
+        channelNode.operator = Xflow.getOperator(channelNode.owner._computeOperator);
+        if(channelNode.operator){
+            var operator = channelNode.operator, inputMapping = channelNode.owner._computeInputMapping;
+            for(var i = 0; i < operator.params.length; ++i){
+                var dataName = inputMapping.getScriptInputName(i, operator.params[i].source);
+                if(dataName){
+                    Xflow.nameset.add(channelNode.operatorProtoNames, channelNode.inputChannels.getProtoNames(dataName));
+                }
             }
-        var operator = Xflow.getOperator(this._computeOperator);
+        }
+    }
+
+    function setProtoInputProtoNames(channelNode){
+        var dataNode = channelNode.owner;
+        channelNode.protoInputChannels.mergeProtoNames(channelNode.inputChannels);
+        var operator = channelNode.operator;
         if(operator){
+            for(var i = 0; i < operator.outputs.length; ++i){
+                var name = operator.outputs[i].name;
+                var destName = dataNode._computeOutputMapping.getScriptOutputName(i, name);
+                channelNode.protoInputChannels.addProtoNames(destName, channelNode.operatorProtoNames);
+            }
+        }
+    }
 
-            var inputData = [];
-            if(!checkInput(operator, this._computeInputMapping, inputChannels)){
+    function setFinalOutputProtoNames(channelNode){
+        var dataNode = channelNode.owner;
+        dataNode._filterMapping.applyFilterOnChannelMap(channelNode.finalOutputChannels, channelNode.protoInputChannels,
+            null, dataNode._filterType, setChannelMapProtoName);
+
+        if(dataNode._protoNode){
+            var protoOutput = dataNode._protoNode._channelNode.finalOutputChannels;
+            dataNode._filterMapping.applyFilterOnChannelMap(channelNode.finalOutputChannels, protoOutput,
+                channelNode.protoNames, dataNode._filterType, setChannelMapProtoProtoName);
+        }
+    }
+
+    function setChannelMapProtoName(destMap, destName, srcMap, srcName){
+        var protoNames = srcMap.getProtoNames(srcName);
+        destMap.addProtoNames(destName, protoNames);
+    }
+
+    function setChannelMapProtoProtoName(destMap, destName, srcMap, srcName, protoNames){
+        destMap.addProtoNames(destName, protoNames);
+    }
+
+//----------------------------------------------------------------------------------------------------------------------
+// Xflow.SubstitutionNode
+//----------------------------------------------------------------------------------------------------------------------
+
+    /**
+     * @constructor
+     * @extends {Xflow.GraphNode}
+     */
+    Xflow.SubstitutionNode = function(channelNode, substitution){
+        this.owner = channelNode;
+        this.substitution = substitution;
+        this.childSubNodes = [];
+        this.processNode = null;
+        this.protoSubNode = null;
+
+        constructSubNode(this, channelNode, substitution);
+    };
+    var SubstitutionNode = Xflow.SubstitutionNode;
+
+    SubstitutionNode.prototype.clear = function(){
+        if(this.substitution){
+            clearSubstitution(this.owner, this.substitution);
+            for(var i = 0; i < this.childSubNodes.length; ++i){
+                this.childSubNodes[i].clear();
+            }
+        }
+        if(this.protoSubNode){
+            this.protoSubNode.clear();
+        }
+        if(this.processNode){
+            this.owner.clearProcessNode(this.substitution);
+        }
+    }
+
+
+    function constructSubNode(subNode, channelNode, substitution){
+        setSubNodeChildren(subNode, channelNode.owner, substitution);
+        setSubNodeInputChannels(channelNode, substitution);
+        setSubNodeProcessNode(subNode, channelNode, substitution);
+        setSubNodeProtoInputChannels(subNode, channelNode, substitution);
+        setSubNodeFinalOutputChannels(subNode, channelNode, substitution);
+        markChannelsAsDone(channelNode, substitution);
+    }
+
+    function setSubNodeChildren(subNode, dataNode, substitution){
+        if(dataNode._sourceNode)
+            subNode.childSubNodes.push(dataNode._sourceNode._channelNode.getSubstitutionNode(substitution));
+        else{
+            var child;
+            for(var i = 0; i < dataNode._children.length; ++i){
+                if((child = dataNode._children[i]._channelNode) && !dataNode._children[i].isProtoNode() ){
+                    subNode.childSubNodes.push(child.getSubstitutionNode(substitution));
+                }
+            }
+        }
+    }
+
+    function setSubNodeInputChannels(channelNode, substitution){
+        var owner = channelNode.owner, child;
+        if(owner._sourceNode){
+            channelNode.inputChannels.merge(owner._sourceNode._channelNode.finalOutputChannels, substitution);
+        }
+        else{
+            for(var i = 0; i < owner._children.length; ++i){
+                if((child = owner._children[i]._channelNode) && !owner._children[i].isProtoNode()){
+                    channelNode.inputChannels.merge(child.finalOutputChannels, substitution);
+                }
+            }
+            for(var i = 0; i < owner._children.length; ++i){
+                if((child = owner._children[i]) && !child._channelNode){
+                    var key = child._name + ";" + child._seqnr;
+                    channelNode.inputChannels.addDataEntry(child._name, channelNode.inputSlots[key],
+                        child._param, substitution);
+                }
+            }
+        }
+    }
+
+    function setSubNodeProcessNode(subNode, channelNode, substitution)
+    {
+        subNode.processNode = channelNode.getProcessNode(substitution);
+    }
+
+    function setSubNodeProtoInputChannels(subNode, channelNode, substitution){
+        mergeOperatorOutput(subNode, channelNode, substitution);
+
+        var dataNode = channelNode.owner;
+        if(dataNode._protoNode){
+            var subSubstitution = new Xflow.Substitution(channelNode.protoInputChannels, substitution);
+            subNode.protoSubNode = dataNode._protoNode._channelNode.getSubstitutionNode(subSubstitution);
+        }
+    }
+
+    function mergeOperatorOutput(subNode, channelNode, substitution){
+        var dataNode = channelNode.owner;
+        channelNode.protoInputChannels.merge(channelNode.inputChannels, substitution);
+        var procNode = subNode.processNode;
+        if(procNode){
+            var index = 0;
+            for(var name in procNode.outputDataSlots){
+                var destName = dataNode._computeOutputMapping.getScriptOutputName(index, name);
+                if(destName){
+                    channelNode.protoInputChannels.addOutputDataSlot(destName, procNode.outputDataSlots[name],
+                        procNode, substitution);
+                }
+                index++;
+            }
+        }
+    }
+
+    function setSubNodeFinalOutputChannels(subNode, channelNode, substitution){
+        var dataNode = channelNode.owner;
+        dataNode._filterMapping.applyFilterOnChannelMap(channelNode.finalOutputChannels, channelNode.protoInputChannels,
+            substitution, dataNode._filterType, setChannelMapChannel);
+
+        if(subNode.protoSubNode){
+            var protoChannelNode = subNode.protoSubNode.owner;
+            var protoOutput = protoChannelNode.finalOutputChannels;
+            dataNode._filterMapping.applyFilterOnChannelMap(channelNode.finalOutputChannels, protoOutput,
+                subNode.protoSubNode.substitution, dataNode._filterType, setChannelMapChannel);
+        }
+    }
+
+    function setChannelMapChannel(destMap, destName, srcMap, srcName, substitution){
+        var channel = srcMap.getChannel(srcName, substitution);
+        destMap.addChannel(destName, channel, substitution);
+    }
+
+    function markChannelsAsDone(channelNode, substitution){
+        channelNode.inputChannels.markAsDone(substitution);
+        channelNode.protoInputChannels.markAsDone(substitution);
+        channelNode.finalOutputChannels.markAsDone(substitution);
+    }
+
+
+
+    function clearSubstitution(channelNode, substitution){
+        channelNode.inputChannels.clearSubstitution(substitution);
+        channelNode.protoInputChannels.clearSubstitution(substitution);
+        channelNode.finalOutputChannels.clearSubstitution(substitution);
+    }
+
+})();
+
+(function(){
+
+
+//----------------------------------------------------------------------------------------------------------------------
+// Xflow.ProcessNode
+//----------------------------------------------------------------------------------------------------------------------
+
+/**
+ * @constructor
+ * @extends {Xflow.GraphNode}
+ */
+Xflow.ProcessNode = function(channelNode, operator, substitution){
+    this.owner = channelNode;
+    this.operator = operator;
+    this.inputChannels = {};
+    this.outputDataSlots = {};
+    this.processed = false;
+    this.valid = false;
+    this.useCount = 0;
+
+    this.children = [];
+    this.descendants = [];
+    this.channelListener = this.onChannelChange.bind(this);
+    constructProcessNode(this, channelNode, operator, substitution);
+};
+var ProcessNode = Xflow.ProcessNode;
+
+ProcessNode.prototype.onChannelChange = function(channel){
+    this.processed = false;
+    for(var name in this.outputDataSlots){
+        this.outputDataSlots[name].notifyOnChange();
+    }
+}
+
+ProcessNode.prototype.clear = function(){
+    for(var name in this.inputChannels){
+        this.inputChannels[name].removeListener(this.channelListener);
+    }
+}
+
+ProcessNode.prototype.process = function(){
+    if(!this.processed){
+        for(var i = 0; i < this.children.length; ++i){
+            this.children[i].process();
+        }
+        this.processed = true;
+        if(!checkInput(this.operator, this.owner.owner._computeInputMapping, this.inputChannels)){
+            this.valid = false;
+            return;
+        }
+        this.applyOperator();
+    }
+}
+
+function constructProcessNode(processNode, channelNode, operator, substitution){
+    var dataNode = channelNode.owner;
+    synchronizeInputChannels(processNode, channelNode, dataNode, substitution);
+    synchronizeChildren(processNode.children, processNode.descendants, processNode.inputChannels);
+    synchronizeOutput(processNode.operator, processNode.outputDataSlots);
+}
+
+function synchronizeInputChannels(processNode, channelNode, dataNode, substitution){
+    var operator = processNode.operator, inputMapping = dataNode._computeInputMapping;
+    for(var i = 0; i < operator.params.length; ++i){
+        var sourceName = operator.params[i].source;
+        var dataName = inputMapping.getScriptInputName(i, sourceName);
+        if(dataName){
+            var channel = channelNode.inputChannels.getChannel(dataName, substitution);
+            if(channel) channel.addListener(processNode.channelListener);
+            processNode.inputChannels[sourceName] = channel;
+        }
+    }
+}
+
+function checkInput(operator, inputMapping, inputChannels){
+    for(var i in operator.params){
+        var entry = operator.params[i];
+        var dataName = inputMapping.getScriptInputName(i, entry.source);
+        if(!entry.optional && !dataName){
+            XML3D.debug.logError("Xflow: operator " + operator.name + ": Missing input argument for "
+                + entry.source);
+            return false;
+        }
+        if(dataName){
+            var channel = inputChannels[entry.source];
+            if(!channel){
+                XML3D.debug.logError("Xflow: operator " + operator.name + ": Input of name '" + dataName +
+                    "' not found. Used for parameter " + entry.source);
                 return false;
             }
-            prepareInputs(operator, this._computeInputMapping, inputChannels, inputData);
-            prepareOutputs(operator, this._operatorData.outputs);
-            var count = getIterateCount(operator, inputData, this._operatorData);
-            allocateOuput(operator, inputData, this._operatorData);
-
-            if(operator.evaluate_core){
-                applyCoreOperation(operator, inputData, this._operatorData);
+            var dataEntry = channel.getDataEntry();
+            if(!entry.optional && (!dataEntry || dataEntry.getLength() == 0)){
+                XML3D.debug.logError("Xflow: operator " + operator.name + ": Input for " + entry.source +
+                    ' contains no data.');
+                return false;
             }
-            else{
-                applyDefaultOperation(operator, inputData, this._operatorData);
+            if(dataEntry && dataEntry.type != entry.type){
+                XML3D.debug.logError("Xflow: operator " + operator.name + ": Input for " + entry.source +
+                    " has wrong type. Expected: " + Xflow.getTypeName(entry.type)
+                    + ", but got: " +  Xflow.getTypeName(dataEntry.type) );
+                return false;
             }
-
-            this._computeOutputMapping.applyScriptOutputOnMap(inputChannels, this._operatorData.outputs);
         }
-        return true;
+    }
+    return true;
+}
+
+function synchronizeChildren(children, descendants, inputChannels){
+    var channel, idx;
+    for(var name in inputChannels){
+        channel = inputChannels[name];
+        if(channel && channel.creatorProcessNode){
+            Xflow.utils.setAdd(children, channel.creatorProcessNode);
+            Xflow.utils.setAdd(descendants, channel.creatorProcessNode.descendants);
+        }
+    }
+    Xflow.utils.setRemove(children, descendants);
+    Xflow.utils.setAdd(descendants, children);
+}
+
+function synchronizeOutput(operator, outputs){
+    for(var i in operator.outputs){
+        var d = operator.outputs[i];
+
+        var entry;
+        var type = d.type;
+        if(type != Xflow.DATA_TYPE.TEXTURE){
+            entry = new Xflow.BufferEntry(type, null);
+        }
+        else{
+            entry = new Xflow.TextureEntry(null);
+        }
+        outputs[d.name] = new Xflow.DataSlot(entry, 0);
+    }
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+// Xflow.RequestNode
+//----------------------------------------------------------------------------------------------------------------------
+/**
+ * @constructor
+ * @param channelNode
+ * @param filter
+ */
+Xflow.RequestNode = function(channelNode, filter){
+    this.owner = channelNode;
+    this.filter = filter;
+    this.results = {};
+
+    this.channels = {};
+    this.children = [];
+
+    this.channelListener = this.onChannelChange.bind(this);
+
+    this.outOfSync = true;
+    this.processed = false;
+}
+var RequestNode = Xflow.RequestNode;
+
+RequestNode.prototype.synchronize = function(){
+    if(this.outOfSync){
+        this.outOfSync = false;
+        synchronizeRequestChannels(this, this.owner);
+        synchronizeChildren(this.children, [], this.channels);
+    }
+}
+
+RequestNode.prototype.getResult = function(resultType){
+    this.synchronize();
+    if(!this.owner.loading)
+        doRequestNodeProcessing(this);
+    var result = null;
+    if(resultType == Xflow.RESULT_TYPE.COMPUTE){
+        result = getRequestComputeResult(this);
+    }
+    result.loading = this.owner.loading;
+    return result;
+}
+
+RequestNode.prototype.setStructureOutOfSync = function(){
+    this.outOfSync = true;
+    this.processed = false;
+    for(var type in this.results){
+        this.results[type].notifyChanged(Xflow.RESULT_STATE.CHANGED_STRUCTURE);
+    }
+    for(var name in this.channels){
+        this.channels[name].removeListener(this.channelListener);
+    }
+    this.channels = [];
+    this.children = [];
+}
+
+RequestNode.prototype.onChannelChange = function(channel){
+    this.processed = false;
+    for(var type in this.results){
+        this.results[type].notifyChanged(Xflow.RESULT_STATE.CHANGED_DATA);
+    }
+}
+
+function synchronizeRequestChannels(requestNode, channelNode){
+    var names = requestNode.filter;
+    if(!names){
+        names = [];
+        for(var name in channelNode.finalOutputChannels.map){
+            names.push(name);
+        }
     }
 
-})();(function(){
+    for(var i = 0; i < names.length; ++i){
+        var name = names[i];
+        var channel = channelNode.finalOutputChannels.getChannel(name);
+        if(channel){
+            requestNode.channels[name] = channel;
+            channel.addListener(requestNode.channelListener);
+        }
+
+    }
+}
+
+function doRequestNodeProcessing(requestNode){
+    if(!requestNode.processed){
+        for(var i = 0; i < requestNode.children.length; ++i){
+            requestNode.children[i].process();
+        }
+    }
+}
+
+function getRequestComputeResult(requestNode)
+{
+    if(!requestNode.results[Xflow.RESULT_TYPE.COMPUTE])
+        requestNode.results[Xflow.RESULT_TYPE.COMPUTE] = new Xflow.ComputeResult();
+    var result = requestNode.results[Xflow.RESULT_TYPE.COMPUTE];
+    result._dataEntries = {}; result._outputNames = [];
+    for(var name in requestNode.channels){
+        var entry = requestNode.channels[name].getDataEntry();
+        result._dataEntries[name] = entry && !entry.isEmpty() ? entry : null;
+        result._outputNames.push(name);
+    }
+    return result;
+}
+
+
+})();
+
+(function(){
 
 
 /**
@@ -8238,21 +9344,21 @@ var Request = function(dataNode, filter, callback){
     this._dataNode = dataNode;
     this._filter = filter ? filter.slice().sort() : null;
     this._listener = callback;
-
+    this.result = null;
     this._dataNode._requests.push(this);
 };
 Xflow.Request = Request;
 
 Object.defineProperty(Request.prototype, "dataNode", {
     set: function(v){
-       throw "dataNode is readonly"
+       throw new Error("dataNode is readonly");
     },
     get: function(){ return this._dataNode; }
 });
 
 Object.defineProperty(Request.prototype, "filter", {
     set: function(v){
-        throw "filter is read-only"
+        throw new Error("filter is read-only");
     },
     get: function(){ return this._filter; }
 });
@@ -8260,9 +9366,10 @@ Object.defineProperty(Request.prototype, "filter", {
 /**
  * Call this function, whenever the request is not required anymore.
  */
-Request.prototype.clear = function(callback){
+Request.prototype.clear = function(){
     this._listener = null;
-    Array.erase(this._dataNode._requests, callback);
+    if(this.result) this.result.removeListener(this.callback);
+    Array.erase(this._dataNode._requests, this);
 };
 
 /**
@@ -8289,12 +9396,20 @@ Request.prototype.notify = function(notification){
  */
 var ComputeRequest = function(dataNode, filter, callback){
     Xflow.Request.call(this, dataNode, filter, callback);
+    this.callback = this.onResultChanged.bind(this);
 };
 XML3D.createClass(ComputeRequest, Xflow.Request);
 Xflow.ComputeRequest = ComputeRequest;
 
 ComputeRequest.prototype.getResult = function(){
-    return this._dataNode._getComputeResult(this._filter);
+    if(this.result) this.result.removeListener(this.callback);
+    this.result = this._dataNode._getComputeResult(this._filter);
+    if(this.result) this.result.addListener(this.callback);
+    return this.result;
+}
+
+ComputeRequest.prototype.onResultChanged = function(notification){
+    this.notify(notification);
 }
 
 })();(function(){
@@ -8316,7 +9431,7 @@ var Result = Xflow.Result;
 
 Object.defineProperty(Result.prototype, "outputNames", {
     set: function(v){
-       throw "outputNames is readonly";
+       throw new Error("outputNames is readonly");
     },
     get: function(){ return this._outputNames; }
 });
@@ -8350,7 +9465,7 @@ Result.prototype.removeListener = function(callback){
 Result.prototype.notifyChanged = function(state){
     this.valid = false;
     for(var i = 0; i < this._listeners.length; ++i){
-        this._listeners[i].notify(this, state);
+        this._listeners[i](this, state);
     }
 }
 
@@ -8359,11 +9474,347 @@ Result.prototype.notifyChanged = function(state){
  * @constructor
  * @extends {Xflow.Result}
  */
-Xflow.ComputeResult = function(){
-    Xflow.Result.call(this);
+Xflow.ComputeResult = function(channelNode){
+    Xflow.Result.call(this, channelNode);
 };
 XML3D.createClass(Xflow.ComputeResult, Xflow.Result);
 var ComputeResult = Xflow.ComputeResult;
+
+
+})();(function(){
+
+
+
+Xflow.utils = {};
+
+
+Xflow.utils.setAdd = function(setArray, setToAdd){
+    if(setToAdd.length !== undefined){
+        for(var i = 0; i < setToAdd.length; ++i){
+            if(setArray.indexOf(setToAdd[i]) == -1)
+                setArray.push(setToAdd[i]);
+        }
+    }
+    else{
+        if(setArray.indexOf(setToAdd) == -1)
+            setArray.push(setToAdd);
+    }
+}
+Xflow.utils.setRemove = function(setArray, setToRemove){
+    var idx;
+    if(setToRemove.length !== undefined){
+        for(var i = 0; i < setToRemove.length; ++i){
+            if( (idx = setArray.indexOf(setToRemove[i])) != -1)
+                setArray.splice(idx,1);
+        }
+    }
+    else{
+        if( (idx = setArray.indexOf(setToRemove)) != -1)
+            setArray.splice(idx,1);
+    }
+}
+
+/**
+ * Nameset Utilities for Xflow
+ */
+Xflow.nameset = {};
+
+Xflow.nameset.add = function(nameSet, toAdd){
+    if(!toAdd) return;
+    if(typeof toAdd == "string"){
+        if(nameSet.indexOf(toAdd) == -1)
+            nameSet.push(toAdd);
+    }
+    else{
+        for(var i = 0; i < toAdd.length; ++i){
+            if(nameSet.indexOf(toAdd[i]) == -1)
+                nameSet.push(toAdd[i]);
+        }
+    }
+}
+
+Xflow.nameset.remove = function(nameSet, toRemove){
+    if(!toRemove) return;
+    if(typeof toRemove == "string"){
+        var removeIdx = nameSet.indexOf(toRemove);
+        if(removeIdx != -1)
+            nameSet.splice(removeIdx, 1);
+    }
+    else{
+        for(var i = 0; i < toRemove.length; ++i){
+            var removeIdx = nameSet.indexOf(toRemove[i]);
+            if(removeIdx != -1)
+                nameSet.splice(removeIdx, 1);
+        }
+    }
+}
+
+Xflow.nameset.intersection = function(nameSetA, nameSetB){
+    var result = [];
+    var i = nameSetA.length;
+    while(i--){
+        if(nameSetB.indexOf(nameSetA[i]) == -1){
+            nameSetA.splice(i,1);
+        }
+    }
+}
+
+
+
+})();(function(){
+
+//----------------------------------------------------------------------------------------------------------------------
+// Xflow.registerOperator && Xflow.getOperator
+//----------------------------------------------------------------------------------------------------------------------
+
+var operators = {};
+
+Xflow.registerOperator = function(name, data){
+    var actualName = "xflow." + name;
+    initOperator(data);
+    operators[actualName] = data;
+    data.name = actualName;
+};
+
+Xflow.getOperator = function(name){
+    return operators[name];
+};
+
+
+function initOperator(operator){
+    var indexMap = {};
+    // Init types of outputs and params
+    for(var i= 0; i < operator.outputs.length; ++i){
+        operator.outputs[i].type = Xflow.DATA_TYPE_MAP[operator.outputs[i].type];
+    }
+    for(var i= 0; i < operator.params.length; ++i){
+        operator.params[i].type = Xflow.DATA_TYPE_MAP[operator.params[i].type];
+        indexMap[operator.params[i].source] = i;
+    }
+    if(!operator.mapping)
+        operator.mapping = operator.params;
+
+    // Init interTypes of mapping
+    for(var i = 0; i < operator.mapping.length; ++i){
+        var mapping = operator.mapping[i];
+        var paramIdx = indexMap[mapping.source];
+        mapping.paramIdx = paramIdx;
+        var type = operator.params[paramIdx].type;
+        if(mapping.sequence)
+            mapping.keyParamIdx = indexMap[mapping.keySource];
+        if(operator.mapping[i].sequence == Xflow.SEQUENCE.LINEAR_WEIGHT)
+            type = Xflow.DATA_TYPE.FLOAT;
+        operator.mapping[i].internalType = type;
+    }
+}
+
+
+//----------------------------------------------------------------------------------------------------------------------
+// Xflow.DataNode Extension
+//----------------------------------------------------------------------------------------------------------------------
+
+var DataNode = Xflow.DataNode;
+
+function prepareInputs(operator, inputChannels, operatorInput){
+    for(var i in operator.mapping){
+        var mapping = operator.mapping[i];
+        var sourceName = mapping.source;
+        var channel = inputChannels[sourceName];
+        var keyValue = 0;
+        if(mapping.sequence){
+            var keyName = mapping.keySource;
+            var keyChannel = inputChannels[keyName];
+            var keyEntry =  keyChannel ? keyChannel.getDataEntry() : null;
+            keyValue = keyEntry && keyEntry._value ? keyEntry._value[0] : 0;
+        }
+        operatorInput.push(channel ? channel.getDataEntry(mapping.sequence, keyValue) : null);
+    }
+}
+
+function inputIsIterating(inputInfo, dataEntry){
+    return !inputInfo.array && dataEntry && dataEntry.getIterateCount() > 1;
+}
+
+function getIterateCount(operator, inputData, operatorData){
+    var minCnt = -1;
+    if(operatorData){
+        operatorData.iterateKey = "";
+        operatorData.iterFlag = {};
+    }
+    for(var i in operator.mapping){
+        var inputInfo = operator.mapping[i];
+        var dataEntry = inputData[i];
+        if(!inputIsIterating(inputInfo, dataEntry)){
+            if(operatorData) operatorData.iterateKey += "a";
+            continue;
+        }
+        if(operatorData){
+            operatorData.iterateKey += "i";
+            operatorData.iterFlag[i] = true;
+        }
+        var cnt = dataEntry.getIterateCount();
+        minCnt = minCnt == -1 ? cnt : Math.min(cnt, minCnt);
+    }
+    minCnt = minCnt == -1 ? 1 : minCnt;
+    if(operatorData) operatorData.iterateCount = minCnt;
+    return minCnt;
+}
+
+var c_FunctionPattern = /function\s+([^(]*)\(([^)]*)\)\s*\{([\s\S]*)\}/;
+
+function parseFunction(func){
+    var result = {};
+    var matches = func.toString().match(c_FunctionPattern);
+    if(!matches){
+        XML3D.debug.logError("Xflow Internal: Could not parse function: " + func);
+        return null;
+    }
+    result.args = matches[2].split(",");
+    for(var i in result.args) result.args[i] = result.args[i].trim();
+    result.body = matches[3];
+    return result;
+}
+
+var c_bracketPattern = /([^+\-*/\s\[]+)(\[)/;
+
+function replaceArrayAccess(code, args, operator, operatorData){
+    var result = "";
+    var index = 0, bracketIndex = code.indexOf("[", index);
+    while(bracketIndex != -1){
+        var key = code.substr(index).match(c_bracketPattern)[1];
+
+        var argIdx = args.indexOf(key);
+        var addIndex = false, tupleCnt = 0;
+        if(argIdx != -1){
+            if(argIdx < operator.outputs.length){
+                addIndex = true;
+                tupleCnt = Xflow.DATA_TYPE_TUPLE_SIZE[[operator.outputs[argIdx].type]];
+            }
+            else{
+                var i = argIdx - operator.outputs.length;
+                addIndex = operatorData.iterFlag[i];
+                tupleCnt = Xflow.DATA_TYPE_TUPLE_SIZE[operator.mapping[i].internalType];
+            }
+        }
+
+        result += code.substring(index, bracketIndex) + "["
+        if(addIndex){
+            result += tupleCnt + "*__xflowI + ";
+        }
+        index = bracketIndex + 1;
+        bracketIndex = code.indexOf("[", index);
+    }
+    result +=  code.substring(index);
+    return result;
+}
+
+var c_VarPattern = /var\s+(.)+[;\n]/;
+var c_InnerVarPattern = /[^=,\s]+\s*(=[^,]+)?(,)?/;
+function createOperatorInlineLoop(operator, operatorData){
+
+    var code = "function (";
+    var funcData = parseFunction(operator.evaluate_core);
+    code += funcData.args.join(",") + ",__xflowMax) {\n";
+    code += "    var __xflowI = __xflowMax\n" +
+        "    while(__xflowI--){\n";
+
+    var body = funcData.body;
+    body = replaceArrayAccess(body, funcData.args, operator, operatorData);
+    code += body + "\n  }\n}";
+
+    var inlineFunc = null;
+    eval("inlineFunc = " + code + ";");
+    return inlineFunc;
+}
+
+var c_sizes = {};
+
+function allocateOutput(operator, inputData, output, operatorData){
+    if(operator.alloc){
+        var args = [c_sizes];
+        addInputToArgs(args, inputData);
+        operator.alloc.apply(operatorData, args);
+    }
+
+    for(var i in operator.outputs){
+        var d = operator.outputs[i];
+        var entry = output[d.name].dataEntry;
+
+        var size = (d.customAlloc ? c_sizes[d.name] : operatorData.iterateCount) * entry.getTupleSize();
+
+        if( !entry._value || entry._value.length != size){
+            switch(entry.type){
+                case Xflow.DATA_TYPE.FLOAT:
+                case Xflow.DATA_TYPE.FLOAT2:
+                case Xflow.DATA_TYPE.FLOAT3:
+                case Xflow.DATA_TYPE.FLOAT4:
+                case Xflow.DATA_TYPE.FLOAT4X4: entry.setValue(new Float32Array(size)); break;
+                case Xflow.DATA_TYPE.INT:
+                case Xflow.DATA_TYPE.INT4:
+                case Xflow.DATA_TYPE.BOOL: entry.setValue(new Int32Array(size)); break;
+                default: XML3D.debug.logWarning("Could not allocate output buffer of TYPE: " + entry.type);
+            }
+        }
+        else{
+            entry.notifyChanged();
+        }
+    }
+}
+
+function assembleFunctionArgs(operator, inputData, outputData){
+    var args = [];
+    for(var i in operator.outputs){
+        var d = operator.outputs[i];
+        var entry = outputData[d.name].dataEntry;
+        args.push(entry ? entry._value : null);
+    }
+    addInputToArgs(args, inputData);
+    return args;
+}
+
+function addInputToArgs(args, inputData){
+    for(var i = 0; i < inputData.length; ++i){
+        args.push(inputData[i] ? inputData[i]._value : null);
+    }
+}
+
+function applyDefaultOperation(operator, inputData, outputData, operatorData){
+    var args = assembleFunctionArgs(operator, inputData, outputData);
+    args.push(operatorData);
+    operator.evaluate.apply(operatorData, args);
+}
+
+function applyCoreOperation(operator, inputData, outputData, operatorData){
+    var args = assembleFunctionArgs(operator, inputData, outputData);
+    args.push(operatorData.iterateCount);
+
+    var key = operatorData.iterateKey;
+    if(!operator._inlineLoop) operator._inlineLoop = {};
+    if(!operator._inlineLoop[key]){
+        operator._inlineLoop[key] = createOperatorInlineLoop(operator, operatorData);
+    }
+    operator._inlineLoop[key].apply(operatorData, args);
+}
+
+Xflow.ProcessNode.prototype.applyOperator = function(){
+    if(!this._operatorData)
+        this._operatorData = {
+            iterateKey: null,
+            iterFlag: {},
+            iterateCount: 0
+        }
+    var inputData = [];
+    prepareInputs(this.operator, this.inputChannels, inputData);
+    var count = getIterateCount(this.operator, inputData, this._operatorData);
+    allocateOutput(this.operator, inputData, this.outputDataSlots, this._operatorData);
+
+    if(this.operator.evaluate_core){
+        applyCoreOperation(this.operator, inputData, this.outputDataSlots, this._operatorData);
+    }
+    else{
+        applyDefaultOperation(this.operator, inputData, this.outputDataSlots, this._operatorData);
+    }
+}
 
 })();Xflow.registerOperator("morph", {
     outputs: [{type: 'float3', name: 'result'}],
@@ -8387,24 +9838,21 @@ var ComputeResult = Xflow.ComputeResult;
         result[2] = value[2] + weight[0] * valueAdd[2];
     }
 });Xflow.registerOperator("sub", {
-    outputs: [{name: 'result', tupleSize: '3'}],
-    params:  ['value1','value2'],
-    evaluate: function(value1, value2) {
-        if(!(value1 && value2))
-            throw "Xflow::sub3: Not all parameters are set";
+    outputs: [  {type: 'float3', name: 'result'}],
+    params:  [  {type: 'float3', source: 'value1'},
+                {type: 'float3', source: 'value2'}],
+    evaluate: function(result, value1, value2, info) {
+        throw "Not used!";
 
-        if(value1.length != value1.length)
-            throw "Xflow::sub3: Input arrays differ in size";
-
-        if (!this.tmp || this.tmp.length != value1.length)
-            this.tmp = new Float32Array(value1.length);
-
-        var result = this.tmp;
-        for(var i = 0; i<value1.length; i++)
+        for(var i = 0; i< info.iterateCount*3; i++)
             result[i] = value1[i] - value2[i];
 
-        this.result.result = result;
         return true;
+    },
+    evaluate_core: function(result, value1, value2){
+        result[0] = value1[0] - value2[0];
+        result[1] = value1[1] - value2[1];
+        result[2] = value1[2] - value2[2];
     }
 });Xflow.registerOperator("normalize", {
     outputs: [  {type: 'float3', name: 'result'}],
@@ -9361,7 +10809,8 @@ XML3D.data.DataAdapter.prototype.init = function() {
     //if (xflow)
     //    this.scriptInstance = new XML3D.data.ScriptInstance(this, xflow);
 
-    this.xflowDataNode = XML3D.data.xflowGraph.createDataNode();
+    var protoNode = (this.node.localName == "proto");
+    this.xflowDataNode = XML3D.data.xflowGraph.createDataNode(protoNode);
 
     this.updateHandle("src");
     this.updateHandle("proto");
@@ -9452,6 +10901,10 @@ function updateLoadState(dataAdpater){
     
 XML3D.data.DataAdapter.prototype.updateHandle = function(attributeName) {
     var adapterHandle = this.getAdapterHandle(this.node.getAttribute(attributeName));
+    if(adapterHandle && adapterHandle.status == XML3D.base.AdapterHandle.STATUS.NOT_FOUND){
+        XML3D.debug.logError("Could not find <data> element of url '" + adapterHandle.url + "' for " + attributeName);
+    }
+
     this.connectAdapterHandle(attributeName, adapterHandle);
     this.connectedAdapterChanged(attributeName, adapterHandle ? adapterHandle.getAdapter() : null);
     updateLoadState(this);
@@ -9514,6 +10967,7 @@ XML3D.data.DataAdapter.prototype.toString = function() {
         this.xflowInputNode.name = this.node.name;
         this.xflowInputNode.data = buffer;
         this.xflowInputNode.seqnr = this.node.seqnr;
+        this.xflowInputNode.param = this.node.param;
     }
 
     ValueDataAdapter.prototype.getXflowNode = function(){
@@ -9535,6 +10989,9 @@ XML3D.data.DataAdapter.prototype.toString = function() {
             }
             else if(attr == "seqnr"){
                 this.xflowInputNode.seqnr = this.node.seqnr;
+            }
+            else if(attr == "param"){
+                this.xflowInputNode.param = this.node.param;
             }
         }
     };
@@ -9813,6 +11270,7 @@ XML3D.data.DataAdapter.prototype.toString = function() {
     reg['img']         = data.ImgDataAdapter;
     reg['texture']     = data.TextureDataAdapter;
     reg['data']        = data.DataAdapter;
+    reg['proto']       = data.DataAdapter;
 
    /**
      * Creates a DataAdapter associated with the given node.
@@ -9867,9 +11325,9 @@ XML3D.data.DataAdapter.prototype.toString = function() {
 
     function createXflowNode(jsonData){
         if (jsonData.format != "xml3d-json")
-            throw "Unknown JSON format: " + jsonData.format;
+            throw new Error("Unknown JSON format: " + jsonData.format);
         if (jsonData.version != "0.4.0")
-            throw "Unknown JSON version: " + jsonData.version;
+            throw new Error("Unknown JSON version: " + jsonData.version);
 
         var node = XML3D.data.xflowGraph.createDataNode();
 
@@ -9895,7 +11353,7 @@ XML3D.data.DataAdapter.prototype.toString = function() {
         try{
             this.xflowDataNode = createXflowNode(jsonData);
         } catch (e) {
-            XML3D.debug.logError("Failed to process XML3D json file: " + e);
+            XML3D.debug.logException(e, "Failed to process XML3D json file");
         }
 
     };
@@ -10208,8 +11666,9 @@ XML3D.webgl.MAXFPS = 30;
         }
 
         // calculate ray
-
-        ray.origin.set(this.renderer.currentView.position);
+        var worldToViewMat = this.renderer.currentView.getViewMatrix().inverse();
+        
+        ray.origin.set(worldToViewMat.translation());
         ray.direction.set(farHit[0] - nearHit[0], farHit[1] - nearHit[1], farHit[2] - nearHit[2]);
         ray.direction.set(ray.direction.normalize());
 
@@ -10240,7 +11699,6 @@ XML3D.webgl.MAXFPS = 30;
 
         } catch (e) {
             XML3D.debug.logException(e);
-            throw e;
         }
 
     };
@@ -10572,7 +12030,7 @@ XML3D.webgl.stopEvent = function(ev) {
             var msg = "GL error " + textErr + " occured.";
             if (text !== undefined)
                 msg += " " + text;
-            XML3D.debug.logError(msg);
+            XML3D.debug.trace(msg);
         }
     };
 
@@ -11958,7 +13416,7 @@ var Renderer = function(handler, width, height) {
             changed : true,
             point: { length: 0, adapter: [], intensity: [], position: [], attenuation: [], visibility: [] },
             directional: { length: 0, adapter: [], intensity: [], direction: [], attenuation: [], visibility: [] },
-            spot: { length: 0, adapter: [], intensity: [], direction: [], attenuation: [], visibility: [], position: [], beamWidth: [], cutOffAngle: [] }
+            spot: { length: 0, adapter: [], intensity: [], direction: [], attenuation: [], visibility: [], position: [], falloffAngle: [], softness: [] }
 	};
 
     this.drawableObjects = new Array();
@@ -12128,7 +13586,7 @@ Renderer.prototype.recompileShader = function(shaderAdapter) {
 Renderer.prototype.changeLightData = function(lightType, field, offset, newValue) {
     var data = this.lights[lightType][field];
     if (!data) return;
-    if(field=="beamWidth" || field=="cutOffAngle") offset/=3; //some parameters are scalar
+    if(field=="falloffAngle" || field=="softness") offset/=3; //some parameters are scalar
     Array.set(data, offset, newValue);
     this.lights.changed = true;
 };
@@ -12352,8 +13810,8 @@ Renderer.prototype.drawObjects = function(objectArray, shaderId, xform, lights, 
         parameters["spotLightIntensity[0]"] = lights.spot.intensity;
         parameters["spotLightVisibility[0]"] = lights.spot.visibility;
         parameters["spotLightDirection[0]"] = lights.spot.direction;
-        parameters["spotLightCosBeamWidth[0]"] = lights.spot.beamWidth.map(Math.cos);
-        parameters["spotLightCosCutOffAngle[0]"] = lights.spot.cutOffAngle.map(Math.cos);
+        parameters["spotLightCosFalloffAngle[0]"] = lights.spot.falloffAngle.map(Math.cos);
+        parameters["spotLightSoftness[0]"] = lights.spot.softness;
         shader.needsLights = false;
     }
 
@@ -12661,7 +14119,7 @@ Renderer.prototype.readPixelDataFromBuffer = function(glX, glY, buffer){
 
         return data;
     } catch (e) {
-        XML3D.debug.logError(e);
+        XML3D.debug.logException(e);
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
         return null;
     }
@@ -12784,7 +14242,7 @@ Renderer.prototype.notifyDataChanged = function() {
         this.textureAdapter.notifyChanged(evt);
     };
 
-    var staticAttributes = ["position", "direction", "intensity", "attenuation", "beamWidth", "cutOffAngle"];
+    var staticAttributes = ["position", "direction", "intensity", "attenuation", "softness", "falloffAngle"];
 
     /**
      * Adapter for <lightshader>
@@ -12806,9 +14264,9 @@ Renderer.prototype.notifyDataChanged = function() {
     /** @const */
     var LIGHT_DEFAULT_ATTENUATION = vec3.create([0,0,1]);
     /** @const */
-    var SPOTLIGHT_DEFAULT_BEAMWIDTH = 1.570796;
+    var SPOTLIGHT_DEFAULT_FALLOFFANGLE = Math.PI / 4.0;
     /** @const */
-    var SPOTLIGHT_DEFAULT_CUTOFFANGLE = 2.356194;
+    var SPOTLIGHT_DEFAULT_SOFTNESS = 0.0;
 
     /**
      *
@@ -12855,13 +14313,13 @@ Renderer.prototype.notifyDataChanged = function() {
         var dataTable = this.computeRequest.getResult().getOutputMap();
         var intensity = dataTable["intensity"] ? dataTable["intensity"].getValue() : LIGHT_DEFAULT_INTENSITY;
         var attenuation = dataTable["attenuation"] ? dataTable["attenuation"].getValue() : LIGHT_DEFAULT_ATTENUATION;
-        var beamWidth = dataTable["beamWidth"] ? dataTable["beamWidth"].getValue() : [SPOTLIGHT_DEFAULT_BEAMWIDTH];
-        var cutOffAngle = dataTable["cutOffAngle"] ? dataTable["cutOffAngle"].getValue() : [SPOTLIGHT_DEFAULT_CUTOFFANGLE];
+        var falloffAngle = dataTable["falloffAngle"] ? dataTable["falloffAngle"].getValue() : [SPOTLIGHT_DEFAULT_FALLOFFANGLE];
+        var softness = dataTable["softness"] ? dataTable["softness"].getValue() : [SPOTLIGHT_DEFAULT_SOFTNESS];
 
         Array.set(spot.intensity, offset, [intensity[0]*i, intensity[1]*i, intensity[2]*i]);
         Array.set(spot.attenuation, offset, attenuation);
-        Array.set(spot.beamWidth, offset/3, [beamWidth[0]]);
-        Array.set(spot.cutOffAngle, offset/3, [cutOffAngle[0]]);
+        Array.set(spot.falloffAngle, offset/3, falloffAngle);
+        Array.set(spot.softness, offset/3, softness);
     };
 
     /**
@@ -13387,12 +14845,12 @@ XML3D.webgl.MAX_MESH_INDEX_COUNT = 65535;
      * @param {XML3D.events.Notification} evt
      */
     p.notifyChanged = function(evt) {
-        if(this._isDestroyed)
-            return; 
-        
         if( (evt.type == XML3D.events.ADAPTER_HANDLE_CHANGED ) && !evt.internalType ){
             if(evt.key == "shader"){
                 this.updateShader(evt.adapter);
+                if(evt.handleStatus == XML3D.base.AdapterHandle.STATUS.NOT_FOUND){
+                    XML3D.debug.logError("Could not find <shader> element of url '" + evt.url);
+                }
             }
             return;
         }
@@ -13410,8 +14868,9 @@ XML3D.webgl.MAX_MESH_INDEX_COUNT = 65535;
                 break;
 
             case "parentshader":
-                this.setShaderHandle(evt.newValue);
-                this.updateShader(evt.newValue ? evt.newValue.getAdapter() : null);
+                var adapterHandle = evt.newValue;
+                this.setShaderHandle(adapterHandle);
+                this.updateShader(adapterHandle ? adapterHandle.getAdapter() : null);
                 break;
 
             case "parentvisible":
@@ -13444,6 +14903,9 @@ XML3D.webgl.MAX_MESH_INDEX_COUNT = 65535;
 
     p.setShaderHandle = function(newHandle){
         this.connectAdapterHandle("shader", newHandle);
+        if(newHandle && newHandle.status == XML3D.base.AdapterHandle.STATUS.NOT_FOUND){
+            XML3D.debug.logError("Could not find <shader> element of url '" + newHandle.url);
+        }
     };
     p.updateShader = function(adapter){
         var shaderName = this.factory.renderer.shaderManager.createShader(adapter,
@@ -13526,7 +14988,7 @@ XML3D.webgl.MAX_MESH_INDEX_COUNT = 65535;
 
         var dataResult =  this.computeRequest.getResult();
 
-        if (!(dataResult.getOutputData("position"))) {
+        if (!(dataResult.getOutputData("position") && dataResult.getOutputData("position").getValue())) {
             XML3D.debug.logInfo("Mesh " + this.node.id + " has no data for required attribute 'position'.");
             obj.mesh.valid = false;
             return;
@@ -13534,7 +14996,7 @@ XML3D.webgl.MAX_MESH_INDEX_COUNT = 65535;
         for ( var i in staticAttributes) {
             var attr = staticAttributes[i];
             var entry = dataResult.getOutputData(attr);
-            if (!entry)
+            if (!entry || !entry.getValue())
                 continue;
 
             var buffer = entry.userData.buffer;
@@ -13592,7 +15054,6 @@ XML3D.webgl.MAX_MESH_INDEX_COUNT = 65535;
         this.dataChanged();
         this.factory.renderer.removeDrawableObject(this.getMyDrawableObject());
         this.getMyDrawableObject = noDrawableObject;
-        this._isDestroyed = true;
     };
 
     /**
@@ -13769,6 +15230,8 @@ XML3D.webgl.MAX_MESH_INDEX_COUNT = 65535;
             this.factory.renderer.sceneTreeRemoval(evt);
             return;
         } else if (evt.type == XML3D.events.THIS_REMOVED) {
+            //Clear all references to shader and transform adapters
+            this.clearAdapterHandles();
             return;
         }
         else if( (evt.type == XML3D.events.ADAPTER_HANDLE_CHANGED) && !evt.internalType){
@@ -14322,8 +15785,8 @@ XML3D.shaders.register("flat", XML3D.shaders.getScript("matte"));XML3D.shaders.r
         "uniform vec3 spotLightIntensity[MAX_SPOTLIGHTS];",
         "uniform vec3 spotLightVisibility[MAX_SPOTLIGHTS];",
         "uniform vec3 spotLightDirection[MAX_SPOTLIGHTS];",
-        "uniform float spotLightCosBeamWidth[MAX_SPOTLIGHTS];",
-        "uniform float spotLightCosCutOffAngle[MAX_SPOTLIGHTS];",
+        "uniform float spotLightCosFalloffAngle[MAX_SPOTLIGHTS];",
+        "uniform float spotLightSoftness[MAX_SPOTLIGHTS];",
         "#endif",
 
         "void main(void) {",
@@ -14377,13 +15840,13 @@ XML3D.shaders.register("flat", XML3D.shaders.getScript("matte"));XML3D.shaders.r
         "    vec4 lDirection = viewMatrix * vec4(spotLightDirection[i], 0.0);",
         "    vec3 D = normalize(lDirection.xyz);",
         "    float angle = dot(L, D);",
-        "    if(angle <= spotLightCosCutOffAngle[i])",
-        "      spot = 0.0;",
-        "    else if (angle >= spotLightCosBeamWidth[i])",
-        "      spot = 1.0;",
-        "    else",
-        "      spot = (angle - spotLightCosCutOffAngle[i]) / (spotLightCosBeamWidth[i] - spotLightCosCutOffAngle[i]);",
-        "    color = color + (spot*atten*Idiff) * spotLightVisibility[i];",
+        "    if(angle > spotLightCosFalloffAngle[i]) {",
+        "       float fullAngle = spotLightCosFalloffAngle[i] + spotLightSoftness[i] * (1.0 - spotLightCosFalloffAngle[i]);",
+        "       float softness = 1.0;",
+        "       if (angle < fullAngle)",
+        "           softness = (angle - spotLightCosFalloffAngle[i]) /  (fullAngle -  spotLightCosFalloffAngle[i]);",
+        "       color += (atten*softness*Idiff) * spotLightVisibility[i];",
+        "    }",
         "  }",
         "#endif",
 
@@ -14496,8 +15959,8 @@ XML3D.shaders.register("flat", XML3D.shaders.getScript("matte"));XML3D.shaders.r
         "uniform vec3 spotLightIntensity[MAX_SPOTLIGHTS];",
         "uniform vec3 spotLightVisibility[MAX_SPOTLIGHTS];",
         "uniform vec3 spotLightDirection[MAX_SPOTLIGHTS];",
-        "uniform float spotLightCosBeamWidth[MAX_SPOTLIGHTS];",
-        "uniform float spotLightCosCutOffAngle[MAX_SPOTLIGHTS];",
+        "uniform float spotLightCosFalloffAngle[MAX_SPOTLIGHTS];",
+        "uniform float spotLightSoftness[MAX_SPOTLIGHTS];",
         "#endif",
 
         "void main(void) {",
@@ -14560,13 +16023,13 @@ XML3D.shaders.register("flat", XML3D.shaders.getScript("matte"));XML3D.shaders.r
         "    vec4 lDirection = viewMatrix * vec4(spotLightDirection[i], 0.0);",
         "    vec3 D = normalize(lDirection.xyz);",
         "    float angle = dot(L, D);",
-        "    if(angle <= spotLightCosCutOffAngle[i])",
-        "      spot = 0.0;",
-        "    else if (angle >= spotLightCosBeamWidth[i])",
-        "      spot = 1.0;",
-        "    else",
-        "      spot = (angle - spotLightCosCutOffAngle[i]) / (spotLightCosBeamWidth[i] - spotLightCosCutOffAngle[i]);",
-        "    color = color + (spot*atten*(Idiff + Ispec)) * spotLightVisibility[i];",
+        "    if(angle > spotLightCosFalloffAngle[i]) {",
+        "       float fullAngle = spotLightCosFalloffAngle[i] + spotLightSoftness[i] * (1.0 - spotLightCosFalloffAngle[i]);",
+        "       float softness = 1.0;",
+        "       if (angle < fullAngle)",
+        "           softness = (angle - spotLightCosFalloffAngle[i]) /  (fullAngle -  spotLightCosFalloffAngle[i]);",
+        "       color += atten*softness*(Idiff + Ispec) * spotLightVisibility[i];",
+        "    }",
         "  }",
         "#endif",
 
