@@ -21,13 +21,13 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-@version: DEVELOPMENT SNAPSHOT (04.12.2012 17:57:02 CET)
+@version: DEVELOPMENT SNAPSHOT (05.12.2012 17:02:00 CET)
 **/
 /** @namespace * */
 var XML3D = XML3D || {};
 
 /** @define {string} */
-XML3D.version = 'DEVELOPMENT SNAPSHOT (04.12.2012 17:57:02 CET)';
+XML3D.version = 'DEVELOPMENT SNAPSHOT (05.12.2012 17:02:00 CET)';
 /** @const */
 XML3D.xml3dNS = 'http://www.xml3d.org/2009/xml3d';
 /** @const */
@@ -7110,7 +7110,7 @@ XML3D.classInfo['float'] = {
     // TODO: Handle style for float
     name : {a: XML3D.StringAttributeHandler},
     param : {a: XML3D.BoolAttributeHandler, params: false},
-    seqnr : {a: XML3D.FloatAttributeHandler, params: 0.0},
+    key : {a: XML3D.FloatAttributeHandler, params: 0.0},
     value : {a: XML3D.FloatArrayValueHandler},
     _term: undefined
 };
@@ -7123,7 +7123,7 @@ XML3D.classInfo['float2'] = {
     // TODO: Handle style for float2
     name : {a: XML3D.StringAttributeHandler},
     param : {a: XML3D.BoolAttributeHandler, params: false},
-    seqnr : {a: XML3D.FloatAttributeHandler, params: 0.0},
+    key : {a: XML3D.FloatAttributeHandler, params: 0.0},
     value : {a: XML3D.Float2ArrayValueHandler},
     _term: undefined
 };
@@ -7136,7 +7136,7 @@ XML3D.classInfo['float3'] = {
     // TODO: Handle style for float3
     name : {a: XML3D.StringAttributeHandler},
     param : {a: XML3D.BoolAttributeHandler, params: false},
-    seqnr : {a: XML3D.FloatAttributeHandler, params: 0.0},
+    key : {a: XML3D.FloatAttributeHandler, params: 0.0},
     value : {a: XML3D.Float3ArrayValueHandler},
     _term: undefined
 };
@@ -7149,7 +7149,7 @@ XML3D.classInfo['float4'] = {
     // TODO: Handle style for float4
     name : {a: XML3D.StringAttributeHandler},
     param : {a: XML3D.BoolAttributeHandler, params: false},
-    seqnr : {a: XML3D.FloatAttributeHandler, params: 0.0},
+    key : {a: XML3D.FloatAttributeHandler, params: 0.0},
     value : {a: XML3D.Float4ArrayValueHandler},
     _term: undefined
 };
@@ -7162,7 +7162,7 @@ XML3D.classInfo['float4x4'] = {
     // TODO: Handle style for float4x4
     name : {a: XML3D.StringAttributeHandler},
     param : {a: XML3D.BoolAttributeHandler, params: false},
-    seqnr : {a: XML3D.FloatAttributeHandler, params: 0.0},
+    key : {a: XML3D.FloatAttributeHandler, params: 0.0},
     value : {a: XML3D.Float4x4ArrayValueHandler},
     _term: undefined
 };
@@ -7175,7 +7175,7 @@ XML3D.classInfo['int'] = {
     // TODO: Handle style for int
     name : {a: XML3D.StringAttributeHandler},
     param : {a: XML3D.BoolAttributeHandler, params: false},
-    seqnr : {a: XML3D.FloatAttributeHandler, params: 0.0},
+    key : {a: XML3D.FloatAttributeHandler, params: 0.0},
     value : {a: XML3D.IntArrayValueHandler},
     _term: undefined
 };
@@ -7188,7 +7188,7 @@ XML3D.classInfo['int4'] = {
     // TODO: Handle style for int4
     name : {a: XML3D.StringAttributeHandler},
     param : {a: XML3D.BoolAttributeHandler, params: false},
-    seqnr : {a: XML3D.FloatAttributeHandler, params: 0.0},
+    key : {a: XML3D.FloatAttributeHandler, params: 0.0},
     value : {a: XML3D.IntArrayValueHandler},
     _term: undefined
 };
@@ -7201,7 +7201,7 @@ XML3D.classInfo['bool'] = {
     // TODO: Handle style for bool
     name : {a: XML3D.StringAttributeHandler},
     param : {a: XML3D.BoolAttributeHandler, params: false},
-    seqnr : {a: XML3D.FloatAttributeHandler, params: 0.0},
+    key : {a: XML3D.FloatAttributeHandler, params: 0.0},
     value : {a: XML3D.BoolArrayValueHandler},
     _term: undefined
 };
@@ -7214,7 +7214,7 @@ XML3D.classInfo['texture'] = {
     // TODO: Handle style for texture
     name : {a: XML3D.StringAttributeHandler},
     param : {a: XML3D.BoolAttributeHandler, params: false},
-    seqnr : {a: XML3D.FloatAttributeHandler, params: 0.0},
+    key : {a: XML3D.FloatAttributeHandler, params: 0.0},
     type : {a: XML3D.EnumAttributeHandler, params: {e: XML3D.TextureTypes, d: 0}},
     filterMin : {a: XML3D.EnumAttributeHandler, params: {e: XML3D.FilterTypes, d: 2}},
     filterMag : {a: XML3D.EnumAttributeHandler, params: {e: XML3D.FilterTypes, d: 2}},
@@ -7691,7 +7691,7 @@ var GraphNode = Xflow.GraphNode;
 Xflow.InputNode = function(graph){
     Xflow.GraphNode.call(this, graph);
     this._name = "";
-    this._seqnr = 0;
+    this._key = 0;
     this._data = null;
     this._param = false;
 };
@@ -7713,14 +7713,14 @@ Object.defineProperty(InputNode.prototype, "name", {
     /** @return {string} */
     get: function(){ return this._name; }
 });
-Object.defineProperty(InputNode.prototype, "seqnr", {
+Object.defineProperty(InputNode.prototype, "key", {
     /** @param {number} v */
     set: function(v){
-        this._seqnr = v;
+        this._key = v;
         notifyParentsOnChanged(this, Xflow.RESULT_STATE.CHANGED_STRUCTURE);
     },
     /** @return {number} */
-    get: function(){ return this._seqnr; }
+    get: function(){ return this._key; }
 });
 Object.defineProperty(InputNode.prototype, "param", {
     /** @param {boolean} v */
@@ -8816,7 +8816,7 @@ function mappingNotifyOwner(mapping){
     }
 
     ChannelNode.prototype.notifyDataChange = function(inputNode){
-        var key = inputNode._name + ";" + inputNode._seqnr;
+        var key = inputNode._name + ";" + inputNode._key;
         if(this.inputSlots[key])
             this.inputSlots[key].setDataEntry(inputNode._data);
     }
@@ -8889,8 +8889,8 @@ function mappingNotifyOwner(mapping){
                         channelNode.inputChannels.addProtoNames(child._name, child._name);
                         Xflow.nameset.add(channelNode.protoNames, child._name);
                     }
-                    var key = child._name + ";" + child._seqnr;
-                    channelNode.inputSlots[key] = new Xflow.DataSlot(child._data, child._seqnr);
+                    var key = child._name + ";" + child._key;
+                    channelNode.inputSlots[key] = new Xflow.DataSlot(child._data, child._key);
 
                 }
             }
@@ -9014,7 +9014,7 @@ function mappingNotifyOwner(mapping){
             }
             for(var i = 0; i < owner._children.length; ++i){
                 if((child = owner._children[i]) && !child._channelNode){
-                    var key = child._name + ";" + child._seqnr;
+                    var key = child._name + ";" + child._key;
                     channelNode.inputChannels.addDataEntry(child._name, channelNode.inputSlots[key],
                         child._param, substitution);
                 }
@@ -10966,7 +10966,7 @@ XML3D.data.DataAdapter.prototype.toString = function() {
         this.xflowInputNode = XML3D.data.xflowGraph.createInputNode();
         this.xflowInputNode.name = this.node.name;
         this.xflowInputNode.data = buffer;
-        this.xflowInputNode.seqnr = this.node.seqnr;
+        this.xflowInputNode.key = this.node.key;
         this.xflowInputNode.param = this.node.param;
     }
 
@@ -10987,8 +10987,8 @@ XML3D.data.DataAdapter.prototype.toString = function() {
             else if(attr == "name"){
                 this.xflowInputNode.name = this.node.name;
             }
-            else if(attr == "seqnr"){
-                this.xflowInputNode.seqnr = this.node.seqnr;
+            else if(attr == "key"){
+                this.xflowInputNode.key = this.node.key;
             }
             else if(attr == "param"){
                 this.xflowInputNode.param = this.node.param;
@@ -11310,17 +11310,28 @@ XML3D.data.DataAdapter.prototype.toString = function() {
         "bool" : Uint8Array
     };
 
-    function createXflowBuffer(data){
+    function createXflowInputs(dataNode, name, jsonData){
         var v = null;
-        var first = data.seq[0];
-        var value = first.value;
-        if(TYPED_ARRAY_MAP[data.type]){
-            var v = new (TYPED_ARRAY_MAP[data.type])(value);
-            var type = XML3D.data.BUFFER_TYPE_TABLE[data.type];
+
+        if(!TYPED_ARRAY_MAP[jsonData.type])
+            return;
+
+        for(var i = 0; i < jsonData.seq.length; ++i){
+            var entry = jsonData.seq[i];
+            var value = entry.value;
+            var key = entry.key;
+
+            var v = new (TYPED_ARRAY_MAP[jsonData.type])(value);
+            var type = XML3D.data.BUFFER_TYPE_TABLE[jsonData.type];
             var buffer = new Xflow.BufferEntry(type, v);
-            return buffer;
+
+            var inputNode = XML3D.data.xflowGraph.createInputNode();
+            inputNode.data = buffer;
+            inputNode.name = name;
+            inputNode.key = key;
+            dataNode.appendChild(inputNode);
+
         }
-        return null;
     }
 
     function createXflowNode(jsonData){
@@ -11332,15 +11343,8 @@ XML3D.data.DataAdapter.prototype.toString = function() {
         var node = XML3D.data.xflowGraph.createDataNode();
 
         var entries = jsonData.data;
-        for(var e in entries) {
-
-            var buffer = createXflowBuffer(entries[e]);
-            if(buffer){
-                var inputNode = XML3D.data.xflowGraph.createInputNode();
-                inputNode.data = buffer;
-                inputNode.name = e;
-                node.appendChild(inputNode);
-            }
+        for(var name in entries) {
+            createXflowInputs(node, name, entries[name]);
         }
         return node;
     }
@@ -11695,6 +11699,7 @@ XML3D.webgl.MAXFPS = 30;
             var end = Date.now();
 
             this.needDraw = false;
+            this.needPickingDraw = true;
             this.dispatchFrameDrawnEvent(start, end, stats);
 
         } catch (e) {
@@ -14849,7 +14854,7 @@ XML3D.webgl.MAX_MESH_INDEX_COUNT = 65535;
             if(evt.key == "shader"){
                 this.updateShader(evt.adapter);
                 if(evt.handleStatus == XML3D.base.AdapterHandle.STATUS.NOT_FOUND){
-                    XML3D.debug.logError("Could not find <shader> element of url '" + evt.url);
+                    XML3D.debug.logError("Missing shader with id '" + evt.url + "', falling back to default shader.");
                 }
             }
             return;
@@ -15054,6 +15059,7 @@ XML3D.webgl.MAX_MESH_INDEX_COUNT = 65535;
         this.dataChanged();
         this.factory.renderer.removeDrawableObject(this.getMyDrawableObject());
         this.getMyDrawableObject = noDrawableObject;
+        this.clearAdapterHandles();
     };
 
     /**
@@ -15568,7 +15574,7 @@ XML3D.webgl.MAX_MESH_INDEX_COUNT = 65535;
             }
         }
         this.connectAdapterHandle("shader", this.getAdapterHandle(shaderHref));
-    }
+    };
 
 	/**
 	 *
@@ -15578,6 +15584,10 @@ XML3D.webgl.MAX_MESH_INDEX_COUNT = 65535;
     };
     LightRenderAdapter.prototype.dispose = function() {
         this.isValid = false;
+    };
+    
+    LightRenderAdapter.prototype.destroy = function() {
+    	this.clearAdapterHandles();
     };
 
 
