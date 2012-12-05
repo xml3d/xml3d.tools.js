@@ -141,8 +141,6 @@ XMOT.interaction.widgets.SingleAxisRotator = new XMOT.Class(
         var sh = this.element("s_rot_root_highlight"); 
         
         XMOT.util.shader(grp, sh); 
-
-        XML3D.debug.logInfo("_activateHandles");
     },
 
     /** 
@@ -155,8 +153,6 @@ XMOT.interaction.widgets.SingleAxisRotator = new XMOT.Class(
         var sh = this.element("s_rot_root"); 
         
         XMOT.util.shader(grp, sh); 
-
-        XML3D.debug.logInfo("_deactivateHandles");
     },
 
     // --------------------------------

@@ -70,7 +70,7 @@ XMOT.interaction.behaviors.PDSensor = new XMOT.Class(
     {
         if(!this._isAttached)
         {
-            for(var i in this.pickGroups)
+            for(var i = 0; i < this.pickGroups.length; i++)
             {
                 this.pickGroups[i].addEventListener("mouseover",
                     this.callback("_onMouseOver"), false);
