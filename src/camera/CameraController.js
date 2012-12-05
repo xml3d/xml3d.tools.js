@@ -365,7 +365,7 @@
 	 */
 	cc.distanceBetweenCameraAndPoint = function(point){
 		var camPosition = this.transformable.transform.translation;
-		return camPosition.subtract(p).length();
+		return camPosition.subtract(point).length();
 	};
 
 	/**
