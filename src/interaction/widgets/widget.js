@@ -297,8 +297,7 @@ XMOT.interaction.widgets.Widget = new XMOT.Class(
     {
         this.geo.setGraphRoot(XMOT.creation.element("group", {
             id: this.globalID("g_root"),
-            transform: "#" + this.globalID("t_root"),
-            shader: "#" + this.globalID("s_root")
+            transform: "#" + this.globalID("t_root")
         })); 
     }
 }); 
