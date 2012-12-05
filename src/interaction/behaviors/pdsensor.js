@@ -161,13 +161,13 @@ XMOT.interaction.behaviors.PDSensor = new XMOT.Class(
      */
     _onMouseDown: function(evt)
     {
+    	evt.stopPropagation(); 
+    	
         this._mouseDownPos = {x: evt.pageX, y: evt.pageY};
 
         this._pickAndUpdateStatus(evt.pageX, evt.pageY);
 
         this._sensorIsActive = true;
-        if(XML3D.Xml3dSceneController)
-            XML3D.Xml3dSceneController.getController(this.xml3d).detach();
 
         this.notifyListeners("dragstart", this, evt);
     },
@@ -181,11 +181,13 @@ XMOT.interaction.behaviors.PDSensor = new XMOT.Class(
      *  @param {MouseEvent} evt
      */
     _onMouseMove: function(evt)
-    {
+    {    	
         this._pickAndUpdateStatus(evt.pageX, evt.pageY);
 
         if(this._sensorIsActive)
         {
+        	evt.stopPropagation(); 
+        	
             this.notifyListeners("drag", this, evt);
         }
     },
@@ -203,10 +205,9 @@ XMOT.interaction.behaviors.PDSensor = new XMOT.Class(
 
         if(this._sensorIsActive)
         {
+        	evt.stopPropagation(); 
+        	
             this._sensorIsActive = false;
-
-            if(XML3D.Xml3dSceneController)
-                XML3D.Xml3dSceneController.getController(this.xml3d).attach();
 
             this.notifyListeners("dragend", this, evt);
         }
