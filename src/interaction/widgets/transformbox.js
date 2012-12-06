@@ -19,11 +19,14 @@ XMOT.interaction.widgets.TransformBox = new XMOT.Class(
      */
 	initialize: function(_id, _target, rotationFlipOpts)
 	{
-		this._flipRotAxes = {}; 
+		this._flipRotAxes = {x: false, y: false, z: false}; 
 		
-		this._flipRotAxes.x = rotationFlipOpts.x;
-		this._flipRotAxes.y = rotationFlipOpts.y; 
-		this._flipRotAxes.z = rotationFlipOpts.z; 
+		if(rotationFlipOpts)
+		{
+			this._flipRotAxes.x = rotationFlipOpts.x;
+			this._flipRotAxes.y = rotationFlipOpts.y; 
+			this._flipRotAxes.z = rotationFlipOpts.z;			
+		} 
 		
 		this.callSuper(_id, _target); 
 	}, 
