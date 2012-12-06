@@ -9,7 +9,24 @@ XMOT.namespace("XMOT.interaction.widgets");
  */
 XMOT.interaction.widgets.TransformBox = new XMOT.Class(
     XMOT.interaction.widgets.Widget, {
-
+ 
+    /** Setup axis-flip options and initialize the base class. 
+     * 
+     * @param {string} _id
+     * @param {XMOT.Transformable} _target
+     * @param {{x: boolean, y: boolean, z: boolean}=} rotationFlipOpts whether to flip the rotation around the given local axis.
+     * 												  rotationFlipOpts attributes and and the parameter itself is optional. 
+     */
+	initialize: function(_id, _target, rotationFlipOpts)
+	{
+		this._flipRotAxes = {}; 
+		
+		this._flipRotAxes.x = rotationFlipOpts.x;
+		this._flipRotAxes.y = rotationFlipOpts.y; 
+		this._flipRotAxes.z = rotationFlipOpts.z; 
+		
+		this.callSuper(_id, _target); 
+	}, 
 
     /** 
      *  @this {XMOT.interaction.widgets.TransformBox}
@@ -35,7 +52,9 @@ XMOT.interaction.widgets.TransformBox = new XMOT.Class(
             
             this.behavior[id] = new XMOT.interaction.widgets.SingleAxisRotator(
                 this.ID + "_" + id, this.target, ax
-            );            
+            );   
+            
+            this.behavior[id].flipRotation(this._flipRotAxes[ax]);            	 
         }
     }
 });

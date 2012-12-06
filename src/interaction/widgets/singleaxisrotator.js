@@ -36,7 +36,33 @@ XMOT.interaction.widgets.SingleAxisRotator = new XMOT.Class(
         } 
         
         this.callSuper(_id, _target); 
-    }, 
+    },
+
+    /** Set and/or retrieve the axis restriction. 
+     *  See XMOT.interaction.behaviors.Rotater.axisRestriction(). 
+     *  
+     *  @this {XMOT.interaction.widgets.SingleAxisRotator} 
+     *  
+     * 	@param {string} [axis]
+     * 	@return {string}
+     */
+    axisRestriction: function(axis)
+    {        
+        return this.behavior["rot"].axisRestriction(axis); 
+    },
+
+    /** Set or retrieve the status of rotation flipping. 
+     *  See XMOT.interaction.behaviors.Rotater.flipRotation(). 
+     *  
+     *  @this {XMOT.interaction.widgets.SingleAxisRotator} 
+     *  
+     *  @param {boolean} [flip] 
+     *  @return {boolean} 
+     */
+    flipRotation: function(flip)
+    {
+    	return this.behavior["rot"].flipRotation(flip); 
+    },
 
     // --------------------------------
     // -- Widget callbacks --
