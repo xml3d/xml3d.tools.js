@@ -114,8 +114,8 @@
 		 * @type {Transformable}
 		 */
 		this.transformable = factory.createTransformable(cam, this.constraint);
-		var initRot = initialRotation || new XML3DRotation().setQuaternion(new XML3DVec3(0,0,0), 0);
-		this.transformable.rotate(initialRotation);
+		var initRot = initialRotation || new XML3DRotation();
+		this.transformable.rotate(initRot);
 		/**
 		 * starting point of the transformable, used to reset position and orientation
 		 * @private
@@ -689,9 +689,9 @@
 
 	cc.seeTheCompleteScene = function(){
 		var center = this.sceneBoundingBox.center();
-		this.lookAtPoint([center.x, center.y, center.z]);
+		this.lookAtPoint(new XML3DVec3(center.x, center.y, center.z));
 		var moveBy = this.sceneBoundingBox.max;
-		this.transformable.setPosition([2*moveBy.x, 2*moveBy.y, 4*moveBy.z]);
+		this.transformable.setPosition(new XML3DVec3(2*moveBy.x, 2*moveBy.y, 4*moveBy.z));
 	};
 
 	XMOT.CameraController = CameraController;
