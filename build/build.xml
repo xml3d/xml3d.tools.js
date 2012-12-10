@@ -38,6 +38,7 @@
 
         <file name="util/util.js" />
         <file name="util/creation.js" /> 
+    	<file name="util/input.js" />
 
         <file name="util/geoobject.js" />   	
         <file name="util/observable.js" />

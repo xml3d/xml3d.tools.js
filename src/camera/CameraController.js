@@ -512,10 +512,10 @@
 				this.currentlyPressedKeys[kc] = true;
 			}
 			switch(kc){
-				case 69 : this.nextPoi(); break; // q
-				case 81 : this.beforePoi(); break; // e
-				case 82 : this.reset(); break; //r
-				case 84 : this.seeTheCompleteScene(); break;//t
+				case XMOT.KEY_Q : this.nextPoi(); break; 
+				case XMOT.KEY_E : this.beforePoi(); break;
+				case XMOT.KEY_R : this.reset(); break; 
+				case XMOT.KEY_T : this.seeTheCompleteScene(); break;
 				default : flag = false; break;
 			}
 			if(flag) this.stopDefaultEventAction(e);
@@ -540,16 +540,16 @@
 	 */
 	cc.moveWithKey = function(keyCode){
 	    switch(keyCode){
-			case 83 : this.moveBackAndForward(this.moveSensivityKeyboard); break; // s
-			case 87 : this.moveBackAndForward(-this.moveSensivityKeyboard); break; // w
-			case 65 : this.moveLeftAndRight(-this.moveSensivityKeyboard); break; // a
-			case 68 : this.moveLeftAndRight(this.moveSensivityKeyboard); break; // d
-			case 33 : this.moveUpAndDown(this.moveSensivityKeyboard); break; //page up
-			case 34 : this.moveUpAndDown(-this.moveSensivityKeyboard); break; //page down
-			case 38 : this.rotateUpAndDown(this.rotationSensivityMouse); break; // up Arrow
-			case 40 : this.rotateUpAndDown(-this.rotationSensivityMouse); break; // down Arrow
-			case 37 : this.rotateLeftAndRight(this.rotationSensivityMouse); break; // left Arrow
-			case 39 : this.rotateLeftAndRight(-this.rotationSensivityMouse); break; // right Arrow
+			case XMOT.KEY_S : this.moveBackAndForward(this.moveSensivityKeyboard); break; 
+			case XMOT.KEY_W : this.moveBackAndForward(-this.moveSensivityKeyboard); break; 
+			case XMOT.KEY_A : this.moveLeftAndRight(-this.moveSensivityKeyboard); break; 
+			case XMOT.KEY_D : this.moveLeftAndRight(this.moveSensivityKeyboard); break;
+			case XMOT.KEY_PGUP : this.moveUpAndDown(this.moveSensivityKeyboard); break; 
+			case XMOT.KEY_PGDOWN : this.moveUpAndDown(-this.moveSensivityKeyboard); break; 
+			case XMOT.KEY_UP : this.rotateUpAndDown(this.rotationSensivityMouse); break;
+			case XMOT.KEY_DOWN : this.rotateUpAndDown(-this.rotationSensivityMouse); break; 
+			case XMOT.KEY_LEFT : this.rotateLeftAndRight(this.rotationSensivityMouse); break;
+			case XMOT.KEY_RIGHT : this.rotateLeftAndRight(-this.rotationSensivityMouse); break; 
 	        default : return false; break;
 	    }
 	    return true;
