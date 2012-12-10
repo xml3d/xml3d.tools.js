@@ -104,7 +104,6 @@
 		 * @type {HTMLElement}
 		 */
 		this.xml3dElement = document.getElementById(xml3dElementId);
-		this.sceneBoundingBox = this.xml3dElement.getBoundingBox();
 
 		var factory = XMOT.ClientMotionFactory;
 		var cam = document.getElementById(camera_id);
@@ -129,7 +128,7 @@
 		 */
 		this.mouseButton = 0;
 		this.setMouseButtonValue(mouseButton);
-		this.pointToRotateAround = this.sceneBoundingBox.center();
+		this.pointToRotateAround = this.xml3dElement.getBoundingBox().center();
 
 		/**
 		 * camera mode freeflight
@@ -408,7 +407,7 @@
 		var tmpX = direction.cross(up);
 
 		if(tmpX.length() != 0) {
-			tmpX = this.transformable.transform.rotation.rotateVec3(new window.XML3DVec3(1,0,0))._data;
+			tmpX = this.transformable.transform.rotation.rotateVec3(new window.XML3DVec3(1,0,0));
 		}
 		var tmpY = tmpX.cross(direction);
 		var tmpZ = direction.negate();
@@ -688,10 +687,14 @@
 	};
 
 	cc.seeTheCompleteScene = function(){
-		var center = this.sceneBoundingBox.center();
-		this.lookAtPoint(new XML3DVec3(center.x, center.y, center.z));
-		var moveBy = this.sceneBoundingBox.max;
-		this.transformable.setPosition(new XML3DVec3(2*moveBy.x, 2*moveBy.y, 4*moveBy.z));
+		var sceneBBox = this.xml3dElement.getBoundingBox();
+		var center = sceneBBox.center(); 
+
+		var moveBy = sceneBBox.max;
+		this.transformable.setPosition(new XML3DVec3(moveBy.x, moveBy.y, moveBy.z));
+		
+		this.angleUp = 0; 
+		this.lookAtPoint(center);
 	};
 
 	XMOT.CameraController = CameraController;
