@@ -55,6 +55,27 @@ XMOT.util.GeoObject = new XMOT.Class({
     // ========================================================================
     // --- Attach/Detach ---
     // ========================================================================
+    /** Attach the defs elements and the graph. Alternatively attachDefs() and 
+     *  attachGraph() can be called seperately. 
+     * 	
+     *  @this {XMOT.util.GeoObject} 
+     */
+    attach: function()
+    {
+    	this.attachDefs(); 
+    	this.attachGraph(); 
+    }, 
+
+    /** Remove the graph and defs elements from the DOM. 
+     * 
+     *  @this {XMOT.util.GeoObject}
+     */
+    detach: function()
+    {
+        this._removeChildren(this.rootGrp, this.graph);
+        this._removeChildren(this.defsRoot, this.defs);
+    },
+    
     /** Add all defs elements to the defsRoot 
      * 
      *  @this {XMOT.util.GeoObject} 
@@ -71,16 +92,6 @@ XMOT.util.GeoObject = new XMOT.Class({
     attachGraph: function()
     {            
         this.rootGrp.appendChild(this.graph["root"]); 
-    },
-
-    /** Remove the graph and defs elements from the DOM. 
-     * 
-     *  @this {XMOT.util.GeoObject}
-     */
-    detach: function()
-    {
-        this._removeChildren(this.rootGrp, this.graph);
-        this._removeChildren(this.defsRoot, this.defs);
     },
 
     // ========================================================================
