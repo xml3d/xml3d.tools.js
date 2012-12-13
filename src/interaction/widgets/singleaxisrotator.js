@@ -233,6 +233,6 @@ XMOT.interaction.widgets.SingleAxisRotator = new XMOT.Class(
         var pickGrp = document.getElementById(this.globalID(localPickGrpID));
         
         return new XMOT.interaction.behaviors.Rotater(
-            this.globalID(localID), [pickGrp], this.root, null, this.root.object);
+            this.globalID(localID), [pickGrp], this.root);
     }
 });

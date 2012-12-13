@@ -139,7 +139,9 @@ XMOT.interaction.behaviors.PlaneSensor = new XMOT.Class(
         else
         {
             var va = XML3D.util.getOrCreateActiveView(this.xml3d);
-            this._validPlaneNormal = va.getDirection().scale(-1);
+            var wMat = va.getViewMatrix().inverse();   
+            
+            this._validPlaneNormal = wMat.multiplyDir(new window.XML3DVec3(0,0,1));
         }
 
         this._validPlaneNormal = this._validPlaneNormal.normalize();
