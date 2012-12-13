@@ -20,20 +20,38 @@ XMOT.interaction.widgets.SingleAxisRotator = new XMOT.Class(
      *  
      *  @param {string} _id 
      *  @param {!Element} _target
-     *  @param {string} [_axis] the axis for rotation. "x", "y" or "z". Defaults to "y".
+     *  @param {Object} [_opts] options for the rotator 
+     *  
+     *  The following options are supported: 
+     *  	o axis: the axis for rotation. "x", "y" or "z". Defaults to "y".
+     *  	o color: the diffuse color of the shader for the axis bars 
+     *  	o highlightColor: the diffuse color of the shader for the highlighting of the axis bars
      */
-    initialize: function(_id, _target, _axis)
+    initialize: function(_id, _target, _opts)
     {        
+    	if(!_opts)
+    		_opts = {}; 
+    	
         /** @private */ 
         this._rotationAxis = "y";         
-        if(_axis)
+        if(_opts.axis)
         {
-            if(typeof _axis !== "string" 
-            ||(_axis != "x" && _axis != "y" && _axis != "z"))
-                throw "XMOT.interaction.widgets.AxisRotator: invalid axis specified: " + _axis; 
+            if(typeof _opts.axis !== "string" 
+            ||(_opts.axis != "x" && _opts.axis != "y" && _opts.axis != "z"))
+                throw "XMOT.interaction.widgets.AxisRotator: invalid axis specified: " + _opts.axis; 
             
-            this._rotationAxis = _axis; 
+            this._rotationAxis = _opts.axis; 
         } 
+        
+        /** @private */ 
+        this._color = "0.9 0.9 0.9";
+        if(_opts.color)
+        	this._color = _opts.color; 
+        
+        /** @private */  
+        this._highlightColor = "0.9 0.9 0";
+        if(_opts.highlightColor)
+        	this._highlightColor = _opts.highlightColor; 
         
         this.callSuper(_id, _target); 
     },
@@ -97,8 +115,8 @@ XMOT.interaction.widgets.SingleAxisRotator = new XMOT.Class(
     onCreateDefsElements: function()
     {
         // shaders
-        this.geo.addShaders("s_rot_root", {diffCol: "0.9 0.9 0.9"});        
-        this.geo.addShaders("s_rot_root_highlight", {diffCol: "0.9 0.9 0"}); 
+        this.geo.addShaders("s_rot_root", {diffCol: this._color});        
+        this.geo.addShaders("s_rot_root_highlight", {diffCol: this._highlightColor}); 
         
         // transforms
         this.geo.addTransforms("t_rot_1", {translation: "1 0 1"});

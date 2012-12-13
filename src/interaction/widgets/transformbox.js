@@ -47,14 +47,20 @@ XMOT.interaction.widgets.TransformBox = new XMOT.Class(
             this.ID + "_scaler", this.target); 
         
         // rotation
-        var axes = ["x", "y", "z"]; 
+        // options objects for the SingleAxisRotator
+        var axes = [ 
+        	{axis: "x", color: "0.7 0 0", highlightColor: "0.9 0 0"},
+        	{axis: "y", color: "0 0.7 0", highlightColor: "0 0.9 0"},
+        	{axis: "z", color: "0 0 0.7", highlightColor: "0 0 0.9"}
+        ]; 
+        	
         for(var i = 0; i < axes.length; i++)
         {
-            var ax = axes[i];
+            var ax = axes[i].axis;
             var id = ax + "rot"; 
             
             this.behavior[id] = new XMOT.interaction.widgets.SingleAxisRotator(
-                this.ID + "_" + id, this.target, ax
+                this.ID + "_" + id, this.target, axes[i]
             );   
             
             this.behavior[id].flipRotation(this._flipRotAxes[ax]);            	 
