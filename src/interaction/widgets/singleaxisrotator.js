@@ -115,8 +115,8 @@ XMOT.interaction.widgets.SingleAxisRotator = new XMOT.Class(
     onCreateDefsElements: function()
     {
         // shaders
-        this.geo.addShaders("s_rot_root", {diffCol: this._color});        
-        this.geo.addShaders("s_rot_root_highlight", {diffCol: this._highlightColor}); 
+        this.geo.addShaders("s_rot_root", {diffCol: this._color, ambInt: 0.8});        
+        this.geo.addShaders("s_rot_root_highlight", {diffCol: this._highlightColor, ambInt: 0.8}); 
         
         // transforms
         this.geo.addTransforms("t_rot_1", {translation: "1 0 1"});
