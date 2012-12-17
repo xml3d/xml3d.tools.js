@@ -82,6 +82,7 @@ XMOT.interaction.behaviors.PDSensor = new XMOT.Class(
 
             this.xml3d.addEventListener("mousemove", this.callback("_onMouseMove"), false);
             this.xml3d.addEventListener("mouseup", this.callback("_onMouseUp"), false);
+            window.addEventListener("mouseout", this.callback("_onMouseOutOfCanvas"), false);
             
             this.notifyListeners("attach"); 
 
@@ -108,6 +109,7 @@ XMOT.interaction.behaviors.PDSensor = new XMOT.Class(
 
             this.xml3d.removeEventListener("mousemove", this.callback("_onMouseMove"), false);
             this.xml3d.removeEventListener("mouseup", this.callback("_onMouseUp"), false);
+            window.removeEventListener("mouseout", this.callback("_onMouseOutOfCanvas"), false);
             
             this.notifyListeners("detach"); 
 
@@ -152,6 +154,19 @@ XMOT.interaction.behaviors.PDSensor = new XMOT.Class(
     {
         this._numObjsOver--;
     },
+
+    /** onMouseOutOfCanvas: called when the mouse leaves
+     *
+     * @this {XMOT.interaction.behaviors.PDSensor}
+     * @private
+     * @param evt
+     */
+	_onMouseOutOfCanvas: function(evt)
+	{
+		if(this._sensorIsActive)
+			if(evt.fromElement.tagName == "canvas")
+				this._onMouseUp(evt);
+	},
 
     /** onMouseDown: called when primary pd button is pressed over influenced groups
      * 
