@@ -374,20 +374,27 @@
 	 * @param {XML3DVec3} point
 	 */
 	cc.lookAtPoint = function(point){
+		var initCamDirection = new XML3DVec3(0, 0, -1);
+		
+		// reset orientation 
+		this.angleUp = 0; 
+		this.transformable.setOrientation(new XML3DRotation()); 
+		
+		// calculate new direction
 		var position = this.getPosition();
 		var direction = point.subtract(position);
 		direction = direction.normalize(); 
-		
-		var initDir = new XML3DVec3(0, 0, -1); 
-		var curDir = this.transformable.getOrientation().rotateVec3(initDir); 
-		
+				
+		// create rotation from angle b/w initial and new direction
 		var dirRot = new XML3DRotation(); 
-		dirRot.setRotation(curDir, direction);
+		dirRot.setRotation(initCamDirection, direction);
 		var quat = dirRot._data; 
 		
+		// convert rotation to euler angles ... 
 		var eulerx = Math.atan((2*(quat[0]*quat[1] + quat[2]*quat[3]))/(1-2*(quat[1]*quat[1] + quat[2]*quat[2]))); 
 		var eulery = Math.asin(2*(quat[0]*quat[2] - quat[3]*quat[1])); 
 		
+		// ... and forward the actual rotation to the usual rotation methods
 		this.rotateCameraUpAndDown(eulerx); 
 		this.rotateCameraLeftAndRight(-eulery);
 	};
