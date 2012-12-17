@@ -330,9 +330,10 @@
 	 * @param {number} angle
 	 */
 	cc.rotateCameraLeftAndRight = function(angle){
+		
 		//rotate up/down befor rotating sidewards, this prevends from rolling
 		this.transformable.rotate( new XML3DRotation(new XML3DVec3(1, 0, 0), -this.angleUp) );
-		this.transformable.rotate( new XML3DRotation(new XML3DVec3(0, 1, 0), angle*Math.PI) );
+		this.transformable.rotate( new XML3DRotation(new XML3DVec3(0, 1, 0), angle) );
 		//and rotate up/down again
 		this.transformable.rotate( new XML3DRotation(new XML3DVec3(1, 0, 0), this.angleUp) );
 	};
@@ -375,8 +376,20 @@
 	cc.lookAtPoint = function(point){
 		var position = this.getPosition();
 		var direction = point.subtract(position);
-		var orientation = this.getRotationFromDirection(direction);
-		this.transformable.setOrientation(orientation);
+		direction = direction.normalize(); 
+		
+		var initDir = new XML3DVec3(0, 0, -1); 
+		var curDir = this.transformable.getOrientation().rotateVec3(initDir); 
+		
+		var dirRot = new XML3DRotation(); 
+		dirRot.setRotation(curDir, direction);
+		var quat = dirRot._data; 
+		
+		var eulerx = Math.atan((2*(quat[0]*quat[1] + quat[2]*quat[3]))/(1-2*(quat[1]*quat[1] + quat[2]*quat[2]))); 
+		var eulery = Math.asin(2*(quat[0]*quat[2] - quat[3]*quat[1])); 
+		
+		this.rotateCameraUpAndDown(eulerx); 
+		this.rotateCameraLeftAndRight(-eulery);
 	};
 
 	/**
