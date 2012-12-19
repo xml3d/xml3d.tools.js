@@ -38,8 +38,10 @@ XMOT.interaction.widgets.Widget = new XMOT.Class(
     initialize: function(_id, _target, _autoScaleAdj)
     {        
         if(_target.object.parentNode.tagName !== "group")
-            throw "XMOT.interaction.widgets.Widget initialization:"
-                + "target's parent node must be a group.";
+            throw new Error("XMOT.interaction.widgets.Widget: target's parent node must be a group.");
+
+        if(_target.object.getBoundingBox().isEmpty())
+            throw new Error("XMOT.interaction.widgets.Widget: target empty!"); 
         
         this.callSuper();
         
