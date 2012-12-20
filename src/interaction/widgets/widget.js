@@ -39,9 +39,6 @@ XMOT.interaction.widgets.Widget = new XMOT.Class(
     {        
         if(_target.object.parentNode.tagName !== "group")
             throw new Error("XMOT.interaction.widgets.Widget: target's parent node must be a group.");
-
-        if(_target.object.getBoundingBox().isEmpty())
-            throw new Error("XMOT.interaction.widgets.Widget: target empty!"); 
         
         this.callSuper();
         
@@ -54,13 +51,15 @@ XMOT.interaction.widgets.Widget = new XMOT.Class(
         this.root = XMOT.ClientMotionFactory.createTransformable(rootGrp); 
         
         this.geo = new XMOT.util.GeoObject(this.ID, this.xml3d, rootGrp); 
-        this.behavior = {}; // localID -> behavior, storage for all sensors and alike
+        this.behavior = {}; // localID -> behavior, storage for all sensors and alike 
         
         /** @private */ 
         this._autoScaleAdj = (_autoScaleAdj !== undefined) ? _autoScaleAdj : true; 
         
         this._isAttached = false; 
         this.attach(); 
+        
+    	this.xml3d.addEventListener("framedrawn", this.callback("_onXml3dFrameDrawn"), false);
     },
     
     /** @this{XMOT.interaction.widgets.Widget} */
@@ -128,6 +127,14 @@ XMOT.interaction.widgets.Widget = new XMOT.Class(
      *  @protected
      */
     onTargetXfmChanged: function() {},  
+    
+    /** Called when the document finished loading, i.e. the target object's bounding box 
+     *  is not empty.  
+     *  
+     *  @this{XMOT.interaction.widgets.Widget}
+     *  @protected
+     */
+    onDocumentReady: function() {}, 
     
     /** Called when the geo's defs elements should be filled. This is after 
      *  the widget's setup, i.e. a transform called "t_root" will be available already. 
@@ -198,7 +205,7 @@ XMOT.interaction.widgets.Widget = new XMOT.Class(
 
     // ========================================================================
     // --- Private --- 
-    // ========================================================================
+    // ========================================================================        
     /** 
      *  @this{XMOT.interaction.widgets.Widget}
      *  @private 
@@ -258,6 +265,34 @@ XMOT.interaction.widgets.Widget = new XMOT.Class(
      *  @this{XMOT.interaction.widgets.Widget}
      *  @private 
      */
+    _onXml3dFrameDrawn: function() 
+    {
+		/** Funny hack: we don't know right now when the bbox is valid.
+		 *  So we wait until we reach a frame where the bounding box is not empty,
+		 *  and just then select the instance, i.e. creating the transformbox.
+		 */
+    	
+    	if(!this.target.object.getBoundingBox().isEmpty())
+		{
+    		this.xml3d.removeEventListener("framedrawn", this.callback("_onXml3dFrameDrawn"), false);     		
+    		this._onDocumentReady(); 
+		}
+    },
+
+    /** 
+     *  @this{XMOT.interaction.widgets.Widget}
+     *  @private 
+     */
+    _onDocumentReady: function() 
+    {
+    	this._updateDefsElements(); 
+    	this.onDocumentReady(); 
+    }, 
+
+    /** 
+     *  @this{XMOT.interaction.widgets.Widget}
+     *  @private 
+     */
     _onTargetXfmChanged: function() 
     {
         this.onTargetXfmChanged(); 
@@ -269,6 +304,18 @@ XMOT.interaction.widgets.Widget = new XMOT.Class(
      */
     _createDefsElements: function()
     {
+        // root
+        this.geo.addTransforms("t_root");
+        
+        this._updateDefsElements(); 
+    }, 
+    
+    _updateDefsElements: function() {
+    	
+    	// don't yet update when bbox empty 
+    	if(this.target.object.getBoundingBox().isEmpty())
+    		return; 
+
         var targetXfm = this.target.transform;
         var tarBBox = this.target.object.getBoundingBox(); 
 
@@ -284,11 +331,11 @@ XMOT.interaction.widgets.Widget = new XMOT.Class(
         }
 
         // root
-        this.geo.addTransforms("t_root", {
-            translation: translation.str(), 
-            scale: scale.str(), 
-            rotation: targetXfm.rotation.str()
-        }); 
+        this.geo.updateTransforms("t_root", {
+        	transl: translation.str(), 
+        	scale: scale.str(), 
+            rot: targetXfm.rotation.str()
+        });
     }, 
 
     /** 
