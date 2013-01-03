@@ -18,7 +18,7 @@ XMOT.interaction.widgets.Widget = new XMOT.Class(
 
     /** Sets up the basic construct for a widget and attaches it. 
      *
-     *  @this{XMOT.interaction.widgets.Widget}
+     *  @this {XMOT.interaction.widgets.Widget}
      *  
      *  @param {string} _id the id if this TransformBox and also the id of the corresponding root group node
      *  @param {XMOT.Transformable} _target the target transformable
@@ -62,7 +62,7 @@ XMOT.interaction.widgets.Widget = new XMOT.Class(
     	this.xml3d.addEventListener("framedrawn", this.callback("_onXml3dFrameDrawn"), false);
     },
     
-    /** @this{XMOT.interaction.widgets.Widget} */
+    /** @this {XMOT.interaction.widgets.Widget} */
     attach: function()
     {
         if(!this._isAttached)
@@ -74,7 +74,7 @@ XMOT.interaction.widgets.Widget = new XMOT.Class(
         }
     },
 
-    /** @this{XMOT.interaction.widgets.Widget} */
+    /** @this {XMOT.interaction.widgets.Widget} */
     detach: function()
     {
         if(this._isAttached)
@@ -89,7 +89,7 @@ XMOT.interaction.widgets.Widget = new XMOT.Class(
     /** Returns true if any object in the behavior is active. That means 
      *  it has a method isActive and that method returns true. 
      * 
-     *  @this{XMOT.interaction.widgets.Widget}
+     *  @this {XMOT.interaction.widgets.Widget}
      *  
      *  @return {boolean}
      */
@@ -111,7 +111,7 @@ XMOT.interaction.widgets.Widget = new XMOT.Class(
     /** Set the given constraint in the root movable. That is the parent node's movable 
      *  of the target movable given in the constructor. 
      * 
-     *  @this{XMOT.interaction.widgets.Widget}
+     *  @this {XMOT.interaction.widgets.Widget}
      *  
      *  @param {XMOT.Constraint} newConstraint
      */
@@ -123,7 +123,7 @@ XMOT.interaction.widgets.Widget = new XMOT.Class(
     // --- Methods to be overriden --- 
     /** Called when transformation of target node changes
      * 
-     *  @this{XMOT.interaction.widgets.Widget}
+     *  @this {XMOT.interaction.widgets.Widget}
      *  @protected
      */
     onTargetXfmChanged: function() {},  
@@ -131,7 +131,7 @@ XMOT.interaction.widgets.Widget = new XMOT.Class(
     /** Called when the document finished loading, i.e. the target object's bounding box 
      *  is not empty.  
      *  
-     *  @this{XMOT.interaction.widgets.Widget}
+     *  @this {XMOT.interaction.widgets.Widget}
      *  @protected
      */
     onDocumentReady: function() {}, 
@@ -139,7 +139,7 @@ XMOT.interaction.widgets.Widget = new XMOT.Class(
     /** Called when the geo's defs elements should be filled. This is after 
      *  the widget's setup, i.e. a transform called "t_root" will be available already. 
      *  
-     *  @this{XMOT.interaction.widgets.Widget}
+     *  @this {XMOT.interaction.widgets.Widget}
      *  @protected
      */  
     onCreateDefsElements: function() {}, 
@@ -150,7 +150,7 @@ XMOT.interaction.widgets.Widget = new XMOT.Class(
      *  The size of the target node is already incorporated, so the graph elements can 
      *  take a unit size. This is why the widget handles the root element.
      *  
-     *  @this{XMOT.interaction.widgets.Widget}
+     *  @this {XMOT.interaction.widgets.Widget}
      *  @protected 
      */ 
     onCreateGraph: function() {}, 
@@ -159,19 +159,19 @@ XMOT.interaction.widgets.Widget = new XMOT.Class(
      *  will invoke the onTarXfmChanged() method, so that clients have a place to adjust 
      *  to transformation changes. 
      *  
-     *  @this{XMOT.interaction.widgets.Widget}
+     *  @this {XMOT.interaction.widgets.Widget}
      *  @protected
      */ 
     onCreateBehavior: function() {}, 
     /** Called before geo's stuff is destroyed. 
      *  
-     *  @this{XMOT.interaction.widgets.Widget}
+     *  @this {XMOT.interaction.widgets.Widget}
      *  @protected
      */
     onDestroyGeometry: function() {}, 
     /** Called before geometry is destroyed and where the sensor attribute is still filled. 
      *  
-     *  @this{XMOT.interaction.widgets.Widget}
+     *  @this {XMOT.interaction.widgets.Widget}
      *  @protected
      */ 
     onDestroyBehavior: function() {}, 
@@ -180,7 +180,7 @@ XMOT.interaction.widgets.Widget = new XMOT.Class(
     /** all IDs are prefixed with the widget's ID. This function 
      *  encapsulates the creation of such "global" IDs. 
      * 
-     *  @this{XMOT.interaction.widgets.Widget}
+     *  @this {XMOT.interaction.widgets.Widget}
      *  
      *  @param localID
      *  @return {string} the ID prefixed with the widget's ID 
@@ -193,7 +193,7 @@ XMOT.interaction.widgets.Widget = new XMOT.Class(
     /** Returns the element corresponding to the global if of the given 
      *  local id. 
      *  
-     *  @this{XMOT.interaction.widgets.Widget}
+     *  @this {XMOT.interaction.widgets.Widget}
      *  
      *  @param {string} localID
      *  @return {Element} 
@@ -207,7 +207,7 @@ XMOT.interaction.widgets.Widget = new XMOT.Class(
     // --- Private --- 
     // ========================================================================        
     /** 
-     *  @this{XMOT.interaction.widgets.Widget}
+     *  @this {XMOT.interaction.widgets.Widget}
      *  @private 
      */
     _createGeometry: function()
@@ -224,7 +224,7 @@ XMOT.interaction.widgets.Widget = new XMOT.Class(
     },
 
     /** 
-     *  @this{XMOT.interaction.widgets.Widget}
+     *  @this {XMOT.interaction.widgets.Widget}
      *  @private 
      */
     _createBehavior: function() 
@@ -236,7 +236,7 @@ XMOT.interaction.widgets.Widget = new XMOT.Class(
     }, 
 
     /** 
-     *  @this{XMOT.interaction.widgets.Widget}
+     *  @this {XMOT.interaction.widgets.Widget}
      *  @private 
      */
     _destroyGeometry: function()
@@ -246,7 +246,7 @@ XMOT.interaction.widgets.Widget = new XMOT.Class(
     },
 
     /** 
-     *  @this{XMOT.interaction.widgets.Widget}
+     *  @this {XMOT.interaction.widgets.Widget}
      *  @private 
      */
     _destroyBehavior: function()
@@ -262,7 +262,7 @@ XMOT.interaction.widgets.Widget = new XMOT.Class(
     },
 
     /** 
-     *  @this{XMOT.interaction.widgets.Widget}
+     *  @this {XMOT.interaction.widgets.Widget}
      *  @private 
      */
     _onXml3dFrameDrawn: function() 
@@ -280,7 +280,7 @@ XMOT.interaction.widgets.Widget = new XMOT.Class(
     },
 
     /** 
-     *  @this{XMOT.interaction.widgets.Widget}
+     *  @this {XMOT.interaction.widgets.Widget}
      *  @private 
      */
     _onDocumentReady: function() 
@@ -290,7 +290,7 @@ XMOT.interaction.widgets.Widget = new XMOT.Class(
     }, 
 
     /** 
-     *  @this{XMOT.interaction.widgets.Widget}
+     *  @this {XMOT.interaction.widgets.Widget}
      *  @private 
      */
     _onTargetXfmChanged: function() 
@@ -299,7 +299,7 @@ XMOT.interaction.widgets.Widget = new XMOT.Class(
     },
 
     /** 
-     *  @this{XMOT.interaction.widgets.Widget}
+     *  @this {XMOT.interaction.widgets.Widget}
      *  @private 
      */
     _createDefsElements: function()
@@ -307,7 +307,7 @@ XMOT.interaction.widgets.Widget = new XMOT.Class(
         // root
         this.geo.addTransforms("t_root");
         
-        this._updateDefsElements(); 
+        this._updateDefsElements();
     }, 
     
     _updateDefsElements: function() {
@@ -339,7 +339,7 @@ XMOT.interaction.widgets.Widget = new XMOT.Class(
     }, 
 
     /** 
-     *  @this{XMOT.interaction.widgets.Widget}
+     *  @this {XMOT.interaction.widgets.Widget}
      *  @private 
      */
     _createGraph: function()

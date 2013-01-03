@@ -11,7 +11,7 @@ XMOT.interaction.widgets.UniformScaler = new XMOT.Class(
     XMOT.interaction.widgets.Widget, {
         
     /** 
-     *  @this{XMOT.interaction.widgets.UniformScaler}
+     *  @this {XMOT.interaction.widgets.UniformScaler}
      *  @override
      *  @protected
      */
@@ -30,7 +30,7 @@ XMOT.interaction.widgets.UniformScaler = new XMOT.Class(
     },
     
     /** 
-     *  @this{XMOT.interaction.widgets.UniformScaler}
+     *  @this {XMOT.interaction.widgets.UniformScaler}
      *  @override
      *  @protected
      */
@@ -52,7 +52,7 @@ XMOT.interaction.widgets.UniformScaler = new XMOT.Class(
     },
     
     /** 
-     *  @this{XMOT.interaction.widgets.UniformScaler}
+     *  @this {XMOT.interaction.widgets.UniformScaler}
      *  @override
      *  @protected
      */
@@ -89,7 +89,7 @@ XMOT.interaction.widgets.UniformScaler = new XMOT.Class(
     },
     
     /** 
-     *  @this{XMOT.interaction.widgets.UniformScaler}
+     *  @this {XMOT.interaction.widgets.UniformScaler}
      *  @override
      *  @protected
      */
@@ -110,7 +110,7 @@ XMOT.interaction.widgets.UniformScaler = new XMOT.Class(
     // --------------------------------
 
     /** 
-     *  @this{XMOT.interaction.widgets.UniformScaler}
+     *  @this {XMOT.interaction.widgets.UniformScaler}
      *  @private 
      */
     _activateHandles: function()
@@ -120,7 +120,7 @@ XMOT.interaction.widgets.UniformScaler = new XMOT.Class(
     },
 
     /** 
-     *  @this{XMOT.interaction.widgets.UniformScaler}
+     *  @this {XMOT.interaction.widgets.UniformScaler}
      *  @private 
      */
     _deactivateHandles: function()
@@ -133,7 +133,7 @@ XMOT.interaction.widgets.UniformScaler = new XMOT.Class(
     // -- DOM helpers --
     // --------------------------------
     /** 
-     *  @this{XMOT.interaction.widgets.UniformScaler}
+     *  @this {XMOT.interaction.widgets.UniformScaler}
      *  @private
      *   
      *  @param {string} localTransformID id of the transform element the created group will refer to

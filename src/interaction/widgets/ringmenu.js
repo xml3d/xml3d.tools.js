@@ -48,7 +48,7 @@ XMOT.interaction.widgets.RingMenu = new XMOT.Class(
     },
 
     /** 
-     *  @this{XMOT.interaction.widgets.RingMenu}
+     *  @this {XMOT.interaction.widgets.RingMenu}
      *  @override
      *  @protected
      */
@@ -78,7 +78,7 @@ XMOT.interaction.widgets.RingMenu = new XMOT.Class(
     }, 
 
     /** 
-     *  @this{XMOT.interaction.widgets.RingMenu}
+     *  @this {XMOT.interaction.widgets.RingMenu}
      *  @override
      *  @protected
      */
@@ -103,7 +103,7 @@ XMOT.interaction.widgets.RingMenu = new XMOT.Class(
     }, 
 
     /** 
-     *  @this{XMOT.interaction.widgets.RingMenu}
+     *  @this {XMOT.interaction.widgets.RingMenu}
      *  @override
      *  @protected
      */
