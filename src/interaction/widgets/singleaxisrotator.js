@@ -94,7 +94,7 @@ XMOT.interaction.widgets.SingleAxisRotator = new XMOT.Class(
     {
         // variables
         var targetInvScale = XMOT.math.vecInverseScale(
-            this.target.object.getWorldMatrix().scale().scale(1.15));
+            this.target.object.getWorldMatrix().scaling().scale(1.15));
 
         var handleFac = 0.05; // scaling of handles (are 1x1x1 boxes, so scale them down)
 

@@ -171,7 +171,7 @@ XMOT.interaction.widgets.RotatorBox = new XMOT.Class(
         this._activeRotFace = target;
 
         // calculate inverse scale of target's global matrix
-        var invScale = XMOT.math.vecInverseScale(globMat.scale());
+        var invScale = XMOT.math.vecInverseScale(globMat.scaling());
         var tArrowRoot = XMOT.util.transform(this._arrows["root"]); 
         tArrowRoot.setAttribute("scale", invScale.str());
 
@@ -321,8 +321,7 @@ XMOT.interaction.widgets.RotatorBox = new XMOT.Class(
      */ 
     _createGeoDefsTransforms: function()
     {
-        var invGlobMat = this.target.object.getWorldMatrix().inverse();
-        var invScale = new window.XML3DVec3(invGlobMat.m11, invGlobMat.m22, invGlobMat.m33);
+        var invScale = this.target.object.getWorldMatrix().inverse().scaling();
 
         // variables
         var arrowFac = 0.07 * this._arrowScaleFactor;

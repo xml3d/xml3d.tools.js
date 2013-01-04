@@ -18,7 +18,7 @@ XMOT.interaction.widgets.UniformScaler = new XMOT.Class(
     onTargetXfmChanged: function()
     {
         var targetInvScale = XMOT.math.vecInverseScale(
-            this.target.object.getWorldMatrix().scale().scale(1.15));
+            this.target.object.getWorldMatrix().scaling().scale(1.15));
 
         var cubeFac = 0.1; // scaling of cubes (also here those boxes)
         var cube_scale = targetInvScale.scale(cubeFac);

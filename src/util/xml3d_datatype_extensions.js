@@ -273,14 +273,14 @@
         return new window.XML3DVec3(this.m41, this.m42, this.m43); 
     };
 
-    /** 
-     * Return the scale of this matrix as XML3DVec3. 
-     * 
-     * @this {XML3DMatrix} 
-     * 
-     * @return {XML3DVec3} the scale component of the matrix 
+    /**
+     * Return the scaling factor of this matrix as XML3DVec3.
+     *
+     * @this {XML3DMatrix}
+     *
+     * @return {XML3DVec3} the scale component of the matrix
      */
-    p.scale = function() 
+    p.scaling = function()
     {   
         var v = new window.XML3DVec3(); 
         
