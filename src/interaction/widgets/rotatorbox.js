@@ -1,5 +1,5 @@
 
-XMOT.namespace("XMOT.interaction.widgets"); 
+XMOT.namespace("XMOT.interaction.widgets");
 
 /**
  * A RotatorBox is composed of an invisible box that lets you translate the target object
@@ -8,7 +8,7 @@ XMOT.namespace("XMOT.interaction.widgets");
  *
  * If you click on the side of that box arrows for rotation popup,
  * with which you can rotate the target in 90 degree-steps.
- * 
+ *
  * @extends XMOT.interaction.widgets.Widget
  */
 XMOT.interaction.widgets.RotatorBox = new XMOT.Class(
@@ -18,7 +18,7 @@ XMOT.interaction.widgets.RotatorBox = new XMOT.Class(
      *  the _target node, i.e. adding it to the _target's parent node children.
      *
      *  @this {XMOT.interaction.widgets.RotatorBox}
-     *   
+     *
      *  @param {string} _id the id if this XMOT.interaction.widgets.TransformBox and also the id of the corresponding root group node
      *  @param {XMOT.Transformable} _target
      *  @param {number} [_arrowScaleFac] scales the arrows with the given factor. Default: 1
@@ -27,8 +27,8 @@ XMOT.interaction.widgets.RotatorBox = new XMOT.Class(
      *  one is created. If the _target's parent node is not a group node an exception is thrown.
      */
     initialize: function(_id, _target, _arrowScaleFac)
-    {    
-        /** @private */ 
+    {
+        /** @private */
         this._arrowScaleFactor = 1;
         if(_arrowScaleFac)
             this._arrowScaleFactor = _arrowScaleFac;
@@ -41,17 +41,17 @@ XMOT.interaction.widgets.RotatorBox = new XMOT.Class(
         this._activeRotFace = null;
         /** all arrow geometry groups. Maps name to DOM element. Valid keys are
          *  "root", "left", "bot", "right", "top"
-         *  @private 
+         *  @private
          */
         this._arrows = {};
-        
-        this.callSuper(_id, _target); 
+
+        this.callSuper(_id, _target);
     },
 
-    /** 
-     *  @this {XMOT.interaction.widgets.RotatorBox} 
+    /**
+     *  @this {XMOT.interaction.widgets.RotatorBox}
      *  @override
-     *  @protected 
+     *  @protected
      */
     onCreateDefsElements: function()
     {
@@ -60,75 +60,75 @@ XMOT.interaction.widgets.RotatorBox = new XMOT.Class(
         this._createGeoDefsDatas();
     },
 
-    /** 
-     *  @this {XMOT.interaction.widgets.RotatorBox} 
+    /**
+     *  @this {XMOT.interaction.widgets.RotatorBox}
      *  @override
-     *  @protected 
+     *  @protected
      */
     onCreateGraph: function()
     {
         // arrows
-        this._arrows = {}; 
-        
+        this._arrows = {};
+
         this._addArrowGroup("left");
         this._addArrowGroup("bot");
         this._addArrowGroup("right");
         this._addArrowGroup("top");
 
         this._arrows["root"] = XMOT.creation.element("group", {
-            id: this.globalID("arrow_root"), 
-            transform: "#" + this.globalID("t_arrow_root"), 
+            id: this.globalID("arrow_root"),
+            transform: "#" + this.globalID("t_arrow_root"),
             children: [
-                 this._arrows["left"], 
-                 this._arrows["bot"], 
-                 this._arrows["right"], 
+                 this._arrows["left"],
+                 this._arrows["bot"],
+                 this._arrows["right"],
                  this._arrows["top"]
             ]
-        }); 
+        });
     },
 
-    /** 
-     *  @this {XMOT.interaction.widgets.RotatorBox} 
+    /**
+     *  @this {XMOT.interaction.widgets.RotatorBox}
      *  @override
-     *  @protected 
+     *  @protected
      */
     onCreateBehavior: function()
     {
         // translation handles
         this.behavior["transbox"] = new XMOT.interaction.widgets.TranslateBox(
             this.globalID("transbox"), this.target
-        ); 
-        
+        );
+
         this.behavior["transbox"].addListener("touch", this.callback("_handleTransTouch"));
     },
 
-    /** 
-     *  @this {XMOT.interaction.widgets.RotatorBox} 
+    /**
+     *  @this {XMOT.interaction.widgets.RotatorBox}
      *  @override
-     *  @protected 
+     *  @protected
      */
     onDestroyGeometry: function()
     {
-        this._deactivateArrow(); 
-        this._arrows = null; 
+        this._deactivateArrow();
+        this._arrows = null;
     },
 
     // ========================================================================
     // --- Private ---
     // ========================================================================
-    
+
     // --- Behavior Callbacks ---
 
-    /** Activate/deactive the arrow geometry. Callback from 
-     *  XMOT.interaction.widgets.TranslateBox. 
-     *  
-     *  @this {XMOT.interaction.widgets.RotatorBox} 
+    /** Activate/deactive the arrow geometry. Callback from
+     *  XMOT.interaction.widgets.TranslateBox.
+     *
+     *  @this {XMOT.interaction.widgets.RotatorBox}
      *  @private
-     *  
+     *
      *  @param {XMOT.interaction.widgets.TranslateBox} translbox
      *  @param {XMOT.interaction.behaviors.PDSensor} sensor the underlying sensor that caused the touch
-     *  @param {MouseEvent} evt the original mouse event that raised the event 
-     */ 
+     *  @param {MouseEvent} evt the original mouse event that raised the event
+     */
     _handleTransTouch: function(translbox, sensor, evt)
     {
         // only popup on "bare" touches
@@ -136,10 +136,10 @@ XMOT.interaction.widgets.RotatorBox = new XMOT.Class(
         {
             if(!this._arrows["root"] || !sensor.pickGroups[0])
                 return;
-            
+
             // hit arrow, do nothing
             if(this._isArrowMesh(sensor.curHitElement))
-                return; 
+                return;
 
             if(this._activeRotFace)
             {
@@ -156,38 +156,38 @@ XMOT.interaction.widgets.RotatorBox = new XMOT.Class(
         }
     },
 
-    /** Place the arrow geometry under the given target group and setup callbacks. 
-     * 
+    /** Place the arrow geometry under the given target group and setup callbacks.
+     *
      *  @this {XMOT.interaction.widgets.RotatorBox}
      *  @private
-     *  
+     *
      *  @param {!Object} target
      */
     _activateArrow: function(target)
     {
         var globMat = target.getWorldMatrix();
- 
+
         target.appendChild(this._arrows["root"]);
         this._activeRotFace = target;
 
         // calculate inverse scale of target's global matrix
         var invScale = XMOT.math.vecInverseScale(globMat.scaling());
-        var tArrowRoot = XMOT.util.transform(this._arrows["root"]); 
+        var tArrowRoot = XMOT.util.transform(this._arrows["root"]);
         tArrowRoot.setAttribute("scale", invScale.str());
 
         // arrows
-        this._arrows["left"].addEventListener("click", 
+        this._arrows["left"].addEventListener("click",
             this.callback("_onRotateLeft"), false);
-        this._arrows["right"].addEventListener("click", 
+        this._arrows["right"].addEventListener("click",
             this.callback("_onRotateRight"), false);
-        this._arrows["top"].addEventListener("click", 
+        this._arrows["top"].addEventListener("click",
             this.callback("_onRotateUp"), false);
-        this._arrows["bot"].addEventListener("click", 
+        this._arrows["bot"].addEventListener("click",
             this.callback("_onRotateDown"), false);
     },
 
-    /** Remove the arrow geometry under the given target group. 
-     * 
+    /** Remove the arrow geometry under the given target group.
+     *
      *  @this {XMOT.interaction.widgets.RotatorBox}
      *  @private
      */
@@ -205,7 +205,7 @@ XMOT.interaction.widgets.RotatorBox = new XMOT.Class(
     /**
      *  @this {XMOT.interaction.widgets.RotatorBox}
      *  @private
-     *  
+     *
      *  @param {MouseEvent} evt
      */
     _onRotateLeft: function(evt)
@@ -216,7 +216,7 @@ XMOT.interaction.widgets.RotatorBox = new XMOT.Class(
     /**
      *  @this {XMOT.interaction.widgets.RotatorBox}
      *  @private
-     *  
+     *
      *  @param {MouseEvent} evt
      */
     _onRotateRight: function(evt)
@@ -227,7 +227,7 @@ XMOT.interaction.widgets.RotatorBox = new XMOT.Class(
     /**
      *  @this {XMOT.interaction.widgets.RotatorBox}
      *  @private
-     *  
+     *
      *  @param {MouseEvent} evt
      */
     _onRotateUp: function(evt)
@@ -238,7 +238,7 @@ XMOT.interaction.widgets.RotatorBox = new XMOT.Class(
     /**
      *  @this {XMOT.interaction.widgets.RotatorBox}
      *  @private
-     *  
+     *
      *  @param {MouseEvent} evt
      */
     _onRotateDown: function(evt)
@@ -246,11 +246,11 @@ XMOT.interaction.widgets.RotatorBox = new XMOT.Class(
         this._arrowRotate(new window.XML3DVec3(1, 0, 0));
     },
 
-    /** Perform a 90 degree rotation around the given axis 
-     * 
-     *  @this {XMOT.interaction.widgets.RotatorBox} 
+    /** Perform a 90 degree rotation around the given axis
+     *
+     *  @this {XMOT.interaction.widgets.RotatorBox}
      *  @private
-     *  
+     *
      *  @param {XML3DVec3} localAxis
      *  @param {boolean} negateDirection whether to negate the angle
      */
@@ -271,7 +271,7 @@ XMOT.interaction.widgets.RotatorBox = new XMOT.Class(
         transRot.setAxisAngle(transAxis, angle);
 
         // now update root's rotation
-        var rootXfm = this.root.transform; 
+        var rootXfm = this.root.transform;
         var rootRot = rootXfm.rotation;
         var newRot = rootRot.multiply(transRot);
 
@@ -286,10 +286,10 @@ XMOT.interaction.widgets.RotatorBox = new XMOT.Class(
     // --- Creation/Destruction ---
     // ------------------------------------------------------------------------
 
-    /** 
-     *  @this {XMOT.interaction.widgets.RotatorBox}  
-     *  @private 
-     */ 
+    /**
+     *  @this {XMOT.interaction.widgets.RotatorBox}
+     *  @private
+     */
     _createGeoDefsShaders: function()
     {
         var colStr = "0.9 0.9 0.9";
@@ -304,21 +304,21 @@ XMOT.interaction.widgets.RotatorBox = new XMOT.Class(
 
         // arrows
         this.geo.addShaders("s_arrow", {
-            diffCol: arrowColStr, 
-            transp: arrowTranspStr, 
+            diffCol: arrowColStr,
+            transp: arrowTranspStr,
             ambInt: arrowAmbIntStr
         });
         this.geo.addShaders("s_arrow_highlight", {
-            diffCol: arrowHighColStr, 
-            transp: arrowTranspStr, 
+            diffCol: arrowHighColStr,
+            transp: arrowTranspStr,
             ambInt: arrowAmbIntStr
         });
     },
 
-    /** 
-     *  @this {XMOT.interaction.widgets.RotatorBox} 
-     *  @private 
-     */ 
+    /**
+     *  @this {XMOT.interaction.widgets.RotatorBox}
+     *  @private
+     */
     _createGeoDefsTransforms: function()
     {
         var invScale = this.target.object.getWorldMatrix().inverse().scaling();
@@ -351,10 +351,10 @@ XMOT.interaction.widgets.RotatorBox = new XMOT.Class(
         });
     },
 
-    /** 
-     *  @this {XMOT.interaction.widgets.RotatorBox} 
-     *  @private 
-     */ 
+    /**
+     *  @this {XMOT.interaction.widgets.RotatorBox}
+     *  @private
+     */
     _createGeoDefsDatas: function()
     {
         var arr = XMOT.creation.data({
@@ -370,19 +370,19 @@ XMOT.interaction.widgets.RotatorBox = new XMOT.Class(
 
     // ------------------------------------------------------------------------
     // --- General Helpers ---
-    // ------------------------------------------------------------------------  
-    /** 
-     *  @this {XMOT.interaction.widgets.RotatorBox} 
+    // ------------------------------------------------------------------------
+    /**
+     *  @this {XMOT.interaction.widgets.RotatorBox}
      *  @private
-     *  
-     *  @param {string} side the name of the side where to attach an arrow group. 
-     */   
+     *
+     *  @param {string} side the name of the side where to attach an arrow group.
+     */
     _addArrowGroup: function(side)
     {
-        // the group node 
+        // the group node
         var opts = {};
-        
-        var id = "arrow_" + side; 
+
+        var id = "arrow_" + side;
 
         opts.id = this.globalID(id);
         opts.transform = "#" + this.globalID("t_" + id);
@@ -393,33 +393,33 @@ XMOT.interaction.widgets.RotatorBox = new XMOT.Class(
         // the mesh child
         var arrMeshOpts = {src: "#" + this.globalID("d_arrow")};
         var mesh = XMOT.creation.element("mesh", arrMeshOpts);
-        
+
         grp.appendChild(mesh);
 
         this._arrows[side] = grp;
     },
-    
-    /** Returns true if the given element is a mesh node 
-     *  and points to arrow geometry. 
-     *  
-     *  @this {XMOT.interaction.widgets.RotatorBox} 
+
+    /** Returns true if the given element is a mesh node
+     *  and points to arrow geometry.
+     *
+     *  @this {XMOT.interaction.widgets.RotatorBox}
      *  @private
-     *  
+     *
      *  @param {!Object} el
      *  @return {boolean}
      */
     _isArrowMesh: function(el)
     {
         if(el.tagName !== "mesh")
-            return false; 
-        
+            return false;
+
         if(!el.src)
-            return false; 
-        
-        var srcRef = "#" + this.globalID("d_arrow"); 
+            return false;
+
+        var srcRef = "#" + this.globalID("d_arrow");
         if(el.src === srcRef)
-            return true; 
-        
-        return false; 
+            return true;
+
+        return false;
     }
 });
