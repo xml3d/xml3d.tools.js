@@ -274,8 +274,8 @@ XMOT.interaction.widgets.RotatorBox = new XMOT.Class(
         var rootXfm = this.root.transform; 
         var rootRot = rootXfm.rotation;
         var newRot = rootRot.multiply(transRot);
-        
-        this.root.setOrientation(newRot.getQuaternion());
+
+        this.root.setOrientation(newRot);
 
         // detach the arrow's geometry
         this._deactivateArrow();
