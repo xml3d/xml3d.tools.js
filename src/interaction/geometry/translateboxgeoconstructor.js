@@ -1,15 +1,6 @@
 XMOT.namespace("XMOT.interaction.geometry");
 
-XMOT.interaction.geometry.TranslateBoxGeoConstructor = new XMOT.Class({
-
-    /**
-     *  @this {XMOT.interaction.geometry.TranslateBoxGeoConstructor}
-     *  @param {XMOT.interaction.widgets.Widget} widget
-     */
-    initialize: function(widget)
-    {
-        this.geo = widget.geo;
-    },
+XMOT.interaction.geometry.TranslateBoxGeoConstructor = new XMOT.Class(XMOT.interaction.geometry.GeoConstructor, {
 
     /**
      *  @this {XMOT.interaction.geometry.TranslateBoxGeoConstructor}

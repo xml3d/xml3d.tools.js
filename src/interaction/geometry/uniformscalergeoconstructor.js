@@ -1,15 +1,6 @@
 XMOT.namespace("XMOT.interaction.geometry");
 
-XMOT.interaction.geometry.UniformScalerGeoConstructor = new XMOT.Class({
-
-    /**
-     *  @this {XMOT.interaction.geometry.UniformScalerGeoConstructor}
-     *  @param {XMOT.interaction.widgets.Widget} widget
-     */
-    initialize: function(widget)
-    {
-        this.geo = widget.geo;
-    },
+XMOT.interaction.geometry.UniformScalerGeoConstructor = new XMOT.Class(XMOT.interaction.geometry.GeoConstructor, {
 
     /**
      *  @this {XMOT.interaction.geometry.UniformScalerGeoConstructor}

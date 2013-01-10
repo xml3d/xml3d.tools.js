@@ -1,6 +1,6 @@
 XMOT.namespace("XMOT.interaction.geometry");
 
-XMOT.interaction.geometry.SingleAxisRotatorGeoConstructor = new XMOT.Class({
+XMOT.interaction.geometry.SingleAxisRotatorGeoConstructor = new XMOT.Class(XMOT.interaction.geometry.GeoConstructor, {
 
     /**
      *  @this {XMOT.interaction.geometry.SingleAxisRotatorGeoConstructor}
@@ -8,8 +8,7 @@ XMOT.interaction.geometry.SingleAxisRotatorGeoConstructor = new XMOT.Class({
      */
     initialize: function(widget)
     {
-        this.geo = widget.geo;
-        this.targetNode = widget.target.object;
+        this.callSuper(widget);
 
         this.rotationAxis = "y";
         this.color = "0.9 0.9 0.9";

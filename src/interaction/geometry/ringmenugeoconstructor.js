@@ -1,6 +1,6 @@
 XMOT.namespace("XMOT.interaction.geometry");
 
-XMOT.interaction.geometry.RingMenuGeoConstructor = new XMOT.Class({
+XMOT.interaction.geometry.RingMenuGeoConstructor = new XMOT.Class(XMOT.interaction.geometry.GeoConstructor, {
 
     /**
      *  @this {XMOT.interaction.geometry.RingMenuGeoConstructor}
@@ -8,8 +8,7 @@ XMOT.interaction.geometry.RingMenuGeoConstructor = new XMOT.Class({
      */
     initialize: function(widget)
     {
-        this.geo = widget.geo;
-        this.targetNode = widget.target.object;
+        this.callSuper(widget);
 
         // explicit pointers to the arrow geometries
         // constructed during createGraph()

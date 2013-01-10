@@ -1,6 +1,6 @@
 XMOT.namespace("XMOT.interaction.geometry");
 
-XMOT.interaction.geometry.RotatorBoxGeoConstructor = new XMOT.Class({
+XMOT.interaction.geometry.RotatorBoxGeoConstructor = new XMOT.Class(XMOT.interaction.geometry.GeoConstructor, {
 
     /**
      *  @this {XMOT.interaction.geometry.RotatorBoxGeoConstructor}
@@ -8,8 +8,7 @@ XMOT.interaction.geometry.RotatorBoxGeoConstructor = new XMOT.Class({
      */
     initialize: function(widget)
     {
-        this.geo = widget.geo;
-        this.targetNode = widget.target.object;
+        this.callSuper(widget);
 
         /** all arrow geometry groups. Maps name to DOM element. Valid keys are
          *  "root", "left", "bot", "right", "top"
