@@ -14,8 +14,9 @@
      *
      * @constructor
      * @param {!Object} _targetNode the node to track
+     * @param {function(targetNode:!Object,evt:!Event)=} onXfmChanged method that should be called when transformation changed
      */
-    var TransformTracker = function(_targetNode)
+    var TransformTracker = function(_targetNode, onXfmChanged)
     {
         if(!_targetNode)
             throw "TransformTracker: no target node specified.";
@@ -25,6 +26,9 @@
             throw "TransformTracker: given node is not a child of an xml3d element.";
 
         this.targetNode = _targetNode;
+
+        if(onXfmChanged)
+        	this.xfmChanged = onXfmChanged;
 
         /** @private */
         this._attached = false;
