@@ -16,7 +16,7 @@ XMOT.namespace("XMOT.interaction.widgets");
 XMOT.interaction.widgets.Widget = new XMOT.Class(
     XMOT.util.Observable, {
 
-    /** Sets up the basic construct for a widget and attaches it. 
+    /** Sets up the basic construct for a widget and attaches it(!).  
      *
      *  @this {XMOT.interaction.widgets.Widget}
      *  
@@ -56,10 +56,10 @@ XMOT.interaction.widgets.Widget = new XMOT.Class(
         /** @private */ 
         this._autoScaleAdj = (_autoScaleAdj !== undefined) ? _autoScaleAdj : true; 
         
-        this._isAttached = false; 
-        this.attach(); 
-        
     	this.xml3d.addEventListener("framedrawn", this.callback("_onXml3dFrameDrawn"), false);
+        
+        this._isAttached = false; 
+        this.attach();
     },
     
     /** @this {XMOT.interaction.widgets.Widget} */

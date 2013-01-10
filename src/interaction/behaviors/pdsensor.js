@@ -23,6 +23,12 @@ if(!XMOT.interaction.behaviors)
  */
 XMOT.interaction.behaviors.PDSensor = new XMOT.Class(
     XMOT.util.Observable, {
+    	
+    listenerTypes: [                        
+        "dragstart", "drag", "dragend", // args (this, MouseEvent) 
+        "touch", 						// args (this, MouseEvent "mouseup"), drag executed on same location
+        "attach", "detach" 				// args (),  raised during calls to attach()/detach()
+    ], 
 
     /** Constructor of PDSensor
      * @this {XMOT.interaction.behaviors.PDSensor}
@@ -31,14 +37,9 @@ XMOT.interaction.behaviors.PDSensor = new XMOT.Class(
      * @param {Array.<Object>} grps the groups this sensor should look for. All should have the same xml3d root element. 
      */
     initialize: function(id, grps)
-    {        
-        // setup listener manager
-        this.callSuper([                        
-            "dragstart", "drag", "dragend", // args (this, MouseEvent) 
-            "touch", // args (this, MouseEvent "mouseup"), drag executed on same location
-            "attach", "detach" // args (),  raised during calls to attach()/detach()
-        ]); 
-        
+    {         
+    	this.callSuper(); 
+    	
         this.ID = id;
         this.xml3d = XMOT.util.getXml3dRoot(grps[0]); 
         this.pickGroups = grps;

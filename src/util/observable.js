@@ -1,7 +1,10 @@
 
 /** This class manages listeners for given events, for a variable number of arguments.
+ *    
  *  It holds a map from event names to listeners. The event names can be managed 
- *  through add/removeListenerTypes() and isListenerType(). 
+ *  through add/removeListenerTypes() and isListenerType(). Also derived classes 
+ *  may define a property "listenerTypes", that will be automatically parsed during 
+ *  the Observable's constructor.  
  *  
  *  To register an event, addListener() should be called with the associated event 
  *  name and a callback method. 
@@ -17,14 +20,16 @@ XMOT.util.Observable = new XMOT.Class({
      *  @param listenerTypes a single name or an array of names for 
      *        listener types
      */
-    initialize: function(listenerTypes)
+    initialize: function()
     {
         /** @private */
         this._listeners = {};
         /** @private */ 
         this._listenerTypes = {};
         
-        this.addListenerTypes(listenerTypes);
+        // initialize types from derived classes
+        if(this.listenerTypes) 
+            this.addListenerTypes(this.listenerTypes);
     },
 
     /** Remembers the given (array of) event name as valid event names.

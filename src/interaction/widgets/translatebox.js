@@ -10,6 +10,10 @@ XMOT.namespace("XMOT.interaction.widgets");
  */
 XMOT.interaction.widgets.TranslateBox = new XMOT.Class(
     XMOT.interaction.widgets.Widget, {
+
+    listenerTypes: [
+       "dragstart", "dragend", "touch"// args: (this, sensor, original event)   
+    ],  
     
     /** 
      *  @inheritDoc 
@@ -19,9 +23,6 @@ XMOT.interaction.widgets.TranslateBox = new XMOT.Class(
     {        
         this.callSuper(_id, _target); 
        
-        this.addListenerTypes([
-           "dragstart", "dragend", "touch"// args: (this, sensor, original event)   
-        ]); 
     }, 
 
     /** 

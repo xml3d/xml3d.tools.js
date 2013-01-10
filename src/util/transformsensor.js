@@ -13,6 +13,10 @@
  */
 XMOT.TransformSensor = new XMOT.Class(
     XMOT.util.Observable, {
+    	
+	listenerTypes: [
+        "start", "end" // args (this) 
+    ], 
 
     /** Initializes the sensor with the given values and attaches the sensor to
      *  the target groups.
@@ -24,11 +28,9 @@ XMOT.TransformSensor = new XMOT.Class(
      *  @param {XML3DBox} _bbox the bounding box to intersect the target groups with
      */
     initialize: function(_id, _tarGrps, _bbox)
-    {        
-        this.callSuper([
-            "start", "end" // args (this) 
-        ]); 
-
+    {
+    	this.callSuper();
+    	
         this.ID = _id;
         this.xml3d = XMOT.util.getXml3dRoot(_tarGrps[0]);
         this.targetGrps = _tarGrps;
