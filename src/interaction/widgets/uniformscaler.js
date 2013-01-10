@@ -10,7 +10,7 @@ XMOT.namespace("XMOT.interaction.widgets");
 XMOT.interaction.widgets.UniformScaler = new XMOT.Class(
     XMOT.interaction.widgets.Widget, {
 
-    geometryConstructorType: XMOT.interaction.geometry.UniformScalerGeometryConstructor,
+    GeoConstructorType: XMOT.interaction.geometry.UniformScalerGeoConstructor,
 
     /**
      *  @this {XMOT.interaction.widgets.UniformScaler}

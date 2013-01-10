@@ -1,6 +1,6 @@
 XMOT.namespace("XMOT.interaction.geometry");
 
-XMOT.interaction.geometry.RingMenuGeometryConstructor = new XMOT.Class({
+XMOT.interaction.geometry.RingMenuGeoConstructor = new XMOT.Class({
 
 	initialize: function(widget)
 	{

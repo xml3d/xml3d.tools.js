@@ -51,8 +51,8 @@ XMOT.interaction.widgets.Widget = new XMOT.Class(
         this.root = XMOT.ClientMotionFactory.createTransformable(rootGrp);
 
         this.geo = new XMOT.util.GeoObject(this.ID, this.xml3d, rootGrp);
-        if(this.geometryConstructorType)
-            this.geoConstructor = new this.geometryConstructorType(this);
+        if(this.GeoConstructorType)
+            this.geoConstructor = new this.GeoConstructorType(this);
         this.behavior = {}; // localID -> behavior, storage for all sensors and alike
 
         /** @private */

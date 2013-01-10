@@ -14,7 +14,7 @@ XMOT.namespace("XMOT.interaction.widgets");
 XMOT.interaction.widgets.RotatorBox = new XMOT.Class(
     XMOT.interaction.widgets.Widget, {
 
-    geometryConstructorType: XMOT.interaction.geometry.RotatorBoxGeometryConstructor,
+    GeoConstructorType: XMOT.interaction.geometry.RotatorBoxGeoConstructor,
 
     /** Creates the geometry and behavior for the XMOT.interaction.widgets.RotatorBox and attaches it to
      *  the _target node, i.e. adding it to the _target's parent node children.

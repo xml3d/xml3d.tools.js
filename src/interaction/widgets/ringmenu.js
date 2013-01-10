@@ -10,7 +10,7 @@ XMOT.namespace("XMOT.interaction.widgets");
 XMOT.interaction.widgets.RingMenu = new XMOT.Class(
     XMOT.interaction.widgets.Widget, {
 
-	geometryConstructorType: XMOT.interaction.geometry.RingMenuGeometryConstructor,
+    GeoConstructorType: XMOT.interaction.geometry.RingMenuGeoConstructor,
 
     /** Setup the ring menu and attach it to the target group.
      *

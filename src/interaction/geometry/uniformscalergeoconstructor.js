@@ -1,6 +1,6 @@
 XMOT.namespace("XMOT.interaction.geometry");
 
-XMOT.interaction.geometry.UniformScalerGeometryConstructor = new XMOT.Class({
+XMOT.interaction.geometry.UniformScalerGeoConstructor = new XMOT.Class({
 
 	initialize: function(widget)
 	{
