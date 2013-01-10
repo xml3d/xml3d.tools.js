@@ -53,16 +53,16 @@
     /** @inheritDoc */
     c.constrainTranslation = function(newPosition, opts){
         if(!opts || !opts.transformable)
-            throw "ProhibitAxisMovementConstraint.constrainTranslation: no transformable in options given."; 
-            
+            throw "ProhibitAxisMovementConstraint.constrainTranslation: no transformable in options given.";
+
     	var center = this.center;
     	var epsilon = this.epsilon;
     	var currentPosition = opts.transformable.getPosition();
-    	
+
 		if(this.x && Math.abs(center - newPosition.x) > epsilon) newPosition.x = currentPosition.x;
 		if(this.y && Math.abs(center - newPosition.y) > epsilon) newPosition.y = currentPosition.y;
 		if(this.z && Math.abs(center - newPosition.z) > epsilon) newPosition.z = currentPosition.z;
-		
+
     	return true;
     };
 

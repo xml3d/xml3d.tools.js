@@ -1,5 +1,5 @@
 
-XMOT.namespace("XMOT.interaction.behaviors"); 
+XMOT.namespace("XMOT.interaction.behaviors");
 
 /** A plane sensor is a pointing device sensor that maps the movement of
  *  the pointing device on a plane. Listeners can be registered for the
@@ -8,13 +8,13 @@ XMOT.namespace("XMOT.interaction.behaviors");
  *  In this case the translation property gives the translation since the
  *  start of dragging.
  *
- *  In addition a constraint can be specified to adjust the calculated translation. 
+ *  In addition a constraint can be specified to adjust the calculated translation.
  *
  *  One handy thing is the getCanonicalTranslation() method. No matter what the
  *  current plane origin or normal is, this returns the translation in the
  *  canonical [o: (0,0,0), d: (0,0,1)] plane. This comes in handy when
  *  you need to rely on two dimensions (often the case with mouse).
- *  
+ *
  *  @extends XMOT.interaction.behaviors.PDSensor
  */
 
@@ -22,9 +22,9 @@ XMOT.interaction.behaviors.PlaneSensor = new XMOT.Class(
     XMOT.interaction.behaviors.PDSensor,
 {
     /** Constructor of PlaneSensor
-     * 
+     *
      *  @this {XMOT.interaction.behaviors.PlaneSensor}
-     *  
+     *
      *  @param {string} id the id of this sensor
      *  @param {Array.<Object>} grps the groups this sensor should look for
      *  @param {XML3DVec3|!Object} [planeOrient] the group or vector the sensor takes to decide where the plane
@@ -37,12 +37,12 @@ XMOT.interaction.behaviors.PlaneSensor = new XMOT.Class(
     {
         this.callSuper(id, grps);
 
-        // the translation in the plane during a drag operation 
+        // the translation in the plane during a drag operation
         this.translation = new window.XML3DVec3(0,0,0);
         // plane origin during a drag operation
         this.planeOrigin = new window.XML3DVec3(0,0,0);
-        
-        /** The translation constraint for constraining the final output value */ 
+
+        /** The translation constraint for constraining the final output value */
         this.constraint = new XMOT.BoxedTranslationConstraint();
 
         /** the offset that is to be used during the drag operation. The translation
@@ -56,7 +56,7 @@ XMOT.interaction.behaviors.PlaneSensor = new XMOT.Class(
          *  for computing the translation along the plane. */
         this.useTransOffset = true;
 
-        this.setPlaneOrientation(planeOrient); 
+        this.setPlaneOrientation(planeOrient);
 
         // setup listeners
         this.addListenerTypes("translchanged");
@@ -71,10 +71,10 @@ XMOT.interaction.behaviors.PlaneSensor = new XMOT.Class(
      *  normal is.
      *
      *  In this method no constraints are applied!
-     *  
+     *
      *  @this {XMOT.interaction.behaviors.PlaneSensor}
-     * 
-     *  @return {XML3DVec3} 
+     *
+     *  @return {XML3DVec3}
      */
     getCanonicalTranslation: function()
     {
@@ -88,13 +88,13 @@ XMOT.interaction.behaviors.PlaneSensor = new XMOT.Class(
     },
 
     /** Set the plane orientation vector or group.
-     * 
+     *
      *  @this {XMOT.interaction.behaviors.PlaneSensor}
-     *  
+     *
      *  @param {XML3DVec3|Object} planeOrient
-     */    
+     */
     setPlaneOrientation: function(planeOrient)
-    {        
+    {
         // The plane normal calculated during getPlaneNormal().
         this._validPlaneNormal = new window.XML3DVec3(0, 0, 1);
         this._planeNormalValid = false;
@@ -109,38 +109,38 @@ XMOT.interaction.behaviors.PlaneSensor = new XMOT.Class(
                 this._planeNormal = planeOrient;
             else // no vector, assume group
                 this._orientGrp = planeOrient;
-        }        
+        }
     },
 
-    /** Calculate the plane normal. Always use this method to obtain the plane 
+    /** Calculate the plane normal. Always use this method to obtain the plane
      *  normal.
-     *  
+     *
      *  @this {XMOT.interaction.behaviors.PlaneSensor}
-     *  
-     *  @return {XML3DVec3} 
+     *
+     *  @return {XML3DVec3}
      */
     getPlaneNormal: function()
     {
         if(this._planeNormalValid)
-            return this._validPlaneNormal; 
-        
+            return this._validPlaneNormal;
+
         // user set normal
         if(this._planeNormal)
         {
             this._validPlaneNormal = this._planeNormal;
         }
-        // user set group 
+        // user set group
         else if(this._orientGrp)
         {
             var plNorm = new window.XML3DVec3(0, 0, 1);
             this._validPlaneNormal = this._orientGrp.getWorldMatrix().multiplyDir(plNorm);
         }
-        // take view as basis 
+        // take view as basis
         else
         {
             var va = XML3D.util.getOrCreateActiveView(this.xml3d);
-            var wMat = va.getViewMatrix().inverse();   
-            
+            var wMat = va.getViewMatrix().inverse();
+
             this._validPlaneNormal = wMat.multiplyDir(new window.XML3DVec3(0,0,1));
         }
 
@@ -151,15 +151,15 @@ XMOT.interaction.behaviors.PlaneSensor = new XMOT.Class(
     },
 
     // ========================================================================
-    // --- Private --- 
+    // --- Private ---
     // ========================================================================
 
     // --- Drag methods ---
     /** Callback for PDSensor's dragstart event
-     * 
+     *
      *  @this {XMOT.interaction.behaviors.PlaneSensor}
      *  @private
-     * 
+     *
      *  @param {XMOT.interaction.behaviors.PDSensor} sensor
      */
     _onPlaneDragStart: function(sensor)
@@ -169,11 +169,11 @@ XMOT.interaction.behaviors.PlaneSensor = new XMOT.Class(
         this._planeNormalValid = false;
     },
 
-    /** Callback for PDSensor's drag event 
-     * 
+    /** Callback for PDSensor's drag event
+     *
      *  @this {XMOT.interaction.behaviors.PlaneSensor}
      *  @private
-     * 
+     *
      *  @param {XMOT.interaction.behaviors.PDSensor} sensor
      */
     _onPlaneDrag: function(sensor)
@@ -183,16 +183,16 @@ XMOT.interaction.behaviors.PlaneSensor = new XMOT.Class(
             return;
         this._planeHitPoint = hitP;
 
-        this._calcTranslation(); 
+        this._calcTranslation();
 
         this.notifyListeners("translchanged", this);
     },
 
-    /** Callback for PDSensor's dragend event 
-     * 
+    /** Callback for PDSensor's dragend event
+     *
      *  @this {XMOT.interaction.behaviors.PlaneSensor}
      *  @private
-     * 
+     *
      *  @param {XMOT.interaction.behaviors.PDSensor} sensor
      */
     _onPlaneDragEnd: function(sensor)
@@ -201,7 +201,7 @@ XMOT.interaction.behaviors.PlaneSensor = new XMOT.Class(
     },
 
     /** Calculate the hit point on the sensor's plane.
-     * 
+     *
      *  @this {XMOT.interaction.behaviors.PlaneSensor}
      *  @private
      *
@@ -212,26 +212,26 @@ XMOT.interaction.behaviors.PlaneSensor = new XMOT.Class(
         // intersect ray with view plane norm
         var intersectHitP = new window.XML3DVec3();
 
-        if(1 !== XMOT.math.intersectRayPlane(this.pdPose, 
+        if(1 !== XMOT.math.intersectRayPlane(this.pdPose,
             this.planeOrigin, this.getPlaneNormal(), intersectHitP))
         {
             // either didnt hit or whole ray lies on plane
             // ignore it
             return null;
         }
-            
-        return intersectHitP; 
+
+        return intersectHitP;
     },
-    
-    /** Calculate translation based on the current _planeHitPoint 
-     *  and apply translation offset and constrain it. It will set 
-     *  the translation property of this instance. 
-     * 
+
+    /** Calculate translation based on the current _planeHitPoint
+     *  and apply translation offset and constrain it. It will set
+     *  the translation property of this instance.
+     *
      *  @this {XMOT.interaction.behaviors.PlaneSensor}
      *  @private
      */
-    _calcTranslation: function() 
-    {        
+    _calcTranslation: function()
+    {
         var transl = this._planeHitPoint.subtract(this.planeOrigin);
 
         if(this.useTransOffset)
@@ -239,7 +239,7 @@ XMOT.interaction.behaviors.PlaneSensor = new XMOT.Class(
 
         if(this.constraint.constrainTranslation(transl))
         {
-            this.translation = transl;             
+            this.translation = transl;
         }
-    } 
+    }
 });

@@ -1,5 +1,5 @@
 
-XMOT.namespace("XMOT.interaction.behaviors"); 
+XMOT.namespace("XMOT.interaction.behaviors");
 
 /** Simple 2DOF controlled rotator.
  *
@@ -19,12 +19,12 @@ XMOT.namespace("XMOT.interaction.behaviors");
  */
 XMOT.interaction.behaviors.TrackBall = new XMOT.Class({
 
-    /** Initializes the trackball with the dimensions of the tracking space. 
-     * 
-     *  The dimensions are needed to normalize the dragging input. 
-     * 
+    /** Initializes the trackball with the dimensions of the tracking space.
+     *
+     *  The dimensions are needed to normalize the dragging input.
+     *
      *  @this {XMOT.interaction.behaviors.TrackBall}
-     *  
+     *
      *  @param {number} maxX
      *  @param {number} maxY
      */
@@ -33,7 +33,7 @@ XMOT.interaction.behaviors.TrackBall = new XMOT.Class({
         if(maxX && maxY)
             this.setBounds(maxX, maxY);
 
-        this.rotationSpeed = 1; 
+        this.rotationSpeed = 1;
         this.lastRotation = new window.XML3DRotation(); // last rotation calculated in drag()
 
         /** accumulated rotation of the lastRotation values of previous drag operations
@@ -44,7 +44,7 @@ XMOT.interaction.behaviors.TrackBall = new XMOT.Class({
          */
         this.rotationOffset = new XML3DRotation();
 
-        /** 2D start position of dragging 
+        /** 2D start position of dragging
          *  @private
          */
         this._start2DPos = {x:0, y:0};
@@ -54,9 +54,9 @@ XMOT.interaction.behaviors.TrackBall = new XMOT.Class({
 
     /** Sets the maximum x and y values. This is used for
      *  normalizing the 2D positions
-     * 
+     *
      *  @this {XMOT.interaction.behaviors.TrackBall}
-     *  
+     *
      *  @param {number} maxX
      *  @param {number} maxY
      */
@@ -66,19 +66,19 @@ XMOT.interaction.behaviors.TrackBall = new XMOT.Class({
         this.maxY = maxY;
     },
 
-    /** Clear the rotation offset 
-     *  
+    /** Clear the rotation offset
+     *
      *  @this {XMOT.interaction.behaviors.TrackBall}
-     */ 
+     */
     resetRotationOffset: function()
     {
         this.rotationOffset = new window.XML3DRotation();
     },
-    
+
     /** Restrict the rotation to x or y axis
-     * 
+     *
      *  @this {XMOT.interaction.behaviors.TrackBall}
-     *  
+     *
      *  @param {string} [axis] the axis to restrict to. Can be "x", "y" or "z". Default: release
      *      the restriction.
      */
@@ -93,10 +93,10 @@ XMOT.interaction.behaviors.TrackBall = new XMOT.Class({
     },
 
     /** Sets the initial point on the sphere
-     * 
+     *
      *  @this {XMOT.interaction.behaviors.TrackBall}
-     * 
-     *  @param {number} x within [0,maxX] 
+     *
+     *  @param {number} x within [0,maxX]
      *  @param {number} y within [0,maxY]
      */
     dragStart: function(x, y)
@@ -105,7 +105,7 @@ XMOT.interaction.behaviors.TrackBall = new XMOT.Class({
         this._start2DPos.y = y;
     },
 
-    /** Remember the last output rotation as new offset. 
+    /** Remember the last output rotation as new offset.
      *
      *  @this {XMOT.interaction.behaviors.TrackBall}
      */
@@ -115,33 +115,33 @@ XMOT.interaction.behaviors.TrackBall = new XMOT.Class({
     },
 
     /** calculate the rotation from start to current point on sphere.
-     * 
+     *
      *  @this {XMOT.interaction.behaviors.TrackBall}
-     *  
-     *  @param {number} x within [0,maxX] 
+     *
+     *  @param {number} x within [0,maxX]
      *  @param {number} y within [0,maxY]
      *  @return {XML3DRotation} the calculated rotation
      */
     drag: function(x, y)
-    {                
+    {
         var newRot = null;
 
         var fac = this.rotationSpeed * 2.0 * Math.PI;
-        
+
         // clamp too big values
         if(x > this.maxX)
-            x = this.maxX; 
+            x = this.maxX;
         if(y > this.maxY)
-            y = this.maxY; 
-        
-        // calculate deltas from start position 
+            y = this.maxY;
+
+        // calculate deltas from start position
         var dx = (x - this._start2DPos.x) / this.maxX;
-        dx *= fac; 
-        
+        dx *= fac;
+
         var dy = (y - this._start2DPos.y) / this.maxY;
         dy *= fac;
-         
-        var angle = dx + dy; 
+
+        var angle = dx + dy;
 
         // calculate rotation based on the axis restriction
         if(this._axisRestriction == "x")
@@ -161,7 +161,7 @@ XMOT.interaction.behaviors.TrackBall = new XMOT.Class({
             var mx = new window.XML3DRotation(new window.XML3DVec3(0,1,0), dx);
             var my = new window.XML3DRotation(new window.XML3DVec3(1,0,0), dy);
 
-            newRot = mx.multiply(my); 
+            newRot = mx.multiply(my);
         }
 
         this.lastRotation = newRot.multiply(this.rotationOffset);

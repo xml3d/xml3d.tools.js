@@ -213,11 +213,11 @@ XMOT.version = '%VERSION%';
      */
     var Constraint = function(){};
     var c = Constraint.prototype;
-    
+
     /**
-     * Checks if a rotation operation is valid. The first argument might be 
-     * further constrained inside the method. 
-     * 
+     * Checks if a rotation operation is valid. The first argument might be
+     * further constrained inside the method.
+     *
      * @param {XML3DRotation} newRotation Quaternion, the new rotation
      * @param {{transformable: Transformable}} [opts] options for the constraint-check
      * @return {boolean} returns true if the operation is valid, false otherwise
@@ -225,9 +225,9 @@ XMOT.version = '%VERSION%';
     c.constrainRotation = function(newRotation, opts){};
 
     /**
-     * Checks if a translation operation is valid. The first argument might be 
-     * further constrained inside the method. 
-     * 
+     * Checks if a translation operation is valid. The first argument might be
+     * further constrained inside the method.
+     *
      * @param {XML3DVec3} newTranslation, the new translation
      * @param {{transformable: Transformable}} [opts] options for the constraint-check
      * @return {boolean} returns true if the operation is valid, false otherwise
@@ -235,9 +235,9 @@ XMOT.version = '%VERSION%';
     c.constrainTranslation = function(newTranslation, opts){};
 
     /**
-     * Checks if a scaling operation is valid. The first argument might be 
-     * further constrained inside the method. 
-     * 
+     * Checks if a scaling operation is valid. The first argument might be
+     * further constrained inside the method.
+     *
      * @param {XML3DVec3} newScale the new scaling
      * @param {{transformable: Transformable}} [opts] options for the constraint-check
      * @return {boolean} returns true if the operation is valid, false otherwise

@@ -1,11 +1,11 @@
 
-XMOT.namespace("XMOT.interaction.behaviors"); 
+XMOT.namespace("XMOT.interaction.behaviors");
 
 if(!XMOT.interaction)
-    XMOT.interaction = {}; 
+    XMOT.interaction = {};
 
 if(!XMOT.interaction.behaviors)
-    XMOT.interaction.behaviors = {}; 
+    XMOT.interaction.behaviors = {};
 
 /** A simple pointing device sensor.
  *
@@ -16,49 +16,49 @@ if(!XMOT.interaction.behaviors)
  * by a ray), the current hit element and corresponding hit point.
  *
  * Users of the class register handlers to the dragging events
- * "dragstart", "drag" and "dragend". 
- * 
+ * "dragstart", "drag" and "dragend".
+ *
  * @extends XMOT.util.Observable
  *
  */
 XMOT.interaction.behaviors.PDSensor = new XMOT.Class(
     XMOT.util.Observable, {
-    	
-    listenerTypes: [                        
-        "dragstart", "drag", "dragend", // args (this, MouseEvent) 
+
+    listenerTypes: [
+        "dragstart", "drag", "dragend", // args (this, MouseEvent)
         "touch", 						// args (this, MouseEvent "mouseup"), drag executed on same location
         "attach", "detach" 				// args (),  raised during calls to attach()/detach()
-    ], 
+    ],
 
     /** Constructor of PDSensor
      * @this {XMOT.interaction.behaviors.PDSensor}
-     * 
+     *
      * @param {string} id the id of this sensor
-     * @param {Array.<Object>} grps the groups this sensor should look for. All should have the same xml3d root element. 
+     * @param {Array.<Object>} grps the groups this sensor should look for. All should have the same xml3d root element.
      */
     initialize: function(id, grps)
-    {         
-    	this.callSuper(); 
-    	
+    {
+    	this.callSuper();
+
         this.ID = id;
-        this.xml3d = XMOT.util.getXml3dRoot(grps[0]); 
+        this.xml3d = XMOT.util.getXml3dRoot(grps[0]);
         this.pickGroups = grps;
-        
+
         // -- pointing device's pose and hit information --
         this.pdPose = new window.XML3DRay(new window.XML3DVec3(0,0,0), new window.XML3DVec3(0,0,1));
         this.curHitElement = null;
         this.curHitPoint = null; // if hit occured, holds hit point, else is null
 
-        // pointing stuff 
+        // pointing stuff
         /** @private */
-        this._sensorIsActive = false; 
-        /** @private */        
-        this._numObjsOver = 0; // number of objects the sensor is pointing towards 
+        this._sensorIsActive = false;
+        /** @private */
+        this._numObjsOver = 0; // number of objects the sensor is pointing towards
         /** @private */
         this._mouseDownPos = {x: -1, y: -1};
 
-        // attach sensor 
-        /** @private */ 
+        // attach sensor
+        /** @private */
         this._isAttached = false;
         this.attach();
     },
@@ -84,8 +84,8 @@ XMOT.interaction.behaviors.PDSensor = new XMOT.Class(
             this.xml3d.addEventListener("mousemove", this.callback("_onMouseMove"), false);
             this.xml3d.addEventListener("mouseup", this.callback("_onMouseUp"), false);
             window.addEventListener("mouseout", this.callback("_onMouseOutOfCanvas"), false);
-            
-            this.notifyListeners("attach"); 
+
+            this.notifyListeners("attach");
 
             this._isAttached = true;
         }
@@ -111,8 +111,8 @@ XMOT.interaction.behaviors.PDSensor = new XMOT.Class(
             this.xml3d.removeEventListener("mousemove", this.callback("_onMouseMove"), false);
             this.xml3d.removeEventListener("mouseup", this.callback("_onMouseUp"), false);
             window.removeEventListener("mouseout", this.callback("_onMouseOutOfCanvas"), false);
-            
-            this.notifyListeners("detach"); 
+
+            this.notifyListeners("detach");
 
             this._isAttached = false;
         }
@@ -129,14 +129,14 @@ XMOT.interaction.behaviors.PDSensor = new XMOT.Class(
     isActive: function() { return this._sensorIsActive; },
 
     // ========================================================================
-    // --- Private --- 
+    // --- Private ---
     // ========================================================================
 
     // -- Mouse Event Handlers --
     /** onMouseOver: called if pd is moved over the influenced groups
-     * 
+     *
      *  @this {XMOT.interaction.behaviors.PDSensor}
-     *  @private 
+     *  @private
      *  @param {MouseEvent} evt
      */
     _onMouseOver: function(evt)
@@ -145,10 +145,10 @@ XMOT.interaction.behaviors.PDSensor = new XMOT.Class(
     },
 
     /** onMouseOut: called when pd is moved out of influenced groups
-     * 
+     *
      *  @this {XMOT.interaction.behaviors.PDSensor}
      *  @private
-     *   
+     *
      *  @param {MouseEvent} evt
      */
     _onMouseOut: function(evt)
@@ -170,15 +170,15 @@ XMOT.interaction.behaviors.PDSensor = new XMOT.Class(
 	},
 
     /** onMouseDown: called when primary pd button is pressed over influenced groups
-     * 
+     *
      *  @this {XMOT.interaction.behaviors.PDSensor}
-     *  @private 
+     *  @private
      *  @param {MouseEvent} evt
      */
     _onMouseDown: function(evt)
     {
-    	evt.stopPropagation(); 
-    	
+    	evt.stopPropagation();
+
         this._mouseDownPos = {x: evt.pageX, y: evt.pageY};
 
         this._pickAndUpdateStatus(evt.pageX, evt.pageY);
@@ -191,28 +191,28 @@ XMOT.interaction.behaviors.PDSensor = new XMOT.Class(
     /** onMouseMove: called whenever the pd is moved
      *  important: it is called when a move happens in xml3d tag,
      *  not just over influenced groups
-     * 
+     *
      *  @this {XMOT.interaction.behaviors.PDSensor}
-     *  @private 
+     *  @private
      *  @param {MouseEvent} evt
      */
     _onMouseMove: function(evt)
-    {    	
+    {
         this._pickAndUpdateStatus(evt.pageX, evt.pageY);
 
         if(this._sensorIsActive)
         {
-        	evt.stopPropagation(); 
-        	
+        	evt.stopPropagation();
+
             this.notifyListeners("drag", this, evt);
         }
     },
 
     /** Called when mouseup on xml3d element.
-     * 
+     *
      *  @this {XMOT.interaction.behaviors.PDSensor}
-     *  @private 
-     *  
+     *  @private
+     *
      *  @param {MouseEvent} evt
      */
     _onMouseUp: function(evt)
@@ -221,8 +221,8 @@ XMOT.interaction.behaviors.PDSensor = new XMOT.Class(
 
         if(this._sensorIsActive)
         {
-        	evt.stopPropagation(); 
-        	
+        	evt.stopPropagation();
+
             this._sensorIsActive = false;
 
             this.notifyListeners("dragend", this, evt);
@@ -238,9 +238,9 @@ XMOT.interaction.behaviors.PDSensor = new XMOT.Class(
     },
 
     /** perform a pick with the given page coordinates and update the internal state.
-     * 
+     *
      *  @this {XMOT.interaction.behaviors.PDSensor}
-     *  @private 
+     *  @private
      *  @param {number} pageX
      *  @param {number} pageY
      */

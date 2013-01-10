@@ -133,43 +133,43 @@ function mergeOptions(high, low){
 	return ret;
 }
 
-/** 
- *  Creates a namespace and subnamespaces, that are contained in the path. 
- * 
- *  @param {string} fullName the full name of the namespace  
- *  
- *  Example: 
- *  
- *  namespace("XMOT.interaction.behaviors"]) will create: 
- *  
+/**
+ *  Creates a namespace and subnamespaces, that are contained in the path.
+ *
+ *  @param {string} fullName the full name of the namespace
+ *
+ *  Example:
+ *
+ *  namespace("XMOT.interaction.behaviors"]) will create:
+ *
  *  XMOT.interaction.behaviors
  */
 function namespace(fullName)
 {
-    var curParentNS = window; 
-    
-    var namespacePath = fullName.split("."); 
-    
+    var curParentNS = window;
+
+    var namespacePath = fullName.split(".");
+
     for(var i = 0; i < namespacePath.length; i++)
     {
         var ns = namespacePath[i];
-        
+
         if(!curParentNS[ns])
-            curParentNS[ns] = {}; 
-        
-        curParentNS = curParentNS[ns]; 
+            curParentNS[ns] = {};
+
+        curParentNS = curParentNS[ns];
     }
 }
 
 /** Extend the target object with all attributes from the source object
- * 
- *  @param tarobj the object to be extended 
- *  @param srcobj the object from which to take the attributes 
+ *
+ *  @param tarobj the object to be extended
+ *  @param srcobj the object from which to take the attributes
  */
 function extend(tarobj, srcobj)
-{ 
+{
     for(var attr in srcobj)
-        tarobj[attr] = srcobj[attr]; 
+        tarobj[attr] = srcobj[attr];
 };
 
 //export
@@ -180,6 +180,6 @@ XMOT.animating = animating;
 XMOT.animationHook = animationHook;
 XMOT.registeredCameraController = registeredCameraController;
 XMOT.mergeOptions = mergeOptions;
-XMOT.namespace = namespace; 
-XMOT.extend = extend; 
+XMOT.namespace = namespace;
+XMOT.extend = extend;
 }());

@@ -18,16 +18,16 @@
 		 * @type {Object}
 		 */
 		this.transform = transform;
-		
+
 		/**
 		 * Constraint of the movement
 		 * @protected
 		 * @type {Constraint}
 		 */
 		if(!constraint)
-			constraint = new XMOT.SimpleConstraint(true, true, true); 
+			constraint = new XMOT.SimpleConstraint(true, true, true);
 		this.constraint = constraint;
-		
+
 		/**
 		 * Queue of movements
 		 * @private

@@ -8,21 +8,21 @@
  * The registered listeners for "start" and "end" have a single argument:
  * the associated transform sensor. Any additional information can be obtained from
  * that sensor.
- * 
+ *
  * @extends XMOT.util.Observable
  */
 XMOT.TransformSensor = new XMOT.Class(
     XMOT.util.Observable, {
-    	
+
 	listenerTypes: [
-        "start", "end" // args (this) 
-    ], 
+        "start", "end" // args (this)
+    ],
 
     /** Initializes the sensor with the given values and attaches the sensor to
      *  the target groups.
-     *  
+     *
      *  @this {XMOT.TransformSensor}
-     *  
+     *
      *  @param {string} _id a unique identifier for this sensor
      *  @param {Array.<Object>} _tarGrps the groups of which to track transformation changes
      *  @param {XML3DBox} _bbox the bounding box to intersect the target groups with
@@ -30,7 +30,7 @@ XMOT.TransformSensor = new XMOT.Class(
     initialize: function(_id, _tarGrps, _bbox)
     {
     	this.callSuper();
-    	
+
         this.ID = _id;
         this.xml3d = XMOT.util.getXml3dRoot(_tarGrps[0]);
         this.targetGrps = _tarGrps;
@@ -41,9 +41,9 @@ XMOT.TransformSensor = new XMOT.Class(
          *
          * The type is: grp -> boolean. I.e. it is a set.
          */
-        this.currentIntersectGrps = []; 
+        this.currentIntersectGrps = [];
 
-        this._isAttached = false; 
+        this._isAttached = false;
         this.attach();
     },
 
@@ -87,10 +87,10 @@ XMOT.TransformSensor = new XMOT.Class(
     },
 
     /** Callback of internally used XMOT.TransformTracker
-     * 
+     *
      *  @this {XMOT.TransformSensor}
      *  @private
-     *  
+     *
      *  @param {!Object} tarNode
      */
     _xfmChanged: function(tarNode)

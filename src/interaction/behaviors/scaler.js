@@ -1,5 +1,5 @@
 
-XMOT.namespace("XMOT.interaction.behaviors"); 
+XMOT.namespace("XMOT.interaction.behaviors");
 
 /** Scaler maps the translation on a plane into a uniform scaling in all 3 dimensions.
  *
@@ -18,16 +18,16 @@ XMOT.namespace("XMOT.interaction.behaviors");
  * world bounding box of the whole widget. The bigger the widget, the less fast the factor
  * increases. If we don't do this, the scaling of the object will grow faster than the mouse
  * position is moving and, thus, flips with the scaling factor can happen.
- * 
+ *
  * @extends XMOT.interaction.behaviors.PlaneSensor
  */
 XMOT.interaction.behaviors.Scaler = new XMOT.Class(
     XMOT.interaction.behaviors.PlaneSensor,
 {
     /** Constructor of Scaler
-     * 
+     *
      *  @this {XMOT.interaction.behaviors.Scaler}
-     *  
+     *
      *  @param {string} id the id of this sensor
      *  @param {Array.<Object>} pickGrps the groups this sensor will listen for events
      *  @param {XMOT.Transformable} targetTransformable the group this sensor will modify. If not given,
@@ -40,17 +40,17 @@ XMOT.interaction.behaviors.Scaler = new XMOT.Class(
     {
         // parent class
         this.callSuper(id, pickGrps, null, null);
-        // do not use the offset, we do that ourselves 
-        // with the help of _startTarGrpScale 
-        this.useTransOffset = false; 
+        // do not use the offset, we do that ourselves
+        // with the help of _startTarGrpScale
+        this.useTransOffset = false;
 
-        this.uniformScale = true; 
+        this.uniformScale = true;
         if(uniformScale)
             this.uniformScale = uniformScale;
 
         if(!targetTransformable)
             targetTransformable = XMOT.ClientMotionFactory.createTransformable(pickGrps[0]);
-        
+
         this.targetTransformable = targetTransformable;
 
         // listeners
@@ -59,13 +59,13 @@ XMOT.interaction.behaviors.Scaler = new XMOT.Class(
     },
 
     // ========================================================================
-    // --- Private --- 
+    // --- Private ---
     // ========================================================================
 
-    /** 
+    /**
      *  @this {XMOT.interaction.behaviors.Scaler}
-     *  @private 
-     *  
+     *  @private
+     *
      *  @param {XMOT.interaction.behaviors.Scaler} sensor
      */
     _onScalePlaneDragStart: function(sensor)
@@ -78,15 +78,15 @@ XMOT.interaction.behaviors.Scaler = new XMOT.Class(
         this._scaleAdjFactor = tarSize.length();
     },
 
-    /** 
+    /**
      *  @this {XMOT.interaction.behaviors.Scaler}
-     *  @private 
-     *  
+     *  @private
+     *
      *  @param {XMOT.interaction.behaviors.Scaler} sensor
      */
     _onScalePlaneTranslChanged: function(sensor)
     {
-        var factor = new window.XML3DVec3(); 
+        var factor = new window.XML3DVec3();
 
         if(this.uniformScale)
         {
@@ -98,7 +98,7 @@ XMOT.interaction.behaviors.Scaler = new XMOT.Class(
 
         var delta = this._startTarGrpScale.multiply(factor);
         var newScale = this._startTarGrpScale.add(delta);
-        
+
         this.targetTransformable.setScale(newScale);
     },
 
@@ -110,7 +110,7 @@ XMOT.interaction.behaviors.Scaler = new XMOT.Class(
      *
      *  @this {XMOT.interaction.behaviors.Scaler}
      *  @private
-     *  
+     *
      *  @return {number} the scaling factor
      */
     _calcUniformScaleFactor: function()

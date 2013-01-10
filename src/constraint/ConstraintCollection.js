@@ -30,7 +30,7 @@
 		var i = 0;
 		var ret = true;
 		var breakEarly = this.breakEarly;
-		
+
 		while( i<length && (ret || !breakEarly) ){
 			ret = ret && constraints[i].constrainRotation(newRotation, opts);
 			i++;
@@ -51,9 +51,9 @@
 		}
     	return ret;
     };
-    
-    /** @inheritDoc */ 
-    c.constraintScaling = function(newScale, opts) { 
+
+    /** @inheritDoc */
+    c.constraintScaling = function(newScale, opts) {
         var constraints = this.constraints;
         var length = constraints.length;
         var i = 0;
@@ -63,7 +63,7 @@
             ret = ret && constraints[i].constraintScaling(newScale, opts);
             i++;
         }
-        return ret;        
+        return ret;
     };
 
     /**

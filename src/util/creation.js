@@ -1,5 +1,5 @@
 /**
- * This file constructs the XMOT.creation namespace. It provides a number of small utilities 
+ * This file constructs the XMOT.creation namespace. It provides a number of small utilities
  * for creating various objects. Following objects reside here:
  *
  *  o phongShader() shortcut to create a phong <shader> element
@@ -10,36 +10,36 @@
  */
 
 (function(){
-    
+
     if (!XMOT.creation)
         XMOT.creation = {};
-    
-    var ns = XMOT.creation; 
-    
-    /** A wrapper for document.createElementNS() with the xml3d namespace. 
+
+    var ns = XMOT.creation;
+
+    /** A wrapper for document.createElementNS() with the xml3d namespace.
      *
      *  @param {string} tagName the name of the tag to create
-     *  @param {!Object} [opts] a list of attributes to the element. Only the 
+     *  @param {!Object} [opts] a list of attributes to the element. Only the
      *                          attributes with string values will be set.
-     *  
-     *  A special attribute of opts is "children". It may contain child nodes, that should 
-     *  be added to the created element through appendChild(). This special treatment only 
-     *  occurs if "children" is an Array. If it contains a usual string, then it is 
-     *  treated as usual attribute. 
-     * 
-     *  Example: 
-     *  
-     *  var mesh = XMOT.creation.element("mesh", {src: "#mymeshsrc_data"}); 
-     * 
+     *
+     *  A special attribute of opts is "children". It may contain child nodes, that should
+     *  be added to the created element through appendChild(). This special treatment only
+     *  occurs if "children" is an Array. If it contains a usual string, then it is
+     *  treated as usual attribute.
+     *
+     *  Example:
+     *
+     *  var mesh = XMOT.creation.element("mesh", {src: "#mymeshsrc_data"});
+     *
      *  XMOT.creation.element("group", {
      *      id: "mygroup",
      *      children: [mesh]
      *  });
-     *  
-     *  That yields to: 
-     *  
+     *
+     *  That yields to:
+     *
      *  <group id="mygroup">
-     *    <mesh src="#mymeshsrc_data" /> 
+     *    <mesh src="#mymeshsrc_data" />
      *  </group>
      */
     ns.element = function(tagName, opts) {
@@ -47,31 +47,31 @@
             throw "XMOT.creation.element(): invalid argument";
 
         var el = XML3D.createElement(tagName);
-        
+
         if(!opts)
-            return el; 
+            return el;
 
         for(var attrName in opts)
-        {         
+        {
             var attr = opts[attrName];
-            
+
             if(attr && typeof attr == "string")
-                el.setAttribute(attrName, attr);        
-        } 
-        
+                el.setAttribute(attrName, attr);
+        }
+
         if(opts.children && opts.children instanceof Array)
         {
             for(var i = 0; i < opts.children.length; i++)
                 el.appendChild(opts.children[i]);
-        }        
-        
+        }
+
         return el;
     };
 
     //----------------------------------------------------------------------------
     //--- Shaders ---
     //----------------------------------------------------------------------------
-    
+
     /** Creates a phong shader with the given attributes
      *
      *  @param {Object} [opts] creation options
@@ -94,7 +94,7 @@
     {
         if(!opts)
             opts = {};
-    
+
         // default options
         if(!opts.diffCol)
             opts.diffCol = "0.8 0 0";
@@ -106,24 +106,24 @@
             opts.specCol = "0.55 0.55 0.55";
         if(!opts.shin)
             opts.shin = "0.5";
-    
+
         // create all elements
         var ds = XMOT.creation.dataSrc;
-    
+
         var sh = XMOT.creation.element("shader", {script:"urn:xml3d:shader:phong"});
-    
+
         if(opts.id)
             sh.setAttribute("id", opts.id);
-    
+
         sh.appendChild(ds("float3", {name:"diffuseColor", val:opts.diffCol}));
         sh.appendChild(ds("float", {name:"ambientIntensity", val:opts.ambInt}));
         sh.appendChild(ds("float", {name:"transparency", val:opts.transp}));
         sh.appendChild(ds("float3", {name:"specularColor", val:opts.specCol}));
         sh.appendChild(ds("float", {name:"shininess", val:opts.shin}));
-    
+
         return sh;
     };
-    
+
     /** Creates a point light lightshader element with the given attributes.
      *
      *  @param {Object} [opts] creation options
@@ -139,25 +139,25 @@
     {
         if(!opts)
             opts = {};
-    
+
         var ds = XMOT.creation.dataSrc;
-    
+
         var l = XMOT.creation.element("lightshader", {script: "urn:xml3d:lightshader:point"});
-    
+
         if(!opts.inten)
             opts.inten = "0.8 0.8 0.8";
         if(!opts.atten)
             opts.atten = "1.0 0.01 0";
-    
+
         if(opts.id)
             l.setAttribute("id", opts.id);
-    
+
         l.appendChild(ds("float3", {name:"intensity", val:opts.inten}));
         l.appendChild(ds("float3", {name:"attenuation", val:opts.atten}));
-    
+
         return l;
     };
-    
+
     //----------------------------------------------------------------------------
     // --- Element Helpers ---
     //----------------------------------------------------------------------------
@@ -178,11 +178,11 @@
     {
         if(!opts)
             opts = {};
-    
+
         var ds = XMOT.creation.dataSrc;
-    
+
         var d = XMOT.creation.element("data");
-    
+
         if(opts.id)
             d.setAttribute("id", opts.id);
         if(opts.idx)
@@ -193,10 +193,10 @@
             d.appendChild(ds("float3", {name:"normal", val:opts.norm}));
         if(opts.texcoord)
             d.appendChild(ds("float2", {name:"texcoord", val:opts.texcoord}));
-    
+
         return d;
     };
-    
+
     /** Creates a data source element (float, bool, float3, ...).
      *
      *  @param tagName the tag name of the data source
@@ -205,36 +205,36 @@
      *  valid options:
      *      o name: the name attribute of the element
      *      o val: the TextNode child of the element
-     *      
+     *
      *  @return {Object} a data source element
      */
     ns.dataSrc = function(tagName, opts)
     {
         if(!opts)
             opts = {};
-    
+
         var dataSrc = XMOT.creation.element(tagName);
-    
+
         if(opts.name)
             dataSrc.setAttribute("name", opts.name);
         if(opts.val)
             dataSrc.appendChild(document.createTextNode(opts.val));
-    
+
         return dataSrc;
     };
-    
-}()); 
 
-/* Put the geo creation stuff in an own closure so it won't spill 
- * the rest of the namespace. 
- */ 
+}());
+
+/* Put the geo creation stuff in an own closure so it won't spill
+ * the rest of the namespace.
+ */
 (function(){
 
     var ns = XMOT.creation;
 
     /** This creates a mesh element containing a sphere without an id.
      *
-     *  @param {Object} xml3d 
+     *  @param {Object} xml3d
      *  @param {string} [id] the id-attribute of the mesh element
      *
      *  @return {Object} a mesh element
@@ -249,7 +249,7 @@
      *  This rectangle is a 2x2 square with a normal of (0,0,1) in
      *  the world origin.
      *
-     *  @param {Object} xml3d 
+     *  @param {Object} xml3d
      *  @param {string} [id] the id-attribute of the mesh element
      *
      *  @return {Object} a mesh element
@@ -261,7 +261,7 @@
 
     /** Creates a 2x2x2 box in the origin.
      *
-     *  @param {Object} xml3d 
+     *  @param {Object} xml3d
      *  @param {string} [id] the id-attribute of the mesh element
      *
      *  @return {Object} mesh element
@@ -275,46 +275,46 @@
      *  You give it the the actual data,
      *  that is a structure that has fields id, index, position, normal
      *  and texcoord strings.
-     * 
+     *
      *  @constructor
      */
     var DataObject = new XMOT.Class({
 
-        /** 
+        /**
          * @param {!Object} data
          */
         initialize: function(data)
         {
-            this.dataElements = {}; 
-            
-            /* keep track how many instance are in scene, per xml3d 
+            this.dataElements = {};
+
+            /* keep track how many instance are in scene, per xml3d
              * element. If there are none the data element is removed, too.
-             * 
+             *
              * map xml3d element -> num instances
              */
-            this.numInstances = {}; 
+            this.numInstances = {};
 
             this.data = data;
-            
+
             /** @private */
-            this._totalNumInstances = 0; // used to create unique mesh IDs 
+            this._totalNumInstances = 0; // used to create unique mesh IDs
         },
 
         /** Returns a mesh element that sources the Object's data element.
-         * 
-         *  @param {Object} xml3d the xml3d root, where the data object is to be instantiated. 
-         *  @param {string} [id] the id attribute of the created mesh. 
+         *
+         *  @param {Object} xml3d the xml3d root, where the data object is to be instantiated.
+         *  @param {string} [id] the id attribute of the created mesh.
          *  @return {Object} the mesh element
          */
         createMesh: function(xml3d, id)
         {
             if(!xml3d)
-                throw "XMOT.creation call: xml3d not given!"; 
-            
+                throw "XMOT.creation call: xml3d not given!";
+
             if(!this.numInstances[xml3d] || this.numInstances[xml3d] < 1)
             {
-                this.numInstances[xml3d] = 0; // initialize to zero, incremented below 
-                
+                this.numInstances[xml3d] = 0; // initialize to zero, incremented below
+
                 var newEl = XMOT.creation.data({
                     id: this.data.id + "_" + this._totalNumInstances,
                     idx: this.data.index,
@@ -326,10 +326,10 @@
                 var defs = XMOT.util.getOrCreateDefs(xml3d);
                 defs.appendChild(newEl);
 
-                this.dataElements[xml3d] = newEl; 
+                this.dataElements[xml3d] = newEl;
             }
-            
-            this._totalNumInstances++; 
+
+            this._totalNumInstances++;
             this.numInstances[xml3d]++;
 
             var mesh = XMOT.creation.element("mesh", {
@@ -362,7 +362,7 @@
 
     var _box = {};
     _box.id = "XMOT.creation._box";
-        
+
     _box.index = "4 0 3 4 3 7 2 6 7 2 7 3 1 5 2 5 6 2 0 4 1 4 5 1 4 7 5 7 6 5 0 1 2 0 2 3";
     _box.position = "1.0 1 -1.0 1.0 -1.0 -1.0 -1 -1 -1.0 -1 1 -1.0 1 1 1.0 1 -1 1.0 -1 -1 1.0 -1 1.0 1.0";
     _box.normal = "0.408246099949 0.408246099949 -0.816492199898 0.816492199898 -0.408246099949 -0.408246099949 -0.577349185944 -0.577349185944 -0.577349185944 -0.408246099949 0.816492199898 -0.408246099949 0.666646301746 0.666646301746 0.333323150873 0.333323150873 -0.666646301746 0.666646301746 -0.577349185944 -0.577349185944 0.577349185944 -0.666646301746 0.333323150873 0.666646301746";
