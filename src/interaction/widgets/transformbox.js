@@ -14,21 +14,31 @@ XMOT.interaction.widgets.TransformBox = new XMOT.Class(
      * 
      * @param {string} _id
      * @param {XMOT.Transformable} _target
-     * @param {{x: boolean, y: boolean, z: boolean}=} rotationFlipOpts whether to flip the rotation around the given local axis.
-     * 												  rotationFlipOpts attributes and and the parameter itself is optional. 
+     * @param {{rotationFlips:{x: boolean, y: boolean, z: boolean},translationConstraints:Object}=} options
+     * 
+     * There are a couple of options that can be set (all optional). 
+     * o rotationFlips can be used to specify whether to flip the rotation around the given local axis.
+     * o translationConstraints specifies constraints for the TranslateBox instance. They will be forwarded 
+     *   to TranslateBox as-is. Thus, take a look at the XMOT.interaction.widgets.TranslateBox() for 
+     *   more information.
      */
-	initialize: function(_id, _target, rotationFlipOpts)
-	{
+	initialize: function(_id, _target, options)
+	{				
 		this._flipRotAxes = {x: false, y: false, z: false}; 
 		
-		if(rotationFlipOpts)
+		options = options || {};
+		if(options.rotationFlips)
 		{
-			this._flipRotAxes.x = rotationFlipOpts.x;
-			this._flipRotAxes.y = rotationFlipOpts.y; 
-			this._flipRotAxes.z = rotationFlipOpts.z;			
+			this._flipRotAxes.x = options.rotationFlips.x || false;
+			this._flipRotAxes.y = options.rotationFlips.y || false; 
+			this._flipRotAxes.z = options.rotationFlips.z || false;			
 		} 
-		
-		this.callSuper(_id, _target); 
+		if(options.translationConstraints)
+		{
+			this._translConstraints = options.translationConstraints;
+		} 
+
+		this.callSuper(_id, _target);
 	}, 
 
     /** 
@@ -40,7 +50,7 @@ XMOT.interaction.widgets.TransformBox = new XMOT.Class(
     {        
         // translation 
         this.behavior["translbox"] = new XMOT.interaction.widgets.TranslateBox(
-            this.ID + "_translbox", this.target);
+            this.ID + "_translbox", this.target, this._translConstraints);
         
         // scaling
         this.behavior["scaler"] = new XMOT.interaction.widgets.UniformScaler(
