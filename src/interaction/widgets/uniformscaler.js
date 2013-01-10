@@ -10,6 +10,8 @@ XMOT.namespace("XMOT.interaction.widgets");
 XMOT.interaction.widgets.UniformScaler = new XMOT.Class(
     XMOT.interaction.widgets.Widget, {
 
+    geometryConstructorType: XMOT.interaction.geometry.UniformScalerGeometryConstructor,
+
     /**
      *  @this {XMOT.interaction.widgets.UniformScaler}
      *  @override
@@ -27,65 +29,6 @@ XMOT.interaction.widgets.UniformScaler = new XMOT.Class(
         this.geo.updateTransforms([
             "t_cube_frontleft", "t_cube_frontright", "t_cube_backleft", "t_cube_backright"
         ], {scale: cubeScaleStr});
-    },
-
-    /**
-     *  @this {XMOT.interaction.widgets.UniformScaler}
-     *  @override
-     *  @protected
-     */
-    onCreateDefsElements: function()
-    {
-        // shaders
-        this.geo.addShaders("s_scale", {diffCol: "0.9 0.9 0.9"});
-        this.geo.addShaders("s_scale_highlight", {diffCol: "0.9 0.9 0"});
-
-        // cubes
-        this.geo.addTransforms("t_scale");
-        this.geo.addTransforms("t_top_cubes", {translation: "0 1 0"});
-        this.geo.addTransforms("t_bot_cubes", {translation: "0 -1 0"});
-
-        this.geo.addTransforms("t_cube_frontleft", {translation: "-1 0 1"});
-        this.geo.addTransforms("t_cube_frontright", {translation: "1 0 1"});
-        this.geo.addTransforms("t_cube_backleft", {translation: "-1 0 -1"});
-        this.geo.addTransforms("t_cube_backright", {translation: "1 0 -1"});
-    },
-
-    /**
-     *  @this {XMOT.interaction.widgets.UniformScaler}
-     *  @override
-     *  @protected
-     */
-    onCreateGraph: function()
-    {
-        var top = XMOT.creation.element("group", {
-            transform: "#" + this.globalID("t_top_cubes"),
-            children: [
-                this._createBoxGrp("t_cube_frontleft"),
-                this._createBoxGrp("t_cube_frontright"),
-                this._createBoxGrp("t_cube_backleft"),
-                this._createBoxGrp("t_cube_backright")
-            ]
-        });
-
-        var bot = XMOT.creation.element("group", {
-            transform: "#" + this.globalID("t_bot_cubes"),
-            children: [
-                this._createBoxGrp("t_cube_frontleft"),
-                this._createBoxGrp("t_cube_frontright"),
-                this._createBoxGrp("t_cube_backleft"),
-                this._createBoxGrp("t_cube_backright")
-            ]
-        });
-
-        var cubes = XMOT.creation.element("group", {
-            id: this.globalID("scale"),
-            transform: "#" + this.globalID("t_scale"),
-            shader: "#" + this.globalID("s_scale"),
-            children: [top, bot]
-        });
-
-        this.geo.addToGraphRoot(cubes);
     },
 
     /**
@@ -127,28 +70,5 @@ XMOT.interaction.widgets.UniformScaler = new XMOT.Class(
     {
         XMOT.util.shader(this.element("scale"),
                          this.element("s_scale"));
-    },
-
-    // --------------------------------
-    // -- DOM helpers --
-    // --------------------------------
-    /**
-     *  @this {XMOT.interaction.widgets.UniformScaler}
-     *  @private
-     *
-     *  @param {string} localTransformID id of the transform element the created group will refer to
-     */
-    _createBoxGrp: function(localTransformID)
-    {
-        var box = XMOT.creation.box(this.xml3d);
-
-        var opts = {};
-
-        opts.transform = "#" + this.globalID(localTransformID);
-        opts.children = [box];
-
-        var grp = XMOT.creation.element("group", opts);
-
-        return grp;
     }
 });
