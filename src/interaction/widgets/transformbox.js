@@ -22,24 +22,24 @@ XMOT.interaction.widgets.TransformBox = new XMOT.Class(
      *   to TranslateBox as-is. Thus, take a look at the XMOT.interaction.widgets.TranslateBox() for
      *   more information.
      */
-	initialize: function(_id, _target, options)
-	{
+    initialize: function(_id, _target, options)
+    {
         this.callSuper(_id, _target);
 
-		this._flipRotAxes = {x: false, y: false, z: false};
+        this._flipRotAxes = {x: false, y: false, z: false};
 
-		options = options || {};
-		if(options.rotationFlips)
-		{
-			this._flipRotAxes.x = options.rotationFlips.x || false;
-			this._flipRotAxes.y = options.rotationFlips.y || false;
-			this._flipRotAxes.z = options.rotationFlips.z || false;
-		}
-		if(options.translationConstraints)
-		{
-			this._translConstraints = options.translationConstraints;
-		}
-	},
+        options = options || {};
+        if(options.rotationFlips)
+        {
+            this._flipRotAxes.x = options.rotationFlips.x || false;
+            this._flipRotAxes.y = options.rotationFlips.y || false;
+            this._flipRotAxes.z = options.rotationFlips.z || false;
+        }
+        if(options.translationConstraints)
+        {
+            this._translConstraints = options.translationConstraints;
+        }
+    },
 
     /**
      *  @this {XMOT.interaction.widgets.TransformBox}
@@ -61,9 +61,9 @@ XMOT.interaction.widgets.TransformBox = new XMOT.Class(
         // rotation
         // options objects for the SingleAxisRotator
         var axes = [
-        	{axis: "x", color: "0.7 0 0", highlightColor: "0.9 0 0"},
-        	{axis: "y", color: "0 0.7 0", highlightColor: "0 0.9 0"},
-        	{axis: "z", color: "0 0 0.7", highlightColor: "0 0 0.9"}
+            {axis: "x", color: "0.7 0 0", highlightColor: "0.9 0 0"},
+            {axis: "y", color: "0 0.7 0", highlightColor: "0 0.9 0"},
+            {axis: "z", color: "0 0 0.7", highlightColor: "0 0 0.9"}
         ];
 
         for(var i = 0; i < axes.length; i++)
