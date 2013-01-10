@@ -51,6 +51,8 @@ XMOT.interaction.widgets.Widget = new XMOT.Class(
         this.root = XMOT.ClientMotionFactory.createTransformable(rootGrp);
 
         this.geo = new XMOT.util.GeoObject(this.ID, this.xml3d, rootGrp);
+        if(this.geometryConstructorType)
+            this.geoConstructor = new this.geometryConstructorType(this);
         this.behavior = {}; // localID -> behavior, storage for all sensors and alike
 
         /** @private */
@@ -213,10 +215,14 @@ XMOT.interaction.widgets.Widget = new XMOT.Class(
     _createGeometry: function()
     {
         this._createDefsElements();     // own setup
+        if(this.geoConstructor)
+            this.geoConstructor.createDefsElements();
         this.onCreateDefsElements();    // client's setup
         this.geo.attachDefs();          // attach 'em
 
         this._createGraph();
+        if(this.geoConstructor)
+            this.geoConstructor.createGraph();
         this.onCreateGraph();
         this.geo.attachGraph();
 
