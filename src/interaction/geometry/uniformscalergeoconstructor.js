@@ -2,13 +2,20 @@ XMOT.namespace("XMOT.interaction.geometry");
 
 XMOT.interaction.geometry.UniformScalerGeoConstructor = new XMOT.Class({
 
-	initialize: function(widget)
-	{
-		this.geo = widget.geo;
-	},
+    /**
+     *  @this {XMOT.interaction.geometry.UniformScalerGeoConstructor}
+     *  @param {XMOT.interaction.widgets.Widget} widget
+     */
+    initialize: function(widget)
+    {
+        this.geo = widget.geo;
+    },
 
-	createDefsElements: function()
-	{
+    /**
+     *  @this {XMOT.interaction.geometry.UniformScalerGeoConstructor}
+     */
+    createDefsElements: function()
+    {
         this.geo.addShaders("s_scale", {diffCol: "0.9 0.9 0.9"});
         this.geo.addShaders("s_scale_highlight", {diffCol: "0.9 0.9 0"});
 
@@ -21,10 +28,13 @@ XMOT.interaction.geometry.UniformScalerGeoConstructor = new XMOT.Class({
         this.geo.addTransforms("t_cube_frontright", {translation: "1 0 1"});
         this.geo.addTransforms("t_cube_backleft", {translation: "-1 0 -1"});
         this.geo.addTransforms("t_cube_backright", {translation: "1 0 -1"});
-	},
+    },
 
-	createGraph: function()
-	{
+    /**
+     *  @this {XMOT.interaction.geometry.UniformScalerGeoConstructor}
+     */
+    createGraph: function()
+    {
         var top = XMOT.creation.element("group", {
             transform: "#" + this.geo.globalID("t_top_cubes"),
             children: [
@@ -53,10 +63,10 @@ XMOT.interaction.geometry.UniformScalerGeoConstructor = new XMOT.Class({
         });
 
         this.geo.addToGraphRoot(cubes);
-	},
+    },
 
     /**
-     *  @this {XMOT.interaction.widgets.UniformScaler}
+     *  @this {XMOT.interaction.geometry.UniformScalerGeoConstructor}
      *  @private
      *
      *  @param {string} localTransformID id of the transform element the created group will refer to

@@ -2,13 +2,20 @@ XMOT.namespace("XMOT.interaction.geometry");
 
 XMOT.interaction.geometry.TranslateBoxGeoConstructor = new XMOT.Class({
 
-	initialize: function(widget)
-	{
-		this.geo = widget.geo;
-	},
+    /**
+     *  @this {XMOT.interaction.geometry.TranslateBoxGeoConstructor}
+     *  @param {XMOT.interaction.widgets.Widget} widget
+     */
+    initialize: function(widget)
+    {
+        this.geo = widget.geo;
+    },
 
-	createDefsElements: function()
-	{
+    /**
+     *  @this {XMOT.interaction.geometry.TranslateBoxGeoConstructor}
+     */
+    createDefsElements: function()
+    {
         // shaders
         this.geo.addShaders("s_transl", {
             diffCol: "1 1 1", transp: "0.85"
@@ -30,10 +37,13 @@ XMOT.interaction.geometry.TranslateBoxGeoConstructor = new XMOT.Class({
             translation: "0 1 0", rotation: "1 0 0 -1.57"});
         this.geo.addTransforms("t_xztrans_inv", {
             translation: "0 -1 0", rotation: "1 0 0 1.57"});
-	},
+    },
 
-	createGraph: function()
-	{
+    /**
+     *  @this {XMOT.interaction.geometry.TranslateBoxGeoConstructor}
+     */
+    createGraph: function()
+    {
         this.geo.addToGraphRoot([
              this._createRectGrp("xytrans"),
              this._createRectGrp("yztrans"),
@@ -42,10 +52,10 @@ XMOT.interaction.geometry.TranslateBoxGeoConstructor = new XMOT.Class({
              this._createRectGrp("yztrans_inv"),
              this._createRectGrp("xztrans_inv")
         ]);
-	},
+    },
 
     /**
-     *  @this {XMOT.interaction.widgets.TranslateBox}
+     *  @this {XMOT.interaction.geometry.TranslateBoxGeoConstructor}
      *  @private
      *
      *  @param {string} localID

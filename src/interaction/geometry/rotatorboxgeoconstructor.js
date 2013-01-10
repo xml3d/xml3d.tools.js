@@ -2,10 +2,14 @@ XMOT.namespace("XMOT.interaction.geometry");
 
 XMOT.interaction.geometry.RotatorBoxGeoConstructor = new XMOT.Class({
 
-	initialize: function(widget)
-	{
-		this.geo = widget.geo;
-		this.targetNode = widget.target.object;
+    /**
+     *  @this {XMOT.interaction.geometry.RotatorBoxGeoConstructor}
+     *  @param {XMOT.interaction.widgets.Widget} widget
+     */
+    initialize: function(widget)
+    {
+        this.geo = widget.geo;
+        this.targetNode = widget.target.object;
 
         /** all arrow geometry groups. Maps name to DOM element. Valid keys are
          *  "root", "left", "bot", "right", "top"
@@ -13,19 +17,25 @@ XMOT.interaction.geometry.RotatorBoxGeoConstructor = new XMOT.Class({
         this.arrows = {};
 
         this.arrowScaleFactor = 1;
-	},
+    },
 
-	createDefsElements: function()
-	{
+    /**
+     *  @this {XMOT.interaction.geometry.RotatorBoxGeoConstructor}
+     */
+    createDefsElements: function()
+    {
         this._createGeoDefsShaders();
         this._createGeoDefsTransforms();
         this._createGeoDefsDatas();
-	},
+    },
 
-	createGraph: function()
-	{
+    /**
+     *  @this {XMOT.interaction.geometry.RotatorBoxGeoConstructor}
+     */
+    createGraph: function()
+    {
         // arrows
-	    this.arrows = {};
+        this.arrows = {};
 
         this._addArrowGroup("left");
         this._addArrowGroup("bot");
@@ -42,10 +52,10 @@ XMOT.interaction.geometry.RotatorBoxGeoConstructor = new XMOT.Class({
                  this.arrows["top"]
             ]
         });
-	},
+    },
 
     /**
-     *  @this {XMOT.interaction.widgets.RotatorBox}
+     *  @this {XMOT.interaction.geometry.RotatorBoxGeoConstructor}
      *  @private
      */
     _createGeoDefsShaders: function()
@@ -74,7 +84,7 @@ XMOT.interaction.geometry.RotatorBoxGeoConstructor = new XMOT.Class({
     },
 
     /**
-     *  @this {XMOT.interaction.widgets.RotatorBox}
+     *  @this {XMOT.interaction.geometry.RotatorBoxGeoConstructor}
      *  @private
      */
     _createGeoDefsTransforms: function()
@@ -110,7 +120,7 @@ XMOT.interaction.geometry.RotatorBoxGeoConstructor = new XMOT.Class({
     },
 
     /**
-     *  @this {XMOT.interaction.widgets.RotatorBox}
+     *  @this {XMOT.interaction.geometry.RotatorBoxGeoConstructor}
      *  @private
      */
     _createGeoDefsDatas: function()
@@ -130,7 +140,7 @@ XMOT.interaction.geometry.RotatorBoxGeoConstructor = new XMOT.Class({
     // --- General Helpers ---
     // ------------------------------------------------------------------------
     /**
-     *  @this {XMOT.interaction.widgets.RotatorBox}
+     *  @this {XMOT.interaction.geometry.RotatorBoxGeoConstructor}
      *  @private
      *
      *  @param {string} side the name of the side where to attach an arrow group.

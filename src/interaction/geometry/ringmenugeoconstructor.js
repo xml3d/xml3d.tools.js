@@ -2,19 +2,26 @@ XMOT.namespace("XMOT.interaction.geometry");
 
 XMOT.interaction.geometry.RingMenuGeoConstructor = new XMOT.Class({
 
-	initialize: function(widget)
-	{
-		this.geo = widget.geo;
-		this.targetNode = widget.target.object;
+    /**
+     *  @this {XMOT.interaction.geometry.RingMenuGeoConstructor}
+     *  @param {XMOT.interaction.widgets.Widget} widget
+     */
+    initialize: function(widget)
+    {
+        this.geo = widget.geo;
+        this.targetNode = widget.target.object;
 
-		// explicit pointers to the arrow geometries
-		// constructed during createGraph()
-		this.geoChooseLeft = null;
-		this.geoChooseRight = null;
-	},
+        // explicit pointers to the arrow geometries
+        // constructed during createGraph()
+        this.geoChooseLeft = null;
+        this.geoChooseRight = null;
+    },
 
-	createDefsElements: function()
-	{
+    /**
+     *  @this {XMOT.interaction.geometry.RingMenuGeoConstructor}
+     */
+    createDefsElements: function()
+    {
         // shaders
         this.geo.addShaders("s_choose", {diffCol: "0.9 0 0"});
         this.geo.addShaders("s_chooseHigh", {diffCol: "0 0.9 0"});
@@ -36,10 +43,13 @@ XMOT.interaction.geometry.RingMenuGeoConstructor = new XMOT.Class({
             rotation: "0 1 0 1.57",
             scale: "1.3 1.3 1.3"
         });
-	},
+    },
 
-	createGraph: function()
-	{
+    /**
+     *  @this {XMOT.interaction.geometry.RingMenuGeoConstructor}
+     */
+    createGraph: function()
+    {
         this.geoChooseLeft = XMOT.creation.element("group", {
             id: this.geo.globalID("chooseleft"),
             transform: "#" + this.geo.defs["t_chooseLeft"].id,
@@ -56,11 +66,11 @@ XMOT.interaction.geometry.RingMenuGeoConstructor = new XMOT.Class({
 
         this.geo.addToGraphRoot(this.geoChooseLeft);
         this.geo.addToGraphRoot(this.geoChooseRight);
-	},
+    },
 
 
     /**
-     *  @this {XMOT.interaction.widgets.RingMenu}
+     *  @this {XMOT.interaction.geometry.RingMenuGeoConstructor}
      *  @private
      */
     _createArrowGroup: function()

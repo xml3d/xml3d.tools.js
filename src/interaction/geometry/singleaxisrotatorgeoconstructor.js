@@ -2,20 +2,27 @@ XMOT.namespace("XMOT.interaction.geometry");
 
 XMOT.interaction.geometry.SingleAxisRotatorGeoConstructor = new XMOT.Class({
 
-	initialize: function(widget)
-	{
-		this.geo = widget.geo;
-		this.targetNode = widget.target.object;
+    /**
+     *  @this {XMOT.interaction.geometry.SingleAxisRotatorGeoConstructor}
+     *  @param {XMOT.interaction.widgets.Widget} widget
+     */
+    initialize: function(widget)
+    {
+        this.geo = widget.geo;
+        this.targetNode = widget.target.object;
 
-		this.rotationAxis = "y";
-		this.color = "0.9 0.9 0.9";
-		this.highlightColor = "0.9 0.9 0";
-	},
+        this.rotationAxis = "y";
+        this.color = "0.9 0.9 0.9";
+        this.highlightColor = "0.9 0.9 0";
+    },
 
-	parseOptions: function(opts)
-	{
-	    if(!opts)
-	        return;
+    /**
+     *  @this {XMOT.interaction.geometry.SingleAxisRotatorGeoConstructor}
+     */
+    parseOptions: function(opts)
+    {
+        if(!opts)
+            return;
 
         if(opts.axis)
             this.rotationAxis = opts.axis;
@@ -23,10 +30,13 @@ XMOT.interaction.geometry.SingleAxisRotatorGeoConstructor = new XMOT.Class({
             this.color = opts.color;
         if(opts.highlightColor)
             this.highlightColor = opts.highlightColor;
-	},
+    },
 
-	createDefsElements: function()
-	{
+    /**
+     *  @this {XMOT.interaction.geometry.SingleAxisRotatorGeoConstructor}
+     */
+    createDefsElements: function()
+    {
         // shaders
         this.geo.addShaders("s_rot_root", {diffCol: this.color, ambInt: 0.8});
         this.geo.addShaders("s_rot_root_highlight", {diffCol: this.highlightColor, ambInt: 0.8});
@@ -45,10 +55,13 @@ XMOT.interaction.geometry.SingleAxisRotatorGeoConstructor = new XMOT.Class({
             opts.rotation = "1 0 0 1.57";
 
         this.geo.addTransforms("t_rot_root", opts);
-	},
+    },
 
-	createGraph: function()
-	{
+    /**
+     *  @this {XMOT.interaction.geometry.SingleAxisRotatorGeoConstructor}
+     */
+    createGraph: function()
+    {
         var yrot = XMOT.creation.element("group", {
             id: this.geo.globalID("rot_root"),
             shader: "#" + this.geo.globalID("s_rot_root"),
@@ -62,10 +75,10 @@ XMOT.interaction.geometry.SingleAxisRotatorGeoConstructor = new XMOT.Class({
         });
 
         this.geo.addToGraphRoot(yrot);
-	},
+    },
 
     /**
-     *  @this {XMOT.interaction.widgets.SingleAxisRotator}
+     *  @this {XMOT.interaction.geometry.SingleAxisRotatorGeoConstructor}
      *  @private
      *
      *  @param {string} localID
