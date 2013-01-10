@@ -50,6 +50,7 @@
         <file name="interaction/geometry/ringmenugeoconstructor.js" />
         <file name="interaction/geometry/uniformscalergeoconstructor.js" />
         <file name="interaction/geometry/rotatorboxgeoconstructor.js" />
+        <file name="interaction/geometry/singleaxisrotatorgeoconstructor.js" />
 
         <file name="interaction/behaviors/pdsensor.js" />
         <file name="interaction/behaviors/planesensor.js" />

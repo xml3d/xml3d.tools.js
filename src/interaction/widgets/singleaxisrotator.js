@@ -14,6 +14,8 @@ XMOT.namespace("XMOT.interaction.widgets");
 XMOT.interaction.widgets.SingleAxisRotator = new XMOT.Class(
     XMOT.interaction.widgets.Widget, {
 
+    GeoConstructorType: XMOT.interaction.geometry.SingleAxisRotatorGeoConstructor,
+
     /** Initializes the AxisRotator.
      *
      *  @this {XMOT.interaction.widgets.SingleAxisRotator}
@@ -45,15 +47,7 @@ XMOT.interaction.widgets.SingleAxisRotator = new XMOT.Class(
             this._rotationAxis = _opts.axis;
         }
 
-        /** @private */
-        this._color = "0.9 0.9 0.9";
-        if(_opts.color)
-            this._color = _opts.color;
-
-        /** @private */
-        this._highlightColor = "0.9 0.9 0";
-        if(_opts.highlightColor)
-            this._highlightColor = _opts.highlightColor;
+        this.geoConstructor.parseOptions(_opts);
     },
 
     /** Set and/or retrieve the axis restriction.
@@ -112,55 +106,6 @@ XMOT.interaction.widgets.SingleAxisRotator = new XMOT.Class(
      *  @override
      *  @protected
      */
-    onCreateDefsElements: function()
-    {
-        // shaders
-        this.geo.addShaders("s_rot_root", {diffCol: this._color, ambInt: 0.8});
-        this.geo.addShaders("s_rot_root_highlight", {diffCol: this._highlightColor, ambInt: 0.8});
-
-        // transforms
-        this.geo.addTransforms("t_rot_1", {translation: "1 0 1"});
-        this.geo.addTransforms("t_rot_2", {translation: "-1 0 1"});
-        this.geo.addTransforms("t_rot_3", {translation: "1 0 -1"});
-        this.geo.addTransforms("t_rot_4", {translation: "-1 0 -1"});
-
-        // roots for rotation handles
-        var opts = {};
-        if(this._rotationAxis == "x")
-            opts.rotation = "0 0 1 1.57";
-        else if(this._rotationAxis == "z")
-            opts.rotation = "1 0 0 1.57";
-
-        this.geo.addTransforms("t_rot_root", opts);
-    },
-
-    /**
-     *  @this {XMOT.interaction.widgets.SingleAxisRotator}
-     *  @override
-     *  @protected
-     */
-    onCreateGraph: function()
-    {
-        var yrot = XMOT.creation.element("group", {
-            id: this.globalID("rot_root"),
-            shader: "#" + this.globalID("s_rot_root"),
-            transform: "#" + this.globalID("t_rot_root"),
-            children: [
-                this._createBoxGrp("rot_1"),
-                this._createBoxGrp("rot_2"),
-                this._createBoxGrp("rot_3"),
-                this._createBoxGrp("rot_4")
-            ]
-        });
-
-        this.geo.addToGraphRoot(yrot);
-    },
-
-    /**
-     *  @this {XMOT.interaction.widgets.SingleAxisRotator}
-     *  @override
-     *  @protected
-     */
     onCreateBehavior: function()
     {
         // rotation handles
@@ -199,25 +144,6 @@ XMOT.interaction.widgets.SingleAxisRotator = new XMOT.Class(
         XMOT.util.shader(grp, sh);
     },
 
-    // --------------------------------
-    // -- creation helpers --
-    // --------------------------------
-    /**
-     *  @this {XMOT.interaction.widgets.SingleAxisRotator}
-     *  @private
-     *
-     *  @param {string} localID
-     */
-    _createBoxGrp: function(localID)
-    {
-        var opts = {};
-
-        opts.id = this.globalID(localID);
-        opts.transform = "#" + this.globalID("t_" + localID);
-        opts.children = [XMOT.creation.box(this.xml3d)];
-
-        return XMOT.creation.element("group", opts);
-    },
 
     /**
      *  @this {XMOT.interaction.widgets.SingleAxisRotator}
