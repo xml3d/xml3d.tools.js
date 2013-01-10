@@ -18,18 +18,15 @@ XMOT.interaction.widgets.RingMenu = new XMOT.Class(
      *
      *  @param {!Object} _xml3d
      *  @param {string} _id
-     *  @param {!Object} _targetGrp
+     *  @param {!XMOT.Transformable} _target
      *  @param {number} _radius
      */
-    initialize: function(_id, _targetGrp, _radius)
+    initialize: function(_id, _target, _radius)
     {
+        this.callSuper(_id, _target, false);
+
         /** @private */
         this._radius = _radius;
-
-        // initialization with targetGrp's children
-        var tarXfm = XMOT.ClientMotionFactory.createTransformable(_targetGrp);
-
-        this.callSuper(_id, tarXfm, false);
     },
 
     /** @this {XMOT.interaction.widgets.RingMenu} */

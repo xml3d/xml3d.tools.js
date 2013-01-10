@@ -28,6 +28,8 @@ XMOT.interaction.widgets.RotatorBox = new XMOT.Class(
      */
     initialize: function(_id, _target, _arrowScaleFac)
     {
+        this.callSuper(_id, _target);
+
         /** @private */
         this._arrowScaleFactor = 1;
         if(_arrowScaleFac)
@@ -44,8 +46,6 @@ XMOT.interaction.widgets.RotatorBox = new XMOT.Class(
          *  @private
          */
         this._arrows = {};
-
-        this.callSuper(_id, _target);
     },
 
     /**

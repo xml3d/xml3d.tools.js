@@ -27,9 +27,9 @@ XMOT.interaction.widgets.TranslateBox = new XMOT.Class(
      */
     initialize: function(_id, _target, constraints)
     {
-        this._constraints = constraints || {};
-
         this.callSuper(_id, _target);
+
+        this._constraints = constraints || {};
     },
 
     /**

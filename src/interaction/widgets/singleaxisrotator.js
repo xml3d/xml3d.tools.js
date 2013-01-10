@@ -29,6 +29,8 @@ XMOT.interaction.widgets.SingleAxisRotator = new XMOT.Class(
      */
     initialize: function(_id, _target, _opts)
     {
+        this.callSuper(_id, _target);
+
         if(!_opts)
             _opts = {};
 
@@ -52,8 +54,6 @@ XMOT.interaction.widgets.SingleAxisRotator = new XMOT.Class(
         this._highlightColor = "0.9 0.9 0";
         if(_opts.highlightColor)
             this._highlightColor = _opts.highlightColor;
-
-        this.callSuper(_id, _target);
     },
 
     /** Set and/or retrieve the axis restriction.

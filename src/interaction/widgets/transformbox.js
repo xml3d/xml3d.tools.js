@@ -24,6 +24,8 @@ XMOT.interaction.widgets.TransformBox = new XMOT.Class(
      */
 	initialize: function(_id, _target, options)
 	{
+        this.callSuper(_id, _target);
+
 		this._flipRotAxes = {x: false, y: false, z: false};
 
 		options = options || {};
@@ -37,8 +39,6 @@ XMOT.interaction.widgets.TransformBox = new XMOT.Class(
 		{
 			this._translConstraints = options.translationConstraints;
 		}
-
-		this.callSuper(_id, _target);
 	},
 
     /**
