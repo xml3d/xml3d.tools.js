@@ -1,11 +1,11 @@
 XMOT.namespace("XMOT.interaction.geometry");
 
-XMOT.interaction.geometry.TranslateBoxGeoConstructor = new XMOT.Class(XMOT.interaction.geometry.GeoConstructor, {
+XMOT.interaction.geometry.TranslateBox = new XMOT.Class(XMOT.interaction.geometry.Geometry, {
 
     /**
-     *  @this {XMOT.interaction.geometry.TranslateBoxGeoConstructor}
+     *  @this {XMOT.interaction.geometry.TranslateBox}
      */
-    createDefsElements: function()
+    onCreateDefsElements: function()
     {
         // shaders
         this.geo.addShaders("s_transl", {
@@ -31,9 +31,9 @@ XMOT.interaction.geometry.TranslateBoxGeoConstructor = new XMOT.Class(XMOT.inter
     },
 
     /**
-     *  @this {XMOT.interaction.geometry.TranslateBoxGeoConstructor}
+     *  @this {XMOT.interaction.geometry.TranslateBox}
      */
-    createGraph: function()
+    onCreateGraph: function()
     {
         this.geo.addToGraphRoot([
              this._createRectGrp("xytrans"),
@@ -46,7 +46,24 @@ XMOT.interaction.geometry.TranslateBoxGeoConstructor = new XMOT.Class(XMOT.inter
     },
 
     /**
-     *  @this {XMOT.interaction.geometry.TranslateBoxGeoConstructor}
+     *  @this {XMOT.interaction.geometry.TranslateBox}
+     *  @override
+     *  @protected
+     */
+    onTargetXfmChanged: function()
+    {
+        var rectFac = 0.93; // scale of rectangles (same, 1x1 rects)
+
+        var rectScaleStr = rectFac + " " + rectFac + " " + rectFac;
+
+        this.geo.updateTransforms([
+            "t_xytrans", "t_xytrans_inv", "t_yztrans", "t_yztrans_inv",
+            "t_xztrans", "t_xztrans_inv"
+        ], {scale: rectScaleStr});
+    },
+
+    /**
+     *  @this {XMOT.interaction.geometry.TranslateBox}
      *  @private
      *
      *  @param {string} localID

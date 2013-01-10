@@ -14,19 +14,22 @@ XMOT.interaction.widgets.TransformBox = new XMOT.Class(
      *
      * @param {string} _id
      * @param {XMOT.Transformable} _target
-     * @param {{rotationFlips:{x: boolean, y: boolean, z: boolean},translationConstraints:Object}=} options
+     * @param {{rotationFlips:{x: boolean, y: boolean, z: boolean},translationConstraints:Object,enableScaling:boolean}=} options
      *
      * There are a couple of options that can be set (all optional).
      * o rotationFlips can be used to specify whether to flip the rotation around the given local axis.
      * o translationConstraints specifies constraints for the TranslateBox instance. They will be forwarded
      *   to TranslateBox as-is. Thus, take a look at the XMOT.interaction.widgets.TranslateBox() for
      *   more information.
+     * o enableScaling: if true scaling behavior is enabled. Else only the geometry will be used (the four cubes). The
+     *   geometry will be used anyway because this hides the overlapping rotation handles nicely.
      */
     initialize: function(_id, _target, options)
     {
         this.callSuper(_id, _target);
 
         this._flipRotAxes = {x: false, y: false, z: false};
+        this._enableScaling = true;
 
         options = options || {};
         if(options.rotationFlips)
@@ -39,6 +42,10 @@ XMOT.interaction.widgets.TransformBox = new XMOT.Class(
         {
             this._translConstraints = options.translationConstraints;
         }
+        if(options.enableScaling !== undefined)
+        {
+            this._enableScaling = options.enableScaling;
+        }
     },
 
     /**
@@ -48,17 +55,20 @@ XMOT.interaction.widgets.TransformBox = new XMOT.Class(
      */
     onCreateBehavior: function()
     {
-        // translation
+        this._setupTranslater();
+        this._setupRotater();
+        this._setupScaler();
+    },
+
+    _setupTranslater: function()
+    {
         this.behavior["translbox"] = new XMOT.interaction.widgets.TranslateBox(
             this.ID + "_translbox", this.target, this._translConstraints);
         this.behavior["translbox"].attach();
+    },
 
-        // scaling
-        this.behavior["scaler"] = new XMOT.interaction.widgets.UniformScaler(
-            this.ID + "_scaler", this.target);
-        this.behavior["scaler"].attach();
-
-        // rotation
+    _setupRotater: function()
+    {
         // options objects for the SingleAxisRotator
         var axes = [
             {axis: "x", color: "0.7 0 0", highlightColor: "0.9 0 0"},
@@ -77,6 +87,21 @@ XMOT.interaction.widgets.TransformBox = new XMOT.Class(
             this.behavior[id].attach();
 
             this.behavior[id].flipRotation(this._flipRotAxes[ax]);
+        }
+    },
+
+    _setupScaler: function()
+    {
+        if(this._enableScaling === true)
+        {
+            this.behavior["scaler"] = new XMOT.interaction.widgets.UniformScaler(
+                    this.ID + "_scaler", this.target);
+            this.behavior["scaler"].attach();
+        }
+        else // setup geometry only
+        {
+            this._scalerGeometry = new XMOT.interaction.geometry.UniformScaler(this);
+            this._scalerGeometry.constructAndAttach();
         }
     }
 });

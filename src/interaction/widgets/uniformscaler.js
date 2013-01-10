@@ -10,26 +10,7 @@ XMOT.namespace("XMOT.interaction.widgets");
 XMOT.interaction.widgets.UniformScaler = new XMOT.Class(
     XMOT.interaction.widgets.Widget, {
 
-    GeoConstructorType: XMOT.interaction.geometry.UniformScalerGeoConstructor,
-
-    /**
-     *  @this {XMOT.interaction.widgets.UniformScaler}
-     *  @override
-     *  @protected
-     */
-    onTargetXfmChanged: function()
-    {
-        var targetInvScale = XMOT.math.vecInverseScale(
-            this.target.object.getWorldMatrix().scaling().scale(1.15));
-
-        var cubeFac = 0.1; // scaling of cubes (also here those boxes)
-        var cube_scale = targetInvScale.scale(cubeFac);
-
-        var cubeScaleStr = cube_scale.x + " " + cube_scale.y + " " + cube_scale.z;
-        this.geo.updateTransforms([
-            "t_cube_frontleft", "t_cube_frontright", "t_cube_backleft", "t_cube_backright"
-        ], {scale: cubeScaleStr});
-    },
+    GeometryType: XMOT.interaction.geometry.UniformScaler,
 
     /**
      *  @this {XMOT.interaction.widgets.UniformScaler}

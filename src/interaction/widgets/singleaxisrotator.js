@@ -14,7 +14,7 @@ XMOT.namespace("XMOT.interaction.widgets");
 XMOT.interaction.widgets.SingleAxisRotator = new XMOT.Class(
     XMOT.interaction.widgets.Widget, {
 
-    GeoConstructorType: XMOT.interaction.geometry.SingleAxisRotatorGeoConstructor,
+    GeometryType: XMOT.interaction.geometry.SingleAxisRotator,
 
     /** Initializes the AxisRotator.
      *
@@ -47,7 +47,7 @@ XMOT.interaction.widgets.SingleAxisRotator = new XMOT.Class(
             this._rotationAxis = _opts.axis;
         }
 
-        this.geoConstructor.parseOptions(_opts);
+        this.geometry.parseOptions(_opts);
     },
 
     /** Set and/or retrieve the axis restriction.
@@ -79,27 +79,6 @@ XMOT.interaction.widgets.SingleAxisRotator = new XMOT.Class(
     // --------------------------------
     // -- Widget callbacks --
     // --------------------------------
-    /**
-     *  @this {XMOT.interaction.widgets.SingleAxisRotator}
-     *  @override
-     *  @protected
-     */
-    onTargetXfmChanged: function()
-    {
-        // variables
-        var targetInvScale = XMOT.math.vecInverseScale(
-            this.target.object.getWorldMatrix().scaling().scale(1.15));
-
-        var handleFac = 0.05; // scaling of handles (are 1x1x1 boxes, so scale them down)
-
-        var handle_scale = targetInvScale.scale(handleFac);
-
-        // rotation handles
-        var handleScaleStr = handle_scale.x + " 1 " + handle_scale.z;
-        this.geo.updateTransforms([
-            "t_rot_1", "t_rot_2", "t_rot_3", "t_rot_4"
-        ], {scale: handleScaleStr});
-    },
 
     /**
      *  @this {XMOT.interaction.widgets.SingleAxisRotator}

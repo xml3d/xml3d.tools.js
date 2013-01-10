@@ -47,12 +47,12 @@
         <file name="util/viewtracker.js" />
         <file name="util/transformsensor.js" />
 
-        <file name="interaction/geometry/geoconstructor.js" />
-        <file name="interaction/geometry/ringmenugeoconstructor.js" />
-        <file name="interaction/geometry/uniformscalergeoconstructor.js" />
-        <file name="interaction/geometry/rotatorboxgeoconstructor.js" />
-        <file name="interaction/geometry/singleaxisrotatorgeoconstructor.js" />
-        <file name="interaction/geometry/translateboxgeoconstructor.js" />
+        <file name="interaction/geometry/geometry.js" />
+        <file name="interaction/geometry/ringmenu.js" />
+        <file name="interaction/geometry/uniformscaler.js" />
+        <file name="interaction/geometry/rotatorbox.js" />
+        <file name="interaction/geometry/singleaxisrotator.js" />
+        <file name="interaction/geometry/translatebox.js" />
 
         <file name="interaction/behaviors/pdsensor.js" />
         <file name="interaction/behaviors/planesensor.js" />

@@ -1,9 +1,9 @@
 XMOT.namespace("XMOT.interaction.geometry");
 
-XMOT.interaction.geometry.SingleAxisRotatorGeoConstructor = new XMOT.Class(XMOT.interaction.geometry.GeoConstructor, {
+XMOT.interaction.geometry.SingleAxisRotator = new XMOT.Class(XMOT.interaction.geometry.Geometry, {
 
     /**
-     *  @this {XMOT.interaction.geometry.SingleAxisRotatorGeoConstructor}
+     *  @this {XMOT.interaction.geometry.SingleAxisRotator}
      *  @param {XMOT.interaction.widgets.Widget} widget
      */
     initialize: function(widget)
@@ -16,7 +16,7 @@ XMOT.interaction.geometry.SingleAxisRotatorGeoConstructor = new XMOT.Class(XMOT.
     },
 
     /**
-     *  @this {XMOT.interaction.geometry.SingleAxisRotatorGeoConstructor}
+     *  @this {XMOT.interaction.geometry.SingleAxisRotator}
      */
     parseOptions: function(opts)
     {
@@ -32,9 +32,9 @@ XMOT.interaction.geometry.SingleAxisRotatorGeoConstructor = new XMOT.Class(XMOT.
     },
 
     /**
-     *  @this {XMOT.interaction.geometry.SingleAxisRotatorGeoConstructor}
+     *  @this {XMOT.interaction.geometry.SingleAxisRotator}
      */
-    createDefsElements: function()
+    onCreateDefsElements: function()
     {
         // shaders
         this.geo.addShaders("s_rot_root", {diffCol: this.color, ambInt: 0.8});
@@ -57,9 +57,9 @@ XMOT.interaction.geometry.SingleAxisRotatorGeoConstructor = new XMOT.Class(XMOT.
     },
 
     /**
-     *  @this {XMOT.interaction.geometry.SingleAxisRotatorGeoConstructor}
+     *  @this {XMOT.interaction.geometry.SingleAxisRotator}
      */
-    createGraph: function()
+    onCreateGraph: function()
     {
         var yrot = XMOT.creation.element("group", {
             id: this.geo.globalID("rot_root"),
@@ -77,7 +77,29 @@ XMOT.interaction.geometry.SingleAxisRotatorGeoConstructor = new XMOT.Class(XMOT.
     },
 
     /**
-     *  @this {XMOT.interaction.geometry.SingleAxisRotatorGeoConstructor}
+     *  @this {XMOT.interaction.geometry.SingleAxisRotator}
+     *  @override
+     *  @protected
+     */
+    onTargetXfmChanged: function()
+    {
+        // variables
+        var targetInvScale = XMOT.math.vecInverseScale(
+            this.targetNode.getWorldMatrix().scaling().scale(1.15));
+
+        var handleFac = 0.05; // scaling of handles (are 1x1x1 boxes, so scale them down)
+
+        var handle_scale = targetInvScale.scale(handleFac);
+
+        // rotation handles
+        var handleScaleStr = handle_scale.x + " 1 " + handle_scale.z;
+        this.geo.updateTransforms([
+            "t_rot_1", "t_rot_2", "t_rot_3", "t_rot_4"
+        ], {scale: handleScaleStr});
+    },
+
+    /**
+     *  @this {XMOT.interaction.geometry.SingleAxisRotator}
      *  @private
      *
      *  @param {string} localID

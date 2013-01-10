@@ -1,11 +1,11 @@
 XMOT.namespace("XMOT.interaction.geometry");
 
-XMOT.interaction.geometry.UniformScalerGeoConstructor = new XMOT.Class(XMOT.interaction.geometry.GeoConstructor, {
+XMOT.interaction.geometry.UniformScaler = new XMOT.Class(XMOT.interaction.geometry.Geometry, {
 
     /**
-     *  @this {XMOT.interaction.geometry.UniformScalerGeoConstructor}
+     *  @this {XMOT.interaction.geometry.UniformScaler}
      */
-    createDefsElements: function()
+    onCreateDefsElements: function()
     {
         this.geo.addShaders("s_scale", {diffCol: "0.9 0.9 0.9"});
         this.geo.addShaders("s_scale_highlight", {diffCol: "0.9 0.9 0"});
@@ -22,9 +22,9 @@ XMOT.interaction.geometry.UniformScalerGeoConstructor = new XMOT.Class(XMOT.inte
     },
 
     /**
-     *  @this {XMOT.interaction.geometry.UniformScalerGeoConstructor}
+     *  @this {XMOT.interaction.geometry.UniformScaler}
      */
-    createGraph: function()
+    onCreateGraph: function()
     {
         var top = XMOT.creation.element("group", {
             transform: "#" + this.geo.globalID("t_top_cubes"),
@@ -57,7 +57,26 @@ XMOT.interaction.geometry.UniformScalerGeoConstructor = new XMOT.Class(XMOT.inte
     },
 
     /**
-     *  @this {XMOT.interaction.geometry.UniformScalerGeoConstructor}
+     *  @this {XMOT.interaction.geometry.UniformScaler}
+     *  @override
+     *  @protected
+     */
+    onTargetXfmChanged: function()
+    {
+        var targetInvScale = XMOT.math.vecInverseScale(
+            this.targetNode.getWorldMatrix().scaling().scale(1.15));
+
+        var cubeFac = 0.1; // scaling of cubes (also here those boxes)
+        var cube_scale = targetInvScale.scale(cubeFac);
+
+        var cubeScaleStr = cube_scale.x + " " + cube_scale.y + " " + cube_scale.z;
+        this.geo.updateTransforms([
+            "t_cube_frontleft", "t_cube_frontright", "t_cube_backleft", "t_cube_backright"
+        ], {scale: cubeScaleStr});
+    },
+
+    /**
+     *  @this {XMOT.interaction.geometry.UniformScaler}
      *  @private
      *
      *  @param {string} localTransformID id of the transform element the created group will refer to

@@ -5,16 +5,22 @@ XMOT.namespace("XMOT.interaction.widgets");
  * Widget is a utility base class, that gathers some common functions required
  * by most widgets.
  *
- * o geo and behavior attributes: places where to put geometry and behavior
+ * o geometry and behavior attributes: places where to put geometry and behavior
  * o attach/detach(): automatic attach and detach and invoking corresponding callbacks, so child classes can react.
  * o onTargetXfmChanged() : called automatically when target's transformation changes
  * o callbacks where object creation/destruction takes place
  * o inherited from XMOT.util.Observable: child classes can use event mechanism easily.
  *
+ * Derived classes have to specify the property GeometryType. It is used to construct the geometry
+ * of the specific widget.
+ *
  * @extends XMOT.util.Observable
  */
 XMOT.interaction.widgets.Widget = new XMOT.Class(
     XMOT.util.Observable, {
+
+    // this should be overriden by derived classes, else the widget won't have any geometry
+    GeometryType: XMOT.interaction.geometry.Geometry,
 
     /** Sets up the basic construct for a widget and attaches it(!).
      *
@@ -50,9 +56,7 @@ XMOT.interaction.widgets.Widget = new XMOT.Class(
         var rootGrp = this.target.object.parentNode;
         this.root = XMOT.ClientMotionFactory.createTransformable(rootGrp);
 
-        this.geo = new XMOT.util.GeoObject(this.ID, this.xml3d, rootGrp);
-        if(this.GeoConstructorType)
-            this.geoConstructor = new this.GeoConstructorType(this);
+        this.geometry = new this.GeometryType(this);
         this.behavior = {}; // localID -> behavior, storage for all sensors and alike
 
         /** @private */
@@ -68,8 +72,8 @@ XMOT.interaction.widgets.Widget = new XMOT.Class(
     {
         if(!this._isAttached)
         {
-            this._createGeometry();
-            this._createBehavior();
+            this.geometry.constructAndAttach();
+            this.onCreateBehavior();
 
             this._isAttached = true;
         }
@@ -81,7 +85,7 @@ XMOT.interaction.widgets.Widget = new XMOT.Class(
         if(this._isAttached)
         {
             this._destroyBehavior();
-            this._destroyGeometry();
+            this.geometry.destroy();
 
             this._isAttached = false;
         }
@@ -122,39 +126,7 @@ XMOT.interaction.widgets.Widget = new XMOT.Class(
     },
 
     // --- Methods to be overriden ---
-    /** Called when transformation of target node changes
-     *
-     *  @this {XMOT.interaction.widgets.Widget}
-     *  @protected
-     */
-    onTargetXfmChanged: function() {},
 
-    /** Called when the document finished loading, i.e. the target object's bounding box
-     *  is not empty.
-     *
-     *  @this {XMOT.interaction.widgets.Widget}
-     *  @protected
-     */
-    onDocumentReady: function() {},
-
-    /** Called when the geo's defs elements should be filled. This is after
-     *  the widget's setup, i.e. a transform called "t_root" will be available already.
-     *
-     *  @this {XMOT.interaction.widgets.Widget}
-     *  @protected
-     */
-    onCreateDefsElements: function() {},
-    /** Called when the geo's graph section should be filled. This is after
-     *  the widget's setup, i.e. the graph root is already present and elements should
-     *  be appended to that root.
-     *
-     *  The size of the target node is already incorporated, so the graph elements can
-     *  take a unit size. This is why the widget handles the root element.
-     *
-     *  @this {XMOT.interaction.widgets.Widget}
-     *  @protected
-     */
-    onCreateGraph: function() {},
     /** Called after defs and groups are attached and the behavior can be set up. This
      *  is done afterwards a TransformTracker is placed in behavior["target_track"] which
      *  will invoke the onTarXfmChanged() method, so that clients have a place to adjust
@@ -164,12 +136,6 @@ XMOT.interaction.widgets.Widget = new XMOT.Class(
      *  @protected
      */
     onCreateBehavior: function() {},
-    /** Called before geo's stuff is destroyed.
-     *
-     *  @this {XMOT.interaction.widgets.Widget}
-     *  @protected
-     */
-    onDestroyGeometry: function() {},
     /** Called before geometry is destroyed and where the sensor attribute is still filled.
      *
      *  @this {XMOT.interaction.widgets.Widget}
@@ -207,48 +173,6 @@ XMOT.interaction.widgets.Widget = new XMOT.Class(
     // ========================================================================
     // --- Private ---
     // ========================================================================
-    /**
-     *  @this {XMOT.interaction.widgets.Widget}
-     *  @private
-     */
-    _createGeometry: function()
-    {
-        this._createDefsElements();     // own setup
-        if(this.geoConstructor)
-            this.geoConstructor.createDefsElements();
-        this.onCreateDefsElements();    // client's setup
-        this.geo.attachDefs();          // attach 'em
-
-        this._createGraph();
-        if(this.geoConstructor)
-            this.geoConstructor.createGraph();
-        this.onCreateGraph();
-        this.geo.attachGraph();
-
-        this._onTargetXfmChanged();
-    },
-
-    /**
-     *  @this {XMOT.interaction.widgets.Widget}
-     *  @private
-     */
-    _createBehavior: function()
-    {
-        this.behavior["target_track"] = new XMOT.TransformTracker(this.target.object);
-        this.behavior["target_track"].xfmChanged = this.callback("_onTargetXfmChanged");
-
-        this.onCreateBehavior();
-    },
-
-    /**
-     *  @this {XMOT.interaction.widgets.Widget}
-     *  @private
-     */
-    _destroyGeometry: function()
-    {
-        this.onDestroyGeometry();
-        this.geo.destroy();
-    },
 
     /**
      *  @this {XMOT.interaction.widgets.Widget}
@@ -280,39 +204,8 @@ XMOT.interaction.widgets.Widget = new XMOT.Class(
     	if(!this.target.object.getBoundingBox().isEmpty())
 		{
     		this.xml3d.removeEventListener("framedrawn", this.callback("_onXml3dFrameDrawn"), false);
-    		this._onDocumentReady();
+    		this._updateDefsElements();
 		}
-    },
-
-    /**
-     *  @this {XMOT.interaction.widgets.Widget}
-     *  @private
-     */
-    _onDocumentReady: function()
-    {
-    	this._updateDefsElements();
-    	this.onDocumentReady();
-    },
-
-    /**
-     *  @this {XMOT.interaction.widgets.Widget}
-     *  @private
-     */
-    _onTargetXfmChanged: function()
-    {
-        this.onTargetXfmChanged();
-    },
-
-    /**
-     *  @this {XMOT.interaction.widgets.Widget}
-     *  @private
-     */
-    _createDefsElements: function()
-    {
-        // root
-        this.geo.addTransforms("t_root");
-
-        this._updateDefsElements();
     },
 
     _updateDefsElements: function() {
@@ -336,22 +229,10 @@ XMOT.interaction.widgets.Widget = new XMOT.Class(
         }
 
         // root
-        this.geo.updateTransforms("t_root", {
+        this.geometry.geo.updateTransforms("t_root", {
         	transl: translation.str(),
         	scale: scale.str(),
             rot: targetXfm.rotation.str()
         });
-    },
-
-    /**
-     *  @this {XMOT.interaction.widgets.Widget}
-     *  @private
-     */
-    _createGraph: function()
-    {
-        this.geo.setGraphRoot(XMOT.creation.element("group", {
-            id: this.globalID("g_root"),
-            transform: "#" + this.globalID("t_root")
-        }));
     }
 });

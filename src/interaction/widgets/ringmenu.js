@@ -10,7 +10,7 @@ XMOT.namespace("XMOT.interaction.widgets");
 XMOT.interaction.widgets.RingMenu = new XMOT.Class(
     XMOT.interaction.widgets.Widget, {
 
-    GeoConstructorType: XMOT.interaction.geometry.RingMenuGeoConstructor,
+    GeometryType: XMOT.interaction.geometry.RingMenu,
 
     /** Setup the ring menu and attach it to the target group.
      *
@@ -95,19 +95,19 @@ XMOT.interaction.widgets.RingMenu = new XMOT.Class(
             this.callback("_onKeyUp"), false);
 
         // left-arrow focusing
-        eFn.call(this.geoConstructor.geoChooseLeft, "click",
+        eFn.call(this.geometry.geoChooseLeft, "click",
             this.callback("stepLeft"), false);
-        eFn.call(this.geoConstructor.geoChooseLeft, "mouseover",
+        eFn.call(this.geometry.geoChooseLeft, "mouseover",
                 this.callback("_focusLeftArrow"), false);
-        eFn.call(this.geoConstructor.geoChooseLeft, "mouseout",
+        eFn.call(this.geometry.geoChooseLeft, "mouseout",
                 this.callback("_defocusLeftArrow"), false);
 
         // right-arrow focusing
-        eFn.call(this.geoConstructor.geoChooseRight, "click",
+        eFn.call(this.geometry.geoChooseRight, "click",
             this.callback("stepRight"), false);
-        eFn.call(this.geoConstructor.geoChooseRight, "mouseover",
+        eFn.call(this.geometry.geoChooseRight, "mouseover",
                 this.callback("_focusRightArrow"), false);
-        eFn.call(this.geoConstructor.geoChooseRight, "mouseout",
+        eFn.call(this.geometry.geoChooseRight, "mouseout",
             this.callback("_defocusRightArrow"), false);
     },
 
@@ -117,7 +117,7 @@ XMOT.interaction.widgets.RingMenu = new XMOT.Class(
      */
     _focusLeftArrow: function()
     {
-        this._focusArrow(this.geoConstructor.geoChooseLeft);
+        this._focusArrow(this.geometry.geoChooseLeft);
     },
 
     /**
@@ -126,7 +126,7 @@ XMOT.interaction.widgets.RingMenu = new XMOT.Class(
      */
     _defocusLeftArrow: function()
     {
-        this._focusArrow(this.geoConstructor.geoChooseLeft, true);
+        this._focusArrow(this.geometry.geoChooseLeft, true);
     },
 
     /**
@@ -135,7 +135,7 @@ XMOT.interaction.widgets.RingMenu = new XMOT.Class(
      */
     _focusRightArrow: function()
     {
-        this._focusArrow(this.geoConstructor.geoChooseRight);
+        this._focusArrow(this.geometry.geoChooseRight);
     },
 
     /**
@@ -144,7 +144,7 @@ XMOT.interaction.widgets.RingMenu = new XMOT.Class(
      */
     _defocusRightArrow: function()
     {
-        this._focusArrow(this.geoConstructor.geoChooseRight, true);
+        this._focusArrow(this.geometry.geoChooseRight, true);
     },
 
     /**
@@ -154,9 +154,9 @@ XMOT.interaction.widgets.RingMenu = new XMOT.Class(
     _focusArrow: function(arr, disableFocus)
     {
         if(disableFocus)
-            XMOT.util.shader(arr, this.geo.defs["s_choose"]);
+            XMOT.util.shader(arr, this.geometry.geo.defs["s_choose"]);
         else
-            XMOT.util.shader(arr, this.geo.defs["s_chooseHigh"]);
+            XMOT.util.shader(arr, this.geometry.geo.defs["s_chooseHigh"]);
     },
 
     /**

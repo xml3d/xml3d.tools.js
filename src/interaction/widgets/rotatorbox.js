@@ -14,7 +14,7 @@ XMOT.namespace("XMOT.interaction.widgets");
 XMOT.interaction.widgets.RotatorBox = new XMOT.Class(
     XMOT.interaction.widgets.Widget, {
 
-    GeoConstructorType: XMOT.interaction.geometry.RotatorBoxGeoConstructor,
+    GeometryType: XMOT.interaction.geometry.RotatorBox,
 
     /** Creates the geometry and behavior for the XMOT.interaction.widgets.RotatorBox and attaches it to
      *  the _target node, i.e. adding it to the _target's parent node children.
@@ -33,7 +33,7 @@ XMOT.interaction.widgets.RotatorBox = new XMOT.Class(
         this.callSuper(_id, _target);
 
         if(_arrowScaleFac)
-            this.geoConstructor.arrowScaleFactor = _arrowScaleFac;
+            this.geometry.arrowScaleFactor = _arrowScaleFac;
 
         // -- Rotation Arrows Variables --
         /** the translation plane group at which the currently active rotation interface
@@ -67,7 +67,7 @@ XMOT.interaction.widgets.RotatorBox = new XMOT.Class(
     onDestroyGeometry: function()
     {
         this._deactivateArrow();
-        this.geoConstructor.arrows = null;
+        this.geometry.arrows = null;
     },
 
     // ========================================================================
@@ -91,7 +91,7 @@ XMOT.interaction.widgets.RotatorBox = new XMOT.Class(
         // only popup on "bare" touches
         if(!evt.ctrlKey && !evt.altKey && !evt.shiftKey && !evt.metaKey)
         {
-            if(!this.geoConstructor.arrows["root"] || !sensor.pickGroups[0])
+            if(!this.geometry.arrows["root"] || !sensor.pickGroups[0])
                 return;
 
             // hit arrow, do nothing
@@ -124,22 +124,22 @@ XMOT.interaction.widgets.RotatorBox = new XMOT.Class(
     {
         var globMat = target.getWorldMatrix();
 
-        target.appendChild(this.geoConstructor.arrows["root"]);
+        target.appendChild(this.geometry.arrows["root"]);
         this._activeRotFace = target;
 
         // calculate inverse scale of target's global matrix
         var invScale = XMOT.math.vecInverseScale(globMat.scaling());
-        var tArrowRoot = XMOT.util.transform(this.geoConstructor.arrows["root"]);
+        var tArrowRoot = XMOT.util.transform(this.geometry.arrows["root"]);
         tArrowRoot.setAttribute("scale", invScale.str());
 
         // arrows
-        this.geoConstructor.arrows["left"].addEventListener("click",
+        this.geometry.arrows["left"].addEventListener("click",
             this.callback("_onRotateLeft"), false);
-        this.geoConstructor.arrows["right"].addEventListener("click",
+        this.geometry.arrows["right"].addEventListener("click",
             this.callback("_onRotateRight"), false);
-        this.geoConstructor.arrows["top"].addEventListener("click",
+        this.geometry.arrows["top"].addEventListener("click",
             this.callback("_onRotateUp"), false);
-        this.geoConstructor.arrows["bot"].addEventListener("click",
+        this.geometry.arrows["bot"].addEventListener("click",
             this.callback("_onRotateDown"), false);
     },
 
@@ -152,8 +152,8 @@ XMOT.interaction.widgets.RotatorBox = new XMOT.Class(
     {
         var oldFace = this._activeRotFace;
 
-        if(this.geoConstructor.arrows["root"].parentNode)
-            this.geoConstructor.arrows["root"].parentNode.removeChild(this.geoConstructor.arrows["root"]);
+        if(this.geometry.arrows["root"].parentNode)
+            this.geometry.arrows["root"].parentNode.removeChild(this.geometry.arrows["root"]);
         this._activeRotFace = null;
 
         return oldFace;
@@ -220,7 +220,7 @@ XMOT.interaction.widgets.RotatorBox = new XMOT.Class(
 
         // we rotate the given local axis according to the local coordinate
         // the arrows are inside (i.e. on one of the translation planes)
-        var xfmRot = XMOT.util.transform(this.geoConstructor.arrows["root"].parentNode).rotation;
+        var xfmRot = XMOT.util.transform(this.geometry.arrows["root"].parentNode).rotation;
 
         // transform local rotation
         var transAxis = xfmRot.rotateVec3(localAxis);

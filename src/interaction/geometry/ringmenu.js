@@ -1,9 +1,9 @@
 XMOT.namespace("XMOT.interaction.geometry");
 
-XMOT.interaction.geometry.RingMenuGeoConstructor = new XMOT.Class(XMOT.interaction.geometry.GeoConstructor, {
+XMOT.interaction.geometry.RingMenu = new XMOT.Class(XMOT.interaction.geometry.Geometry, {
 
     /**
-     *  @this {XMOT.interaction.geometry.RingMenuGeoConstructor}
+     *  @this {XMOT.interaction.geometry.RingMenu}
      *  @param {XMOT.interaction.widgets.Widget} widget
      */
     initialize: function(widget)
@@ -17,9 +17,9 @@ XMOT.interaction.geometry.RingMenuGeoConstructor = new XMOT.Class(XMOT.interacti
     },
 
     /**
-     *  @this {XMOT.interaction.geometry.RingMenuGeoConstructor}
+     *  @this {XMOT.interaction.geometry.RingMenu}
      */
-    createDefsElements: function()
+    onCreateDefsElements: function()
     {
         // shaders
         this.geo.addShaders("s_choose", {diffCol: "0.9 0 0"});
@@ -45,9 +45,9 @@ XMOT.interaction.geometry.RingMenuGeoConstructor = new XMOT.Class(XMOT.interacti
     },
 
     /**
-     *  @this {XMOT.interaction.geometry.RingMenuGeoConstructor}
+     *  @this {XMOT.interaction.geometry.RingMenu}
      */
-    createGraph: function()
+    onCreateGraph: function()
     {
         this.geoChooseLeft = XMOT.creation.element("group", {
             id: this.geo.globalID("chooseleft"),
@@ -69,7 +69,7 @@ XMOT.interaction.geometry.RingMenuGeoConstructor = new XMOT.Class(XMOT.interacti
 
 
     /**
-     *  @this {XMOT.interaction.geometry.RingMenuGeoConstructor}
+     *  @this {XMOT.interaction.geometry.RingMenu}
      *  @private
      */
     _createArrowGroup: function()

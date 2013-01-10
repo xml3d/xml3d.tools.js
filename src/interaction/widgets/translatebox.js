@@ -11,7 +11,7 @@ XMOT.namespace("XMOT.interaction.widgets");
 XMOT.interaction.widgets.TranslateBox = new XMOT.Class(
     XMOT.interaction.widgets.Widget, {
 
-    GeoConstructorType: XMOT.interaction.geometry.TranslateBoxGeoConstructor,
+    GeometryType: XMOT.interaction.geometry.TranslateBox,
 
     listenerTypes: [
        "dragstart", "dragend", "touch"// args: (this, sensor, original event)
@@ -32,23 +32,6 @@ XMOT.interaction.widgets.TranslateBox = new XMOT.Class(
         this.callSuper(_id, _target);
 
         this._constraints = constraints || {};
-    },
-
-    /**
-     *  @this {XMOT.interaction.widgets.TranslateBox}
-     *  @override
-     *  @protected
-     */
-    onTargetXfmChanged: function()
-    {
-        var rectFac = 0.93; // scale of rectangles (same, 1x1 rects)
-
-        var rectScaleStr = rectFac + " " + rectFac + " " + rectFac;
-
-        this.geo.updateTransforms([
-            "t_xytrans", "t_xytrans_inv", "t_yztrans", "t_yztrans_inv",
-            "t_xztrans", "t_xztrans_inv"
-        ], {scale: rectScaleStr});
     },
 
     // --------------------------------
@@ -84,7 +67,7 @@ XMOT.interaction.widgets.TranslateBox = new XMOT.Class(
     _onDragStart: function(sensor, ev)
     {
         XMOT.util.shader(sensor.pickGroups[0],
-            this.geo.defs["s_transl_highlight"]);
+            this.geometry.geo.defs["s_transl_highlight"]);
 
         this.notifyListeners("dragstart", this, sensor, ev);
     },
@@ -100,7 +83,7 @@ XMOT.interaction.widgets.TranslateBox = new XMOT.Class(
     _onDragEnd: function(sensor, ev)
     {
         XMOT.util.shader(sensor.pickGroups[0],
-            this.geo.defs["s_transl"]);
+            this.geometry.geo.defs["s_transl"]);
 
         this.notifyListeners("dragend", this, sensor, ev);
     },
