@@ -2,7 +2,7 @@
 var sensors = null;
 var xml3d = null;
 
-var active = false; 
+var active = false;
 
 function initScene()
 {
@@ -12,18 +12,18 @@ function initScene()
     $("#group2").append(XMOT.creation.box(xml3d));
     $("#group3").append(XMOT.creation.box(xml3d));
 
-    sensors = new Array(); 
-    
+    sensors = new Array();
+
     toggle();
 }
 
 function attachSensor()
 {
-    var fac = XMOT.ClientMotionFactory; 
+    var fac = XMOT.ClientMotionFactory;
     var xfm1 = fac.createTransformable($("#group1")[0]);
     var xfm2 = fac.createTransformable($("#group2")[0]);
-    var xfm3 = fac.createTransformable($("#group3")[0]); 
-    
+    var xfm3 = fac.createTransformable($("#group3")[0]);
+
     sensors[0] = new XMOT.interaction.widgets.SingleAxisRotator(
         "myxrot", xfm1, {axis: "x"}
     );
@@ -42,6 +42,7 @@ function detachSensor()
 {
     for(var i = 0; i < sensors.length; i++)
         sensors[i].detach();
+    sensors = new Array();
 }
 
 function toggle()

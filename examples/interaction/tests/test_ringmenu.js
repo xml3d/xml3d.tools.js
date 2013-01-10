@@ -1,6 +1,6 @@
 var xml3d = null;
 
-var ringmenu = null; 
+var ringmenu = null;
 
 //--- Startup ---
 window.addEventListener('load', onLoad, false);
@@ -24,8 +24,8 @@ function onLoad()
     XML3D.util.getOrCreateActiveView(xml3d).lookAt(origin);
 
     // create ring menu
-    var target = $("#container")[0]; 
-    
+    var target = $("#container")[0];
+
     ringmenu = new XMOT.interaction.widgets.RingMenu("myRingmenu", target, 5);
     ringmenu.attach();
 }

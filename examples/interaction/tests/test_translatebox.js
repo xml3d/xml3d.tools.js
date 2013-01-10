@@ -2,7 +2,7 @@ var sensor = null;
 var xml3d = null;
 var g_sphere = null;
 
-var active = false; 
+var active = false;
 
 function initScene()
 {
@@ -15,15 +15,15 @@ function initScene()
 
 function attachSensor()
 {
-    var xfm = XMOT.ClientMotionFactory.createTransformable($("#group1")[0]); 
-    sensor = new XMOT.interaction.widgets.TranslateBox("mybox", xfm); 
+    var xfm = XMOT.ClientMotionFactory.createTransformable($("#group1")[0]);
+    sensor = new XMOT.interaction.widgets.TranslateBox("mybox", xfm);
     sensor.attach();
 }
 
 function detachSensor()
 {
-    sensor.detach(); 
-    sensor = null; 
+    sensor.detach();
+    sensor = null;
 }
 
 function toggle()
