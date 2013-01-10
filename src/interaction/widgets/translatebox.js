@@ -18,11 +18,18 @@ XMOT.interaction.widgets.TranslateBox = new XMOT.Class(
     /** 
      *  @inheritDoc 
      *  @this {XMOT.interaction.widgets.TranslateBox}
+     *  
+     *  @param {{xyplane:XMOT.Constraint,yzplane:XMOT.Constraint,xzplane:XMOT.Constraint}} constraints 
+     *   
+     *  For each plane a constraint can be specified, that will be applied when 
+     *  updating the translations. The parameter itself as well as all properties 
+     *  are optional. 
      */
-    initialize: function(_id, _target)
-    {        
-        this.callSuper(_id, _target); 
-       
+    initialize: function(_id, _target, constraints)
+    {   
+        this._constraints = constraints || {};
+        
+        this.callSuper(_id, _target);
     }, 
 
     /** 
@@ -59,7 +66,7 @@ XMOT.interaction.widgets.TranslateBox = new XMOT.Class(
         });
         this.geo.addShaders("s_transl_highlight", {
             diffCol: "1 1 1", transp: "0.4"
-        });        
+        });
         
         // transforms        
         this.geo.addTransforms("t_xytrans", {
@@ -99,13 +106,13 @@ XMOT.interaction.widgets.TranslateBox = new XMOT.Class(
      *  @protected
      */
     onCreateBehavior: function()
-    {       
-        this._addTransSensor("xytrans");
-        this._addTransSensor("xytrans_inv"); 
-        this._addTransSensor("yztrans"); 
-        this._addTransSensor("yztrans_inv"); 
-        this._addTransSensor("xztrans"); 
-        this._addTransSensor("xztrans_inv"); 
+    {          
+        this._addTransSensor("xytrans", this._constraints.xyplane);
+        this._addTransSensor("xytrans_inv", this._constraints.xyplane); 
+        this._addTransSensor("yztrans", this._constraints.yzplane); 
+        this._addTransSensor("yztrans_inv", this._constraints.yzplane); 
+        this._addTransSensor("xztrans", this._constraints.xzplane); 
+        this._addTransSensor("xztrans_inv", this._constraints.xzplane); 
     },
 
     // --------------------------------
@@ -163,15 +170,18 @@ XMOT.interaction.widgets.TranslateBox = new XMOT.Class(
      *  @private
      *  
      *  @param {string} localID
+     *  @param {XMOT.Constraint=} constraint
      */
-    _addTransSensor: function(localID)
+    _addTransSensor: function(localID, constraint)
     {
         // create sensor
         var pickGrp = this.element(localID);        
         var id = this.globalID(localID + "Sensor");
+        
+        var rootTransformable = XMOT.ClientMotionFactory.createTransformable(this.root.object, constraint);
 
         this.behavior[localID] = new XMOT.interaction.behaviors.Translater(
-            id, [pickGrp], this.root, pickGrp);
+            id, [pickGrp], rootTransformable, pickGrp);
         
         // attach listeners
         var self = this;
