@@ -27,6 +27,7 @@ function onLoad()
     var target = $("#container")[0]; 
     
     ringmenu = new XMOT.interaction.widgets.RingMenu("myRingmenu", target, 5);
+    ringmenu.attach();
 }
 
 function createTestObjects()

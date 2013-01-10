@@ -61,7 +61,6 @@ XMOT.interaction.widgets.Widget = new XMOT.Class(
     	this.xml3d.addEventListener("framedrawn", this.callback("_onXml3dFrameDrawn"), false);
 
         this._isAttached = false;
-        this.attach();
     },
 
     /** @this {XMOT.interaction.widgets.Widget} */

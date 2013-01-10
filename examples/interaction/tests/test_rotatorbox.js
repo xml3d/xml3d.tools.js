@@ -20,6 +20,7 @@ function onLoad()
     var tarXfm = XMOT.ClientMotionFactory.createTransformable(target);
     
     xfmBox = new XMOT.interaction.widgets.RotatorBox("myRotatorBox", tarXfm, 5); 
+    xfmBox.attach();
 }
 
 function toggleRotatorBox()

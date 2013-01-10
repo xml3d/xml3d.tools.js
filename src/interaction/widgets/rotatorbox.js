@@ -98,6 +98,7 @@ XMOT.interaction.widgets.RotatorBox = new XMOT.Class(
         this.behavior["transbox"] = new XMOT.interaction.widgets.TranslateBox(
             this.globalID("transbox"), this.target
         );
+        this.behavior["transbox"].attach();
 
         this.behavior["transbox"].addListener("touch", this.callback("_handleTransTouch"));
     },

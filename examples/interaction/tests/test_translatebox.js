@@ -17,6 +17,7 @@ function attachSensor()
 {
     var xfm = XMOT.ClientMotionFactory.createTransformable($("#group1")[0]); 
     sensor = new XMOT.interaction.widgets.TranslateBox("mybox", xfm); 
+    sensor.attach();
 }
 
 function detachSensor()

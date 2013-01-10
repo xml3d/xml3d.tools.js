@@ -33,14 +33,15 @@ function attachSensor()
     sensors[2] = new XMOT.interaction.widgets.SingleAxisRotator(
         "myzrot", xfm3, {axis: "z"}
     );
+
+    for(var i = 0; i < sensors.length; i++)
+        sensors[i].attach();
 }
 
 function detachSensor()
 {
-    sensors[0].detach();
-    sensors[1].detach(); 
-    sensors[2].detach(); 
-    sensors = new Array(); 
+    for(var i = 0; i < sensors.length; i++)
+        sensors[i].detach();
 }
 
 function toggle()

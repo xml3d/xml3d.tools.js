@@ -20,7 +20,8 @@ function onLoad()
     var tarXfm = XMOT.ClientMotionFactory.createTransformable(target);
     
     xfmBox = new XMOT.interaction.widgets.TransformBox("myXfmBox", tarXfm);
-    
+    xfmBox.attach();
+
     xfmBoxOn = true;
     $("#b_togglebox").val("Detach Widget");
 }

@@ -51,10 +51,12 @@ XMOT.interaction.widgets.TransformBox = new XMOT.Class(
         // translation
         this.behavior["translbox"] = new XMOT.interaction.widgets.TranslateBox(
             this.ID + "_translbox", this.target, this._translConstraints);
+        this.behavior["translbox"].attach();
 
         // scaling
         this.behavior["scaler"] = new XMOT.interaction.widgets.UniformScaler(
             this.ID + "_scaler", this.target);
+        this.behavior["scaler"].attach();
 
         // rotation
         // options objects for the SingleAxisRotator
@@ -72,6 +74,7 @@ XMOT.interaction.widgets.TransformBox = new XMOT.Class(
             this.behavior[id] = new XMOT.interaction.widgets.SingleAxisRotator(
                 this.ID + "_" + id, this.target, axes[i]
             );
+            this.behavior[id].attach();
 
             this.behavior[id].flipRotation(this._flipRotAxes[ax]);
         }
