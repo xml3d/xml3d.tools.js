@@ -47,6 +47,7 @@ XMOT.interaction.widgets.Widget = new XMOT.Class(
             throw new Error("XMOT.interaction.widgets.Widget: target's parent node must be a group.");
 
         this.callSuper();
+        this.addListenerTypes(["dragstart", "drag", "dragend"]); // arg: this
 
         this.xml3d = XMOT.util.getXml3dRoot(_target.object);
         this.ID = _id;
@@ -73,7 +74,7 @@ XMOT.interaction.widgets.Widget = new XMOT.Class(
         if(!this._isAttached)
         {
             this.geometry.constructAndAttach();
-            this.onCreateBehavior();
+            this._createBehavior();
 
             this._isAttached = true;
         }
@@ -174,6 +175,24 @@ XMOT.interaction.widgets.Widget = new XMOT.Class(
     // --- Private ---
     // ========================================================================
 
+    _createBehavior: function()
+    {
+        this.onCreateBehavior();
+        for(var s in this.behavior)
+        {
+            var beh = this.behavior[s];
+            if(!beh.addListener || !beh.isListenerType || !beh.isListenerType("dragstart")
+            || !beh.isListenerType("drag") || !beh.isListenerType("dragend"))
+                continue;
+
+            beh.addListener("dragstart", this.callback("_onBehaviorDragStart"));
+            beh.addListener("drag", this.callback("_onBehaviorDrag"));
+            beh.addListener("dragend", this.callback("_onBehaviorDragEnd"));
+        }
+
+        this._isDragging = false;
+    },
+
     /**
      *  @this {XMOT.interaction.widgets.Widget}
      *  @private
@@ -188,6 +207,29 @@ XMOT.interaction.widgets.Widget = new XMOT.Class(
         }
 
         this.behavior = {};
+    },
+
+    _onBehaviorDragStart: function()
+    {
+        if(this._isDragging)
+            return;
+
+        this._isDragging = true;
+        this.notifyListeners("dragstart", this);
+    },
+
+    _onBehaviorDrag: function()
+    {
+        this.notifyListeners("drag", this);
+    },
+
+    _onBehaviorDragEnd: function()
+    {
+        if(!this._isDragging)
+            return;
+
+        this._isDragging = false;
+        this.notifyListeners("dragend", this);
     },
 
     /**
