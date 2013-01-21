@@ -10,6 +10,12 @@ XMOT.namespace("XMOT.interaction.widgets");
 XMOT.interaction.widgets.TransformBox = new XMOT.Class(
     XMOT.interaction.widgets.Widget, {
 
+    listenerTypes: [
+        "translation:dragstart", "translation:dragend",
+        "rotation:dragstart", "rotation:dragend",
+        "scaling:dragstart", "scaling:dragend"
+    ],
+
     /** Setup axis-flip options and initialize the base class.
      *
      * @param {string} _id
@@ -65,6 +71,9 @@ XMOT.interaction.widgets.TransformBox = new XMOT.Class(
         this.behavior["translbox"] = new XMOT.interaction.widgets.TranslateBox(
             this.ID + "_translbox", this.target, this._translConstraints);
         this.behavior["translbox"].attach();
+
+        this.behavior["translbox"].addListener("dragstart", this.callback("_onTranslationDragStart"));
+        this.behavior["translbox"].addListener("dragend", this.callback("_onTranslationDragEnd"));
     },
 
     _setupRotater: function()
@@ -87,6 +96,8 @@ XMOT.interaction.widgets.TransformBox = new XMOT.Class(
             this.behavior[id].attach();
 
             this.behavior[id].flipRotation(this._flipRotAxes[ax]);
+            this.behavior[id].addListener("dragstart", this.callback("_onRotationDragStart"));
+            this.behavior[id].addListener("dragend", this.callback("_onRotationDragEnd"));
         }
     },
 
@@ -97,11 +108,43 @@ XMOT.interaction.widgets.TransformBox = new XMOT.Class(
             this.behavior["scaler"] = new XMOT.interaction.widgets.UniformScaler(
                     this.ID + "_scaler", this.target);
             this.behavior["scaler"].attach();
+            this.behavior[id].addListener("dragstart", this.callback("_onScalingDragStart"));
+            this.behavior[id].addListener("dragend", this.callback("_onScalingDragEnd"));
         }
         else // setup geometry only
         {
             this._scalerGeometry = new XMOT.interaction.geometry.UniformScaler(this);
             this._scalerGeometry.constructAndAttach();
         }
-    }
+    },
+
+    _onTranslationDragStart: function()
+    {
+        this.notifyListeners("translation:dragstart", this);
+    },
+
+    _onTranslationDragEnd: function()
+    {
+        this.notifyListeners("translation:dragend", this);
+    },
+
+    _onRotationDragStart: function()
+    {
+        this.notifyListeners("rotation:dragstart", this);
+    },
+
+    _onRotationDragEnd: function()
+    {
+        this.notifyListeners("rotation:dragend", this);
+    },
+
+    _onScalingDragStart: function()
+    {
+        this.notifyListeners("scaling:dragstart", this);
+    },
+
+    _onScalingDragEnd: function()
+    {
+        this.notifyListeners("scaling:dragend", this);
+    },
 });
