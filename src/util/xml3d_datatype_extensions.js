@@ -386,32 +386,39 @@
          */
         window.XML3DRotation.fromMatrix = function(mat) {
 
+            var m = mat;
+            var scal = mat.scaling();
+            if(!scal.equals(new window.XML3DVec3(1,1,1)))
+            {
+                m = mat.scale(1/scal.x,1/scal.y,1/scal.z);
+            }
+
             var q = new window.XML3DRotation();
-            var trace = mat.m11 + mat.m22 + mat.m33;
+            var trace = m.m11 + m.m22 + m.m33;
             if (trace > 0) {
                 var s = 2.0 * Math.sqrt(trace + 1.0);
                 q.w = 0.25 * s;
-                q.x = (mat.m23 - mat.m32) / s;
-                q.y = (mat.m31 - mat.m13) / s;
-                q.z = (mat.m12 - mat.m21) / s;
+                q.x = (m.m23 - m.m32) / s;
+                q.y = (m.m31 - m.m13) / s;
+                q.z = (m.m12 - m.m21) / s;
             } else {
-                if (mat.m11 > mat.m22 && mat.m11 > mat.m33) {
-                    var s = 2.0 * Math.sqrt(1.0 + mat.m11 - mat.m22 - mat.m33);
-                    q.w = (mat.m23 - mat.m32) / s;
+                if (m.m11 > m.m22 && m.m11 > m.m33) {
+                    var s = 2.0 * Math.sqrt(1.0 + m.m11 - m.m22 - m.m33);
+                    q.w = (m.m23 - m.m32) / s;
                     q.x = 0.25 * s;
-                    q.y = (mat.m21 + mat.m12) / s;
-                    q.z = (mat.m31 + mat.m13) / s;
-                } else if (mat.m22 > mat.m33) {
-                    var s = 2.0 * Math.sqrt(1.0 + mat.m22 - mat.m11 - mat.m33);
-                    q.w = (mat.m31 - mat.m13) / s;
-                    q.x = (mat.m21 + mat.m12) / s;
+                    q.y = (m.m21 + m.m12) / s;
+                    q.z = (m.m31 + m.m13) / s;
+                } else if (m.m22 > m.m33) {
+                    var s = 2.0 * Math.sqrt(1.0 + m.m22 - m.m11 - m.m33);
+                    q.w = (m.m31 - m.m13) / s;
+                    q.x = (m.m21 + m.m12) / s;
                     q.y = 0.25 * s;
-                    q.z = (mat.m32 + mat.m23) / s;
+                    q.z = (m.m32 + m.m23) / s;
                 } else {
-                    var s = 2.0 * Math.sqrt(1.0 + mat.m33 - mat.m11 - mat.m22);
-                    q.w = (mat.m12 - mat.m21) / s;
-                    q.x = (mat.m31 + mat.m13) / s;
-                    q.y = (mat.m32 + mat.m23) / s;
+                    var s = 2.0 * Math.sqrt(1.0 + m.m33 - m.m11 - m.m22);
+                    q.w = (m.m12 - m.m21) / s;
+                    q.x = (m.m31 + m.m13) / s;
+                    q.y = (m.m32 + m.m23) / s;
                     q.z = 0.25 * s;
                 }
             }
