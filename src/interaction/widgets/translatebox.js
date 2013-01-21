@@ -13,10 +13,6 @@ XMOT.interaction.widgets.TranslateBox = new XMOT.Class(
 
     GeometryType: XMOT.interaction.geometry.TranslateBox,
 
-    listenerTypes: [
-       "dragstart", "dragend", "touch"// args: (this, sensor, original event)
-    ],
-
     /**
      *  @inheritDoc
      *  @this {XMOT.interaction.widgets.TranslateBox}
@@ -62,14 +58,11 @@ XMOT.interaction.widgets.TranslateBox = new XMOT.Class(
      *  @private
      *
      *  @param {XMOT.interaction.behaviors.PDSensor} sensor
-     *  @param {MouseEvent} ev
      */
-    _onDragStart: function(sensor, ev)
+    _onDragStart: function(sensor)
     {
         XMOT.util.shader(sensor.pickGroups[0],
             this.geometry.geo.defs["s_transl_highlight"]);
-
-        this.notifyListeners("dragstart", this, sensor, ev);
     },
 
     /** Removes the highlight of the active plane .
@@ -78,26 +71,11 @@ XMOT.interaction.widgets.TranslateBox = new XMOT.Class(
      *  @private
      *
      *  @param {XMOT.interaction.behaviors.PDSensor} sensor
-     *  @param {MouseEvent} ev
      */
-    _onDragEnd: function(sensor, ev)
+    _onDragEnd: function(sensor)
     {
         XMOT.util.shader(sensor.pickGroups[0],
             this.geometry.geo.defs["s_transl"]);
-
-        this.notifyListeners("dragend", this, sensor, ev);
-    },
-
-    /**
-     *  @this {XMOT.interaction.widgets.TranslateBox}
-     *  @private
-     *
-     *  @param {XMOT.interaction.behaviors.PDSensor} sensor
-     *  @param {MouseEvent} ev
-     */
-    _onTouch: function(sensor, ev)
-    {
-        this.notifyListeners("touch", this, sensor, ev);
     },
 
     // --------------------------------
@@ -124,8 +102,7 @@ XMOT.interaction.widgets.TranslateBox = new XMOT.Class(
         // attach listeners
         var self = this;
 
-        this.behavior[localID].addListener("dragstart", function(sensor, ev){self._onDragStart(sensor, ev);});
-        this.behavior[localID].addListener("dragend", function(sensor, ev){self._onDragEnd(sensor, ev);});
-        this.behavior[localID].addListener("touch", this.callback("_onTouch"));
+        this.behavior[localID].addListener("dragstart", this.callback("_onDragStart"));
+        this.behavior[localID].addListener("dragend", this.callback("_onDragEnd"));
     }
 });
