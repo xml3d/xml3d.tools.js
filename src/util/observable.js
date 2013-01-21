@@ -16,9 +16,6 @@ XMOT.util.Observable = new XMOT.Class({
 
     /**
      *  @this {XMOT.util.Observable}
-     *
-     *  @param listenerTypes a single name or an array of names for
-     *        listener types
      */
     initialize: function()
     {
