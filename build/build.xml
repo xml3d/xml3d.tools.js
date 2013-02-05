@@ -26,12 +26,18 @@
         <file name="base/ClientMotionFactory.js" />
         <file name="base/ClientAnimatable.js" />
         <file name="base/ClientKeyframeAnimation.js" />
+
         <file name="animation/CombinedAnimation.js" />
+
         <file name="constraint/ConstraintCollection.js" />
         <file name="constraint/SimpleConstraint.js" />
         <file name="constraint/ProhibitAxisMovementConstraint.js" />
         <file name="constraint/BoxedTranslationConstraint.js" />
+
         <file name="camera/CameraController.js" />
+        <file name="camera/ExamineController.js" />
+        <file name="camera/HemisphereController.js" />
+
         <file name="gamepad/GamepadEventProvider.js" />
 
         <file name="util/xml3d_datatype_extensions.js" />
