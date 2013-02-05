@@ -108,8 +108,8 @@ XMOT.interaction.widgets.TransformBox = new XMOT.Class(
             this.behavior["scaler"] = new XMOT.interaction.widgets.UniformScaler(
                     this.ID + "_scaler", this.target);
             this.behavior["scaler"].attach();
-            this.behavior[id].addListener("dragstart", this.callback("_onScalingDragStart"));
-            this.behavior[id].addListener("dragend", this.callback("_onScalingDragEnd"));
+            this.behavior["scaler"].addListener("dragstart", this.callback("_onScalingDragStart"));
+            this.behavior["scaler"].addListener("dragend", this.callback("_onScalingDragEnd"));
         }
         else // setup geometry only
         {
@@ -146,5 +146,5 @@ XMOT.interaction.widgets.TransformBox = new XMOT.Class(
     _onScalingDragEnd: function()
     {
         this.notifyListeners("scaling:dragend", this);
-    },
+    }
 });
