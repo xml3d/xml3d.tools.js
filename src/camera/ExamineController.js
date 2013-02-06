@@ -13,14 +13,13 @@
          * @type {ConstraintCollection}
          */
         this.constraint = new XMOT.ConstraintCollection();
-        var factory = new XMOT.ClientMotionFactory();
         /**
          * The Moveable
          *
          * @private
          * @type {Moveable}
          */
-        this.moveable = factory.createMoveable(cam, this.constraint);
+        this.transformable = XMOT.ClientMotionFactory.createTransformable(cam, this.constraint);
         var xml3d = this.getScene(cam) || {};
         this.canvas = {};
         this.canvas.width = xml3d.width || 800;
@@ -68,22 +67,22 @@
             var bb = xml3d.getBoundingBox();
             if (!bb.isEmpty()) {
                 var c = bb.center();
-                return vec3.create([ c.x, c.y, c.z ]);
+                return new window.XML3DVec3(c.x, c.y, c.z);
             }
         }
-        return vec3.create([ 0, 0, 0 ]);
+        return new window.XML3DVec3(0, 0, 0);
     };
 
     ExamineController.prototype.rotateAroundPoint = function(rot, point) {
-        this.moveable.rotate(rot);
-        var aa = XMOT.quaternionToAxisAngle(rot);
-        var q = XMOT.axisAngleToQuaternion(this.inverseTransformOf(aa.axis), aa.angle);
-        var trans = quat4.multiplyVec3(q, vec3.subtract(this.moveable.getPosition(), point, vec3.create()), vec3.create());
-        this.moveable.setPosition(vec3.add(point, trans, vec3.create()));
+        this.transformable.rotate(rot);
+        var q = new XML3DRotation(this.inverseTransformOf(rot.axis), rot.angle);
+        var trans = q.rotateVec3(this.transformable.getPosition().subtract(point));
+        var newPos = point.add(trans);
+        this.transformable.setPosition(newPos);
     };
 
     ExamineController.prototype.inverseTransformOf = function(vec) {
-        return quat4.multiplyVec3(this.moveable.getOrientation(), vec, vec3.create());
+        return this.transformable.getOrientation().rotateVec3(vec);
     };
 
     ExamineController.prototype.start = function(pos, action) {
@@ -106,15 +105,15 @@
         case (ExamineController.DOLLY):
             var coef = 0.2 * this.sceneRadius;
             var dy = coef * this.dollySpeed * (pos.y - this.lastPos.y) / canvas.height;
-            this.moveable.translate(this.inverseTransformOf([ 0, 0, dy ]));
+            this.transformable.translate(this.inverseTransformOf(new window.XML3DVec3(0, 0, dy)));
             break;
         case (ExamineController.ROTATE):
             var dx = -this.rotateSpeed * (pos.x - this.lastPos.x) * 2.0 * Math.PI / canvas.width;
             var dy = -this.rotateSpeed * (pos.y - this.lastPos.y) * 2.0 * Math.PI / canvas.height;
 
-            var mx = XMOT.axisAngleToQuaternion([ 0, 1, 0 ], dx);
-            var my = XMOT.axisAngleToQuaternion([ 1, 0, 0 ], dy);
-            var result = quat4.multiply(mx, my);
+            var mx = new window.XML3DRotation(new window.XML3DVec3(0, 1, 0), dx);
+            var my = new window.XML3DRotation(new window.XML3DVec3(1, 0, 0), dy);
+            var result = mx.multiply(my);
             this.rotateAroundPoint(result, this.revolveAroundPoint);
             break;
         }
