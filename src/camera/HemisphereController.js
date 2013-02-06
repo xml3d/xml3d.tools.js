@@ -24,8 +24,8 @@
         switch (this.action || forceAction) {
         case (XMOT.ExamineController.DOLLY):
             var dollydy = 0.2 * this.sceneRadius * this.dollySpeed * (pos.y - this.lastPos.y) / canvas.height;
-            this.moveable.translate(this.inverseTransformOf([ 0, 0, dollydy ]));
-            this.radius = vec3.length(this.moveable.getPosition());
+            this.transformable.translate(this.inverseTransformOf(new window.XML3DVec3(0, 0, dollydy)));
+            this.radius = this.transformable.getPosition().length();
             break;
 
         case (XMOT.ExamineController.ROTATE):
@@ -38,17 +38,27 @@
             var sin_longitude = Math.sin(this.longitude);
 
             // Position
-            var position = vec3.scale(vec3.normalize([cos_latitude * sin_longitude, Math.sin(this.latitude), cos_latitude * cos_longitude] , vec3.create()), this.radius);
+            var position = new window.XML3DVec3(cos_latitude * sin_longitude, Math.sin(this.latitude),
+                    cos_latitude * cos_longitude);
+            position = position.normalize();
+            position = position.scale(this.radius);
+
             // Right
-            var right = vec3.normalize([cos_longitude,0,-sin_longitude], vec3.create());
+            var right = new window.XML3DVec3(cos_longitude,0,-sin_longitude);
+            right = right.normalize();
 
             // direction
-            var direction = vec3.normalize(vec3.subtract([0,0,0], position));
-            var orientation = quat4.create();
-            quat4.setFromBasis(right, vec3.cross(right, direction, vec3.create()), vec3.negate(direction, vec3.create()), orientation);
+            var direction = (new window.XML3DVec3(0,0,0)).subtract(position);
+            direction = direction.normalize();
 
-            this.moveable.setPosition(position);
-            this.moveable.setOrientation(orientation);
+            // up
+            var up = right.cross(direction);
+
+            var orientation = new window.XML3DRotation();
+            orientation.setFromBasis(right, up, direction.negate());
+
+            this.transformable.setPosition(position);
+            this.transformable.setOrientation(orientation);
 
             break;
         }
@@ -57,21 +67,26 @@
     };
 
     HemisphereController.prototype.lookAt = function(target) {
-        this.setViewDirection(vec3.subtract(target, this.moveable.getPosition(),vec3.create()));
+
+        this.setViewDirection(target.subtract(this.transformable.getPosition()));
     };
 
     HemisphereController.prototype.setViewDirection = function(dir) {
-         if (vec3.length(dir) < 1E-10)
+        if (dir.length() < 1E-10)
             return;
 
-        var xAxis = vec3.cross(dir, quat4.multiplyVec3(this.moveable.getOrientation(),[0,1,0], vec3.create()), vec3.create());
-        if (vec3.length(xAxis) < 1E-10)
+        var yAxis = this.transformable.getOrientation().rotateVec3(new window.XML3DVec3(0,1,0));
+
+        var xAxis = dir.cross(yAxis);
+        if (xAxis.length() < 1E-10)
         {
-            quat4.multiplyVec3(this.moveable.getOrientation(),[1,0,0], xAxis);
+            xAxis = this.transformable.getOrientation().rotateVec3(new window.XML3DVec3(1,0,0));
         }
-        var result = quat4.create();
-        quat4.setFromBasis(xAxis, vec3.cross(xAxis,dir,vec3.create()), vec3.negate(dir), result);
-        this.moveable.setOrientation(result);
+
+        var orientation = new window.XML3DRotation();
+        orientation.setFromBasis(xAxis, xAxis.cross(dir), dir.negate());
+
+        this.transformable.setOrientation(orientation);
     };
 
     XMOT.HemisphereController = HemisphereController;
