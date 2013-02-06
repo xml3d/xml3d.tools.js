@@ -100,8 +100,6 @@ XMOT.interaction.widgets.TranslateBox = new XMOT.Class(
             id, [pickGrp], rootTransformable, pickGrp);
 
         // attach listeners
-        var self = this;
-
         this.behavior[localID].addListener("dragstart", this.callback("_onDragStart"));
         this.behavior[localID].addListener("dragend", this.callback("_onDragEnd"));
     }
