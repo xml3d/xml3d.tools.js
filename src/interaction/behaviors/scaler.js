@@ -40,9 +40,6 @@ XMOT.interaction.behaviors.Scaler = new XMOT.Class(
     {
         // parent class
         this.callSuper(id, pickGrps, null, null);
-        // do not use the offset, we do that ourselves
-        // with the help of _startTarGrpScale
-        this.useTransOffset = false;
 
         this.uniformScale = true;
         if(uniformScale)

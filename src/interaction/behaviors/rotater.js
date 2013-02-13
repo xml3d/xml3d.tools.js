@@ -32,8 +32,6 @@ XMOT.interaction.behaviors.Rotater = new XMOT.Class(
 
         // --- setup pdsensor ---
 
-        this.useTransOffset = false; // always start again at zero translation
-
         /* The trackball assumes values in the range [0,trackMax],
          * but the translation values we get are starting on the object, so rotation
          * should be possible on both sides of the axes of the target object (and not just

@@ -31,9 +31,8 @@ XMOT.interaction.behaviors.PlaneSensor = new XMOT.Class(
      * 			normal should reside. If it's a group the local z=0 plane of the given group is taken.
      * 			If a vector is given, the vector directly is taken. If not specified a plane
      * 			parallel to the user's view is taken.
-     *  @param {XML3DVec3} [transOff] initial translation offset of the sensor
      */
-    initialize: function(id, grps, planeOrient, transOff)
+    initialize: function(id, grps, planeOrient)
     {
         this.callSuper(id, grps);
 
@@ -44,17 +43,6 @@ XMOT.interaction.behaviors.PlaneSensor = new XMOT.Class(
 
         /** The translation constraint for constraining the final output value */
         this.constraint = new XMOT.BoxedTranslationConstraint();
-
-        /** the offset that is to be used during the drag operation. The translation
-         * will be the translation in the plane added to the translation offset. */
-        if(transOff)
-            this.translationOffset = new XML3DVec3(transOff);
-        else
-            this.translationOffset = new XML3DVec3(0,0,0);
-
-        /** if false, the offset that is saved b/w the drag operations is not used
-         *  for computing the translation along the plane. */
-        this.useTransOffset = true;
 
         this.setPlaneOrientation(planeOrient);
 
@@ -197,7 +185,6 @@ XMOT.interaction.behaviors.PlaneSensor = new XMOT.Class(
      */
     _onPlaneDragEnd: function(sensor)
     {
-        this.translationOffset = new window.XML3DVec3(this.translation);
     },
 
     /** Calculate the hit point on the sensor's plane.
@@ -234,8 +221,6 @@ XMOT.interaction.behaviors.PlaneSensor = new XMOT.Class(
     {
         var transl = this._planeHitPoint.subtract(this.planeOrigin);
 
-        if(this.useTransOffset)
-            transl = transl.add(this.translationOffset);
 
         if(this.constraint.constrainTranslation(transl))
         {
