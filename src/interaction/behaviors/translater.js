@@ -64,8 +64,15 @@ XMOT.interaction.behaviors.Translater = new XMOT.Class(
      */
     _onTranslChanged: function(sensor)
     {
-        var offsetTransl = this._translationOffset.add(this.translation);
+        var localTranslation = this._transformPtToTargetLocalSpace(this.translation);
 
-        this.targetTransformable.setPosition(offsetTransl);
+        var finalTransl = this._translationOffset.add(localTranslation);
+        this.targetTransformable.setPosition(finalTransl);
+    },
+
+    _transformPtToTargetLocalSpace: function(vec)
+    {
+        var invParentMatrix = this.targetTransformable.object.parentNode.getWorldMatrix().inverse();
+        return invParentMatrix.multiplyPt(vec, 1);
     }
 });
