@@ -1,25 +1,25 @@
 var sensorsOn = true;
-var sensor1 = null; 
-var sensor2 = null; 
+var sensor1 = null;
+var sensor2 = null;
 
 var dragCounter = null; // thing that puts dots in the div as drag-feedback
 
 function initScene()
 {
     $("#controller_view")[0].lookAt(new XML3DVec3(0, 0, 0));
-    
+
     var grp1ConstrBox = new XML3DBox(
-        new XML3DVec3(-Number.MAX_VALUE, 1.5, -Number.MAX_VALUE), 
+        new XML3DVec3(-Number.MAX_VALUE, 1.5, -Number.MAX_VALUE),
         new XML3DVec3(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE)
     );
-    
-    var bns = XMOT.interaction.behaviors; 
-    var motFac = XMOT.ClientMotionFactory; 
 
-    // group1 
-    var target1 = $("#group1")[0]; 
+    var bns = XMOT.interaction.behaviors;
+    var motFac = XMOT.ClientMotionFactory;
+
+    // group1
+    var target1 = $("#group1")[0];
     var tarXfm1 = motFac.createTransformable(target1);
-    
+
     sensor1 = new bns.Translater("transl1", [target1], tarXfm1);
     sensor1.constraint = new XMOT.BoxedTranslationConstraint(grp1ConstrBox);
     sensor1.addListener("dragstart", onDragStart);
@@ -31,9 +31,9 @@ function initScene()
     var grp2ConstrBox = new XML3DBox(
         new XML3DVec3(-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE),
         new XML3DVec3(Number.MAX_VALUE, -1.5, Number.MAX_VALUE)
-    ); 
+    );
 
-    var target2 = $("#group2")[0]; 
+    var target2 = $("#group2")[0];
     var tarXfm2 = motFac.createTransformable(target2);
     sensor2 = new bns.Translater("transl2", [target2], tarXfm2);
     sensor2.constraint = new XMOT.BoxedTranslationConstraint(grp2ConstrBox);
@@ -50,15 +50,15 @@ function toggleSensors()
 {
     if(sensorsOn)
     {
-        sensor1.detach(); 
-        sensor2.detach(); 
+        sensor1.detach();
+        sensor2.detach();
         sensorsOn = false;
         $("#b_toggleSensors").val("Attach Sensors");
     }
     else
     {
-        sensor1.attach(); 
-        sensor2.attach(); 
+        sensor1.attach();
+        sensor2.attach();
         $("#b_toggleSensors").val("Detach Sensors");
         sensorsOn = true;
     }
@@ -96,7 +96,6 @@ function onDragStart(e, sensor)
       pickId = sensor.pickGroups[0].id;
 
   $("#dragstatus").html("drag: on (" + sensor.ID + " on " + pickId + ")");
-  $("#transoff").html(sensor.translationOffset.str());
 }
 
 function onDrag(e, sensor)
@@ -111,7 +110,6 @@ function onDrag(e, sensor)
 function onDragEnd(e, sensor)
 {
   $("#dragstatus").html("drag: off");
-  $("#transoff").html(sensor.translationOffset.str());
 }
 
 function onTranslChanged(e, sensor)
