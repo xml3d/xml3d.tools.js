@@ -3,32 +3,32 @@ var CONFIG_PAGETITLE = "XML3D Motion - Interaction";
 
 var CATEGORY_LIST = {
     unknown : { name : "???" },
-    widgets: { name: "Widgets" }, 
-    utils: { name: "Utilities" },
+    widgets: { name: "Widgets" },
+    behaviors: { name: "Behaviors" },
     misc : { name: "Misc" }
 };
 
-var EXAMPLE_LIST = [    
+var EXAMPLE_LIST = [
     // --- Widgets ---
     {
         cat: "widgets",
         name: "TranslateBox",
         href: "tests/test_translatebox.xhtml",
-        info: "A widget for translating objects using an interactive cube."        
+        info: "A widget for translating objects using an interactive cube."
     },
     {
         cat: "widgets",
         name: "UniformScaler",
         href: "tests/test_uniformscaler.xhtml",
-        info: "A widget for uniform scaling of objects by dragging small cubes at the corners of the object."        
-    },  
+        info: "A widget for uniform scaling of objects by dragging small cubes at the corners of the object."
+    },
     {
         cat: "widgets",
         name: "SingleAxisRotator",
         href: "tests/test_axisrotator.xhtml",
-        info: "A widget for rotating an object around a single axis. It places interactive bars along the axis."        
+        info: "A widget for rotating an object around a single axis. It places interactive bars along the axis."
     },
-    
+
     {
         cat: "widgets",
         name: "RingMenu",
@@ -48,7 +48,27 @@ var EXAMPLE_LIST = [
         info: "A widget for performing constrained rotation and translation."
     },
 
-    // --- Miscellaneous --- 
+    // --- Behaviors ---
+    {
+        cat: "behaviors",
+        name: "Translatable",
+        href: "tests/test_translatable.xhtml",
+        info: "A behavior for translating a node inside a plane."
+    },
+    {
+        cat: "behaviors",
+        name: "Rotatable",
+        href: "tests/test_rotatable.xhtml",
+        info: "A behavior for rotating a node."
+    },
+    {
+        cat: "behaviors",
+        name: "Scalable",
+        href: "tests/test_scalable.xhtml",
+        info: "A behavior for rotating a node."
+    },
+
+    // --- Miscellaneous ---
     {
         cat: "misc",
         name: "TrackBall",
