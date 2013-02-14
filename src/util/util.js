@@ -9,6 +9,18 @@
     var u = XMOT.util;
 
     /**
+     * Returns whether the object is actually given as argument. If it is it has
+     * to be not undefined and not null.
+     *
+     * @param {Object=} obj
+     * @return {boolean} true if the object is actually defined
+     */
+    u.isDefined = function(obj)
+    {
+        return (obj !== undefined && obj !== null);
+    };
+
+    /**
      * Can be used to wrap the given method into a closure that preserves the
      * this pointer inside the given function. Internally an object
      * __callbacks will be attached to the given object. This way several calls
@@ -59,6 +71,22 @@
         }
 
         return bbox;
+    };
+
+    /**
+     * Returns the given node's parent world matrix. If no parent is present
+     * or doesn't have a getWorldMatrix() method the identity matrix is returned.
+     *
+     * @param {Object} node
+     * @return {window.XML3DMatrix}
+     */
+    u.getParentWorldMatrix = function(node)
+    {
+        if(!XMOT.util.isDefined(node.parentNode)
+        || !XMOT.util.isDefined(node.parentNode.getWorldMatrix))
+            return new window.XML3DMatrix();
+
+        return node.parentNode.getWorldMatrix();
     };
 
     /**
