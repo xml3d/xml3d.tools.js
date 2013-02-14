@@ -89,7 +89,7 @@ Counter = new XMOT.Class({
     }
 });
 
-function onDragStart(e, sensor)
+function onDragStart(sensor, e)
 {
   var pickId = "";
   if(sensor.pickGroups[0].id)
@@ -98,21 +98,21 @@ function onDragStart(e, sensor)
   $("#dragstatus").html("drag: on (" + sensor.ID + " on " + pickId + ")");
 }
 
-function onDrag(e, sensor)
+function onDrag(sensor, e)
 {
     // update drag status, i.e. dots
 
     dragCounter.tick();
 
-    $("#mousepos").html("(" + e.originalEvent.pageX + ", " + e.originalEvent.pageY + ")");
+    $("#mousepos").html("(" + e.pageX + ", " + e.pageY + ")");
 }
 
-function onDragEnd(e, sensor)
+function onDragEnd(sensor, e)
 {
   $("#dragstatus").html("drag: off");
 }
 
-function onTranslChanged(e, sensor)
+function onTranslChanged(sensor, e)
 {
     $("#trans").html(sensor.translation.str());
 
