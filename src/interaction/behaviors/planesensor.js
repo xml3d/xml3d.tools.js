@@ -27,12 +27,13 @@ XMOT.interaction.behaviors.PlaneSensor = new XMOT.Class(
      *
      *  @param {string} id the id of this sensor
      *  @param {Array.<Object>} grps the groups this sensor should look for
-     *  @param {XML3DVec3|!Object} [planeOrient] the group or vector the sensor takes to decide where the plane
+     *  @param {XML3DVec3|!Object=} planeOrient the group or vector the sensor takes to decide where the plane
      * 			normal should reside. If it's a group the local z=0 plane of the given group is taken.
      * 			If a vector is given, the vector directly is taken. If not specified a plane
      * 			parallel to the user's view is taken.
+     *  @param {Object=} translationConstraint constraint that is applied to the final translation output
      */
-    initialize: function(id, grps, planeOrient)
+    initialize: function(id, grps, planeOrient, translationConstraint)
     {
         this.callSuper(id, grps);
 
@@ -42,7 +43,10 @@ XMOT.interaction.behaviors.PlaneSensor = new XMOT.Class(
         this.planeOrigin = new window.XML3DVec3(0,0,0);
 
         /** The translation constraint for constraining the final output value */
-        this.constraint = new XMOT.BoxedTranslationConstraint();
+        if(translationConstraint !== undefined && translationConstraint !== null)
+            this._translationConstraint = translationConstraint;
+        else
+            this._translationConstraint = new XMOT.BoxedTranslationConstraint();
 
         this.setPlaneOrientation(planeOrient);
 
@@ -221,10 +225,9 @@ XMOT.interaction.behaviors.PlaneSensor = new XMOT.Class(
     {
         var transl = this._planeHitPoint.subtract(this.planeOrigin);
 
-
-        if(this.constraint.constrainTranslation(transl))
+        if(this._translationConstraint.constrainTranslation(transl))
         {
-            this.translation = transl;
+            this.translation.set(transl);
         }
     }
 });
