@@ -72,7 +72,7 @@ XMOT.interaction.behaviors.Translater = new XMOT.Class(
 
     _transformPtToTargetLocalSpace: function(vec)
     {
-        var invParentMatrix = this.targetTransformable.object.parentNode.getWorldMatrix().inverse();
+        var invParentMatrix = XMOT.util.getParentWorldMatrix(this.targetTransformable.object).inverse();
         return invParentMatrix.multiplyPt(vec, 1);
     }
 });
