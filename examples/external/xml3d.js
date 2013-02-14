@@ -21,13 +21,13 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-@version: DEVELOPMENT SNAPSHOT (06.02.2013 10:49:37 CET)
+@version: DEVELOPMENT SNAPSHOT (14.02.2013 15:07:33 CET)
 **/
 /** @namespace * */
 var XML3D = XML3D || {};
 
 /** @define {string} */
-XML3D.version = 'DEVELOPMENT SNAPSHOT (06.02.2013 10:49:37 CET)';
+XML3D.version = 'DEVELOPMENT SNAPSHOT (14.02.2013 15:07:33 CET)';
 /** @const */
 XML3D.xml3dNS = 'http://www.xml3d.org/2009/xml3d';
 /** @const */
@@ -6922,9 +6922,16 @@ if(typeof(exports) !== 'undefined') {
     }
     window.XML3DDataResult = XML3DDataResult;
 
+    XML3DDataResult.prototype.getValue = function(name) {
+        if (this._entries[name])
+            return this._entries[name].value;
+        return null;
+    }
 
-    XML3DDataResult.prototype.get = function(name){
-        return this._entries[name];
+    XML3DDataResult.prototype.getType = function(name) {
+        if (this._entries[name])
+            return this._entries[name].type;
+        return null;
     }
 
     XML3DDataResult.prototype.getNames = function(){
@@ -11774,9 +11781,13 @@ Xflow.registerOperator = function(name, data){
 };
 
 Xflow.getOperator = function(name){
+    if (!operators[name])
+    {
+        XML3D.debug.logError("Unknown operator: '" + name+"'");
+        return null;
+    }
     return operators[name];
 };
-
 
 function initOperator(operator){
     var indexMap = {};
