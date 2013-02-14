@@ -27,7 +27,7 @@ XMOT.interaction.behaviors.PlaneSensor = new XMOT.Class(
      *
      *  @param {string} id the id of this sensor
      *  @param {Array.<Object>} grps the groups this sensor should look for
-     *  @param {XML3DVec3|!Object=} planeOrient the group or vector the sensor takes to decide where the plane
+     *  @param {window.XML3DVec3|!Object=} planeOrient the group or vector the sensor takes to decide where the plane
      * 			normal should reside. If it's a group the local z=0 plane of the given group is taken.
      * 			If a vector is given, the vector directly is taken. If not specified a plane
      * 			parallel to the user's view is taken.
@@ -39,16 +39,15 @@ XMOT.interaction.behaviors.PlaneSensor = new XMOT.Class(
 
         // the translation in the plane during a drag operation
         this.translation = new window.XML3DVec3(0,0,0);
-        // plane origin during a drag operation
-        this.planeOrigin = new window.XML3DVec3(0,0,0);
+
+        this._plane = new XMOT.util.Plane(this.xml3d);
+        this._plane.setOrientation(planeOrient);
 
         /** The translation constraint for constraining the final output value */
         if(translationConstraint !== undefined && translationConstraint !== null)
             this._translationConstraint = translationConstraint;
         else
             this._translationConstraint = new XMOT.BoxedTranslationConstraint();
-
-        this.setPlaneOrientation(planeOrient);
 
         // setup listeners
         this.addListenerTypes("translchanged");
@@ -70,76 +69,13 @@ XMOT.interaction.behaviors.PlaneSensor = new XMOT.Class(
      */
     getCanonicalTranslation: function()
     {
-        var mat = XMOT.math.getTransformPlaneToPlane(this.planeOrigin, this.getPlaneNormal());
+        var mat = XMOT.math.getTransformPlaneToPlane(this._plane.origin(), this._plane.normal());
 
-        var torig = mat.multiplyPt(this.planeOrigin);
-        var tp = mat.multiplyPt(this.planeOrigin.add(this.translation));
+        var torig = mat.multiplyPt(this._plane.origin());
+        var tp = mat.multiplyPt(this._plane.origin().add(this.translation));
         tp = tp.subtract(torig);
 
         return tp;
-    },
-
-    /** Set the plane orientation vector or group.
-     *
-     *  @this {XMOT.interaction.behaviors.PlaneSensor}
-     *
-     *  @param {XML3DVec3|Object} planeOrient
-     */
-    setPlaneOrientation: function(planeOrient)
-    {
-        // The plane normal calculated during getPlaneNormal().
-        this._validPlaneNormal = new window.XML3DVec3(0, 0, 1);
-        this._planeNormalValid = false;
-
-        // user-defined plane orientation
-        this._planeNormal = null;
-        this._orientGrp = null;
-
-        if(planeOrient)
-        {
-            if(planeOrient.constructor === window.XML3DVec3)
-                this._planeNormal = planeOrient;
-            else // no vector, assume group
-                this._orientGrp = planeOrient;
-        }
-    },
-
-    /** Calculate the plane normal. Always use this method to obtain the plane
-     *  normal.
-     *
-     *  @this {XMOT.interaction.behaviors.PlaneSensor}
-     *
-     *  @return {XML3DVec3}
-     */
-    getPlaneNormal: function()
-    {
-        if(this._planeNormalValid)
-            return this._validPlaneNormal;
-
-        // user set normal
-        if(this._planeNormal)
-        {
-            this._validPlaneNormal = this._planeNormal;
-        }
-        // user set group
-        else if(this._orientGrp)
-        {
-            var plNorm = new window.XML3DVec3(0, 0, 1);
-            this._validPlaneNormal = this._orientGrp.getWorldMatrix().multiplyDir(plNorm);
-        }
-        // take view as basis
-        else
-        {
-            var va = XML3D.util.getOrCreateActiveView(this.xml3d);
-            var wMat = va.getViewMatrix().inverse();
-
-            this._validPlaneNormal = wMat.multiplyDir(new window.XML3DVec3(0,0,1));
-        }
-
-        this._validPlaneNormal = this._validPlaneNormal.normalize();
-        this._planeNormalValid = true;
-
-        return this._validPlaneNormal;
     },
 
     // ========================================================================
@@ -156,9 +92,8 @@ XMOT.interaction.behaviors.PlaneSensor = new XMOT.Class(
      */
     _onPlaneDragStart: function(sensor)
     {
-        this.planeOrigin = new window.XML3DVec3(sensor.curHitPoint);
-        this._planeHitPoint = new window.XML3DVec3(this.planeOrigin);
-        this._planeNormalValid = false;
+        this._plane.origin(sensor.curHitPoint);
+        this._planeHitPoint = this._plane.origin();
     },
 
     /** Callback for PDSensor's drag event
@@ -204,7 +139,7 @@ XMOT.interaction.behaviors.PlaneSensor = new XMOT.Class(
         var intersectHitP = new window.XML3DVec3();
 
         if(1 !== XMOT.math.intersectRayPlane(this.pdPose,
-            this.planeOrigin, this.getPlaneNormal(), intersectHitP))
+            this._plane.origin(), this._plane.normal(), intersectHitP))
         {
             // either didnt hit or whole ray lies on plane
             // ignore it
@@ -223,7 +158,7 @@ XMOT.interaction.behaviors.PlaneSensor = new XMOT.Class(
      */
     _calcTranslation: function()
     {
-        var transl = this._planeHitPoint.subtract(this.planeOrigin);
+        var transl = this._planeHitPoint.subtract(this._plane.origin());
 
         if(this._translationConstraint.constrainTranslation(transl))
         {
