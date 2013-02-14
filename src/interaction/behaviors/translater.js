@@ -32,9 +32,9 @@ XMOT.interaction.behaviors.Translater = new XMOT.Class(
 
         // take local matrix as initial offset
         // we manipulate the transform node of the group, so take the local one
-        var transOff = this.targetTransformable.transform.translation;
+        this._translationOffset = new window.XML3DVec3(this.targetTransformable.transform.translation);
 
-        this.callSuper(id, pickGrps, planeOrient, transOff);
+        this.callSuper(id, pickGrps, planeOrient);
 
         this.addListener("dragstart", this.callback("_onTransPlaneDragStart"));
         this.addListener("translchanged", this.callback("_onTranslChanged"));
@@ -53,7 +53,7 @@ XMOT.interaction.behaviors.Translater = new XMOT.Class(
      */
     _onTransPlaneDragStart: function(sensor)
     {
-        this.translationOffset = new window.XML3DVec3(this.targetTransformable.transform.translation);
+        this._translationOffset.set(this.targetTransformable.transform.translation);
     },
 
     /**
@@ -64,6 +64,15 @@ XMOT.interaction.behaviors.Translater = new XMOT.Class(
      */
     _onTranslChanged: function(sensor)
     {
-        this.targetTransformable.setPosition(this.translation);
+        var localTranslation = this._transformPtToTargetLocalSpace(this.translation);
+
+        var finalTransl = this._translationOffset.add(localTranslation);
+        this.targetTransformable.setPosition(finalTransl);
+    },
+
+    _transformPtToTargetLocalSpace: function(vec)
+    {
+        var invParentMatrix = XMOT.util.getParentWorldMatrix(this.targetTransformable.object).inverse();
+        return invParentMatrix.multiplyPt(vec, 1);
     }
 });

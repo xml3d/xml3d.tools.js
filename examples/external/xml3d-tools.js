@@ -302,7 +302,7 @@ XML3D.xml3dNS = XML3D.xml3dNS || 'http://www.xml3d.org/2009/xml3d';
 
 /**
  * Class to use X3D OrientationInterpolator nodes in Xml3d
- * 
+ *
  * @constructor
  *
  * @param inode
@@ -1080,7 +1080,7 @@ XML3D.Xml3dSceneController.getController = function(xml3d) {
 })();
 
 /***********************************************************************/
-if(!XML3D) 
+if(!XML3D)
     XML3D = {};
 
 XML3D.SceneInspector = function(xml3d) {

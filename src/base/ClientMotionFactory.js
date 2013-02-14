@@ -23,8 +23,25 @@ XMOT.ClientMotionFactory = new XMOT.Singleton({
      */
     createTransformable: function(element, constraint)
     {
-        if(!element) throw "No valid element, cannot create Transformable.";
-        return new XMOT.ClientTransformable(element, this.getTransform(element), constraint);
+        if(!element)
+            throw "No valid element, cannot create Transformable.";
+
+        if(element.constructor === window.Element)
+        {
+            // bare element
+            return new XMOT.ClientTransformable(element, this.getTransform(element), constraint);
+        }
+        else if(element.object && element.transform && element.constraint)
+        {
+            // transformable
+            var constraints = [constraint, element.constraint];
+            var constraintCollection = new XMOT.ConstraintCollection(constraints);
+
+            return new XMOT.ClientTransformable(element.object, element.transform, constraintCollection);
+        }
+        else
+            throw "No valid element, cannot create Transformable.";
+
     },
 
     /** @inheritDoc

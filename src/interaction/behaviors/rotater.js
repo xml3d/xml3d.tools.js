@@ -27,12 +27,7 @@ XMOT.interaction.behaviors.Rotater = new XMOT.Class(
      */
     initialize: function(id, pickGrps, targetTransformable, rotSpeed, planeOrient)
     {
-        // parent class
-        this.callSuper(id, pickGrps, planeOrient, null);
-
         // --- setup pdsensor ---
-
-        this.useTransOffset = false; // always start again at zero translation
 
         /* The trackball assumes values in the range [0,trackMax],
          * but the translation values we get are starting on the object, so rotation
@@ -48,7 +43,9 @@ XMOT.interaction.behaviors.Rotater = new XMOT.Class(
             new window.XML3DVec3(-transMax, -transMax, -transMax),
             new window.XML3DVec3(transMax, transMax, transMax)
         );
-        this.constraint = new XMOT.BoxedTranslationConstraint(constrBox);
+        var constraint = new XMOT.BoxedTranslationConstraint(constrBox);
+
+        this.callSuper(id, pickGrps, planeOrient, constraint);
 
         // --- setup trackball ---
 

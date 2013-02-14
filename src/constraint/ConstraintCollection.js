@@ -19,7 +19,7 @@
 		 * @private
 		 * @type{boolean}
 		 */
-		this.breakEarly = breakEarly || true;
+		this.breakEarly = (breakEarly !== undefined) ? breakEarly : true;
 	};
 	var c = ConstraintCollection.prototype;
 
