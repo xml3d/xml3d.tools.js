@@ -95,7 +95,7 @@ XMOT.TransformSensor = new XMOT.Class(
      */
     _xfmChanged: function(tarNode)
     {
-        var tarBBox = tarNode.getBoundingBox();
+        var tarBBox = XMOT.util.getWorldBBox(tarNode);
 
         var isInt = this.bbox.intersects(tarBBox);
         var alreadyInt = this.currentIntersectGrps[tarNode];
