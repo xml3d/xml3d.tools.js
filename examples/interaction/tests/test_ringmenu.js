@@ -19,15 +19,25 @@ function onLoad()
 
     createTestObjects();
 
-    // look at menu origin
-    var origin = $("#container")[0].getBoundingBox().center();
-    XML3D.util.getOrCreateActiveView(xml3d).lookAt(origin);
+    function onFrameDrawn()
+    {
+        if($("#container")[0].getBoundingBox().isEmpty())
+            return;
 
-    // create ring menu
-    var target = XMOT.ClientMotionFactory.createTransformable($("#container")[0]);
+        xml3d.removeEventListener("framedrawn", onFrameDrawn, false);
 
-    ringmenu = new XMOT.interaction.widgets.RingMenu("myRingmenu", target, 5);
-    ringmenu.attach();
+        // look at menu origin
+        var origin = $("#container")[0].getBoundingBox().center();
+        XML3D.util.getOrCreateActiveView(xml3d).lookAt(origin);
+
+        // create ring menu
+        var target = XMOT.ClientMotionFactory.createTransformable($("#container")[0]);
+
+        ringmenu = new XMOT.interaction.widgets.RingMenu("myRingmenu", target, 5);
+        ringmenu.attach();
+    }
+
+    xml3d.addEventListener("framedrawn", onFrameDrawn, false);
 }
 
 function createTestObjects()
