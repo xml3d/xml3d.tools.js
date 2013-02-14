@@ -294,4 +294,29 @@
 
         return children;
     };
+
+    /** Calls the given callback as soon as the given node's bounding box is not
+     *  empty anymore. For that it waits for "framedrawn" events and checks if the
+     *  bounding box is not empty after every frame.
+     *
+     *   @param {Object} node
+     *   @param {function()} callback
+     */
+    u.fireWhenBBoxNotEmpty = function(node, callback)
+    {
+        var n = node;
+        var cb = callback;
+        var xml3d = XMOT.util.getXml3dRoot(node);
+
+        function onFrameDrawn()
+        {
+            if(n.getBoundingBox().isEmpty())
+                return;
+
+            xml3d.removeEventListener("framedrawn", onFrameDrawn, false);
+            cb();
+        }
+
+        xml3d.addEventListener("framedrawn", onFrameDrawn, false);
+    };
 }());
