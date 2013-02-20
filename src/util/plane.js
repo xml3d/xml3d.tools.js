@@ -102,6 +102,14 @@ XMOT.util.Plane = new XMOT.Class({
     /**
      *  @this {XMOT.util.Plane}
      */
+    str: function()
+    {
+        return "[o: " + this.origin().str() + ", n: " + this.normal().str() + "]";
+    },
+
+    /**
+     *  @this {XMOT.util.Plane}
+     */
     _clearUserDefinitions: function()
     {
         this._userNormal = null;
