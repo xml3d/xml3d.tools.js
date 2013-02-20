@@ -77,6 +77,12 @@ var EXAMPLE_LIST = [
     },
     {
         cat: "misc",
+        name: "TransformBox for Flat Surfaces",
+        href: "tests/test_transformbox_flat.xhtml",
+        info: "The TransformBox attached to a plane."
+    },
+    {
+        cat: "misc",
         name: "Back to Motion Library",
         href: "../index.xhtml",
         info: "Back to the main page of the Motion Library examples."
