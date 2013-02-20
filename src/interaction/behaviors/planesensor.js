@@ -43,6 +43,9 @@ XMOT.interaction.behaviors.PlaneSensor = new XMOT.Class(
         this._plane = new XMOT.util.Plane(this.xml3d);
         this._plane.setOrientation(planeOrient);
 
+        this._canonicalPlane = new XMOT.util.Plane(this.xml3d);
+        this._canonicalPlane.normal(new XML3DVec3(0,0,1));
+
         /** The translation constraint for constraining the final output value */
         if(translationConstraint !== undefined && translationConstraint !== null)
             this._translationConstraint = translationConstraint;
@@ -69,6 +72,7 @@ XMOT.interaction.behaviors.PlaneSensor = new XMOT.Class(
      */
     getCanonicalTranslation: function()
     {
+        /*
         var mat = XMOT.math.getTransformPlaneToPlane(this._plane.origin(), this._plane.normal());
 
         var torig = mat.multiplyPt(this._plane.origin());
@@ -76,6 +80,9 @@ XMOT.interaction.behaviors.PlaneSensor = new XMOT.Class(
         tp = tp.subtract(torig);
 
         return tp;
+        */
+
+        return this.canonicalTranslation;
     },
 
     // ========================================================================
@@ -94,6 +101,9 @@ XMOT.interaction.behaviors.PlaneSensor = new XMOT.Class(
     {
         this._plane.origin(sensor.curHitPoint);
         this._planeHitPoint = this._plane.origin();
+
+        this._canonicalPlane.origin(sensor.curHitPoint);
+        this._canonicalPlaneHitPoint = this._canonicalPlane.origin();
     },
 
     /** Callback for PDSensor's drag event
@@ -109,6 +119,10 @@ XMOT.interaction.behaviors.PlaneSensor = new XMOT.Class(
         if(!hitP)
             return;
         this._planeHitPoint = hitP;
+
+        var canHitP = this._calcCanonicalPlaneHitPoint();
+        if(canHitP)
+            this._canonicalPlaneHitPoint = canHitP;
 
         this._calcTranslation();
 
@@ -149,6 +163,29 @@ XMOT.interaction.behaviors.PlaneSensor = new XMOT.Class(
         return intersectHitP;
     },
 
+    /** Calculate the hit point on the sensor's plane.
+     *
+     *  @this {XMOT.interaction.behaviors.PlaneSensor}
+     *  @private
+     *
+     *  @return {XML3DVec3} the hit point or null in case no hit occured
+     */
+    _calcCanonicalPlaneHitPoint: function()
+    {
+        // intersect ray with view plane norm
+        var intersectHitP = new window.XML3DVec3();
+
+        if(1 !== XMOT.math.intersectRayPlane(this.pdPose,
+            this._canonicalPlane.origin(), this._canonicalPlane.normal(), intersectHitP))
+        {
+            // either didnt hit or whole ray lies on plane
+            // ignore it
+            return null;
+        }
+
+        return intersectHitP;
+    },
+
     /** Calculate translation based on the current _planeHitPoint
      *  and apply translation offset and constrain it. It will set
      *  the translation property of this instance.
@@ -159,10 +196,12 @@ XMOT.interaction.behaviors.PlaneSensor = new XMOT.Class(
     _calcTranslation: function()
     {
         var transl = this._planeHitPoint.subtract(this._plane.origin());
+        var canTransl = this._canonicalPlaneHitPoint.subtract(this._canonicalPlane.origin());
 
         if(this._translationConstraint.constrainTranslation(transl))
         {
             this.translation.set(transl);
+            this.canonicalTranslation = canTransl;
         }
     }
 });
