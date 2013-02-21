@@ -63,11 +63,8 @@ XMOT.interaction.geometry.UniformScaler = new XMOT.Class(XMOT.interaction.geomet
      */
     onTargetXfmChanged: function()
     {
-        var targetInvScale = XMOT.math.vecInverseScale(
-            this.targetNode.getWorldMatrix().scaling().scale(1.15));
-
-        var cubeFac = 0.1; // scaling of cubes (also here those boxes)
-        var cube_scale = targetInvScale.scale(cubeFac);
+        var cubeFac = 0.1; // scaling of cubes (are 1x1x1 boxes, so scale them down)
+        var cube_scale = new window.XML3DVec3(cubeFac, cubeFac, cubeFac);
 
         var cubeScaleStr = cube_scale.x + " " + cube_scale.y + " " + cube_scale.z;
         this.geo.updateTransforms([

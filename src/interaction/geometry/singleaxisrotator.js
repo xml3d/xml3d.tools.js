@@ -83,13 +83,9 @@ XMOT.interaction.geometry.SingleAxisRotator = new XMOT.Class(XMOT.interaction.ge
      */
     onTargetXfmChanged: function()
     {
-        // variables
-        var targetInvScale = XMOT.math.vecInverseScale(
-            this.targetNode.getWorldMatrix().scaling().scale(1.15));
-
         var handleFac = 0.05; // scaling of handles (are 1x1x1 boxes, so scale them down)
 
-        var handle_scale = targetInvScale.scale(handleFac);
+        var handle_scale = new window.XML3DVec3(handleFac, handleFac, handleFac);
 
         // rotation handles
         var handleScaleStr = handle_scale.x + " 1 " + handle_scale.z;

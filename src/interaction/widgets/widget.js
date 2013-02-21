@@ -262,13 +262,7 @@ XMOT.interaction.widgets.Widget = new XMOT.Class(
         // translation: offset of target's bbox
         var translation = new window.XML3DVec3(tarBBox.center());
 
-        // scale: little big bigger than target's bbox size
-        var scale = new window.XML3DVec3(1,1,1);
-        if(this._autoScaleAdj)
-        {
-            var tarBBoxSize = tarBBox.size();
-            scale = tarBBoxSize.multiply(new window.XML3DVec3(0.55, 0.55, 0.55));
-        }
+        var scale = this._getWidgetScaling();
 
         // root
         this.geometry.geo.updateTransforms("t_root", {
@@ -276,5 +270,37 @@ XMOT.interaction.widgets.Widget = new XMOT.Class(
         	scale: scale.str(),
             rot: targetXfm.rotation.str()
         });
+    },
+
+    /** Calculate the widget's scaling factor based on the target node's bounding
+     *  box. The widget is scaled to be a little bit bigger than the target node's
+     *  size.
+     *  In addition, a minimum scaling factor is calculated (half of the average
+     *  scaling factor of the widget). If a scaling dimension is lower than that minimum
+     *  it is set to the minimum.
+     *  Why? Manipulate a plane that has 0 y-extend.
+     *
+     *  @return {window.XML3DVec3} the widget's scaling vector
+     */
+    _getWidgetScaling: function() {
+
+        var scale = new window.XML3DVec3(1,1,1);
+        if(!this._autoScaleAdj)
+            return scale;
+
+        var tarBBoxSize = this.target.object.getBoundingBox().size();
+        scale = tarBBoxSize.multiply(new window.XML3DVec3(0.55, 0.55, 0.55));
+
+        var minScale = (scale.x + scale.y + scale.z) / 3;
+        minScale /= 2;
+
+        if(scale.x < minScale)
+            scale.x = minScale;
+        if(scale.y < minScale)
+            scale.y = minScale;
+        if(scale.z < minScale)
+            scale.z = minScale;
+
+        return scale;
     }
 });

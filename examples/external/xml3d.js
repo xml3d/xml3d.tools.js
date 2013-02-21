@@ -21,13 +21,13 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-@version: DEVELOPMENT SNAPSHOT (14.02.2013 15:07:33 CET)
+@version: DEVELOPMENT SNAPSHOT (20.02.2013 11:51:28 CET)
 **/
 /** @namespace * */
 var XML3D = XML3D || {};
 
 /** @define {string} */
-XML3D.version = 'DEVELOPMENT SNAPSHOT (14.02.2013 15:07:33 CET)';
+XML3D.version = 'DEVELOPMENT SNAPSHOT (20.02.2013 11:51:28 CET)';
 /** @const */
 XML3D.xml3dNS = 'http://www.xml3d.org/2009/xml3d';
 /** @const */
@@ -207,12 +207,12 @@ window.requestAnimFrame = (function(){
   })();
 
 (function() {
-
-    if(!XML3D.util)
+    
+    if(!XML3D.util) 
         XML3D.util = {};
-
-    var u = XML3D.util;
-
+    
+    var u = XML3D.util; 
+    
     /**
      * Dispatch HTML event
      *
@@ -248,7 +248,7 @@ window.requestAnimFrame = (function(){
         event.initCustomEvent(eventType, canBubble, cancelable, detail);
         target.dispatchEvent(event);
     };
-
+    
     u.getStyle = function(oElm, strCssRule) {
         var strValue = "";
         if (document.defaultView && document.defaultView.getComputedStyle) {
@@ -264,68 +264,68 @@ window.requestAnimFrame = (function(){
         return strValue;
     };
 
-    /** Evaluates the given XPath expression in the given xml3d element on
-     *  xml3d elements and returns the result.
-     *
-     * @param {!Object} xml3d the xml3d element on which to evaluate the expression
-     * @param {!Object} xpathExpr the XPath expression to be evaluated
-     *
+    /** Evaluates the given XPath expression in the given xml3d element on 
+     *  xml3d elements and returns the result. 
+     *  
+     * @param {!Object} xml3d the xml3d element on which to evaluate the expression 
+     * @param {!Object} xpathExpr the XPath expression to be evaluated 
+     * 
      * @return {XPathResult} the result of the evaluation
      */
     u.evaluateXPathExpr = function(xml3d, xpathExpr)
     {
         return document.evaluate(
-            xpathExpr, xml3d,
-            function() {return XML3D.xml3dNS;},
-            XPathResult.FIRST_ORDERED_NODE_TYPE, null);
-    };
-
-    var __autoCreatedViewId = 0;
-    /**
-     * Returns the active view element corresponding to the given xml3d element.
-     *
+            xpathExpr, xml3d, 
+            function() {return XML3D.xml3dNS;}, 
+            XPathResult.FIRST_ORDERED_NODE_TYPE, null);         
+    }; 
+    
+    var __autoCreatedViewId = 0; 
+    /** 
+     * Returns the active view element corresponding to the given xml3d element. 
+     * 
      * @param {!Object} xml3d
      * @return {Object} the active view element
-     */
+     */ 
     u.getOrCreateActiveView = function(xml3d)
     {
         // try to resolve reference
-        var ref = xml3d.activeView;
+        var ref = xml3d.activeView; 
         if(ref)
-        {
-            var v = XML3D.URIResolver.resolveLocal(ref);
+        {       
+            var v = XML3D.URIResolver.resolveLocal(ref);      
             if(!v)
-                throw "XML3D Error: xml3d references view that is not defined: '" + ref + "'.";
-
-            return v;
+                throw "XML3D Error: xml3d references view that is not defined: '" + ref + "'."; 
+            
+            return v; 
         }
-
-        // didn't succeed, so now try to just take the first view
+        
+        // didn't succeed, so now try to just take the first view 
         var firstView = XML3D.util.evaluateXPathExpr(
                 xml3d, './/xml3d:view[1]').singleNodeValue;
-
+        
         if(firstView)
         {
-            // if it has an id, set it as active
+            // if it has an id, set it as active 
             if(firstView.id && firstView.id.length > 0)
-                xml3d.activeView = "#" + firstView.id;
-
-            return firstView;
+                xml3d.activeView = "#" + firstView.id; 
+            
+            return firstView; 
         }
-
+        
         // didn't find any: create new one
         XML3D.debug.logWarning("xml3d element has no view defined: creating one.");
-
-        var vid = "xml3d.autocreatedview_" + __autoCreatedViewId++;
+        
+        var vid = "xml3d.autocreatedview_" + __autoCreatedViewId++; 
         var v = XML3D.createElement("view");
         v.setAttribute("id", vid);
-
-        xml3d.appendChild(v);
-        xml3d.setAttribute("activeView", "#" + vid);
-
-        return v;
-    };
-
+        
+        xml3d.appendChild(v); 
+        xml3d.setAttribute("activeView", "#" + vid); 
+        
+        return v; 
+    }; 
+    
     /** Calculate the offset of the given element and return it.
      *
      *  @param {Object} element
@@ -1623,7 +1623,7 @@ XML3D.css.convertCssToMat4 = function(cssMatrix, m){
 XML3D.math = {};
 var exports = XML3D.math;
 
-// fix for define variable non-existence
+// fix for define variable non-existence 
 var define = {};
 /*jslint white: false, onevar: false, undef: true, nomen: true, eqeqeq: true, plusplus: true, bitwise: true, regexp: true, newcap: true, immed: true, sub: true, nomen: false */
 
@@ -1836,12 +1836,12 @@ are permitted provided that the following conditions are met:
   * Redistributions of source code must retain the above copyright notice, this
     list of conditions and the following disclaimer.
   * Redistributions in binary form must reproduce the above copyright notice,
-    this list of conditions and the following disclaimer in the documentation
+    this list of conditions and the following disclaimer in the documentation 
     and/or other materials provided with the distribution.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
@@ -1864,7 +1864,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
     } else {
       // gl-matrix lives in a browser, define its namespaces in global
       shim.exports = window;
-    }
+    }    
   }
   else {
     // gl-matrix lives in commonjs, define its namespaces in exports
@@ -1880,12 +1880,12 @@ are permitted provided that the following conditions are met:
   * Redistributions of source code must retain the above copyright notice, this
     list of conditions and the following disclaimer.
   * Redistributions in binary form must reproduce the above copyright notice,
-    this list of conditions and the following disclaimer in the documentation
+    this list of conditions and the following disclaimer in the documentation 
     and/or other materials provided with the distribution.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
@@ -1930,12 +1930,12 @@ are permitted provided that the following conditions are met:
   * Redistributions of source code must retain the above copyright notice, this
     list of conditions and the following disclaimer.
   * Redistributions in binary form must reproduce the above copyright notice,
-    this list of conditions and the following disclaimer in the documentation
+    this list of conditions and the following disclaimer in the documentation 
     and/or other materials provided with the distribution.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
@@ -2324,7 +2324,7 @@ vec2.forEach = (function() {
         if(!offset) {
             offset = 0;
         }
-
+        
         if(count) {
             l = Math.min((count * stride) + offset, a.length);
         } else {
@@ -2336,7 +2336,7 @@ vec2.forEach = (function() {
             fn(vec, vec, arg);
             a[i] = vec[0]; a[i+1] = vec[1];
         }
-
+        
         return a;
     };
 })();
@@ -2363,12 +2363,12 @@ are permitted provided that the following conditions are met:
   * Redistributions of source code must retain the above copyright notice, this
     list of conditions and the following disclaimer.
   * Redistributions in binary form must reproduce the above copyright notice,
-    this list of conditions and the following disclaimer in the documentation
+    this list of conditions and the following disclaimer in the documentation 
     and/or other materials provided with the distribution.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
@@ -2808,7 +2808,7 @@ vec3.forEach = (function() {
         if(!offset) {
             offset = 0;
         }
-
+        
         if(count) {
             l = Math.min((count * stride) + offset, a.length);
         } else {
@@ -2820,7 +2820,7 @@ vec3.forEach = (function() {
             fn(vec, vec, arg);
             a[i] = vec[0]; a[i+1] = vec[1]; a[i+2] = vec[2];
         }
-
+        
         return a;
     };
 })();
@@ -2847,12 +2847,12 @@ are permitted provided that the following conditions are met:
   * Redistributions of source code must retain the above copyright notice, this
     list of conditions and the following disclaimer.
   * Redistributions in binary form must reproduce the above copyright notice,
-    this list of conditions and the following disclaimer in the documentation
+    this list of conditions and the following disclaimer in the documentation 
     and/or other materials provided with the distribution.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
@@ -3296,7 +3296,7 @@ vec4.forEach = (function() {
         if(!offset) {
             offset = 0;
         }
-
+        
         if(count) {
             l = Math.min((count * stride) + offset, a.length);
         } else {
@@ -3308,7 +3308,7 @@ vec4.forEach = (function() {
             fn(vec, vec, arg);
             a[i] = vec[0]; a[i+1] = vec[1]; a[i+2] = vec[2]; a[i+3] = vec[3];
         }
-
+        
         return a;
     };
 })();
@@ -3335,12 +3335,12 @@ are permitted provided that the following conditions are met:
   * Redistributions of source code must retain the above copyright notice, this
     list of conditions and the following disclaimer.
   * Redistributions in binary form must reproduce the above copyright notice,
-    this list of conditions and the following disclaimer in the documentation
+    this list of conditions and the following disclaimer in the documentation 
     and/or other materials provided with the distribution.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
@@ -3438,7 +3438,7 @@ mat2.transpose = function(out, a) {
         out[2] = a[1];
         out[3] = a[3];
     }
-
+    
     return out;
 };
 
@@ -3459,7 +3459,7 @@ mat2.invert = function(out, a) {
         return null;
     }
     det = 1.0 / det;
-
+    
     out[0] =  a3 * det;
     out[1] = -a1 * det;
     out[2] = -a2 * det;
@@ -3579,12 +3579,12 @@ are permitted provided that the following conditions are met:
   * Redistributions of source code must retain the above copyright notice, this
     list of conditions and the following disclaimer.
   * Redistributions in binary form must reproduce the above copyright notice,
-    this list of conditions and the following disclaimer in the documentation
+    this list of conditions and the following disclaimer in the documentation 
     and/or other materials provided with the distribution.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
@@ -3712,7 +3712,7 @@ mat3.transpose = function(out, a) {
         out[7] = a[5];
         out[8] = a[8];
     }
-
+    
     return out;
 };
 
@@ -3735,8 +3735,8 @@ mat3.invert = function(out, a) {
         // Calculate the determinant
         det = a00 * b01 + a01 * b11 + a02 * b21;
 
-    if (!det) {
-        return null;
+    if (!det) { 
+        return null; 
     }
     det = 1.0 / det;
 
@@ -3834,8 +3834,8 @@ mat3.mul = mat3.multiply;
  * @returns {String} string representation of the matrix
  */
 mat3.str = function (a) {
-    return 'mat3(' + a[0] + ', ' + a[1] + ', ' + a[2] + ', ' +
-                    a[3] + ', ' + a[4] + ', ' + a[5] + ', ' +
+    return 'mat3(' + a[0] + ', ' + a[1] + ', ' + a[2] + ', ' + 
+                    a[3] + ', ' + a[4] + ', ' + a[5] + ', ' + 
                     a[6] + ', ' + a[7] + ', ' + a[8] + ')';
 };
 
@@ -3851,12 +3851,12 @@ are permitted provided that the following conditions are met:
   * Redistributions of source code must retain the above copyright notice, this
     list of conditions and the following disclaimer.
   * Redistributions in binary form must reproduce the above copyright notice,
-    this list of conditions and the following disclaimer in the documentation
+    this list of conditions and the following disclaimer in the documentation 
     and/or other materials provided with the distribution.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
@@ -4029,7 +4029,7 @@ mat4.transpose = function(out, a) {
         out[14] = a[11];
         out[15] = a[15];
     }
-
+    
     return out;
 };
 
@@ -4062,8 +4062,8 @@ mat4.invert = function(out, a) {
         // Calculate the determinant
         det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
 
-    if (!det) {
-        return null;
+    if (!det) { 
+        return null; 
     }
     det = 1.0 / det;
 
@@ -4163,7 +4163,7 @@ mat4.multiply = function (out, a, b) {
         a30 = a[12], a31 = a[13], a32 = a[14], a33 = a[15];
 
     // Cache only the current line of the second matrix
-    var b0  = b[0], b1 = b[1], b2 = b[2], b3 = b[3];
+    var b0  = b[0], b1 = b[1], b2 = b[2], b3 = b[3];  
     out[0] = b0*a00 + b1*a10 + b2*a20 + b3*a30;
     out[1] = b0*a01 + b1*a11 + b2*a21 + b3*a31;
     out[2] = b0*a02 + b1*a12 + b2*a22 + b3*a32;
@@ -4283,7 +4283,7 @@ mat4.rotate = function (out, a, rad, axis) {
         b20, b21, b22;
 
     if (Math.abs(len) < GLMAT_EPSILON) { return null; }
-
+    
     len = 1 / len;
     x *= len;
     y *= len;
@@ -4502,7 +4502,7 @@ mat4.fromRotationTranslation = function (out, q, v) {
     out[13] = v[1];
     out[14] = v[2];
     out[15] = 1;
-
+    
     return out;
 };
 
@@ -4704,7 +4704,7 @@ mat4.lookAt = function (out, eye, center, up) {
 mat4.str = function (a) {
     return 'mat4(' + a[0] + ', ' + a[1] + ', ' + a[2] + ', ' + a[3] + ', ' +
                     a[4] + ', ' + a[5] + ', ' + a[6] + ', ' + a[7] + ', ' +
-                    a[8] + ', ' + a[9] + ', ' + a[10] + ', ' + a[11] + ', ' +
+                    a[8] + ', ' + a[9] + ', ' + a[10] + ', ' + a[11] + ', ' + 
                     a[12] + ', ' + a[13] + ', ' + a[14] + ', ' + a[15] + ')';
 };
 
@@ -4720,12 +4720,12 @@ are permitted provided that the following conditions are met:
   * Redistributions of source code must retain the above copyright notice, this
     list of conditions and the following disclaimer.
   * Redistributions in binary form must reproduce the above copyright notice,
-    this list of conditions and the following disclaimer in the documentation
+    this list of conditions and the following disclaimer in the documentation 
     and/or other materials provided with the distribution.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
@@ -4890,7 +4890,7 @@ quat.scale = vec4.scale;
  * @returns {quat} out
  */
 quat.rotateX = function (out, a, rad) {
-    rad *= 0.5;
+    rad *= 0.5; 
 
     var ax = a[0], ay = a[1], az = a[2], aw = a[3],
         bx = Math.sin(rad), bw = Math.cos(rad);
@@ -4911,7 +4911,7 @@ quat.rotateX = function (out, a, rad) {
  * @returns {quat} out
  */
 quat.rotateY = function (out, a, rad) {
-    rad *= 0.5;
+    rad *= 0.5; 
 
     var ax = a[0], ay = a[1], az = a[2], aw = a[3],
         by = Math.sin(rad), bw = Math.cos(rad);
@@ -4932,7 +4932,7 @@ quat.rotateY = function (out, a, rad) {
  * @returns {quat} out
  */
 quat.rotateZ = function (out, a, rad) {
-    rad *= 0.5;
+    rad *= 0.5; 
 
     var ax = a[0], ay = a[1], az = a[2], aw = a[3],
         bz = Math.sin(rad), bw = Math.cos(rad);
@@ -5047,7 +5047,7 @@ quat.invert = function(out, a) {
     var a0 = a[0], a1 = a[1], a2 = a[2], a3 = a[3],
         dot = a0*a0 + a1*a1 + a2*a2 + a3*a3,
         invDot = dot ? 1.0/dot : 0;
-
+    
     // TODO: Would be faster to return [0,0,0,0] immediately if dot == 0
 
     out[0] = -a0*invDot;
@@ -5791,38 +5791,19 @@ if(typeof(exports) !== 'undefined') {
         /** @private */
         this._data = new Float32Array(3);
 
-        if(x !== undefined && x !== null) {
-            this.set(x,y,z);
+        if (typeof x == 'object' && x._data) {
+            this._data[0] = x._data[0];
+            this._data[1] = x._data[1];
+            this._data[2] = x._data[2];
+        } else {
+            this._data[0] = x || 0;
+            this._data[1] = y || 0;
+            this._data[2] = z || 0;
         }
 
         this._callback = typeof cb == 'function' ? cb : 0;
 
     }, p = XML3DVec3.prototype;
-
-    /**
-     * The set method copies the values from other.
-     * @param {Object} other another XML3DVec3, Float32Array or a number. In the last case the other args are considered, too.
-     * @param {number=} y
-     * @param {number=} z
-     */
-    p.set = function(other,y,z) {
-        if(other.constructor === Float32Array) {
-            this._data[0] = other[0];
-            this._data[1] = other[1];
-            this._data[2] = other[2];
-        }
-        else if(other.constructor === window.XML3DVec3) {
-            this._data[0] = other._data[0];
-            this._data[1] = other._data[1];
-            this._data[2] = other._data[2];
-        } else if(arguments.length == 3) {
-            this._data[0] = other;
-            this._data[1] = y;
-            this._data[2] = z;
-        }
-        if (this._callback)
-            this._callback(this);
-    };
 
     /** @type {number} */
     Object.defineProperty(p, "x", prop(0));
@@ -5894,6 +5875,24 @@ if(typeof(exports) !== 'undefined') {
         this._data[0] = +m[1];
         this._data[1] = +m[2];
         this._data[2] = +m[3];
+        if (this._callback)
+            this._callback(this);
+    };
+
+    /**
+     * The set method copies the values from other.
+     * @param {XML3DVec3} other The other vector
+     */
+    p.set = function(other,y,z) {
+        if(arguments.length == 1) {
+            this._data[0] = other._data[0];
+            this._data[1] = other._data[1];
+            this._data[2] = other._data[2];
+        } else if(arguments.length == 3) {
+            this._data[0] = other;
+            this._data[1] = y;
+            this._data[2] = z;
+        }
         if (this._callback)
             this._callback(this);
     };
@@ -6014,45 +6013,30 @@ if(typeof(exports) !== 'undefined') {
         var that = this;
         this._data = new Float32Array(4);
 
+        /** @private */
+        this._callback = typeof cb == 'function' ? cb : 0;
+
+        /** @private */
         var vec_cb = function() {
             that._updateQuaternion();
             if (that._callback)
                 that._callback(that);
         };
 
-        /** @private */
-        this._axis = new window.XML3DVec3(0, 0, 1, vec_cb);
-        /** @private */
-        this._angle = 0;
-
-        this._updateQuaternion();
-
-        if(axis !== undefined && axis !== null) {
-            this.set(axis, angle);
-        }
-
-        /** @private */
-        this._callback = typeof cb == 'function' ? cb : 0;
-    };
-
-    var p = XML3DRotation.prototype;
-
-    /**
-     * The set method copies the values from other.
-     * @param {Object} other another XML3DRotation, Float32Array or XML3DVec3. In the last case the 2nd argument is considered.
-     * @param {number=} angle
-     */
-    p.set = function(other, angle) {
-        if(other.constructor === window.XML3DRotation) {
-            this.setAxisAngle(other.axis, other.angle);
-        } else if(other.constructor === Float32Array) {
-            this._setQuaternion(other);
-        } else if(other.constructor === window.XML3DVec3) {
-            this.setAxisAngle(other, angle);
+        if (axis instanceof XML3DRotation) {
+            this._axis = new window.XML3DVec3(0, 0, 1, vec_cb);
+            this._angle = 0;
+            this.setAxisAngle(axis.axis, axis.angle);
         } else {
-            XML3D.debug.logError("XML3DRotation.set(): invalid argument given. Expect XML3DRotation or Float32Array.");
+            this._axis = axis ? new window.XML3DVec3(axis.x, axis.y, axis.z, vec_cb) : new window.XML3DVec3(0, 0, 1, vec_cb);
+            /** @private */
+            this._angle = angle || 0;
+            this._updateQuaternion();
         }
-    };
+
+    }; 
+    
+    var p = XML3DRotation.prototype;
 
     /** @type {number} */
     Object.defineProperty(p, "axis", {
@@ -6183,7 +6167,15 @@ if(typeof(exports) !== 'undefined') {
     };
 
     /**
-     * Returns a XML3DMatrix that describes this 3D rotation in a
+     * The set method copies the values from other.
+     * @param {XML3DRotation} other The other rotation
+     */
+    p.set = function(other) {
+        this.setAxisAngle(other.axis, other.angle);
+    };
+
+    /**
+     * Returns a XML3DMatrix that describes this 3D rotation in a 
      * 4x4 matrix representation.
      * @return {XML3DMatrix} Rotation matrix
      */
@@ -6193,13 +6185,13 @@ if(typeof(exports) !== 'undefined') {
         XML3D.math.mat4.fromRotationTranslation(m._data, q, [0, 0, 0]);
         return m;
     };
-
+    
     /**
-     * Rotates the vector passed as parameter with this rotation
+     * Rotates the vector passed as parameter with this rotation 
      * representation. The result is returned as new vector instance.
      * Neither this nor the inputVector are changed.
      * 4x4 matrix representation.
-     * @param {XML3DVec3} inputVector
+     * @param {XML3DVec3} inputVector 
      * @return {XML3DVec3} The rotated vector
      */
     p.rotateVec3 = function(inputVector) {
@@ -6207,7 +6199,7 @@ if(typeof(exports) !== 'undefined') {
         XML3D.math.vec3.transformQuat(result._data, inputVector._data, this._data)
         return result;
     };
-
+    
     /**
      * Replaces the existing rotation with the quaternion representation passed
      * as argument
@@ -6236,7 +6228,7 @@ if(typeof(exports) !== 'undefined') {
     /**
      * Multiplies this rotation with the passed rotation. This rotation is not
      * changed.
-     *
+     * 
      * @param {XML3DRotation} rot1
      * @return {XML3DVec3} The result
      */
@@ -6255,34 +6247,20 @@ if(typeof(exports) !== 'undefined') {
         var na = this._axis.normalize();
         return new XML3DRotation(na, this._angle);
     };
-
-    /**
-     * Returns the quaternion, that underlies this rotation.
-     *
-     * @return {Float32Array}
+    
+    /** 
+     * Returns the quaternion, that underlies this rotation. 
+     * 
+     * @return {Float32Array} 
      */
     p.getQuaternion = function() {
-        return XML3D.math.quat.copy(XML3D.math.quat.create(), this._data);
-    };
-
-    /**
-     * Set this rotation based on the given base vectors.
-     *
-     * @param {XML3DVec3} xAxis
-     * @param {XML3DVec3} yAxis
-     * @param {XML3DVec3} zAxis
-     */
-    p.setFromBasis = function(xAxis, yAxis, zAxis) {
-        var q = XML3D.math.quat.create();
-        XML3D.math.quat.setFromBasis(xAxis._data, yAxis._data, zAxis._data, q);
-        this._setQuaternion(q);
+        return XML3D.math.quat.copy(XML3D.math.quat.create(), this._data); 
     };
 
     XML3D.XML3DRotation = XML3DRotation;
     window.XML3DRotation = XML3DRotation;
 
-}(XML3D._native));
-// box.js
+}(XML3D._native));// box.js
 (function($) {
     // Is native?
     if($) return;
@@ -6292,7 +6270,7 @@ if(typeof(exports) !== 'undefined') {
      * described by two vectors min and max.
      * @constructor
      * @param {XML3DVec3=} min The smaller point of the box. Default: (0,0,0)
-     * @param {XML3DVec3=} max The biggest point of the box. Default: (0,0,0)
+     * @param {XML3DVec3=} max The biggest point of the box. Default: (0,0,0) 
      */
     var XML3DBox = function(min, max, cb) {
         var that = this;
@@ -6392,7 +6370,7 @@ if(typeof(exports) !== 'undefined') {
     XML3DBox.prototype.isEmpty = function() {
         return (this._min.x > this._max.x || this._min.y > this._max.y || this._min.z > this._max.z);
     };
-
+    
     /**
      * String representation of the XML3DBox.
      * @override
@@ -6412,9 +6390,9 @@ if(typeof(exports) !== 'undefined') {
         if (this._callback)
             this._callback(this);
     };
-
-    /** updates the min or max accoring to the given point or bounding box.
-    *
+    
+    /** updates the min or max accoring to the given point or bounding box. 
+    * 
     * @param that the object used for extension, which can be a XML3DVec3 or XML3DBox
     */
     XML3DBox.prototype.extend = function(that)
@@ -6458,7 +6436,7 @@ if(typeof(exports) !== 'undefined') {
 }(XML3D._native));
 // matrix.js
 (function(isNative) {
-
+    
     if(isNative) return;
 
     /**
@@ -6524,10 +6502,10 @@ if(typeof(exports) !== 'undefined') {
             m32, m33, m34, m41, m42, m43, m44, cb) {
         /** @private */
         if (typeof m11 == 'number' && arguments.length >= 16) {
-            this.set(m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44);
+            this._data = new Float32Array(arguments);
             this._callback = typeof cb == 'function' ? cb : 0;
         } else if (typeof m11 == 'object' && arguments.length == 1) {
-            this.set(m11);
+            this._data = new Float32Array(m11._data);
         } else{
             this._data = new Float32Array( [ 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1,
                     0, 0, 0, 0, 1 ]);
@@ -6568,47 +6546,6 @@ if(typeof(exports) !== 'undefined') {
     Object.defineProperty(p, "m43", prop(14));
     /** @type {number} */
     Object.defineProperty(p, "m44", prop(15));
-
-    /**
-     * Set the value of the matrix.
-     *
-     * @param {Object} m11 another XML3DMatrix, Float32Array or a number. In the last case the remaining arguments are considered.
-     * @param {number=} m12
-     * @param {number=} m13
-     * @param {number=} m14
-     * @param {number=} m21
-     * @param {number=} m22
-     * @param {number=} m23
-     * @param {number=} m24
-     * @param {number=} m31
-     * @param {number=} m32
-     * @param {number=} m33
-     * @param {number=} m34
-     * @param {number=} m41
-     * @param {number=} m42
-     * @param {number=} m43
-     * @param {number=} m44
-     */
-    p.set = function(m11, m12, m13, m14, m21, m22, m23, m24, m31,
-            m32, m33, m34, m41, m42, m43, m44) {
-
-        if (typeof m11 == 'number' && arguments.length >= 16) {
-            this._data = new Float32Array(arguments);
-            return;
-        }
-
-        if(m11.constructor === XML3DMatrix) {
-            this._data = new Float32Array(m11._data);
-            return;
-        }
-
-        if(m11.constructor === Float32Array) {
-            this._data = new Float32Array(m11);
-            return;
-        }
-
-        XML3D.debug.logError("XML3DMatrix.set(): invalid parameter(s). Expect XML3DMatrix, Float32Array or 16 numbers.");
-    };
 
     /**
      * String representation of the XML3DBox.
@@ -6754,14 +6691,14 @@ if(typeof(exports) !== 'undefined') {
 
     if(isNative)
         return;
-
+    
     /** returns an XML3DRay that has an origin and a direction.
-    *
-    * If the arguments are not given, the ray's origin is (0,0,0) and
-    * points down the negative z-axis.
-    *
+    * 
+    * If the arguments are not given, the ray's origin is (0,0,0) and 
+    * points down the negative z-axis.  
+    *   
     *  @param {XML3DVec3=} origin (optional) the origin of the ray
-    *  @param {XML3DVec3=} direction (optional) the direction of the ray
+    *  @param {XML3DVec3=} direction (optional) the direction of the ray   
     */
     var XML3DRay = function(origin, direction, cb) {
         var that = this;
@@ -6788,9 +6725,9 @@ if(typeof(exports) !== 'undefined') {
         /** @private * */
         this._callback = typeof cb == 'function' ? cb : 0;
 
-    };
+    }; 
     var p = XML3DRay.prototype;
-
+    
     /** @type {XML3DVec3} */
     Object.defineProperty(p, "origin", {
         /** @this {XML3DRay} * */
@@ -6808,7 +6745,7 @@ if(typeof(exports) !== 'undefined') {
         configurable : false,
         enumerable : false
     });
-
+    
     /**
      * The set method copies the values from other.
      * @param {XML3DRay} other The other ray
@@ -7254,8 +7191,8 @@ XML3D.base.callAdapterFunc = function(node, funcs) {
     }
     return result;
 };
-
-/**
+  
+/**    
  * This function sends single or multiple adapter events by calling functions
  * specified in events parameter for each adapter associated with the node.
  *
@@ -7916,9 +7853,9 @@ XML3D.config.isXML3DElement = function(e) {
 
 /**
  * @param {Element} element
- * @param {boolean=} selfmonitoring: whether to register listeners on element for node
+ * @param {boolean=} selfmonitoring: whether to register listeners on element for node 
  *                  addition/removal and attribute modification. This property is propagated
- *                  to children.
+ *                  to children. 
  * @return {undefined}
  */
 XML3D.config.element = function(element, selfmonitoring) {
@@ -7948,15 +7885,15 @@ XML3D.config.element = function(element, selfmonitoring) {
 
 /**
  * @param {Element} element
- * @param {boolean=} selfmonitoring: whether to register listeners on element for node
+ * @param {boolean=} selfmonitoring: whether to register listeners on element for node 
  *                  addition/removal and attribute modification. This property is propagated
- *                  to children.
+ *                  to children. 
  * @return {undefined}
  */
 XML3D.config.configure = function(element, selfmonitoring) {
     if (Array.isArray(element)) {
         Array.forEach(element, function(el) {
-            XML3D.config.element(el, selfmonitoring);
+            XML3D.config.element(el, selfmonitoring); 
         });
     } else {
         XML3D.config.element(element, selfmonitoring);
@@ -9840,7 +9777,7 @@ Xflow.DataNode = function(graph, protoNode){
 
     this.loading = false;
 
-
+    
     this._isProtoNode = protoNode;
     this._children = [];
     this._sourceNode = null;
@@ -11783,7 +11720,7 @@ Xflow.registerOperator = function(name, data){
 Xflow.getOperator = function(name){
     if (!operators[name])
     {
-        XML3D.debug.logError("Unknown operator: '" + name+"'");
+        //XML3D.debug.logError("Unknown operator: '" + name+"'");
         return null;
     }
     return operators[name];
@@ -14017,19 +13954,19 @@ XML3D.webgl.MAXFPS = 30;
         return true;
     };
 
-    /**
-     * Convert the given y-coordinate on the canvas to a y-coordinate appropriate in
-     * the GL context. The y-coordinate gets turned upside-down. The lowest possible
-     * canvas coordinate is 0, so we need to subtract 1 from the height, too.
-     *
+    /** 
+     * Convert the given y-coordinate on the canvas to a y-coordinate appropriate in 
+     * the GL context. The y-coordinate gets turned upside-down. The lowest possible 
+     * canvas coordinate is 0, so we need to subtract 1 from the height, too. 
+     * 
      * @param {number} canvasY
      * @return {number} the converted y-coordinate
      */
-    CanvasHandler.prototype.canvasToGlY = function(canvasY) {
-
-        return this.canvas.height - canvasY - 1;
-    };
-
+    CanvasHandler.prototype.canvasToGlY = function(canvasY) { 
+        
+        return this.canvas.height - canvasY - 1; 
+    }; 
+    
     /**
      * Binds the picking buffer and passes the request for a picking pass to the
      * renderer
@@ -14043,25 +13980,25 @@ XML3D.webgl.MAXFPS = 30;
             return null;
         if(this.needPickingDraw) {
             this.renderer.prepareRendering();
-            this.renderer.renderSceneToPickingBuffer();
+            this.renderer.renderSceneToPickingBuffer();   
         }
-
-        /** Temporary workaround: this function is called when drawable objects are not yet
+        
+        /** Temporary workaround: this function is called when drawable objects are not yet 
          *  updated. Thus, the renderer.render() updates the objects after the picking buffer
-         *  has been updated. In that case, the picking buffer needs to be updated again.
-         *  Thus, we only set needPickingDraw to false when we are sure that objects don't
+         *  has been updated. In that case, the picking buffer needs to be updated again. 
+         *  Thus, we only set needPickingDraw to false when we are sure that objects don't 
          *  need any updates, i.e. when needDraw is false.
-         *  A better solution would be to separate drawable objects updating from rendering
+         *  A better solution would be to separate drawable objects updating from rendering 
          *  and to update the objects either during render() or renderSceneToPickingBuffer().
          */
         if(!this.needDraw)
             this.needPickingDraw = false;
-
+        
         var glY = this.canvasToGlY(canvasY);
-
+        
         this.currentPickObj = this.renderer.getRenderObjectFromPickingBuffer(canvasX, glY);
-
-
+        
+        
         return this.currentPickObj;
     };
 
@@ -14074,9 +14011,9 @@ XML3D.webgl.MAXFPS = 30;
     CanvasHandler.prototype.getWorldSpaceNormalByPoint = function(pickedObj, canvasX, canvasY) {
         if (!pickedObj || this._pickingDisabled)
             return null;
-
+        
         var glY = this.canvasToGlY(canvasY);
-
+        
         this.renderer.renderPickedNormals(pickedObj);
         return this.renderer.readNormalFromPickingBuffer(canvasX, glY);
     };
@@ -14091,21 +14028,21 @@ XML3D.webgl.MAXFPS = 30;
     	if (!pickedObj)
     		return null;
 
-        var glY = this.canvasToGlY(canvasY);
-
+        var glY = this.canvasToGlY(canvasY); 
+        
         this.renderer.renderPickedPosition(pickedObj);
         return this.renderer.readPositionFromPickingBuffer(canvasX, glY);
     };
-
-    CanvasHandler.prototype.getCanvasHeight = function() {
-
-    	return this.canvas.height;
+    
+    CanvasHandler.prototype.getCanvasHeight = function() { 
+    	
+    	return this.canvas.height; 
     };
-
-    CanvasHandler.prototype.getCanvasWidth = function() {
-
-    	return this.canvas.width;
-    };
+    
+    CanvasHandler.prototype.getCanvasWidth = function() { 
+    	
+    	return this.canvas.width; 
+    };  
 
     /**
      * Uses gluUnProject() to transform the 2D screen point to a 3D ray.
@@ -14115,8 +14052,8 @@ XML3D.webgl.MAXFPS = 30;
      * @param {number} canvasY
      */
     CanvasHandler.prototype.generateRay = function(canvasX, canvasY) {
-
-        var glY = this.canvasToGlY(canvasY);
+        
+        var glY = this.canvasToGlY(canvasY); 
 
         // setup input to unproject
         var viewport = new Array();
@@ -14146,7 +14083,7 @@ XML3D.webgl.MAXFPS = 30;
         // calculate ray
         var worldToViewMat = this.renderer.currentView.getViewMatrix().inverse();
         var viewPos = new window.XML3DVec3(worldToViewMat.m41, worldToViewMat.m42, worldToViewMat.m43);
-
+        
         ray.origin.set(viewPos);
         ray.direction.set(farHit[0] - nearHit[0], farHit[1] - nearHit[1], farHit[2] - nearHit[2]);
         ray.direction.set(ray.direction.normalize());
@@ -14586,19 +14523,19 @@ XML3D.webgl.stopEvent = function(ev) {
 
         var min = bbox.min._data;
         var max = bbox.max._data;
-
+    
         var center = XML3D.math.vec3.scale(XML3D.math.vec3.create(), XML3D.math.vec3.add(XML3D.math.vec3.create(), min, max), 0.5);
         var extend = XML3D.math.vec3.scale(XML3D.math.vec3.create(), XML3D.math.vec3.subtract(XML3D.math.vec3.create(), max, min), 0.5);
-
+    
         XML3D.math.mat4.copy(absMat, gmatrix);
         absMat.set([0, 0, 0, 1], 12)
         for ( var i = 0; i < 16; i++) {
             absMat[i] = Math.abs(absMat[i]);
         }
-
+    
         XML3D.math.vec3.transformMat4(extend, extend, absMat);
         XML3D.math.vec3.transformMat4(center, center, gmatrix);
-
+    
         XML3D.math.vec3.add(bbox.max._data, center, extend);
         XML3D.math.vec3.subtract(bbox.min._data, center, extend);
     };
@@ -14812,23 +14749,23 @@ XML3D.webgl.stopEvent = function(ev) {
 
 
     };
-
-    /** for every component of v1 and v2 applies f, i.e. f(v1[.],v2[.]),
+    
+    /** for every component of v1 and v2 applies f, i.e. f(v1[.],v2[.]), 
      *  and returns it.
-     *
-     *  @param {vec3} v1
+     *  
+     *  @param {vec3} v1 
      *  @param {vec3} v2
      *  @param {function(number, number):number} f
-     *  @return {vec3} the mapped vector
-     */
+     *  @return {vec3} the mapped vector 
+     */    
     function mapVec(v1, v2, f)
     {
-        var vec = XML3D.math.vec3.create();
-        vec[0] = f(v1[0], v2[0]);
+        var vec = XML3D.math.vec3.create(); 
+        vec[0] = f(v1[0], v2[0]); 
         vec[1] = f(v1[1], v2[1]);
-        vec[2] = f(v1[2], v2[2]);
-
-        return vec;
+        vec[2] = f(v1[2], v2[2]); 
+        
+        return vec; 
     };
 
     /**
@@ -14842,14 +14779,14 @@ XML3D.webgl.stopEvent = function(ev) {
         var xfmmax = XML3D.math.vec3.create();
         XML3D.math.vec3.transformMat4(xfmmin, bbox.min._data, trafo);
         XML3D.math.vec3.transformMat4(xfmmax, bbox.max._data, trafo);
-
+        
         /* bounding box is axis-aligned, but through transformation
-         * min and max values might be shuffled (image e.g. a rotation (0, 1, 0, 1.57),
-         * here min's and max' x and z values are swapped). So we
-         * order them now.
+         * min and max values might be shuffled (image e.g. a rotation (0, 1, 0, 1.57), 
+         * here min's and max' x and z values are swapped). So we 
+         * order them now. 
          */
-        var bbmin = mapVec(xfmmin, xfmmax, Math.min);
-        var bbmax = mapVec(xfmmin, xfmmax, Math.max);
+        var bbmin = mapVec(xfmmin, xfmmax, Math.min); 
+        var bbmax = mapVec(xfmmin, xfmmax, Math.max); 
 
         if (bbmin[0] < min[0])
             min[0] = bbmin[0];
@@ -15039,9 +14976,9 @@ XML3D.webgl.stopEvent = function(ev) {
         this.shaders[shaderId] = program;
         this.gl.useProgram(program.handle);
 
-        this.setUniformsFromComputeResult(program, dataTable);
-        this.createTexturesFromComputeResult(program, dataTable);
-        XML3D.webgl.checkError(this.gl, "setSamplers");
+        this.setUniformsFromComputeResult(program, dataTable, { force: true });
+        this.createTexturesFromComputeResult(program, dataTable, { force: true });
+        //XML3D.webgl.checkError(this.gl, "setSamplers");
         return shaderId;
     };
 
@@ -15223,18 +15160,59 @@ XML3D.webgl.stopEvent = function(ev) {
     };
 
     /**
-     *
+     * @param {ProgramObject} programObject
+     * @param {Xflow.ComputeResult} data
+     * @param {Object?} opt
      */
-    XML3DShaderManager.prototype.setUniformsFromComputeResult = function(programObject, data) {
+    XML3DShaderManager.prototype.setUniformsFromComputeResult = function(programObject, data, opt) {
         var dataMap = data.getOutputMap();
         var uniforms = programObject.uniforms;
+        var opt = opt || {};
+
+        var force = opt.force || false;
+
         for ( var name in uniforms) {
             var entry = dataMap[name];
-            if (entry) {
+
+            if(!entry)
+                continue;
+
+            if(force || entry.userData.webglDataChanged != -1 ) {
                 XML3DShaderManager.setUniform(this.gl, uniforms[name], entry.getValue());
+                entry.userData.webglDataChanged = -1;
             }
         }
     };
+
+    /**
+     * @param {ProgramObject} programObject
+     * @param {Xflow.ComputeResult} result
+     * @param {Object?} opt options
+     */
+    XML3DShaderManager.prototype.createTexturesFromComputeResult = function(programObject, result, opt) {
+        var texUnit = 0;
+        var samplers = programObject.samplers;
+        var opt = opt || {};
+
+        var force = opt.force || false;
+
+        for ( var name in samplers) {
+            var sampler = samplers[name];
+            var entry = result.getOutputData(name);
+
+            if (!entry) {
+                sampler.info = new InvalidTexture();
+                continue;
+            }
+
+            if(force || entry.userData.webglDataChanged != -1 ) {
+                this.createTextureFromEntry(entry, sampler, texUnit);
+                entry.userData.webglDataChanged = -1;
+            }
+            texUnit++;
+        }
+    };
+
 
     XML3DShaderManager.prototype.setUniformVariables = function(shader, uniforms) {
         for ( var name in uniforms) {
@@ -15367,27 +15345,6 @@ XML3D.webgl.stopEvent = function(ev) {
         this.gl.deleteProgram(shader.handle);
     };
 
-    /**
-     *
-     * @param {ProgramObject} programObject
-     * @param {Xflow.ComputeResult} result
-     */
-    XML3DShaderManager.prototype.createTexturesFromComputeResult = function(programObject, result) {
-        var texUnit = 0;
-        var samplers = programObject.samplers;
-        for ( var name in samplers) {
-            var sampler = samplers[name];
-            var entry = result.getOutputData(name);
-
-            if (!entry) {
-                sampler.info = new InvalidTexture();
-                continue;
-            }
-
-            this.createTextureFromEntry(entry, sampler, texUnit);
-            texUnit++;
-        }
-    };
 
     /**
      *
@@ -17151,7 +17108,7 @@ Renderer.prototype.notifyDataChanged = function() {
     };
 
     XML3DRenderAdapter.prototype.generateRay = function(x, y) {
-
+        
         return this.factory.handler.generateRay(x, y);
     };
     XML3D.webgl.XML3DRenderAdapter = XML3DRenderAdapter;
@@ -17352,18 +17309,18 @@ Renderer.prototype.notifyDataChanged = function() {
         m._data.set(this.viewMatrix);
         return m;
     };
-
-    /**
-     * @return {XML3DMatrix} returns the inverse of the view matrix, since now we
+    
+    /** 
+     * @return {XML3DMatrix} returns the inverse of the view matrix, since now we 
      * want to go world2view and not view2world
      */
-    p.getWorldMatrix = function() {
-        var m = new window.XML3DMatrix();
-        var tmp = XML3D.math.mat4.create();
+    p.getWorldMatrix = function() {        
+        var m = new window.XML3DMatrix();  
+        var tmp = XML3D.math.mat4.create(); 
         XML3D.math.mat4.invert(tmp, this.viewMatrix);
         m._data.set(tmp);
-        return m;
-    };
+        return m; 
+    }; 
 
 
     p.getModelViewMatrix = function(model) {
@@ -17373,7 +17330,7 @@ Renderer.prototype.notifyDataChanged = function() {
     p.getModelViewProjectionMatrix = function(modelViewMatrix) {
         return XML3D.math.mat4.multiply(XML3D.math.mat4.create(), this.projMatrix, modelViewMatrix);
     };
-
+    
     p.getWorldSpacePosition = function() {
     	return this.worldPosition;
     };
@@ -17386,21 +17343,21 @@ Renderer.prototype.notifyDataChanged = function() {
             this.parentTransform = evt.newValue;
             this.updateViewMatrix();
         break;
-
+        
         case "orientation":
         case "position":
              this.updateViewMatrix();
         break;
-
+        
         case "fieldOfView":
              this.projMatrix = null;
         break;
-
+        
         default:
             XML3D.debug.logWarning("Unhandled event in view adapter for parameter " + target);
         break;
         }
-
+ 
         this.factory.handler.redraw("View changed");
     };
 
@@ -17490,32 +17447,32 @@ Renderer.prototype.notifyDataChanged = function() {
         this.node = node;
         this.dataAdapter = XML3D.data.factory.getAdapter(this.node);
     };
-
+    
     XML3D.createClass(TextureRenderAdapter, XML3D.webgl.RenderAdapter);
     TextureRenderAdapter.prototype.notifyChanged = function(evt) {
         var shaderAdapter = this.factory.getAdapter(this.node.parentElement);
         if (shaderAdapter)
             shaderAdapter.notifyChanged(evt);
     };
-
+    
     TextureRenderAdapter.prototype.getDataTable = function() {
         return this.dataAdapter.createDataTable();
     };
-
+    
     TextureRenderAdapter.prototype.destroy = function() {
         if (!this.info || this.info.handle === null)
             return;
-
+        
         this.gl.deleteTexture(this.info.handle);
         this.info = null;
         this.bind = function(texUnit) { return; };
         this.unbind = function(texUnit) { return; };
     };
-
+    
     TextureRenderAdapter.prototype.dispose = function(evt) {
         //TODO: tell renderer to dispose
     };
-
+    
     XML3D.webgl.TextureRenderAdapter = TextureRenderAdapter;
 }());
 XML3D.webgl.MAX_MESH_INDEX_COUNT = 65535;
@@ -17939,7 +17896,7 @@ XML3D.webgl.MAX_MESH_INDEX_COUNT = 65535;
         var matrix = this.getLocalMatrixInternal();
         if (matrix)
             XML3D.math.mat4.multiply(m, m, matrix);
-
+    
         return m;
     };
 
@@ -18392,7 +18349,7 @@ XML3D.webgl.MAX_MESH_INDEX_COUNT = 65535;
     LightRenderAdapter.prototype.dispose = function() {
         this.isValid = false;
     };
-
+    
     LightRenderAdapter.prototype.destroy = function() {
     	this.clearAdapterHandles();
     };
@@ -18483,16 +18440,16 @@ XML3D.webgl.MAX_MESH_INDEX_COUNT = 65535;
     "use strict";
      var shaders = {};
      var scripts = {};
-
+     
      shaders.register = function(name, script) {
          scripts[name] = script;
          script.name = name;
      };
-
+    
      shaders.getScript = function(script) {
          return scripts[script];
      };
-
+     
      XML3D.shaders = shaders;
 })();
 

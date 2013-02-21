@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd" >
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:webgl="http://www.xml3d.org/2009/xml3d/webgl"
+      xmlns:physics="http://www.xml3d.org/2009/physics"
+      xmlns:x3d="http://www.web3d.org/specifications/x3d-namespace"
+>
+
+
+<head>
+  <meta http-equiv="Content-Type" content="application/xhtml+xml; charset=utf-8" />
+  <title>TransformBox Flat Surface</title>
+  <link rel="stylesheet" type="text/css" media="all" href="../../style/default.css" />
+
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+  <script type="text/javascript" src="../../external/xml3d.js"></script>
+  <script type="text/javascript" src="../../external/xml3d-tools.js"></script>
+  <script type="text/javascript" src="../../../build/output/xml3d-motion.js"></script>
+  <script type="text/javascript" src="../page.js" />
+
+  <script type="text/javascript" src="../../style/eyelightShader.js" />
+  <script type="text/javascript" src="test_transformbox_flat.js" />
+</head>
+<body>
+<div id="overall">
+    <div id="content">
+  <h1>TransformBox Flat Surface</h1>
+  <div>
+    <xml3d id="scene" xmlns="http://www.xml3d.org/2009/xml3d"
+        webgl:showLog="true"
+        style="width: 550px; height: 350px; "
+        activeView="#defaultView"
+        pickableBackground="true">
+
+      <view id="defaultView" position="20.481132 1 18.343665" />
+
+      <defs>
+        <data id="d_plane" >
+          <float3 name="position">-1 0 -1  -1 0 0  -1 0 1    0 0 -1  0 0 0  0 0 1    1 0 -1  1 0 0  1 0 1</float3>
+          <float3 name="normal">0 1 0  0 1 0  0 1 0    0 1 0  0 1 0  0 1 0    0 1 0  0 1 0  0 1 0</float3>
+          <float2 name="texcoord">0 0  0 0.5  0 1    0.5 0  0.5 0.5  0.5 1    1 0  1 0.5  1 1</float2>
+          <int name="index">0 1 3  1 3 4    1 2 4  2 4 5    3 4 6  4 6 7    4 5 7  5 7 8 </int>
+        </data>
+
+        <transform id="t_plane" scale="10 10 10" />
+
+        <!-- light -->
+        <lightshader id="ls_Light" script="urn:xml3d:lightshader:point">
+           <bool name="castShadow">true</bool>
+           <float3 name="attenuation"> 1.000000 0.000000 0.000000</float3>
+           <float3 name="intensity">0.75 0.75 0.75</float3>
+        </lightshader>
+
+        <transform id="t_Light" translation="0 2 10" />
+        <transform id="t_Light2" translation="10 2 0" />
+      </defs>
+
+      <group transform="#t_Light">
+         <light id="myLight1" shader="#ls_Light"/>
+      </group>
+
+      <group transform="#t_Light2">
+         <light id="myLight1" shader="#ls_Light"/>
+      </group>
+
+      <group>
+        <group id="g_target" transform="#t_plane">
+          <mesh src="#d_plane" />
+        </group>
+      </group>
+
+    </xml3d>
+  </div>
+
+  <!--  enable key handling in scene controller -->
+  <div id="useKeys" />
+
+  <div class="actions">
+    <input id="b_togglebox" type="button" value="Attach TransformBox" onclick="toggleTransformBox();" />
+  </div>
+
+  <div class="message">
+  <p>The TransformBox is a simple version of OpenInventor's
+  <a href="http://doc.coin3d.org/Coin/classSoTransformBoxManip.html">SoTransformBoxManip</a>.
+  It offers translation, rotation and scaling. Translation can be done by dragging the
+  (invisible) sides. Rotation is done by dragging any of the 12 beams. The target can
+  be scaled by dragging any of the corner cubes.
+  </p>
+  </div>
+    </div>
+  </div>
+</body>
+</html>
