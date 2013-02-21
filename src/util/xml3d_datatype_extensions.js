@@ -342,6 +342,22 @@
         return this.origin.equals(other.origin)
             && this.direction.equals(other.direction);
     };
+
+    /**
+     * Transforms the origin and direction of this ray by the given matrix.
+     * This ray is not modified
+     *
+     * @this {XML3DRay}
+     * @param {!XML3DMatrix} mat the matrix to perform the transformation with.
+     * @return {XML3DRay} this, the transformed ray
+     */
+    p.transform = function(mat)
+    {
+        var to = mat.multiplyPt(this.origin);
+        var td = mat.multiplyDir(this.direction);
+
+        return new window.XML3DRay(to, td);
+    };
 }());
 
 // ========================================================================
