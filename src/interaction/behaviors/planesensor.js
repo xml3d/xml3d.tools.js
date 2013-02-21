@@ -82,7 +82,7 @@ XMOT.interaction.behaviors.PlaneSensor = new XMOT.Class(
         return tp;
         */
 
-        return this.canonicalTranslation;
+        return new XML3DVec3(this.canonicalTranslation);
     },
 
     // ========================================================================
