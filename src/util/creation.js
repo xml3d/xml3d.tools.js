@@ -158,6 +158,78 @@
         return l;
     };
 
+    /** Creates a directional lightshader element with the given attributes.
+     *
+     *  @param {Object} [opts] creation options
+     *
+     *  valid options:
+     *      o id: id attribute
+     *      o inten: the string of the textnode child of the intensity data source. Default: "1 1 1"
+     *
+     *  @return {Object} a lightshader element
+     */
+    ns.lightshaderDirectional = function(opts)
+    {
+        if(!opts)
+            opts = {};
+
+        var ds = XMOT.creation.dataSrc;
+
+        var l = XMOT.creation.element("lightshader", {script: "urn:xml3d:lightshader:directional"});
+
+        if(!opts.inten)
+            opts.inten = "1 1 1";
+
+        if(opts.id)
+            l.setAttribute("id", opts.id);
+
+        l.appendChild(ds("float3", {name:"intensity", val:opts.inten}));
+
+        return l;
+    };
+
+    /** Creates a directional lightshader element with the given attributes.
+     *
+     *  @param {Object} [opts] creation options
+     *
+     *  valid options:
+     *      o id: id attribute
+     *      o inten: the string of the textnode child of the intensity data source. Default: "1 1 1"
+     *      o atten: the string of the textnode child of the attenuation data source. Default "1.0 0.01 0"
+     *      o falloff: the string of the textnode child of the falloffAngle data source. Default "0.6"
+     *      o soft: the string of the textnode child of the softness data source. Default "1"
+     *
+     *  @return {Object} a lightshader element
+     */
+    ns.lightshaderSpot = function(opts)
+    {
+        if(!opts)
+            opts = {};
+
+        var ds = XMOT.creation.dataSrc;
+
+        var l = XMOT.creation.element("lightshader", {script: "urn:xml3d:lightshader:spot"});
+
+        if(!opts.inten)
+            opts.inten = "1 1 1";
+        if(!opts.atten)
+            opts.atten = "1.0 0.01 0.0";
+        if(!opts.falloff)
+            opts.falloff = "0.6";
+        if(!opts.soft)
+            opts.soft = "1";
+
+        if(opts.id)
+            l.setAttribute("id", opts.id);
+
+        l.appendChild(ds("float3", {name:"intensity", val:opts.inten}));
+        l.appendChild(ds("float3", {name:"attenuation", val:opts.atten}));
+        l.appendChild(ds("float", {name:"falloffAngle", val:opts.falloff}));
+        l.appendChild(ds("float", {name:"softness", val:opts.soft}));
+
+        return l;
+    };
+
     //----------------------------------------------------------------------------
     // --- Element Helpers ---
     //----------------------------------------------------------------------------
