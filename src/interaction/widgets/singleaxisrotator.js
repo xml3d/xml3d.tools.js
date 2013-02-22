@@ -38,13 +38,17 @@ XMOT.interaction.widgets.SingleAxisRotator = new XMOT.Class(
 
         /** @private */
         this._rotationAxis = "y";
-        if(_opts.axis)
+        if(XMOT.util.isDefined(_opts.axis))
         {
             if(typeof _opts.axis !== "string"
             ||(_opts.axis != "x" && _opts.axis != "y" && _opts.axis != "z"))
                 throw "XMOT.interaction.widgets.AxisRotator: invalid axis specified: " + _opts.axis;
 
             this._rotationAxis = _opts.axis;
+        }
+        if(XMOT.util.isDefined(_opts.rotationSpeed))
+        {
+            this._rotationSpeed = _opts.rotationSpeed;
         }
 
         this.geometry.parseOptions(_opts);
@@ -138,6 +142,6 @@ XMOT.interaction.widgets.SingleAxisRotator = new XMOT.Class(
         var pickGrp = document.getElementById(this.globalID(localPickGrpID));
 
         return new XMOT.interaction.behaviors.Rotater(
-            this.globalID(localID), [pickGrp], this.root);
+            this.globalID(localID), [pickGrp], this.root, this._rotationSpeed);
     }
 });
