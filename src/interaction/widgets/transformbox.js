@@ -36,21 +36,26 @@ XMOT.interaction.widgets.TransformBox = new XMOT.Class(
 
         this._flipRotAxes = {x: false, y: false, z: false};
         this._enableScaling = true;
+        this._rotationSpeed = 1;
 
         options = options || {};
-        if(options.rotationFlips)
+        if(XMOT.util.isDefined(options.rotationFlips))
         {
             this._flipRotAxes.x = options.rotationFlips.x || false;
             this._flipRotAxes.y = options.rotationFlips.y || false;
             this._flipRotAxes.z = options.rotationFlips.z || false;
         }
-        if(options.translationConstraints)
+        if(XMOT.util.isDefined(options.translationConstraints))
         {
             this._translConstraints = options.translationConstraints;
         }
-        if(options.enableScaling !== undefined)
+        if(XMOT.util.isDefined(options.enableScaling))
         {
             this._enableScaling = options.enableScaling;
+        }
+        if(XMOT.util.isDefined(options.rotationSpeed))
+        {
+            this._rotationSpeed = options.rotationSpeed;
         }
     },
 
@@ -84,6 +89,9 @@ XMOT.interaction.widgets.TransformBox = new XMOT.Class(
             {axis: "y", color: "0 0.7 0", highlightColor: "0 0.9 0"},
             {axis: "z", color: "0 0 0.7", highlightColor: "0 0 0.9"}
         ];
+
+        for(var i = 0; i < axes.length; i++)
+            axes[i].rotationSpeed = this._rotationSpeed;
 
         for(var i = 0; i < axes.length; i++)
         {

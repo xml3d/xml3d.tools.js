@@ -53,7 +53,7 @@ XMOT.interaction.behaviors.Rotater = new XMOT.Class(
         if(rotSpeed)
             this.trackBall.rotationSpeed = rotSpeed;
         else
-            this.trackBall.rotationSpeed = 4;
+            this.trackBall.rotationSpeed = 1;
 
         // --- setup this sensor ---
         if(!targetTransformable)
