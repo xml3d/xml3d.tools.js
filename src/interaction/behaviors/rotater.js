@@ -1,8 +1,8 @@
 
 XMOT.namespace("XMOT.interaction.behaviors");
 
-/** Rotater maps the translation on a plane into a trackball rotation and sets
- *  the given group's rotation attribute.
+/** The Rotater takes the translation given by the PlaneSensor and interprets
+ *  the individual components as angle in radians along the corresponding axis.
  *
  *  @extends XMOT.interaction.behaviors.PlaneSensor
  */
@@ -29,31 +29,7 @@ XMOT.interaction.behaviors.Rotater = new XMOT.Class(
     {
         // --- setup pdsensor ---
 
-        /* The trackball assumes values in the range [0,trackMax],
-         * but the translation values we get are starting on the object, so rotation
-         * should be possible on both sides of the axes of the target object (and not just
-         * on the positive sides) so we translate the translation values by half of the maximum
-         * tracking values.
-         * Here we're not talking in pixels but world-space units. We simply take to be the
-         * space to lie in the [0,Number.MAX_VALUE] range.
-         */
-        var trackMax = 250;
-        var transMax = trackMax/2;
-        var constrBox = new window.XML3DBox(
-            new window.XML3DVec3(-transMax, -transMax, -transMax),
-            new window.XML3DVec3(transMax, transMax, transMax)
-        );
-        var constraint = new XMOT.BoxedTranslationConstraint(constrBox);
-
-        this.callSuper(id, pickGrps, planeOrient, constraint);
-
-        // --- setup trackball ---
-
-        this.trackBall = new XMOT.interaction.behaviors.TrackBall(trackMax, trackMax);
-        if(rotSpeed)
-            this.trackBall.rotationSpeed = rotSpeed;
-        else
-            this.trackBall.rotationSpeed = 1;
+        this.callSuper(id, pickGrps, planeOrient);
 
         // --- setup this sensor ---
         if(!targetTransformable)
@@ -61,10 +37,45 @@ XMOT.interaction.behaviors.Rotater = new XMOT.Class(
 
         this.targetTransformable = targetTransformable;
 
+        this._rotationSpeed = 1;
+        if(rotSpeed)
+            this._rotationSpeed = rotSpeed;
+
+        this._initialRotation = new XML3DRotation(this.targetTransformable.getOrientation());
+        this._rotationOffset = new XML3DRotation(this._initialRotation);
+
         // listeners
-        this.addListener("dragstart", this.callback("_onTrackBallDragStart"));
-        this.addListener("dragend", this.callback("_onTrackBallDragEnd"));
-        this.addListener("translchanged", this.callback("_onTrackBallTranslChanged"));
+        this.addListener("dragstart", this.callback("_onRotaterDragStart"));
+        this.addListener("translchanged", this.callback("_onRotaterTranslChanged"));
+    },
+
+    axisRestriction: function(axis)
+    {
+        if(XMOT.util.isDefined(axis))
+        {
+            if(axis === "x" || axis === "y")
+            {
+                this.setPlaneOrientation(new XML3DVec3(0,0,1));
+            }
+            else if(axis === "z")
+            {
+                this.setPlaneOrientation(new XML3DVec3(1,0,0));
+            }
+            else
+            {
+                throw new Error("XMOT.interaction.behaviors.Rotater: unknown axis restriction: " + axis);
+            }
+
+            this._axisRestriction = axis;
+        }
+
+        return this._axisRestriction;
+    },
+
+    clearAxisRestriction: function()
+    {
+        this.setPlaneOrientation(new XML3DVec3(0,0,1));
+        this._axisRestriction = undefined;
     },
 
     /** reset the rotation that gets remembered between drags
@@ -73,23 +84,7 @@ XMOT.interaction.behaviors.Rotater = new XMOT.Class(
      */
     resetRotation: function()
     {
-        this.trackBall.resetRotationOffset();
-
-        this.targetTransformable.setOrientation(new window.XML3DRotation());
-    },
-
-    /** restrict the rotation to x or y axis
-     *
-     *  @this {XMOT.interaction.behaviors.Rotater}
-     *
-     *  @param {string} [axis] the axis to restrict to. Can be "x", "y" or "z". Default:
-     *          release the restriction
-     *
-     *  @return {string} the current axis restriction, or null, if no restriction is applied
-     */
-    axisRestriction: function(axis)
-    {
-        return this.trackBall.axisRestriction(axis);
+        this.targetTransformable.setOrientation(this._initialRotation);
     },
 
     /** Set or retrieve the rotation speed
@@ -107,22 +102,6 @@ XMOT.interaction.behaviors.Rotater = new XMOT.Class(
         return this.trackBall.rotationSpeed;
     },
 
-    /** Set or retrieve the status of rotation flipping. Flipped rotation means
-     *  the rotation's angle will be negated before it's set in the target transform element.
-     *
-     *  @this {XMOT.interaction.behaviors.Rotater}
-     *
-     *  @param {boolean} [flip] the new flip value. Default: don't set it
-     *  @return {boolean} the current flip value
-     */
-    flipRotation: function(flip)
-    {
-        if(flip)
-            this._flipRotation = flip;
-
-        return this._flipRotation;
-    },
-
     // ========================================================================
     // --- Private ---
     // ========================================================================
@@ -133,15 +112,10 @@ XMOT.interaction.behaviors.Rotater = new XMOT.Class(
      *
      *  @param {XMOT.interaction.behaviors.Rotater} sensor
      */
-    _onTrackBallDragStart: function(sensor)
+    _onRotaterDragStart: function(sensor)
     {
         // update the offset with perhaps changed rotation
         this._rotationOffset = new window.XML3DRotation(this.targetTransformable.transform.rotation);
-        // reset the trackball's offset: we do that for ourselves
-        this.trackBall.rotationOffset = new XML3DRotation();
-
-        // always start the rotation in the middle of the translation space
-        this.trackBall.dragStart(this.trackBall.maxX/2, this.trackBall.maxY/2);
     },
 
     /**
@@ -150,29 +124,55 @@ XMOT.interaction.behaviors.Rotater = new XMOT.Class(
      *
      *  @param {XMOT.interaction.behaviors.Rotater} sensor
      */
-    _onTrackBallDragEnd: function(sensor)
+    _onRotaterTranslChanged: function(sensor)
     {
-        this.trackBall.dragEnd();
-    },
+        var maxAngle = 2 * Math.PI;
+        // calculate angle along the axes
+        /** in the z=1 plane x-translation should map to y-axis rotation
+         *  and y-translation to x-axis rotation
+         */
+        var angleX = sensor.translation.y % maxAngle;
+        var angleY = sensor.translation.x % maxAngle;
+        var angleZ = sensor.translation.z % maxAngle;
 
-    /**
-     *  @this {XMOT.interaction.behaviors.Rotater}
-     *  @private
-     *
-     *  @param {XMOT.interaction.behaviors.Rotater} sensor
-     */
-    _onTrackBallTranslChanged: function(sensor)
-    {
-        var canTrans = sensor.getCanonicalTranslation();
+        angleX *= this._rotationSpeed;
+        angleY *= this._rotationSpeed;
+        angleZ *= this._rotationSpeed;
 
-        var canRot = this.trackBall.drag(this.trackBall.maxX/2 + canTrans.x,
-                                      this.trackBall.maxY/2 - canTrans.y);
+        // apply axis restrictions
+        var rotation = new XML3DRotation();
+        if(this._axisRestriction === undefined)
+        {
+            var rotX = new XML3DRotation(new XML3DVec3(1,0,0), angleX);
+            var rotY = new XML3DRotation(new XML3DVec3(0,1,0), angleY);
+            var rotZ = new XML3DRotation(new XML3DVec3(0,0,1), angleZ);
+            rotation.set(rotX.multiply(rotY.multiply(rotZ)));
+        }
+        else
+        {
+            var angleSum = (angleX+angleY+angleZ) % maxAngle;
+            var axis = null;
 
-        if(this._flipRotation)
-            canRot.angle = -canRot.angle;
+            if(this._axisRestriction === "x")
+            {
+                axis = new XML3DVec3(1,0,0);
+            }
+            else if(this._axisRestriction === "y")
+            {
+                axis = new XML3DVec3(0,1,0);
+            }
+            else // === "z"
+            {
+                axis = new XML3DVec3(0,0,1);
+            }
 
-        var finalRot = this._rotationOffset.multiply(canRot);
+            rotation.setAxisAngle(axis, angleSum);
+        }
 
-        this.targetTransformable.setOrientation(finalRot);
+        // apply rotation offset
+        rotation.set(rotation.multiply(this._rotationOffset));
+
+        // and update target orientation
+        this.targetTransformable.setOrientation(rotation);
     }
 });
