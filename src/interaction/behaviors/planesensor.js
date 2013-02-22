@@ -57,6 +57,11 @@ XMOT.interaction.behaviors.PlaneSensor = new XMOT.Class(
         this.addListener("dragend", this.callback("_onPlaneDragEnd"));
     },
 
+    setPlaneOrientation: function(newPlaneOrientation)
+    {
+        this._plane.setOrientation(newPlaneOrientation);
+    },
+
     /** retrieve the current translation value in the canonical
      *  plane [o: (0,0,0), d: (0,0,1)] no matter what the current origin or
      *  normal is.
