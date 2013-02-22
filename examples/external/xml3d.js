@@ -21,13 +21,13 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-@version: DEVELOPMENT SNAPSHOT (20.02.2013 11:51:28 CET)
+@version: DEVELOPMENT SNAPSHOT (22.02.2013 15:20:51 CET)
 **/
 /** @namespace * */
 var XML3D = XML3D || {};
 
 /** @define {string} */
-XML3D.version = 'DEVELOPMENT SNAPSHOT (20.02.2013 11:51:28 CET)';
+XML3D.version = 'DEVELOPMENT SNAPSHOT (22.02.2013 15:20:51 CET)';
 /** @const */
 XML3D.xml3dNS = 'http://www.xml3d.org/2009/xml3d';
 /** @const */
@@ -11021,7 +11021,8 @@ function mappingNotifyOwner(mapping){
     }
 
     function setOperatorProtoNames(channelNode){
-        channelNode.operator = Xflow.getOperator(channelNode.owner._computeOperator);
+        var operatorName = channelNode.owner._computeOperator;
+        channelNode.operator = operatorName && Xflow.getOperator(operatorName);
         if(channelNode.operator){
             var operator = channelNode.operator, inputMapping = channelNode.owner._computeInputMapping;
             for(var i = 0; i < operator.params.length; ++i){
@@ -11720,7 +11721,7 @@ Xflow.registerOperator = function(name, data){
 Xflow.getOperator = function(name){
     if (!operators[name])
     {
-        //XML3D.debug.logError("Unknown operator: '" + name+"'");
+        XML3D.debug.logError("Unknown operator: '" + name+"'");
         return null;
     }
     return operators[name];
@@ -13954,19 +13955,19 @@ XML3D.webgl.MAXFPS = 30;
         return true;
     };
 
-    /** 
-     * Convert the given y-coordinate on the canvas to a y-coordinate appropriate in 
-     * the GL context. The y-coordinate gets turned upside-down. The lowest possible 
-     * canvas coordinate is 0, so we need to subtract 1 from the height, too. 
-     * 
+    /**
+     * Convert the given y-coordinate on the canvas to a y-coordinate appropriate in
+     * the GL context. The y-coordinate gets turned upside-down. The lowest possible
+     * canvas coordinate is 0, so we need to subtract 1 from the height, too.
+     *
      * @param {number} canvasY
      * @return {number} the converted y-coordinate
      */
-    CanvasHandler.prototype.canvasToGlY = function(canvasY) { 
-        
-        return this.canvas.height - canvasY - 1; 
-    }; 
-    
+    CanvasHandler.prototype.canvasToGlY = function(canvasY) {
+
+        return this.canvas.height - canvasY - 1;
+    };
+
     /**
      * Binds the picking buffer and passes the request for a picking pass to the
      * renderer
@@ -13980,25 +13981,25 @@ XML3D.webgl.MAXFPS = 30;
             return null;
         if(this.needPickingDraw) {
             this.renderer.prepareRendering();
-            this.renderer.renderSceneToPickingBuffer();   
+            this.renderer.renderSceneToPickingBuffer();
         }
-        
-        /** Temporary workaround: this function is called when drawable objects are not yet 
+
+        /** Temporary workaround: this function is called when drawable objects are not yet
          *  updated. Thus, the renderer.render() updates the objects after the picking buffer
-         *  has been updated. In that case, the picking buffer needs to be updated again. 
-         *  Thus, we only set needPickingDraw to false when we are sure that objects don't 
+         *  has been updated. In that case, the picking buffer needs to be updated again.
+         *  Thus, we only set needPickingDraw to false when we are sure that objects don't
          *  need any updates, i.e. when needDraw is false.
-         *  A better solution would be to separate drawable objects updating from rendering 
+         *  A better solution would be to separate drawable objects updating from rendering
          *  and to update the objects either during render() or renderSceneToPickingBuffer().
          */
         if(!this.needDraw)
             this.needPickingDraw = false;
-        
+
         var glY = this.canvasToGlY(canvasY);
-        
+
         this.currentPickObj = this.renderer.getRenderObjectFromPickingBuffer(canvasX, glY);
-        
-        
+
+
         return this.currentPickObj;
     };
 
@@ -14011,9 +14012,9 @@ XML3D.webgl.MAXFPS = 30;
     CanvasHandler.prototype.getWorldSpaceNormalByPoint = function(pickedObj, canvasX, canvasY) {
         if (!pickedObj || this._pickingDisabled)
             return null;
-        
+
         var glY = this.canvasToGlY(canvasY);
-        
+
         this.renderer.renderPickedNormals(pickedObj);
         return this.renderer.readNormalFromPickingBuffer(canvasX, glY);
     };
@@ -14028,21 +14029,48 @@ XML3D.webgl.MAXFPS = 30;
     	if (!pickedObj)
     		return null;
 
-        var glY = this.canvasToGlY(canvasY); 
-        
+        var glY = this.canvasToGlY(canvasY);
+
         this.renderer.renderPickedPosition(pickedObj);
         return this.renderer.readPositionFromPickingBuffer(canvasX, glY);
     };
-    
-    CanvasHandler.prototype.getCanvasHeight = function() { 
-    	
-    	return this.canvas.height; 
+
+    CanvasHandler.prototype.getCanvasHeight = function() {
+
+    	return this.canvas.height;
     };
-    
-    CanvasHandler.prototype.getCanvasWidth = function() { 
-    	
-    	return this.canvas.width; 
-    };  
+
+    CanvasHandler.prototype.getCanvasWidth = function() {
+
+    	return this.canvas.width;
+    };
+
+    XML3DMatrix.prototype.str = function(pretty) {
+
+        var ret = ""; // return string
+        var es = " "; // element separator
+        var rs = ""; // row start
+        var re = " | "; // row end
+
+        if(pretty)
+        {
+            var td_style = "width:50px;";
+            ret = "<table>";
+            es = "</td><td style=\"" + td_style + "\">";
+            rs = "<tr><td style=\"" + td_style + "\">";
+            re = "</td></tr>";
+        }
+
+        ret += rs + this.m11.toFixed(3) + es + this.m21.toFixed(3) + es + this.m31.toFixed(3) + es + this.m41.toFixed(3) + re;
+        ret += rs + this.m12.toFixed(3) + es + this.m22.toFixed(3) + es + this.m32.toFixed(3) + es + this.m42.toFixed(3) + re;
+        ret += rs + this.m13.toFixed(3) + es + this.m23.toFixed(3) + es + this.m33.toFixed(3) + es + this.m43.toFixed(3) + re;
+        ret += rs + this.m14.toFixed(3) + es + this.m24.toFixed(3) + es + this.m34.toFixed(3) + es + this.m44.toFixed(3) + re;
+
+        if(pretty)
+            ret += "</table>";
+
+        return ret;
+    };
 
     /**
      * Uses gluUnProject() to transform the 2D screen point to a 3D ray.
@@ -14052,8 +14080,8 @@ XML3D.webgl.MAXFPS = 30;
      * @param {number} canvasY
      */
     CanvasHandler.prototype.generateRay = function(canvasX, canvasY) {
-        
-        var glY = this.canvasToGlY(canvasY); 
+
+        var glY = this.canvasToGlY(canvasY);
 
         // setup input to unproject
         var viewport = new Array();
@@ -14082,8 +14110,12 @@ XML3D.webgl.MAXFPS = 30;
 
         // calculate ray
         var worldToViewMat = this.renderer.currentView.getViewMatrix().inverse();
+        var mat2 = this.renderer.currentView.getWorldMatrix();
+
+        console.log("mat1: " + worldToViewMat.str());
+        console.log("mat2: " + mat2.str());
         var viewPos = new window.XML3DVec3(worldToViewMat.m41, worldToViewMat.m42, worldToViewMat.m43);
-        
+
         ray.origin.set(viewPos);
         ray.direction.set(farHit[0] - nearHit[0], farHit[1] - nearHit[1], farHit[2] - nearHit[2]);
         ray.direction.set(ray.direction.normalize());

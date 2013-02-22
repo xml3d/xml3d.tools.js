@@ -21,7 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-@version: DEVELOPMENT SNAPSHOT (14.02.2013 15:07:33 CET)
+@version: DEVELOPMENT SNAPSHOT (19.02.2013 13:59:52 CET)
 **/
 //Check, if basics have already been defined
 var XML3D = XML3D || {};
@@ -302,7 +302,7 @@ XML3D.xml3dNS = XML3D.xml3dNS || 'http://www.xml3d.org/2009/xml3d';
 
 /**
  * Class to use X3D OrientationInterpolator nodes in Xml3d
- *
+ * 
  * @constructor
  *
  * @param inode
@@ -1080,7 +1080,7 @@ XML3D.Xml3dSceneController.getController = function(xml3d) {
 })();
 
 /***********************************************************************/
-if(!XML3D)
+if(!XML3D) 
     XML3D = {};
 
 XML3D.SceneInspector = function(xml3d) {
