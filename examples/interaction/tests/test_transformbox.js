@@ -19,7 +19,7 @@ function onLoad()
     var target = $("#g_target")[0];
     var tarXfm = XMOT.ClientMotionFactory.createTransformable(target);
 
-    xfmBox = new XMOT.interaction.widgets.TransformBox("myXfmBox", tarXfm);
+    xfmBox = new XMOT.interaction.widgets.TransformBox("myXfmBox", tarXfm, {rotationSpeed: 4});
     xfmBox.attach();
 
     xfmBoxOn = true;

@@ -25,13 +25,13 @@ function attachSensor()
     var xfm3 = fac.createTransformable($("#group3")[0]);
 
     sensors[0] = new XMOT.interaction.widgets.SingleAxisRotator(
-        "myxrot", xfm1, {axis: "x"}
+        "myxrot", xfm1, {axis: "x", rotationSpeed: 4}
     );
     sensors[1] = new XMOT.interaction.widgets.SingleAxisRotator(
-        "myyrot", xfm2, {axis: "y"}
+        "myyrot", xfm2, {axis: "y", rotationSpeed: 4}
     );
     sensors[2] = new XMOT.interaction.widgets.SingleAxisRotator(
-        "myzrot", xfm3, {axis: "z"}
+        "myzrot", xfm3, {axis: "z", rotationSpeed: 4}
     );
 
     for(var i = 0; i < sensors.length; i++)
