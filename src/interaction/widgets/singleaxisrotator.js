@@ -59,7 +59,7 @@ XMOT.interaction.widgets.SingleAxisRotator = new XMOT.Class(
      *
      *  @this {XMOT.interaction.widgets.SingleAxisRotator}
      *
-     * 	@param {string} [axis]
+     * 	@param {string} axis
      * 	@return {string}
      */
     axisRestriction: function(axis)
