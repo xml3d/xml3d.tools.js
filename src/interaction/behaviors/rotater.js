@@ -170,7 +170,7 @@ XMOT.interaction.behaviors.Rotater = new XMOT.Class(
         }
 
         // apply rotation offset
-        rotation.set(rotation.multiply(this._rotationOffset));
+        rotation.set(this._rotationOffset.multiply(rotation));
 
         // and update target orientation
         this.targetTransformable.setOrientation(rotation);
