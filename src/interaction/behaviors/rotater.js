@@ -126,18 +126,13 @@ XMOT.interaction.behaviors.Rotater = new XMOT.Class(
      */
     _onRotaterTranslChanged: function(sensor)
     {
-        var maxAngle = 2 * Math.PI;
         // calculate angle along the axes
         /** in the z=1 plane x-translation should map to y-axis rotation
          *  and y-translation to x-axis rotation
          */
-        var angleX = sensor.translation.y % maxAngle;
-        var angleY = sensor.translation.x % maxAngle;
-        var angleZ = sensor.translation.z % maxAngle;
-
-        angleX *= this._rotationSpeed;
-        angleY *= this._rotationSpeed;
-        angleZ *= this._rotationSpeed;
+        var angleX = sensor.translation.y * this._rotationSpeed;
+        var angleY = sensor.translation.x * this._rotationSpeed;
+        var angleZ = sensor.translation.z * this._rotationSpeed;
 
         // apply axis restrictions
         var rotation = new XML3DRotation();
@@ -150,7 +145,7 @@ XMOT.interaction.behaviors.Rotater = new XMOT.Class(
         }
         else
         {
-            var angleSum = (angleX+angleY+angleZ) % maxAngle;
+            var angleSum = angleX + angleY + angleZ;
             var axis = null;
 
             if(this._axisRestriction === "x")
