@@ -92,8 +92,13 @@ XMOT.util.Plane = new XMOT.Class({
             {
                 this._userOrientationGrp = newOrientation;
                 this._xfmTracker = new XMOT.TransformTracker(newOrientation,
-                        this.callback("_onUserOrientationGrpXfmChanged"));
+                        this.callback("_invalidateNormal"));
             }
+        }
+        else // user user-view
+        {
+            this._xfmTracker = new XMOT.ViewTracker(this._xml3d,
+                this.callback("_invalidateNormal"));
         }
 
         this._updateOrientation();
@@ -108,6 +113,7 @@ XMOT.util.Plane = new XMOT.Class({
     },
 
     /**
+     *  @private
      *  @this {XMOT.util.Plane}
      */
     _clearUserDefinitions: function()
@@ -119,6 +125,7 @@ XMOT.util.Plane = new XMOT.Class({
     },
 
     /**
+     *  @private
      *  @this {XMOT.util.Plane}
      */
     _updateOrientation: function()
@@ -140,7 +147,7 @@ XMOT.util.Plane = new XMOT.Class({
             else // take view as basis
             {
                 var va = XML3D.util.getOrCreateActiveView(this._xml3d);
-                orientMatrix = va.getViewMatrix().inverse();
+                orientMatrix = va.getWorldMatrix();
             }
 
             this._validNormal.set(orientMatrix.multiplyDir(this._defaultNormal));
@@ -151,9 +158,10 @@ XMOT.util.Plane = new XMOT.Class({
     },
 
     /**
+     *  @private
      *  @this {XMOT.util.Plane}
      */
-    _onUserOrientationGrpXfmChanged: function()
+    _invalidateNormal: function()
     {
         this._isNormalValid = false;
     }
