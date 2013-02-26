@@ -1,23 +1,24 @@
 (function() {
 
     /**
-     * Tracks the active view of the given xml3d tag for changes and applies
-     * the changed pose to the given transform node.
+     * Tracks the active view of the given xml3d tag for changes and invokes the given
+     * callback when a change happened.
      *
-     * @param {!Object} _targetTransform the transform element to which the view
-     *      changes are propagated.
+     * @param {!Object} targetXml3dElement the xml3d section whose active view is to be tracked
+     * @param {function(tracker:!Object,evt:!Event)=} onXfmChanged the callback to be invoked
      */
-    var ViewTracker = function(_targetTransform)
+    ViewTracker = function(targetXml3dElement, onXfmChanged)
     {
-        this.targetTransform = _targetTransform;
-        if(!this.targetTransform)
-            throw "ViewTracker: no target transformation specified.";
+        if(onXfmChanged)
+            this.xfmChanged = onXfmChanged;
 
-        this.xml3d = XMOT.util.getXml3dRoot(_targetTransform);
-        if(!this.xml3d)
-            throw "ViewTracker: given node is not a child of an xml3d element.";
+        /** @private */
+        this._currentViewElement = null;
 
-        this.targetNode = null; // the current view element that is tracked
+        /** @private */
+        this._xml3d = targetXml3dElement;
+        if(!this._xml3d)
+            throw "ViewTracker: given xml3d node not given";
 
         /** the TransformTracker used to track changes in the active view element
          *  @private
@@ -42,17 +43,17 @@
     {
         if(!this._attached)
         {
-            this.xml3d.addEventListener("DOMAttrModified",
+            this._xml3d.addEventListener("DOMAttrModified",
                 XMOT.util.wrapCallback(this, _onXml3DAttrModified), false);
 
-            this.targetNode = XML3D.util.getOrCreateActiveView(this.xml3d);
+            this._currentViewElement = XML3D.util.getOrCreateActiveView(this._xml3d);
 
             if(this._xfmObs)
                 this._xfmObs.detach();
-            this._xfmObs = new XMOT.TransformTracker(this.targetNode);
+            this._xfmObs = new XMOT.TransformTracker(this._currentViewElement);
             this._xfmObs.xfmChanged = XMOT.util.wrapCallback(this, _onXfmChanged);
 
-            _onXfmChanged.apply(this, this.targetNode);
+            _onXfmChanged.apply(this, this._currentViewElement);
 
             this._attached = true;
         }
@@ -63,7 +64,7 @@
         if(this._attached)
         {
             this._xfmObs.detach();
-            this.xml3d.removeEventListener("DOMAttrModified",
+            this._xml3d.removeEventListener("DOMAttrModified",
                 XMOT.util.wrapCallback(this, _onXml3DAttrModified), false);
 
             this._attached = false;
@@ -81,15 +82,8 @@
 
     function _onXfmChanged(targetNode, evt)
     {
-        var mat = this.targetNode.getWorldMatrix();
-
-        var transl = new window.XML3DVec3(mat.m41, mat.m42, mat.m43);
-        var rot = window.XML3DRotation.fromMatrix(mat);
-
-        this.targetTransform.setAttribute("translation", transl.str());
-        this.targetTransform.setAttribute("rotation", rot.str());
-
-        this.xfmChanged(this.targetNode, evt);
+        if(this.xfmChanged)
+            this.xfmChanged(this, evt);
     };
 
     // export
