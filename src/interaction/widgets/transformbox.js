@@ -103,7 +103,6 @@ XMOT.interaction.widgets.TransformBox = new XMOT.Class(
             );
             this.behavior[id].attach();
 
-            this.behavior[id].flipRotation(this._flipRotAxes[ax]);
             this.behavior[id].addListener("dragstart", this.callback("_onRotationDragStart"));
             this.behavior[id].addListener("dragend", this.callback("_onRotationDragEnd"));
         }
