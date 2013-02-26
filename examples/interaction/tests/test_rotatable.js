@@ -8,7 +8,7 @@ function initScene()
 {
     xml3d = document.getElementById("MyXml3d");
 
-    target = $("#group1")[0]; 
+    target = $("#group1")[0];
     target.appendChild(XMOT.creation.box(xml3d));
 
     toggleTrackBall();
@@ -16,21 +16,21 @@ function initScene()
 
 function attachSensor()
 {
-    var tarXfm = XMOT.ClientMotionFactory.createTransformable(target); 
+    var tarXfm = XMOT.ClientMotionFactory.createTransformable(target);
     sensor = new XMOT.interaction.behaviors.Rotater(
         "myRotater", [target],
         tarXfm, 8
     );
-    
-    sensor.addListener("dragstart", onDragStart); 
-    sensor.addListener("dragend", onDragEnd); 
+
+    sensor.addListener("dragstart", onDragStart);
+    sensor.addListener("dragend", onDragEnd);
     sensor.addListener("translchanged", onTranslChanged);
 }
 
 function detachSensor()
 {
-    sensor.detach(); 
-    sensor = null; 
+    sensor.detach();
+    sensor = null;
 }
 
 function toggleTrackBall()
@@ -53,12 +53,15 @@ function toggleTrackBall()
 
 function changeRestriction(axis)
 {
-    sensor.axisRestriction(axis); 
+    if(XMOT.util.isDefined(axis))
+        sensor.axisRestriction(axis);
+    else
+        sensor.clearAxisRestriction();
 }
 
 function resetRotation()
 {
-    sensor.resetRotation(); 
+    sensor.resetRotation();
     onTranslChanged();
 }
 
