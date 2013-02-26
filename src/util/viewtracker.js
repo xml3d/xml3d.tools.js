@@ -1,23 +1,25 @@
-(function() {
+/**
+ * Tracks the active view of the given xml3d tag for changes and invokes the given
+ * callback when a change happened.
+ *
+ * @param {!Object} targetXml3dElement the xml3d section whose active view is to be tracked
+ * @param {function(viewTracker:!Object,evt:!Event)=} onXfmChanged the callback to be invoked
+ */
+XMOT.ViewTracker = new XMOT.Class({
 
-    /**
-     * Tracks the active view of the given xml3d tag for changes and applies
-     * the changed pose to the given transform node.
-     *
-     * @param {!Object} _targetTransform the transform element to which the view
-     *      changes are propagated.
-     */
-    var ViewTracker = function(_targetTransform)
+    /** @this {XMOT.ViewTracker} */
+    initialize: function(targetXml3dElement, onXfmChanged)
     {
-        this.targetTransform = _targetTransform;
-        if(!this.targetTransform)
-            throw "ViewTracker: no target transformation specified.";
+        if(onXfmChanged)
+            this.xfmChanged = onXfmChanged;
 
-        this.xml3d = XMOT.util.getXml3dRoot(_targetTransform);
-        if(!this.xml3d)
-            throw "ViewTracker: given node is not a child of an xml3d element.";
+        /** @private */
+        this._currentViewElement = null;
 
-        this.targetNode = null; // the current view element that is tracked
+        /** @private */
+        this._xml3d = targetXml3dElement;
+        if(!this._xml3d)
+            throw "ViewTracker: given xml3d node not given";
 
         /** the TransformTracker used to track changes in the active view element
          *  @private
@@ -27,71 +29,70 @@
         this._attached = false;
 
         this.attach();
-    };
-
-    var p = ViewTracker.prototype;
+    },
 
     /** Event handler to be overriden by the user
      *
-     * @param targetNode the node this observer tracks
-     * @param evt the original DOM event that caused the change
+     *  @this {XMOT.ViewTracker}
+     *  @param {Object} viewTracker this instance
+     *  @param {Object} evt the original DOM event that caused the change
      */
-    p.xfmChanged = function(targetNode, evt) { };
+    xfmChanged: function(viewTracker, evt) { },
 
-    p.attach = function()
+    /** @this {XMOT.ViewTracker} */
+    attach: function()
     {
         if(!this._attached)
         {
-            this.xml3d.addEventListener("DOMAttrModified",
-                XMOT.util.wrapCallback(this, _onXml3DAttrModified), false);
+            this._xml3d.addEventListener("DOMAttrModified",
+                this.callback("_onXml3DAttrModified"), false);
 
-            this.targetNode = XML3D.util.getOrCreateActiveView(this.xml3d);
+            this._currentViewElement = XML3D.util.getOrCreateActiveView(this._xml3d);
 
             if(this._xfmObs)
                 this._xfmObs.detach();
-            this._xfmObs = new XMOT.TransformTracker(this.targetNode);
-            this._xfmObs.xfmChanged = XMOT.util.wrapCallback(this, _onXfmChanged);
+            this._xfmObs = new XMOT.TransformTracker(this._currentViewElement);
+            this._xfmObs.xfmChanged = this.callback("_onXfmChanged");
 
-            _onXfmChanged.apply(this, this.targetNode);
+            this._onXfmChanged(this._currentViewElement);
 
             this._attached = true;
         }
-    };
+    },
 
-    p.detach = function()
+    /** @this {XMOT.ViewTracker} */
+    detach: function()
     {
         if(this._attached)
         {
             this._xfmObs.detach();
-            this.xml3d.removeEventListener("DOMAttrModified",
-                XMOT.util.wrapCallback(this, _onXml3DAttrModified), false);
+            this._xml3d.removeEventListener("DOMAttrModified",
+                this.callback("_onXml3DAttrModified"), false);
 
             this._attached = false;
         }
-    };
+    },
 
-    function _onXml3DAttrModified(evt)
+    /**
+     *  @private
+     *  @this {XMOT.ViewTracker}
+     */
+    _onXml3DAttrModified: function(evt)
     {
         if(evt.attrName !== "activeView")
             return;
 
         this.detach();
         this.attach();
-    };
+    },
 
-    function _onXfmChanged(targetNode, evt)
+    /**
+     *  @private
+     *  @this {XMOT.ViewTracker}
+     */
+    _onXfmChanged: function(targetNode, evt)
     {
-        var mat = this.targetNode.getWorldMatrix();
-
-        var transl = new window.XML3DVec3(mat.m41, mat.m42, mat.m43);
-        var rot = window.XML3DRotation.fromMatrix(mat);
-
-        this.targetTransform.setAttribute("translation", transl.str());
-        this.targetTransform.setAttribute("rotation", rot.str());
-
-        this.xfmChanged(this.targetNode, evt);
-    };
-
-    // export
-    XMOT.ViewTracker = ViewTracker;
-}());
+        if(this.xfmChanged)
+            this.xfmChanged(this, evt);
+    }
+});
