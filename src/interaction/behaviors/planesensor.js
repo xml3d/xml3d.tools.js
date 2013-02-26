@@ -63,8 +63,7 @@ XMOT.interaction.behaviors.PlaneSensor = new XMOT.Class(
     },
 
     /** retrieve the current translation value in the canonical
-     *  plane [o: (0,0,0), d: (0,0,1)] no matter what the current origin or
-     *  normal is.
+     *  direction (0,0,1) no matter what the current normal is.
      *
      *  In this method no constraints are applied!
      *
@@ -74,11 +73,9 @@ XMOT.interaction.behaviors.PlaneSensor = new XMOT.Class(
      */
     getCanonicalTranslation: function()
     {
-        var mat = XMOT.math.getTransformPlaneToPlane(this._plane.origin(), this._plane.normal());
-
-        var torig = mat.multiplyPt(this._plane.origin());
-        var tp = mat.multiplyPt(this._plane.origin().add(this.translation));
-        tp = tp.subtract(torig);
+        var rotToLocal = new XML3DRotation();
+        rotToLocal.setRotation(this._plane.normal(), new XML3DVec3(0,0,1));
+        var tp = rotToLocal.rotateVec3(this.translation);
 
         return tp;
     },

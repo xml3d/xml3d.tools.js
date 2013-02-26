@@ -25,11 +25,10 @@ XMOT.interaction.behaviors.Rotater = new XMOT.Class(
      *  @throws "target no transform" if the target group doesn't have a transform
      *           attribute
      */
-    initialize: function(id, pickGrps, targetTransformable, rotSpeed, planeOrient)
+    initialize: function(id, pickGrps, targetTransformable, rotSpeed)
     {
         // --- setup pdsensor ---
-
-        this.callSuper(id, pickGrps, planeOrient);
+        this.callSuper(id, pickGrps);
 
         // --- setup this sensor ---
         if(!targetTransformable)
@@ -53,19 +52,6 @@ XMOT.interaction.behaviors.Rotater = new XMOT.Class(
     {
         if(XMOT.util.isDefined(axis))
         {
-            if(axis === "x" || axis === "y")
-            {
-                this.setPlaneOrientation(new XML3DVec3(0,0,1));
-            }
-            else if(axis === "z")
-            {
-                this.setPlaneOrientation(new XML3DVec3(1,0,0));
-            }
-            else
-            {
-                throw new Error("XMOT.interaction.behaviors.Rotater: unknown axis restriction: " + axis);
-            }
-
             this._axisRestriction = axis;
         }
 
@@ -74,7 +60,6 @@ XMOT.interaction.behaviors.Rotater = new XMOT.Class(
 
     clearAxisRestriction: function()
     {
-        this.setPlaneOrientation(new XML3DVec3(0,0,1));
         this._axisRestriction = undefined;
     },
 
@@ -126,13 +111,14 @@ XMOT.interaction.behaviors.Rotater = new XMOT.Class(
      */
     _onRotaterTranslChanged: function(sensor)
     {
+        var t = sensor.getCanonicalTranslation();
+
         // calculate angle along the axes
         /** in the z=1 plane x-translation should map to y-axis rotation
          *  and y-translation to x-axis rotation
          */
-        var angleX = sensor.translation.y * this._rotationSpeed;
-        var angleY = sensor.translation.x * this._rotationSpeed;
-        var angleZ = sensor.translation.z * this._rotationSpeed;
+        var angleX = t.y * this._rotationSpeed;
+        var angleY = t.x * this._rotationSpeed;
 
         // apply axis restrictions
         var rotation = new XML3DRotation();
@@ -140,12 +126,11 @@ XMOT.interaction.behaviors.Rotater = new XMOT.Class(
         {
             var rotX = new XML3DRotation(new XML3DVec3(1,0,0), angleX);
             var rotY = new XML3DRotation(new XML3DVec3(0,1,0), angleY);
-            var rotZ = new XML3DRotation(new XML3DVec3(0,0,1), angleZ);
-            rotation.set(rotX.multiply(rotY.multiply(rotZ)));
+            rotation.set(rotX.multiply(rotY));
         }
         else
         {
-            var angleSum = angleX + angleY + angleZ;
+            var angleSum = angleX + angleY;
             var axis = null;
 
             if(this._axisRestriction === "x")
