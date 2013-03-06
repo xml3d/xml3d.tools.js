@@ -87,6 +87,7 @@
      *  o ambInt: ambientIntensity, default "0.3"
      *  o specCol: specularColor, default "0.55 0.55 0.55"
      *  o shin: shininess, default "0.5"
+     *  o emCol: emissiveColor, default not set
      *
      *  @return {Object} a shader element
      */
@@ -120,6 +121,8 @@
         sh.appendChild(ds("float", {name:"transparency", val:opts.transp}));
         sh.appendChild(ds("float3", {name:"specularColor", val:opts.specCol}));
         sh.appendChild(ds("float", {name:"shininess", val:opts.shin}));
+        if(opts.emCol)
+            sh.appendChild(ds("float3", {name:"emissiveColor", val:opts.emCol}));
 
         return sh;
     };
