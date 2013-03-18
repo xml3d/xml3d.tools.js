@@ -295,6 +295,26 @@
         return children;
     };
 
+    /** Code taken from http://werxltd.com/wp/2010/05/13/javascript-implementation-of-javas-string-hashcode-method/
+     *
+     *  @param {string} string
+     *  @return {string} a hash code of the given string.
+     */
+    u.hashCode = function(string)
+    {
+        var hash = 0;
+        if (string.length == 0) return hash;
+
+        for (i = 0; i < string.length; i++)
+        {
+            var char = string.charCodeAt(i);
+            hash = ((hash<<5)-hash)+char;
+            hash = hash & hash; // Convert to 32bit integer
+        }
+
+        return hash;
+    };
+
     /** Calls the given callback as soon as the given node's bounding box is not
      *  empty anymore. For that it waits for "framedrawn" events and checks if the
      *  bounding box is not empty after every frame.
@@ -317,6 +337,29 @@
             cb();
         }
 
+        node.__frameDrawnCBs = node.__frameDrawnCBs || {};
+        var callbackID = XMOT.util.hashCode(callback.toString());
+        node.__frameDrawnCBs[callbackID] = onFrameDrawn;
+
         xml3d.addEventListener("framedrawn", onFrameDrawn, false);
+    };
+
+    /** Cancels the method XMOT.util.fireWhenBBoxNotEmpty() above. That is
+     *  it removes the listener for the "framedrawn" event.
+     *
+     *   @param {Object} node
+     *   @param {function()} callback
+     */
+    u.cancelFireWhenBBoxNotEmpty = function(node, callback)
+    {
+        if(!node.__frameDrawnCBs)
+            return;
+
+        var xml3d = XMOT.util.getXml3dRoot(node);
+        var callbackID = XMOT.util.hashCode(callback.toString());
+        var onFrameDrawn = node.__frameDrawnCBs[callbackID];
+        delete node.__frameDrawnCBs[callbackID];
+
+        xml3d.removeEventListener("framedrawn", onFrameDrawn, false);
     };
 }());
