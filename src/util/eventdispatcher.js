@@ -53,7 +53,7 @@
             var ctx = {
                 targetElement: targetElement,
                 eventName: eventName,
-                callback: callback,
+                callback: callback
             };
 
             function internalCB(evt) {
@@ -88,7 +88,7 @@
             if(!ctxIdx)
                 return;
 
-            var ctx = this._callbackContexts[i];
+            var ctx = this._callbackContexts[ctxIdx];
 
             this._deregisterListenerOnTarget(ctx.targetElement, ctx.eventName, ctx.internalCallback);
             this._callbackContexts.splice(ctxIdx, 1);
