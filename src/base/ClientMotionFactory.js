@@ -26,7 +26,7 @@ XMOT.ClientMotionFactory = new XMOT.Singleton({
         if(!element)
             throw "No valid element, cannot create Transformable.";
 
-        if(element.constructor === window.Element)
+        if(element instanceof window.Element)
         {
             // bare element
             return new XMOT.ClientTransformable(element, this.getTransform(element), constraint);
