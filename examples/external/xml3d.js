@@ -21,13 +21,13 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-@version: DEVELOPMENT SNAPSHOT (22.02.2013 15:42:07 CET)
+@version: DEVELOPMENT SNAPSHOT (27.03.2013 11:39:36 CET)
 **/
 /** @namespace * */
 var XML3D = XML3D || {};
 
 /** @define {string} */
-XML3D.version = 'DEVELOPMENT SNAPSHOT (22.02.2013 15:42:07 CET)';
+XML3D.version = 'DEVELOPMENT SNAPSHOT (27.03.2013 11:39:36 CET)';
 /** @const */
 XML3D.xml3dNS = 'http://www.xml3d.org/2009/xml3d';
 /** @const */
@@ -76,8 +76,90 @@ XML3D.createClass = function(ctor, parent, methods) {
     }
     return ctor;
 };
+
 (function() {
-    var onload = function() {
+    function displayWebGLNotSupportedInfo(xml3dElement) {
+
+        // Place xml3dElement inside an invisible div
+        var hideDiv = document.createElementNS(XML3D.xhtmlNS, 'div');
+
+        xml3dElement.parentNode.insertBefore(hideDiv, xml3dElement);
+        hideDiv.appendChild(xml3dElement);
+        hideDiv.style.display = "none";
+
+        var infoDiv = document.createElementNS(XML3D.xhtmlNS, 'div');
+        infoDiv.setAttribute("class", xml3dElement.getAttribute("class"));
+        infoDiv.setAttribute("style", xml3dElement.getAttribute("style"));
+        infoDiv.style.border = "2px solid red";
+        infoDiv.style.color = "red";
+        infoDiv.style.padding = "10px";
+        infoDiv.style.backgroundColor = "rgba(255, 0, 0, 0.3)";
+
+        var width = xml3dElement.getAttribute("width");
+        if (width !== null) {
+            infoDiv.style.width = width;
+        }
+
+        var height = xml3dElement.getAttribute("height");
+        if (height !== null) {
+            infoDiv.style.height = height;
+        }
+
+        var hElement = document.createElement("h3");
+        var hTxt = document.createTextNode("Your browser doesn't appear to support XML3D.");
+        hElement.appendChild(hTxt);
+
+        var pElement = document.createElement("p");
+        pElement.appendChild(document.createTextNode("Please visit "));
+        var link = document.createElement("a");
+        link.setAttribute("href", "http://www.xml3d.org");
+        link.appendChild(document.createTextNode("http://www.xml3d.org"));
+        pElement.appendChild(link);
+        pElement.appendChild(document.createTextNode(" to get information about browsers supporting XML3D."));
+        infoDiv.appendChild(hElement);
+        infoDiv.appendChild(pElement);
+
+        hideDiv.parentNode.insertBefore(infoDiv, hideDiv);
+    };
+
+    function initXML3DElement(xml3dElement) {
+
+        if (XML3D._native)
+            return;
+
+        var debug = XML3D.debug.setup();
+
+        if (!(XML3D.webgl && XML3D.webgl.supported())) {
+            debug && XML3D.debug.logWarning("Could not initialise WebGL, sorry :-(");
+            displayWebGLNotSupportedInfo(xml3dElement);
+            return;
+        }
+
+        try {
+            XML3D.config.configure(xml3dElement);
+        } catch (e) {
+            debug && XML3D.debug.logException(e);
+            return;
+        }
+        try {
+            XML3D.webgl.configure(xml3dElement);
+        } catch (e) {
+            debug && XML3D.debug.logException(e);
+            return;
+        }
+
+        // initialize all attached adapters
+        XML3D.base.sendAdapterEvent(xml3dElement, {onConfigured : []});
+    };
+
+    function onNodeInserted(evt) {
+
+        if(evt.target.tagName === "xml3d") {
+            initXML3DElement(evt.target);
+        }
+    };
+
+    function onLoad() {
 
         XML3D.css.init();
 
@@ -92,86 +174,25 @@ XML3D.createClass = function(ctor, parent, methods) {
 
         debug && XML3D.debug.logInfo("Found " + xml3ds.length + " xml3d nodes...");
 
-        if (xml3ds.length) {
-            if (XML3D._native) {
-                debug && XML3D.debug.logInfo("Using native implementation.");
-                return;
-            }
-        }
-
-        if (!(XML3D.webgl && XML3D.webgl.supported())) {
-            debug && XML3D.debug.logWarning("Could not initialise WebGL, sorry :-(");
-
-            for ( var i = 0; i < xml3ds.length; i++) {
-                // Place xml3dElement inside an invisible div
-                var hideDiv = document.createElementNS(XML3D.xhtmlNS, 'div');
-                var xml3dElement = xml3ds[i];
-
-                xml3dElement.parentNode.insertBefore(hideDiv, xml3dElement);
-                hideDiv.appendChild(xml3dElement);
-                hideDiv.style.display = "none";
-
-                var infoDiv = document.createElementNS(XML3D.xhtmlNS, 'div');
-                infoDiv.setAttribute("class", xml3dElement.getAttribute("class"));
-                infoDiv.setAttribute("style", xml3dElement.getAttribute("style"));
-                infoDiv.style.border = "2px solid red";
-                infoDiv.style.color = "red";
-                infoDiv.style.padding = "10px";
-                infoDiv.style.backgroundColor = "rgba(255, 0, 0, 0.3)";
-
-                var width = xml3dElement.getAttribute("width");
-                if (width !== null) {
-                    infoDiv.style.width = width;
-                }
-
-                var height = xml3dElement.getAttribute("height");
-                if (height !== null) {
-                    infoDiv.style.height = height;
-                }
-
-                var hElement = document.createElement("h3");
-                var hTxt = document.createTextNode("Your browser doesn't appear to support XML3D.");
-                hElement.appendChild(hTxt);
-
-                var pElement = document.createElement("p");
-                pElement.appendChild(document.createTextNode("Please visit "));
-                var link = document.createElement("a");
-                link.setAttribute("href", "http://www.xml3d.org");
-                link.appendChild(document.createTextNode("http://www.xml3d.org"));
-                pElement.appendChild(link);
-                pElement.appendChild(document.createTextNode(" to get information about browsers supporting XML3D."));
-                infoDiv.appendChild(hElement);
-                infoDiv.appendChild(pElement);
-
-                hideDiv.parentNode.insertBefore(infoDiv, hideDiv);
-            }
-
+        if (xml3ds.length && XML3D._native) {
+            debug && XML3D.debug.logInfo("Using native implementation.");
             return;
         }
 
-        try {
-            XML3D.config.configure(xml3ds);
-        } catch (e) {
-            debug && XML3D.debug.logException(e);
-        }
-        try {
-            XML3D.webgl.configure(xml3ds);
-        } catch (e) {
-            debug && XML3D.debug.logException(e);
-        }
-
-        // initialize all attached adapters
-        for (i in xml3ds) {
-            XML3D.base.sendAdapterEvent(xml3ds[i], {onConfigured : []});
+        for(var i = 0; i < xml3ds.length; i++) {
+            initXML3DElement(xml3ds[i]);
         }
     };
-    var onunload = function() {
+
+    function onUnload() {
         if (XML3D.document)
             XML3D.document.onunload();
     };
-    window.addEventListener('DOMContentLoaded', onload, false);
-    window.addEventListener('unload', onunload, false);
-    window.addEventListener('reload', onunload, false);
+
+    window.addEventListener('DOMContentLoaded', onLoad, false);
+    window.addEventListener('unload', onUnload, false);
+    window.addEventListener('reload', onUnload, false);
+    document.addEventListener('DOMNodeInserted', onNodeInserted, false);
 
 })();
 // utils/misc.js
@@ -13776,11 +13797,26 @@ XML3D.webgl.DataChangeListener = function(renderer) {
  * @param {Xflow.DATA_ENTRY_STATE} notification
  */
 XML3D.webgl.DataChangeListener.prototype.dataEntryChanged = function(entry, notification) {
-    entry.userData.webglDataChanged = notification;
+    if(entry.userData.webglData){
+        for(var i in entry.userData.webglData){
+            entry.userData.webglData[i].changed = notification;
+        }
+    }
 
     //TODO: Decide if we need a picking buffer redraw too
     //this.requestRedraw("Data changed", false);
-};// Create global symbol XML3D.webgl
+};
+
+XML3D.webgl.getXflowEntryWebGlData = function(entry, canvasId){
+    if(!entry) return null;
+    if(!entry.userData.webglData)
+        entry.userData.webglData = {};
+    if(!entry.userData.webglData[canvasId])
+        entry.userData.webglData[canvasId] = {
+            changed : Xflow.DATA_ENTRY_STATE.CHANGED_NEW
+        };
+    return entry.userData.webglData[canvasId];
+}// Create global symbol XML3D.webgl
 XML3D.webgl.MAXFPS = 30;
 
 /**
@@ -13805,8 +13841,19 @@ XML3D.webgl.MAXFPS = 30;
 
 
     XML3D.webgl.configure = function(xml3ds) {
+        if(!(xml3ds instanceof Array))
+            xml3ds = [xml3ds];
+
         var handlers = {};
         for(var i in xml3ds) {
+            if(xml3ds[i]._configuredWebGL)
+                continue;
+            // has to be set before anything else below is done
+            // because during createCanvas() below the xml3d element is replaced
+            // and thus, another DOMNodeInserted event is fired which will cause
+            // this function to be called again (see xml3d.js initXML3DElement())
+            xml3ds[i]._configuredWebGL = true;
+
             // Creates a HTML <canvas> using the style of the <xml3d> Element
             var canvas = XML3D.webgl.createCanvas(xml3ds[i], i);
             // Creates the CanvasHandler for the <canvas>  Element
@@ -14977,8 +15024,10 @@ XML3D.webgl.stopEvent = function(ev) {
         this.shaders[shaderId] = program;
         this.gl.useProgram(program.handle);
 
-        this.setUniformsFromComputeResult(program, dataTable, { force: true });
-        this.createTexturesFromComputeResult(program, dataTable, { force: true });
+        var canvasId = shaderAdapter.factory.canvasId;
+
+        this.setUniformsFromComputeResult(program, dataTable, canvasId, { force: true });
+        this.createTexturesFromComputeResult(program, dataTable, canvasId, { force: true });
         //XML3D.webgl.checkError(this.gl, "setSamplers");
         return shaderId;
     };
@@ -15127,12 +15176,13 @@ XML3D.webgl.stopEvent = function(ev) {
     };
 
     XML3DShaderManager.prototype.shaderDataChanged = function(adapter, request, changeType) {
+        var canvasId = adapter.factory.canvasId;
         var shaderId = new XML3D.URI("#" + adapter.node.id).getAbsoluteURI(adapter.node.ownerDocument.documentURI).toString();
         var program = this.shaders[shaderId];
         if(!program) return; // No Program - probably invalid shader
         var result = request.getResult();
         this.bindShader(program);
-        this.setUniformsFromComputeResult(program, result);
+        this.setUniformsFromComputeResult(program, result, canvasId);
         this.createTexturesFromComputeResult(program, result);
         if(program.material) {
             program.material.parametersChanged(result.getOutputMap());
@@ -15165,7 +15215,7 @@ XML3D.webgl.stopEvent = function(ev) {
      * @param {Xflow.ComputeResult} data
      * @param {Object?} opt
      */
-    XML3DShaderManager.prototype.setUniformsFromComputeResult = function(programObject, data, opt) {
+    XML3DShaderManager.prototype.setUniformsFromComputeResult = function(programObject, data, canvasId, opt) {
         var dataMap = data.getOutputMap();
         var uniforms = programObject.uniforms;
         var opt = opt || {};
@@ -15178,9 +15228,11 @@ XML3D.webgl.stopEvent = function(ev) {
             if(!entry)
                 continue;
 
-            if(force || entry.userData.webglDataChanged != -1 ) {
+            var webglData = XML3D.webgl.getXflowEntryWebGlData(entry, canvasId);
+
+            if(force || webglData.changed != -1 ) {
                 XML3DShaderManager.setUniform(this.gl, uniforms[name], entry.getValue());
-                entry.userData.webglDataChanged = -1;
+                webglData.changed = -1;
             }
         }
     };
@@ -15190,7 +15242,7 @@ XML3D.webgl.stopEvent = function(ev) {
      * @param {Xflow.ComputeResult} result
      * @param {Object?} opt options
      */
-    XML3DShaderManager.prototype.createTexturesFromComputeResult = function(programObject, result, opt) {
+    XML3DShaderManager.prototype.createTexturesFromComputeResult = function(programObject, result, canvasId, opt) {
         var texUnit = 0;
         var samplers = programObject.samplers;
         var opt = opt || {};
@@ -15206,9 +15258,11 @@ XML3D.webgl.stopEvent = function(ev) {
                 continue;
             }
 
-            if(force || entry.userData.webglDataChanged != -1 ) {
+            var webglData = XML3D.webgl.getXflowEntryWebGlData(entry, canvasId);
+
+            if(force || webglData.changed != -1 ) {
                 this.createTextureFromEntry(entry, sampler, texUnit);
-                entry.userData.webglDataChanged = -1;
+                webglData.changed = -1;
             }
             texUnit++;
         }
@@ -16962,10 +17016,13 @@ Renderer.prototype.notifyDataChanged = function() {
 
         for (var i=0; i<staticAttributes.length; i++) {
             var attr = dataTable.getOutputData(staticAttributes[i]);
-            if (attr && attr.userData.webglDataChanged) {
+            var webglData = XML3D.webgl.getXflowEntryWebGlData(attr, this.factory.canvasId);
+
+            if (attr && webglData && webglData.changed !== undefined) {
                 var value = attr.getValue();
                 for(var j=0; j<this.listeners.length; j++)
                     this.listeners[j].func(staticAttributes[i], value);
+                delete webglData.changed;
             }
         }
     };
@@ -17714,9 +17771,11 @@ XML3D.webgl.MAX_MESH_INDEX_COUNT = 65535;
             if (!entry || !entry.getValue())
                 continue;
 
-            var buffer = entry.userData.buffer;
 
-            switch(entry.userData.webglDataChanged) {
+            var webglData = XML3D.webgl.getXflowEntryWebGlData(entry, this.factory.canvasId);
+            var buffer = webglData.buffer;
+
+            switch(webglData.changed) {
             case Xflow.DATA_ENTRY_STATE.CHANGED_VALUE:
                 var bufferType = attr == "index" ? gl.ELEMENT_ARRAY_BUFFER : gl.ARRAY_BUFFER;
 
@@ -17731,7 +17790,7 @@ XML3D.webgl.MAX_MESH_INDEX_COUNT = 65535;
                     buffer = createBuffer(gl, gl.ARRAY_BUFFER, entry.getValue());
                 }
                 buffer.tupleSize = entry.getTupleSize();
-                entry.userData.buffer = buffer;
+                webglData.buffer = buffer;
                 break;
              default:
                  break;
@@ -17746,7 +17805,7 @@ XML3D.webgl.MAX_MESH_INDEX_COUNT = 65535;
             if (attr == "index")
                 obj.mesh.isIndexed = true;
 
-            delete entry.userData.webglDataChanged;
+            delete webglData.changed;
         }
 
         //Calculate a bounding box for the mesh
