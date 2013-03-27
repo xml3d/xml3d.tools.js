@@ -3,49 +3,57 @@ var CONFIG_PAGETITLE = "XML3D Motion - Interaction";
 
 var CATEGORY_LIST = {
     unknown : { name : "???" },
-    widgets: { name: "Widgets" },
+    complexwidgets: { name: "Complex Widgets" },
+    simplewidgets: { name: "Simple Widgets" },
     behaviors: { name: "Behaviors" },
     misc : { name: "Misc" }
 };
 
 var EXAMPLE_LIST = [
-    // --- Widgets ---
+    // --- Complex Widgets ---
     {
-        cat: "widgets",
-        name: "TranslateBox",
-        href: "tests/test_translatebox.xhtml",
-        info: "A widget for translating objects using an interactive cube."
-    },
-    {
-        cat: "widgets",
-        name: "UniformScaler",
-        href: "tests/test_uniformscaler.xhtml",
-        info: "A widget for uniform scaling of objects by dragging small cubes at the corners of the object."
-    },
-    {
-        cat: "widgets",
-        name: "SingleAxisRotator",
-        href: "tests/test_axisrotator.xhtml",
-        info: "A widget for rotating an object around a single axis. It places interactive bars along the axis."
-    },
-
-    {
-        cat: "widgets",
+        cat: "complexwidgets",
         name: "RingMenu",
         href: "tests/test_ringmenu.xhtml",
         info: "A widget for selecting objects placed on a ring."
     },
     {
-        cat: "widgets",
+        cat: "complexwidgets",
         name: "TransformBox",
         href: "tests/test_transformbox.xhtml",
         info: "A widget to perform translation, rotation and scaling."
     },
     {
-        cat: "widgets",
+        cat: "complexwidgets",
         name: "RotatorBox",
         href: "tests/test_rotatorbox.xhtml",
         info: "A widget for performing constrained rotation and translation."
+    },
+    {
+        cat: "complexwidgets",
+        name: "TranslateGizmo",
+        href: "tests/test_translategizmo.xhtml",
+        info: "A widget for performing constrained translation."
+    },
+
+    // --- Simple Widgets ---
+    {
+        cat: "simplewidgets",
+        name: "TranslateBox",
+        href: "tests/test_translatebox.xhtml",
+        info: "A widget for translating objects using an interactive cube."
+    },
+    {
+        cat: "simplewidgets",
+        name: "UniformScaler",
+        href: "tests/test_uniformscaler.xhtml",
+        info: "A widget for uniform scaling of objects by dragging small cubes at the corners of the object."
+    },
+    {
+        cat: "simplewidgets",
+        name: "SingleAxisRotator",
+        href: "tests/test_axisrotator.xhtml",
+        info: "A widget for rotating an object around a single axis. It places interactive bars along the axis."
     },
 
     // --- Behaviors ---
