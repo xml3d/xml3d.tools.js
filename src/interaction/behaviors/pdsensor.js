@@ -35,14 +35,21 @@ XMOT.interaction.behaviors.PDSensor = new XMOT.Class(
      *
      * @param {string} id the id of this sensor
      * @param {Array.<Object>} grps the groups this sensor should look for. All should have the same xml3d root element.
+     * @param {XMOT.util.EventDispatcher=} eventDispatcher the object used to register events
      */
-    initialize: function(id, grps)
+    initialize: function(id, grps, eventDispatcher)
     {
     	this.callSuper();
 
         this.ID = id;
         this.xml3d = XMOT.util.getXml3dRoot(grps[0]);
         this.pickGroups = grps;
+
+        // event dispatcher
+        if(eventDispatcher !== undefined)
+            this._eventDispatcher = eventDispatcher;
+        else
+            this._eventDispatcher = new XMOT.util.EventDispatcher();
 
         // -- pointing device's pose and hit information --
         this.pdPose = new window.XML3DRay(new window.XML3DVec3(0,0,0), new window.XML3DVec3(0,0,1));
@@ -71,23 +78,8 @@ XMOT.interaction.behaviors.PDSensor = new XMOT.Class(
     {
         if(!this._isAttached)
         {
-            for(var i = 0; i < this.pickGroups.length; i++)
-            {
-                this.pickGroups[i].addEventListener("mouseover",
-                    this.callback("_onMouseOver"), false);
-                this.pickGroups[i].addEventListener("mouseout",
-                    this.callback("_onMouseOut"), false);
-                this.pickGroups[i].addEventListener("mousedown",
-                    this.callback("_onMouseDown"), false);
-            }
-
-            this.xml3d.addEventListener("mousemove", this.callback("_onMouseMove"), false);
-            this.xml3d.addEventListener("mouseup", this.callback("_onMouseUp"), false);
-            window.addEventListener("mouseout", this.callback("_onMouseOutOfCanvas"), false);
-
+            this._toggleAttached(true);
             this.notifyListeners("attach");
-
-            this._isAttached = true;
         }
     },
 
@@ -98,23 +90,8 @@ XMOT.interaction.behaviors.PDSensor = new XMOT.Class(
     {
         if(this._isAttached)
         {
-            for(var i in this.pickGroups)
-            {
-                this.pickGroups[i].removeEventListener("mouseover",
-                    this.callback("_onMouseOver"), false);
-                this.pickGroups[i].removeEventListener("mouseout",
-                    this.callback("_onMouseOut"), false);
-                this.pickGroups[i].removeEventListener("mousedown",
-                    this.callback("_onMouseDown"), false);
-            }
-
-            this.xml3d.removeEventListener("mousemove", this.callback("_onMouseMove"), false);
-            this.xml3d.removeEventListener("mouseup", this.callback("_onMouseUp"), false);
-            window.removeEventListener("mouseout", this.callback("_onMouseOutOfCanvas"), false);
-
+            this._toggleAttached(false);
             this.notifyListeners("detach");
-
-            this._isAttached = false;
         }
     },
 
@@ -131,6 +108,32 @@ XMOT.interaction.behaviors.PDSensor = new XMOT.Class(
     // ========================================================================
     // --- Private ---
     // ========================================================================
+
+    /** Internal helper method to (de-)register event listeners
+     *
+     *  @this {XMOT.interaction.behaviors.PDSensor}
+     *  @private
+     *  @param {boolean} doAttach
+     */
+    _toggleAttached: function(doAttach)
+    {
+        var registerFn = this._eventDispatcher.on.bind(this._eventDispatcher);
+        if(!doAttach)
+            registerFn = this._eventDispatcher.off.bind(this._eventDispatcher);
+
+        for(var i = 0; i < this.pickGroups.length; i++)
+        {
+            registerFn(this.pickGroups[i], "mouseover", this.callback("_onMouseOver"));
+            registerFn(this.pickGroups[i], "mouseout", this.callback("_onMouseOut"));
+            registerFn(this.pickGroups[i], "mousedown", this.callback("_onMouseDown"));
+        }
+
+        registerFn(this.xml3d, "mousemove", this.callback("_onMouseMove"));
+        registerFn(this.xml3d, "mouseup", this.callback("_onMouseUp"));
+        registerFn(window, "mouseout", this.callback("_onMouseOutOfCanvas"));
+
+        this._isAttached = !this._isAttached;
+    },
 
     // -- Mouse Event Handlers --
     /** onMouseOver: called if pd is moved over the influenced groups

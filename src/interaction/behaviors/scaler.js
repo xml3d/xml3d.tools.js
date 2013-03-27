@@ -33,13 +33,14 @@ XMOT.interaction.behaviors.Scaler = new XMOT.Class(
      *  @param {XMOT.Transformable} targetTransformable the group this sensor will modify. If not given,
      *             it's equal to the first element in pickGrp.
      *  @param {boolean} [uniformScale] whether to perform uniform scaling. Default: true.
+     *  @param {XMOT.util.EventDispatcher=} eventDispatcher the object used to register events
      *
      *  @throws "target no transform"/"pick no transform" - targetGrp/pickGrp doesn't have transform attribute
      */
-    initialize: function(id, pickGrps, targetTransformable, uniformScale)
+    initialize: function(id, pickGrps, targetTransformable, uniformScale, eventDispatcher)
     {
         // parent class
-        this.callSuper(id, pickGrps, null, null);
+        this.callSuper(id, pickGrps, undefined, undefined, eventDispatcher);
 
         this.uniformScale = true;
         if(uniformScale)

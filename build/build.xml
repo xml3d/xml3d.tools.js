@@ -48,6 +48,7 @@
 
         <file name="util/geoobject.js" />
         <file name="util/observable.js" />
+        <file name="util/eventdispatcher.js" />
         <file name="util/plane.js" />
 
         <file name="util/transformtracker.js" />

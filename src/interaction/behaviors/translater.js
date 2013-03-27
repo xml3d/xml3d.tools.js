@@ -21,8 +21,9 @@ XMOT.interaction.behaviors.Translater = new XMOT.Class(
      *             normal should reside. If it's a group the local z=0 plane of the given group is taken.
      *             If a vector is given, the vector directly is taken. If not specified a plane
      *             parallel to the user's view is taken.
+     *  @param {XMOT.util.EventDispatcher=} eventDispatcher the object used to register events
      */
-    initialize: function(id, pickGrps, targetTransformable, planeOrient)
+    initialize: function(id, pickGrps, targetTransformable, planeOrient, eventDispatcher)
     {
 
         if(!targetTransformable)
@@ -34,7 +35,7 @@ XMOT.interaction.behaviors.Translater = new XMOT.Class(
         // we manipulate the transform node of the group, so take the local one
         this._translationOffset = new window.XML3DVec3(this.targetTransformable.transform.translation);
 
-        this.callSuper(id, pickGrps, planeOrient);
+        this.callSuper(id, pickGrps, planeOrient, undefined, eventDispatcher);
 
         this.addListener("dragstart", this.callback("_onTransPlaneDragStart"));
         this.addListener("translchanged", this.callback("_onTranslChanged"));

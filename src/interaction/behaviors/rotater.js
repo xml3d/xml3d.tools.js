@@ -15,20 +15,19 @@ XMOT.interaction.behaviors.Rotater = new XMOT.Class(
      *
      *  @param {string} id the id of this sensor
      *  @param {Array.<Object>} pickGrps the group this sensor will listen for events
-     *  @param {XMOT.Transformable} targetTransformable the group this sensor will modify.
+     *  @param {XMOT.Transformable=} targetTransformable the group this sensor will modify.
      *                 If not given, it is equal to the first element in pickGrp.
-     *  @param {number} [rotSpeed] rotation speed, default is 1
-     *  @param {XML3DVec3|Object} [planeOrient] modifies the orientation of the underlying
-     *                  XML3D.interaction.behaviors.PlaneSensor.
+     *  @param {number=} rotSpeed rotation speed, default is 1
      *                  See XML3D.interaction.behaviors.PlaneSensor for further information.
+     *  @param {XMOT.util.EventDispatcher=} eventDispatcher the object used to register events
      *
      *  @throws "target no transform" if the target group doesn't have a transform
      *           attribute
      */
-    initialize: function(id, pickGrps, targetTransformable, rotSpeed)
+    initialize: function(id, pickGrps, targetTransformable, rotSpeed, eventDispatcher)
     {
         // --- setup pdsensor ---
-        this.callSuper(id, pickGrps);
+        this.callSuper(id, pickGrps, undefined, undefined, eventDispatcher);
 
         // --- setup this sensor ---
         if(!targetTransformable)

@@ -32,10 +32,11 @@ XMOT.interaction.behaviors.PlaneSensor = new XMOT.Class(
      * 			If a vector is given, the vector directly is taken. If not specified a plane
      * 			parallel to the user's view is taken.
      *  @param {Object=} translationConstraint constraint that is applied to the final translation output
+     *  @param {XMOT.util.EventDispatcher=} eventDispatcher the object used to register events
      */
-    initialize: function(id, grps, planeOrient, translationConstraint)
+    initialize: function(id, grps, planeOrient, translationConstraint, eventDispatcher)
     {
-        this.callSuper(id, grps);
+        this.callSuper(id, grps, eventDispatcher);
 
         // the translation in the plane during a drag operation
         this.translation = new window.XML3DVec3(0,0,0);
