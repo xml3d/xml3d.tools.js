@@ -14,10 +14,10 @@ XMOT.interaction.behaviors.Translater = new XMOT.Class(
      *  @this {XMOT.interaction.behaviors.Translater}
      *
      *  @param {string} id the id of this sensor
-     *  @param {Array.<Object>} pickGrps the group this sensor should look for
+     *  @param {Array.<window.Element>} pickGrps the group this sensor should look for
      *  @param {XMOT.Transformable} targetTransformable the movable this sensor will modify.
      *                 If not given, a Movable will be created from the first element of pickGrps
-     *  @param {XML3DVec3|!Object} [planeOrient] the group or vector the sensor takes to decide where the plane
+     *  @param {XML3DVec3|!window.Element} [planeOrient] the group or vector the sensor takes to decide where the plane
      *             normal should reside. If it's a group the local z=0 plane of the given group is taken.
      *             If a vector is given, the vector directly is taken. If not specified a plane
      *             parallel to the user's view is taken.
