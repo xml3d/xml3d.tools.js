@@ -2,6 +2,11 @@
 
 	// source: http://www.mediaevent.de/javascript/Extras-Javascript-Keycodes.html
 
+    // --- mouse buttons ---
+    XMOT.MOUSEBUTTON_LEFT = 0;
+    XMOT.MOUSEBUTTON_MIDDLE = 1;
+    XMOT.MOUSEBUTTON_RIGHT = 2;
+
     // --- keys ---
 	XMOT.KEY_A = 65;
     XMOT.KEY_B = 66;
