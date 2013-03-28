@@ -38,10 +38,7 @@
             styleAttrib += "position:absolute;";
             styleAttrib += "top:" + targetOffset.top + "px;left:" + targetOffset.left + "px;";
 
-            return XMOT.creation.element("xml3d", {
-                style: styleAttrib,
-                id: "xml3dOverlay"
-            });
+            return XMOT.creation.element("xml3d", { style: styleAttrib });
         },
 
         _registerEventListeners: function(doAddListener)
