@@ -21,9 +21,9 @@ XMOT.interaction.geometry.Geometry = new XMOT.Class({
     initialize: function(widget)
     {
         this.geo = new XMOT.util.GeoObject(widget.ID, widget.xml3d, widget.root.object);
-        this.targetNode = widget.target.object;
+        this.widget = widget;
 
-        this._targetTracker = new XMOT.TransformTracker(this.targetNode);
+        this._targetTracker = new XMOT.TransformTracker(widget.target.object);
         this._targetTracker.xfmChanged = this.callback("onTargetXfmChanged");
     },
 
@@ -54,7 +54,10 @@ XMOT.interaction.geometry.Geometry = new XMOT.Class({
      */
     createDefsElements: function()
     {
-        this.geo.addTransforms("t_root");
+        this.geo.addTransforms("t_root", {
+            rotation: this.widget.target.getOrientation().str(),
+            translation: this.widget.target.getPosition().str(),
+        });
         this.onCreateDefsElements();
     },
 
