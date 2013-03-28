@@ -2,6 +2,8 @@
 
     "use strict";
 
+    XMOT.namespace("XMOT.util");
+
     /** An EventDispatcher is used to control the specific events that are needed by some
      *  classes, e.g. XMOT.interaction.behaviors.PDSensor.
      *
@@ -25,12 +27,21 @@
      */
     XMOT.util.EventDispatcher = new XMOT.Class({
 
-        /**
+        /** Initializes the dispatcher.
+         *  Optionally a custom handler can be registered right away by providing the
+         *  proper arguments.
+         *
          *  @this {XMOT.util.EventDispatcher}
+         *
+         *  @param {string=} eventName
+         *  @param {function(Event):boolean=} callback
          */
-        initialize: function() {
+        initialize: function(eventName, callback) {
             this._callbackContexts = [];
             this._customHandlers = {}; // eventName -> array of callbacks
+
+            if(arguments.length == 2)
+                this.registerCustomHandler(eventName, callback);
         },
 
         /** Register an event listener on the given target element.
