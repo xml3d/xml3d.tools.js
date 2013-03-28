@@ -27,6 +27,36 @@ XMOT.interaction.geometry.Geometry = new XMOT.Class({
         this._targetTracker.xfmChanged = this.callback("onTargetXfmChanged");
     },
 
+    /** Shortcut to graph root
+     *  @this {XMOT.interaction.geometry.Geometry}
+     */
+    getRoot: function()
+    {
+        return this.geo.getGraphRoot();
+    },
+
+    /** Shortcut to geometry access
+     *  @this {XMOT.interaction.geometry.Geometry}
+     *  @param {string} id
+     */
+    getGeo: function(id)
+    {
+        return this.geo.graph[id];
+    },
+
+    /** Shortcut to geometry access
+     *  @this {XMOT.interaction.geometry.Geometry}
+     *
+     *  @param {string} id
+     *  @param {Object} geo geometry to be stored
+     *  @return {Object} the given geometry
+     */
+    setGeo: function(id, geo)
+    {
+        this.geo.graph[id] = geo;
+        return geo;
+    },
+
     /** Setup the defs elements, attach them to the scene graph,
      *  create the graph and attach the graph, too.
      *
