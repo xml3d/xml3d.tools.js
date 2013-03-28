@@ -28,7 +28,7 @@ XMOT.interaction.widgets.Widget = new XMOT.Class(
      *
      *  @param {string} _id the id if this TransformBox and also the id of the corresponding root group node
      *  @param {XMOT.Transformable} _target the target transformable
-     *  @param {boolean} [_autoScaleAdj] automatically fit the scale of the widget's root group to the
+     *  @param {boolean=} _autoScaleAdj automatically fit the scale of the widget's root group to the
      *      scaling of the target node. Default: true. Useful when widgets have to match the dimensions of the
      *      target node.
      *
@@ -63,8 +63,6 @@ XMOT.interaction.widgets.Widget = new XMOT.Class(
         /** @private */
         this._autoScaleAdj = (_autoScaleAdj !== undefined) ? _autoScaleAdj : true;
 
-    	this.xml3d.addEventListener("framedrawn", this.callback("_onXml3dFrameDrawn"), false);
-
         this._isAttached = false;
     },
 
@@ -75,6 +73,8 @@ XMOT.interaction.widgets.Widget = new XMOT.Class(
         {
             this.geometry.constructAndAttach();
             this._createBehavior();
+
+            XMOT.util.fireWhenBBoxNotEmpty(this.target.object, this.callback("_updateDefsElements"));
 
             this._isAttached = true;
         }
@@ -232,29 +232,7 @@ XMOT.interaction.widgets.Widget = new XMOT.Class(
         this.notifyListeners("dragend", this);
     },
 
-    /**
-     *  @this {XMOT.interaction.widgets.Widget}
-     *  @private
-     */
-    _onXml3dFrameDrawn: function()
-    {
-		/** Funny hack: we don't know right now when the bbox is valid.
-		 *  So we wait until we reach a frame where the bounding box is not empty,
-		 *  and just then select the instance, i.e. creating the transformbox.
-		 */
-
-    	if(!this.target.object.getBoundingBox().isEmpty())
-		{
-    		this.xml3d.removeEventListener("framedrawn", this.callback("_onXml3dFrameDrawn"), false);
-    		this._updateDefsElements();
-		}
-    },
-
     _updateDefsElements: function() {
-
-    	// don't yet update when bbox empty
-    	if(this.target.object.getBoundingBox().isEmpty())
-    		return;
 
         var targetXfm = this.target.transform;
         var tarBBox = this.target.object.getBoundingBox();
