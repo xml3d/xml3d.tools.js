@@ -344,6 +344,7 @@
         node.__frameDrawnCBs[callbackID] = onFrameDrawn;
 
         xml3d.addEventListener("framedrawn", onFrameDrawn, false);
+        onFrameDrawn();
     };
 
     /** Cancels the method XMOT.util.fireWhenBBoxNotEmpty() above. That is
