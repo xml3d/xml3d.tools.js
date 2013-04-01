@@ -1,6 +1,11 @@
 (function() {
 
-    /**
+    /** A camera control for target object examination. Supports action "ROTATE" and "DOLLY".
+     *  Users of this class should call the following methods:
+     *  o start(2d position, action): initialize the controller for rotate/dolly actions (typically mousedown)
+     *  o doAction(2d position): perform an action (typically mousemove)
+     *  o stop(2d position): stop the action (typically mouseup)
+     *
      * @constructor
      */
     var ExamineController = function(cameraGroup, opt) {
