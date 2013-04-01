@@ -1,5 +1,5 @@
 var xml3d = null;
-var tracker = null; 
+var tracker = null;
 
 function onLoad()
 {
@@ -8,8 +8,8 @@ function onLoad()
 
     // setup xfm change observation
     var target = $("#group2")[0];
-    tracker = new XMOT.TransformTracker(target); 
-    tracker.xfmChanged = onXfmChange; 
+    tracker = new XMOT.TransformTracker(target, onXfmChange);
+    tracker.attach();
 }
 
 var activeXfmGrp2 = true; // true: trans2, false: trans1

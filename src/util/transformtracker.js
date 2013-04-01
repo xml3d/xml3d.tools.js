@@ -32,8 +32,6 @@
 
         /** @private */
         this._attached = false;
-
-        this.attach();
     };
 
     var p = TransformTracker.prototype;

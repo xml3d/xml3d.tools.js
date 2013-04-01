@@ -93,12 +93,14 @@ XMOT.util.Plane = new XMOT.Class({
                 this._userOrientationGrp = newOrientation;
                 this._xfmTracker = new XMOT.TransformTracker(newOrientation,
                         this.callback("_invalidateNormal"));
+                this._xfmTracker.attach();
             }
         }
         else // user user-view
         {
             this._xfmTracker = new XMOT.ViewTracker(this._xml3d,
                 this.callback("_invalidateNormal"));
+            this._xfmTracker.attach();
         }
 
         this._updateOrientation();

@@ -18,6 +18,7 @@ function initScene()
 
     // setup tracker
     tracker = new XMOT.ViewTracker(xml3d, onViewXfmChanged);
+    tracker.attach();
 }
 
 function onViewXfmChanged()

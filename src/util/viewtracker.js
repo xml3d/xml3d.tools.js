@@ -27,8 +27,6 @@ XMOT.ViewTracker = new XMOT.Class({
         this._xfmObs = null;
         /** @private */
         this._attached = false;
-
-        this.attach();
     },
 
     /** Event handler to be overriden by the user
@@ -53,8 +51,7 @@ XMOT.ViewTracker = new XMOT.Class({
                 this._xfmObs.detach();
             this._xfmObs = new XMOT.TransformTracker(this._currentViewElement);
             this._xfmObs.xfmChanged = this.callback("_onXfmChanged");
-
-            this._onXfmChanged(this._currentViewElement);
+            this._xfmObs.attach();
 
             this._attached = true;
         }
