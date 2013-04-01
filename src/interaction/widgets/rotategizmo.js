@@ -39,50 +39,15 @@ XMOT.interaction.widgets.RotateGizmo = new XMOT.Class(
             return (evt.button === XMOT.MOUSEBUTTON_LEFT);
         });
 
-        var constraint = this._createRotationConstraint();
-
-        var graphRootXfmable = XMOT.ClientMotionFactory.createTransformable(
-            this.geometry.getRoot(), constraint
-        );
+        var constraint = this.createReflectingConstraint();
+        var behaviorTarget = this.createBehaviorTarget(constraint);
 
         var pickGrps = [this.geometry.getGeo(geoId)];
 
         var rot = new XMOT.interaction.behaviors.Rotater(
-            this.globalID(geoId), pickGrps, graphRootXfmable, undefined, eventDispatcher);
+            this.globalID(geoId), pickGrps, behaviorTarget, undefined, eventDispatcher);
         rot.axisRestriction(axis);
 
         return rot;
-    },
-
-
-    /** Creates a rotation constraint, where the real target's rotation
-     *  is updated with the given
-     *
-     *  @this {XMOT.interaction.widgets.RotateGizmo}
-     *  @private
-     *
-     *  @return {XMOT.Constraint}
-     */
-    _createRotationConstraint: function() {
-
-        var target = this.mirror().target();
-
-        return {
-            constrainRotation: function(newRotation, opts){
-                if(!opts.transformable)
-                    throw new Error("Constraint: no transformable given.");
-
-                target.setOrientation(newRotation);
-
-                return true;
-            },
-            constrainScaling: function(newScale, opts){
-                return true;
-            },
-
-            constrainTranslation: function(newTranslation, opts) {
-                return true;
-            }
-        };
     }
 });
