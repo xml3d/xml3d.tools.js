@@ -26,10 +26,14 @@ XMOT.interaction.geometry.RingMenu = new XMOT.Class(XMOT.interaction.geometry.Ge
         this.geo.addShaders("s_chooseHigh", {diffCol: "0 0.9 0"});
 
         // transforms
-        var menuBBox = XMOT.util.getChildrenBBox(this.targetNode);
+        var menuBBox = XMOT.util.getChildrenBBox(this.widget.target.object);
 
         var transly = menuBBox.min.y -1 ;
         var translz = menuBBox.max.z;
+
+        this.geo.addTransforms("t_arrow", {
+            scale: "1 2 1"
+        });
 
         this.geo.addTransforms("t_chooseLeft", {
             translation: -2 + " " + transly + " " + translz,
@@ -74,11 +78,9 @@ XMOT.interaction.geometry.RingMenu = new XMOT.Class(XMOT.interaction.geometry.Ge
      */
     _createArrowGroup: function()
     {
-        var mesh = XMOT.creation.element("mesh", {src: "#d_arrow"});
-
-        var grp = XMOT.creation.element("group", {transform: "#t_arrow"});
-        grp.appendChild(mesh);
-
-        return grp;
+        return XMOT.creation.element("group", {
+            transform: "#" + this.geo.globalID("t_arrow"),
+            children: [XMOT.creation.arrow(this.widget.xml3d)]
+        });
     }
 });
