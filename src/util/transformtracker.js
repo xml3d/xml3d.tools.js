@@ -1,4 +1,7 @@
 (function() {
+
+    "use strict";
+
     /**
      * For the given node calls the handler method xfmChanged() when
      * the global transformation changed. This is the case if the transform
@@ -16,159 +19,177 @@
      * @param {!Object} _targetNode the node to track
      * @param {function(targetNode:!Object,evt:!Event)=} onXfmChanged method that should be called when transformation changed
      */
-    var TransformTracker = function(_targetNode, onXfmChanged)
-    {
-        if(!_targetNode)
-            throw "TransformTracker: no target node specified.";
+    XMOT.TransformTracker = new XMOT.Class({
 
-        this.xml3d = XMOT.util.getXml3dRoot(_targetNode);
-        if(!this.xml3d)
-            throw "TransformTracker: given node is not a child of an xml3d element.";
-
-        this.targetNode = _targetNode;
-
-        if(onXfmChanged)
-        	this.xfmChanged = onXfmChanged;
-
-        /** @private */
-        this._attached = false;
-    };
-
-    var p = TransformTracker.prototype;
-
-    /** Event handler to be overriden by the user
-     *
-     * @param {!Object} targetNode the node this observer tracks
-     * @param {!Event} evt the original DOM event that caused the change
-     */
-    p.xfmChanged = function(targetNode, evt) { };
-
-    /**
-     * Register callbacks in the given node and all parent nodes.
-     *
-     * @this {TransformTracker}
-     * @param {!Object} [node] (internal) the node to register. If not given the
-     *  target node is taken.
-     */
-    p.attach = function(node)
-    {
-        if(!this._attached)
+        initialize: function(_targetNode, onXfmChanged)
         {
-            if(!node)
-                node = this.targetNode;
+            if(!_targetNode)
+                throw "TransformTracker: no target node specified.";
 
-            if(node.tagName == "xml3d")
-                return;
+            this.xml3d = XMOT.util.getXml3dRoot(_targetNode);
+            if(!this.xml3d)
+                throw "TransformTracker: given node is not a child of an xml3d element.";
 
-            if(node.tagName == "group")
-            {
-                node.addEventListener("DOMAttrModified",
-                    XMOT.util.wrapCallback(this, this._onGrpAttrModified), false);
+            this.targetNode = _targetNode;
 
-                this._attachToTransformOfGrp(node);
-            }
-            else if(node.tagName == "view")
-            {
-                node.addEventListener("DOMAttrModified",
-                    XMOT.util.wrapCallback(this, this._onViewAttrModified), false);
-            }
+            if(onXfmChanged)
+                this.xfmChanged = onXfmChanged;
 
-            this.attach(node.parentNode);
-
-            this._attached = true;
-        }
-    };
-
-    /**
-     * Deregister callbacks in the given node and all parent nodes.
-     *
-     * @this {TransformTracker}
-     * @param {Object} node (internal) the node to register. If not given the
-     *  target node is taken.
-     */
-    p.detach = function(node)
-    {
-        if(this._attached)
-        {
-            if(!node)
-                node = this.targetNode;
-
-            if(node.tagName == "xml3d")
-                return;
-
-            if(node.tagName == "group")
-            {
-                node.removeEventListener("DOMAttrModified",
-                    XMOT.util.wrapCallback(this, this._onGrpAttrModified), false);
-
-                this._detachFromTransformOfGrp(node);
-            }
-            else if(node.tagName == "view")
-            {
-                node.removeEventListener("DOMAttrModified",
-                    XMOT.util.wrapCallback(this, this._onViewAttrModified), false);
-            }
-
-            this.detach(node.parentNode);
-
+            /** @private */
             this._attached = false;
-        }
-    };
+        },
 
-    p._onGrpAttrModified = function(evt)
-    {
-        if(evt.attrName !== "transform")
-            return;
+        /** Event handler to be overriden by the user
+         * @this {XMOT.TransformTracker}
+         * @param {!Object} targetNode the node this observer tracks
+         * @param {!Event} evt the original DOM event that caused the change
+         */
+        xfmChanged: function(targetNode, evt) { },
 
-        switch(evt.attrChange)
+        /**
+         * Register callbacks in the given node and all parent nodes.
+         *
+         * @this {XMOT.TransformTracker}
+         * @param {!Object} [node] (internal) the node to register. If not given the
+         *  target node is taken.
+         */
+        attach: function(node)
         {
-        case 2: // addition
-            this._attachToTransformOfGrp(evt.target);
-            break;
+            if(!this._attached)
+            {
+                if(!node)
+                    node = this.targetNode;
 
-        case 3: // removal
-            this._detachFromTransformOfGrp(evt.target);
-            break;
+                if(node.tagName == "xml3d")
+                    return;
+
+                if(node.tagName == "group")
+                {
+                    node.addEventListener("DOMAttrModified",
+                        XMOT.util.wrapCallback(this, this._onGrpAttrModified), false);
+
+                    this._attachToTransformOfGrp(node);
+                }
+                else if(node.tagName == "view")
+                {
+                    node.addEventListener("DOMAttrModified",
+                        XMOT.util.wrapCallback(this, this._onViewAttrModified), false);
+                }
+
+                this.attach(node.parentNode);
+
+                this._attached = true;
+            }
+        },
+
+        /**
+         * Deregister callbacks in the given node and all parent nodes.
+         *
+         * @this {XMOT.TransformTracker}
+         * @param {Object} node (internal) the node to register. If not given the
+         *  target node is taken.
+         */
+        detach: function(node)
+        {
+            if(this._attached)
+            {
+                if(!node)
+                    node = this.targetNode;
+
+                if(node.tagName == "xml3d")
+                    return;
+
+                if(node.tagName == "group")
+                {
+                    node.removeEventListener("DOMAttrModified",
+                        XMOT.util.wrapCallback(this, this._onGrpAttrModified), false);
+
+                    this._detachFromTransformOfGrp(node);
+                }
+                else if(node.tagName == "view")
+                {
+                    node.removeEventListener("DOMAttrModified",
+                        XMOT.util.wrapCallback(this, this._onViewAttrModified), false);
+                }
+
+                this.detach(node.parentNode);
+
+                this._attached = false;
+            }
+        },
+
+        /**
+         *  @this {XMOT.TransformTracker}
+         *  @private
+         */
+        _onGrpAttrModified: function(evt)
+        {
+            if(evt.attrName !== "transform")
+                return;
+
+            switch(evt.attrChange)
+            {
+            case 2: // addition
+                this._attachToTransformOfGrp(evt.target);
+                break;
+
+            case 3: // removal
+                this._detachFromTransformOfGrp(evt.target);
+                break;
+            }
+
+            this.xfmChanged(this.targetNode, evt);
+        },
+
+        /**
+         *  @this {XMOT.TransformTracker}
+         *  @private
+         */
+        _onViewAttrModified: function(evt)
+        {
+            if(evt.attrName !== "position"
+            && evt.attrName !== "orientation")
+                return;
+
+            this.xfmChanged(this.targetNode, evt);
+        },
+
+        /**
+         *  @this {XMOT.TransformTracker}
+         *  @private
+         */
+        _onXfmAttrModified: function(evt)
+        {
+            this.xfmChanged(this.targetNode, evt);
+        },
+
+        /**
+         *  @this {XMOT.TransformTracker}
+         *  @private
+         */
+        _attachToTransformOfGrp: function(grp)
+        {
+            var xfm = XMOT.util.transform(grp);
+            if(!xfm)
+                return;
+
+            xfm.addEventListener("DOMAttrModified",
+                XMOT.util.wrapCallback(this, this._onXfmAttrModified), false);
+        },
+
+        /**
+         *  @this {XMOT.TransformTracker}
+         *  @private
+         */
+        _detachFromTransformOfGrp: function(grp)
+        {
+            var xfm = XMOT.util.transform(grp);
+            if(!xfm)
+                return;
+
+            xfm.removeEventListener("DOMAttrModified",
+                XMOT.util.wrapCallback(this, this._onXfmAttrModified), false);
         }
-
-        this.xfmChanged(this.targetNode, evt);
-    };
-
-    p._onViewAttrModified = function(evt)
-    {
-        if(evt.attrName !== "position"
-        && evt.attrName !== "orientation")
-            return;
-
-        this.xfmChanged(this.targetNode, evt);
-    };
-
-    p._onXfmAttrModified = function(evt)
-    {
-        this.xfmChanged(this.targetNode, evt);
-    };
-
-    p._attachToTransformOfGrp = function(grp)
-    {
-        var xfm = XMOT.util.transform(grp);
-        if(!xfm)
-            return;
-
-        xfm.addEventListener("DOMAttrModified",
-            XMOT.util.wrapCallback(this, this._onXfmAttrModified), false);
-    };
-
-    p._detachFromTransformOfGrp = function(grp)
-    {
-        var xfm = XMOT.util.transform(grp);
-        if(!xfm)
-            return;
-
-        xfm.removeEventListener("DOMAttrModified",
-            XMOT.util.wrapCallback(this, this._onXfmAttrModified), false);
-    };
-
-    // export
-    XMOT.TransformTracker = TransformTracker;
+    });
 }());
 
