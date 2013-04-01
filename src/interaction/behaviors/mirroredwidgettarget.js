@@ -1,8 +1,8 @@
-XMOT.namespace("XMOT.interaction.behaviors");
-
 (function(){
 
     "use strict";
+
+    XMOT.namespace("XMOT.interaction.behaviors");
 
     /** Will mirror the transformations of the target node in a hierarchy in the
      *  xml3d overlay. Can then be attached/deatched.

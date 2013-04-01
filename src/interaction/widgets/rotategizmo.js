@@ -1,53 +1,57 @@
+(function(){
 
-XMOT.namespace("XMOT.interaction.widgets");
+    "use strict";
 
-/**
- *  This gizmo adds 3 small rectangles to the target object with which the
- *  rotation of the target can be controlled, constrained to single axes the
- *  rectangle present.
- *
- * @extends XMOT.interaction.widgets.OverlayWidget
- */
-XMOT.interaction.widgets.RotateGizmo = new XMOT.Class(
-    XMOT.interaction.widgets.OverlayWidget, {
-
-    GeometryType: XMOT.interaction.geometry.RotateGizmo,
+    XMOT.namespace("XMOT.interaction.widgets");
 
     /**
-     *  @this {XMOT.interaction.widgets.RotateGizmo}
-     *  @override
-     *  @protected
-     */
-    onCreateBehavior: function()
-    {
-        this.behavior["xaxis"] = this._createRotater("x");
-        this.behavior["yaxis"] = this._createRotater("y");
-        this.behavior["zaxis"] = this._createRotater("z");
-    },
-
-    /**
-     *  @this {XMOT.interaction.widgets.RotateGizmo}
-     *  @private
+     *  This gizmo adds 3 small rectangles to the target object with which the
+     *  rotation of the target can be controlled, constrained to single axes the
+     *  rectangle present.
      *
-     *  @param {string} axis. "x", "y" or "z"
+     * @extends XMOT.interaction.widgets.OverlayWidget
      */
-    _createRotater: function(axis)
-    {
-        var geoId = axis + "axis";
+    XMOT.interaction.widgets.RotateGizmo = new XMOT.Class(
+        XMOT.interaction.widgets.OverlayWidget, {
 
-        var eventDispatcher = new XMOT.util.EventDispatcher("mousedown", function(evt) {
-            return (evt.button === XMOT.MOUSEBUTTON_LEFT);
-        });
+        GeometryType: XMOT.interaction.geometry.RotateGizmo,
 
-        var constraint = this.createReflectingConstraint();
-        var behaviorTarget = this.createBehaviorTarget(constraint);
+        /**
+         *  @this {XMOT.interaction.widgets.RotateGizmo}
+         *  @override
+         *  @protected
+         */
+        onCreateBehavior: function()
+        {
+            this.behavior["xaxis"] = this._createRotater("x");
+            this.behavior["yaxis"] = this._createRotater("y");
+            this.behavior["zaxis"] = this._createRotater("z");
+        },
 
-        var pickGrps = [this.geometry.getGeo(geoId)];
+        /**
+         *  @this {XMOT.interaction.widgets.RotateGizmo}
+         *  @private
+         *
+         *  @param {string} axis. "x", "y" or "z"
+         */
+        _createRotater: function(axis)
+        {
+            var geoId = axis + "axis";
 
-        var rot = new XMOT.interaction.behaviors.Rotater(
-            this.globalID(geoId), pickGrps, behaviorTarget, undefined, eventDispatcher);
-        rot.axisRestriction(axis);
+            var eventDispatcher = new XMOT.util.EventDispatcher("mousedown", function(evt) {
+                return (evt.button === XMOT.MOUSEBUTTON_LEFT);
+            });
 
-        return rot;
-    }
-});
+            var constraint = this.createReflectingConstraint();
+            var behaviorTarget = this.createBehaviorTarget(constraint);
+
+            var pickGrps = [this.geometry.getGeo(geoId)];
+
+            var rot = new XMOT.interaction.behaviors.Rotater(
+                this.globalID(geoId), pickGrps, behaviorTarget, undefined, eventDispatcher);
+            rot.axisRestriction(axis);
+
+            return rot;
+        }
+    });
+}());

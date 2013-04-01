@@ -1,8 +1,8 @@
-XMOT.namespace("XMOT.interaction.behaviors");
-
 (function(){
 
     "use strict";
+
+    XMOT.namespace("XMOT.interaction.behaviors");
 
     /** A mirrored view will create a view-subtree of the view of the target xml3d element.
      *  It will track changes to that view and reflect it in the created subtree.

@@ -1,55 +1,59 @@
+(function(){
 
-XMOT.namespace("XMOT.interaction.widgets");
+    "use strict";
 
-/**
- * The UniformScaler widget will attach interactive cubes at the edges of the bounding box
- * of the target node. If the cubes are dragged uniform scaling is performed on the target node.
- *
- * @extends XMOT.interaction.widgets.Widget
- */
-XMOT.interaction.widgets.UniformScaler = new XMOT.Class(
-    XMOT.interaction.widgets.Widget, {
-
-    GeometryType: XMOT.interaction.geometry.UniformScaler,
+    XMOT.namespace("XMOT.interaction.widgets");
 
     /**
-     *  @this {XMOT.interaction.widgets.UniformScaler}
-     *  @override
-     *  @protected
+     * The UniformScaler widget will attach interactive cubes at the edges of the bounding box
+     * of the target node. If the cubes are dragged uniform scaling is performed on the target node.
+     *
+     * @extends XMOT.interaction.widgets.Widget
      */
-    onCreateBehavior: function()
-    {
-        var scalehandle = document.getElementById(this.globalID("scale"));
+    XMOT.interaction.widgets.UniformScaler = new XMOT.Class(
+        XMOT.interaction.widgets.Widget, {
 
-        this.behavior["scale"] = new XMOT.interaction.behaviors.Scaler(
-            this.globalID("scaleSensor"), [scalehandle], this.root, true);
+        GeometryType: XMOT.interaction.geometry.UniformScaler,
 
-        // setup listeners
-        this.behavior["scale"].addListener("dragstart", this.callback("_activateHandles"));
-        this.behavior["scale"].addListener("dragend", this.callback("_deactivateHandles"));
-    },
+        /**
+         *  @this {XMOT.interaction.widgets.UniformScaler}
+         *  @override
+         *  @protected
+         */
+        onCreateBehavior: function()
+        {
+            var scalehandle = document.getElementById(this.globalID("scale"));
 
-    // --------------------------------
-    // -- Behavior --
-    // --------------------------------
+            this.behavior["scale"] = new XMOT.interaction.behaviors.Scaler(
+                this.globalID("scaleSensor"), [scalehandle], this.root, true);
 
-    /**
-     *  @this {XMOT.interaction.widgets.UniformScaler}
-     *  @private
-     */
-    _activateHandles: function()
-    {
-        XMOT.util.shader(this.element("scale"),
-                         this.element("s_scale_highlight"));
-    },
+            // setup listeners
+            this.behavior["scale"].addListener("dragstart", this.callback("_activateHandles"));
+            this.behavior["scale"].addListener("dragend", this.callback("_deactivateHandles"));
+        },
 
-    /**
-     *  @this {XMOT.interaction.widgets.UniformScaler}
-     *  @private
-     */
-    _deactivateHandles: function()
-    {
-        XMOT.util.shader(this.element("scale"),
-                         this.element("s_scale"));
-    }
-});
+        // --------------------------------
+        // -- Behavior --
+        // --------------------------------
+
+        /**
+         *  @this {XMOT.interaction.widgets.UniformScaler}
+         *  @private
+         */
+        _activateHandles: function()
+        {
+            XMOT.util.shader(this.element("scale"),
+                             this.element("s_scale_highlight"));
+        },
+
+        /**
+         *  @this {XMOT.interaction.widgets.UniformScaler}
+         *  @private
+         */
+        _deactivateHandles: function()
+        {
+            XMOT.util.shader(this.element("scale"),
+                             this.element("s_scale"));
+        }
+    });
+}());

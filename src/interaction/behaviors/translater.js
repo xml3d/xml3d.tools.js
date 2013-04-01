@@ -1,79 +1,83 @@
+(function(){
 
-XMOT.namespace("XMOT.interaction.behaviors");
+    "use strict";
 
-/** Translater is a plane sensor that maps the translation output of that sensor
- *  directly to the given group transform's translation attribute.
- *
- *  @extends XMOT.interaction.behaviors.PlaneSensor
- */
-XMOT.interaction.behaviors.Translater = new XMOT.Class(
-        XMOT.interaction.behaviors.PlaneSensor,
-{
-    /** Constructor of Translater
+    XMOT.namespace("XMOT.interaction.behaviors");
+
+    /** Translater is a plane sensor that maps the translation output of that sensor
+     *  directly to the given group transform's translation attribute.
      *
-     *  @this {XMOT.interaction.behaviors.Translater}
-     *
-     *  @param {string} id the id of this sensor
-     *  @param {Array.<window.Element>} pickGrps the group this sensor should look for
-     *  @param {XMOT.Transformable} targetTransformable the movable this sensor will modify.
-     *                 If not given, a Movable will be created from the first element of pickGrps
-     *  @param {XML3DVec3|!window.Element} [planeOrient] the group or vector the sensor takes to decide where the plane
-     *             normal should reside. If it's a group the local z=0 plane of the given group is taken.
-     *             If a vector is given, the vector directly is taken. If not specified a plane
-     *             parallel to the user's view is taken.
-     *  @param {XMOT.util.EventDispatcher=} eventDispatcher the object used to register events
+     *  @extends XMOT.interaction.behaviors.PlaneSensor
      */
-    initialize: function(id, pickGrps, targetTransformable, planeOrient, eventDispatcher)
+    XMOT.interaction.behaviors.Translater = new XMOT.Class(
+            XMOT.interaction.behaviors.PlaneSensor,
     {
+        /** Constructor of Translater
+         *
+         *  @this {XMOT.interaction.behaviors.Translater}
+         *
+         *  @param {string} id the id of this sensor
+         *  @param {Array.<window.Element>} pickGrps the group this sensor should look for
+         *  @param {XMOT.Transformable} targetTransformable the movable this sensor will modify.
+         *                 If not given, a Movable will be created from the first element of pickGrps
+         *  @param {XML3DVec3|!window.Element} [planeOrient] the group or vector the sensor takes to decide where the plane
+         *             normal should reside. If it's a group the local z=0 plane of the given group is taken.
+         *             If a vector is given, the vector directly is taken. If not specified a plane
+         *             parallel to the user's view is taken.
+         *  @param {XMOT.util.EventDispatcher=} eventDispatcher the object used to register events
+         */
+        initialize: function(id, pickGrps, targetTransformable, planeOrient, eventDispatcher)
+        {
 
-        if(!targetTransformable)
-            targetTransformable = XMOT.ClientMotionFactory.createTransformable(pickGrps[0]);
+            if(!targetTransformable)
+                targetTransformable = XMOT.ClientMotionFactory.createTransformable(pickGrps[0]);
 
-        this.targetTransformable = targetTransformable;
+            this.targetTransformable = targetTransformable;
 
-        // take local matrix as initial offset
-        // we manipulate the transform node of the group, so take the local one
-        this._translationOffset = new window.XML3DVec3(this.targetTransformable.transform.translation);
+            // take local matrix as initial offset
+            // we manipulate the transform node of the group, so take the local one
+            this._translationOffset = new window.XML3DVec3(this.targetTransformable.transform.translation);
 
-        this.callSuper(id, pickGrps, planeOrient, undefined, eventDispatcher);
+            this.callSuper(id, pickGrps, planeOrient, undefined, eventDispatcher);
 
-        this.addListener("dragstart", this.callback("_onTransPlaneDragStart"));
-        this.addListener("translchanged", this.callback("_onTranslChanged"));
-    },
+            this.addListener("dragstart", this.callback("_onTransPlaneDragStart"));
+            this.addListener("translchanged", this.callback("_onTranslChanged"));
+        },
 
 
-    // ========================================================================
-    // --- Private ---
-    // ========================================================================
+        // ========================================================================
+        // --- Private ---
+        // ========================================================================
 
-    /**
-     *  @this {XMOT.interaction.behaviors.Translater}
-     *  @private
-     *
-     *  @param {XMOT.interaction.behaviors.Translater} sensor
-     */
-    _onTransPlaneDragStart: function(sensor)
-    {
-        this._translationOffset.set(this.targetTransformable.transform.translation);
-    },
+        /**
+         *  @this {XMOT.interaction.behaviors.Translater}
+         *  @private
+         *
+         *  @param {XMOT.interaction.behaviors.Translater} sensor
+         */
+        _onTransPlaneDragStart: function(sensor)
+        {
+            this._translationOffset.set(this.targetTransformable.transform.translation);
+        },
 
-    /**
-     *  @this {XMOT.interaction.behaviors.Translater}
-     *  @private
-     *
-     *  @param {XMOT.interaction.behaviors.Translater} sensor
-     */
-    _onTranslChanged: function(sensor)
-    {
-        var localTranslation = this._transformPtToTargetLocalSpace(this.translation);
+        /**
+         *  @this {XMOT.interaction.behaviors.Translater}
+         *  @private
+         *
+         *  @param {XMOT.interaction.behaviors.Translater} sensor
+         */
+        _onTranslChanged: function(sensor)
+        {
+            var localTranslation = this._transformPtToTargetLocalSpace(this.translation);
 
-        var finalTransl = this._translationOffset.add(localTranslation);
-        this.targetTransformable.setPosition(finalTransl);
-    },
+            var finalTransl = this._translationOffset.add(localTranslation);
+            this.targetTransformable.setPosition(finalTransl);
+        },
 
-    _transformPtToTargetLocalSpace: function(vec)
-    {
-        var invParentMatrix = XMOT.util.getParentWorldMatrix(this.targetTransformable.object).inverse();
-        return invParentMatrix.multiplyPt(vec, 1);
-    }
-});
+        _transformPtToTargetLocalSpace: function(vec)
+        {
+            var invParentMatrix = XMOT.util.getParentWorldMatrix(this.targetTransformable.object).inverse();
+            return invParentMatrix.multiplyPt(vec, 1);
+        }
+    });
+}());

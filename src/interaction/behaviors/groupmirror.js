@@ -1,8 +1,8 @@
-XMOT.namespace("XMOT.interaction.behaviors");
-
 (function(){
 
     "use strict";
+
+    XMOT.namespace("XMOT.interaction.behaviors");
 
     /** A GroupMirror mirrors a given group in an own overlay.
      *  It creates the overlay and sets up a MirroredWidgetTarget.
