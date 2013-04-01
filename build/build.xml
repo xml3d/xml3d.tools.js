@@ -74,8 +74,10 @@
         <file name="interaction/behaviors/ringmenu.js" />
         <file name="interaction/behaviors/mirroredwidgettarget.js" />
         <file name="interaction/behaviors/mirroredview.js" />
+        <file name="interaction/behaviors/groupmirror.js" />
 
         <file name="interaction/widgets/widget.js" />
+        <file name="interaction/widgets/overlaywidget.js" />
         <file name="interaction/widgets/ringmenu.js" />
         <file name="interaction/widgets/singleaxisrotator.js" />
         <file name="interaction/widgets/translatebox.js" />
@@ -84,6 +86,7 @@
         <file name="interaction/widgets/rotatorbox.js" />
         <file name="interaction/widgets/translategizmo.js" />
         <file name="interaction/widgets/rotategizmo.js" />
+        <file name="interaction/widgets/translaterotategizmo.js" />
     </filelist>
 
     <filelist dir="../externs" id="externs">

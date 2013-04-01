@@ -2,46 +2,16 @@
 XMOT.namespace("XMOT.interaction.widgets");
 
 /**
- * TODO
+ *  A TranslateGizmo attaches three arrow-handles to the target and
+ *  through that enables constraint translation either along a single
+ *  axis or a plane.
  *
- * @extends XMOT.interaction.widgets.Widget
+ *  @extends XMOT.interaction.widgets.OverlayWidget
  */
 XMOT.interaction.widgets.TranslateGizmo = new XMOT.Class(
-    XMOT.interaction.widgets.Widget, {
+    XMOT.interaction.widgets.OverlayWidget, {
 
     GeometryType: XMOT.interaction.geometry.TranslateGizmo,
-
-    /** Unlike the other widgets we have to use an xml3d overlay.
-     *  Thus, in the constructor at first the overlay will be created and there the target
-     *  will be mirrored in the overlay. On that mirrored node the widget's constructor will
-     *  be invoked.
-     *
-     *  @this {XMOT.interaction.widgets.TranslateGizmo}
-     *  @param {string} _id
-     *  @param {XMOT.Transformable} _target
-     */
-    initialize: function(_id, _target)
-    {
-        if(_target.object.parentNode.tagName !== "group")
-            throw new Error("XMOT.interaction.widgets.TranslateGizmo: target's parent node must be a group.");
-
-        this._realTarget = _target;
-
-        // overlay
-        var xml3dTarget = XMOT.util.getXml3dRoot(_target.object);
-        this._xml3dOverlay = new XMOT.XML3DOverlay(xml3dTarget);
-
-        // mirror the target node
-        var mirroredTargetId = _id + "_mirroredTarget";
-        this._mirroredTarget = new XMOT.interaction.behaviors.MirroredWidgetTarget(
-            mirroredTargetId, this._xml3dOverlay, _target);
-        this._mirroredTarget.attach();
-
-        // setup widget using mirrored node
-        var mirroredTargetXfmable =
-            XMOT.ClientMotionFactory.createTransformable(this._mirroredTarget.getNode());
-        this.callSuper(_id, mirroredTargetXfmable);
-    },
 
     /**
      *  @this {XMOT.interaction.widgets.TranslateGizmo}
@@ -54,6 +24,10 @@ XMOT.interaction.widgets.TranslateGizmo = new XMOT.Class(
         this._setup2DTranslaters();
     },
 
+    /**
+     *  @this {XMOT.interaction.widgets.TranslateGizmo}
+     *  @private
+     */
     _setup1DTranslaters: function()
     {
         var xAxisConstraintFn = function(currentTranslation, newTranslation) {
@@ -82,6 +56,10 @@ XMOT.interaction.widgets.TranslateGizmo = new XMOT.Class(
             "zaxis", zAxisConstraintFn, new XML3DVec3(1,0,0));
     },
 
+    /**
+     *  @this {XMOT.interaction.widgets.TranslateGizmo}
+     *  @private
+     */
     _setup2DTranslaters: function()
     {
         this.behavior["xyaxis"] = this._create2DTranslater(
@@ -96,6 +74,9 @@ XMOT.interaction.widgets.TranslateGizmo = new XMOT.Class(
      *  An event dispatcher will be configured for mousedown event to allow
      *  only left button in combination if no ctrl key being pressed.
      *
+     *  @this {XMOT.interaction.widgets.TranslateGizmo}
+     *  @private
+     *
      *  @param {string} id should be the axisname, e.g. xaxis and correspond to the geometry name
      *  @param {function(window.XML3DVec3,window.XML3DVec3)} constraintFn
      *  @param {XML3DVec3|!window.Element=} planeOrient the plane orientation of the translater
@@ -108,21 +89,21 @@ XMOT.interaction.widgets.TranslateGizmo = new XMOT.Class(
         });
 
         var constraint = this._createTranslationConstraint(constraintFn);
-
-        var graphRootXfmable = XMOT.ClientMotionFactory.createTransformable(
-            this.geometry.getRoot(), constraint
-        );
+        var behaviorTarget = this.createBehaviorTarget(constraint);
 
         var pickGrps = [this.geometry.getGeo(id)];
 
         return new XMOT.interaction.behaviors.Translater(
-            this.globalID(id), pickGrps, graphRootXfmable,
+            this.globalID(id), pickGrps, behaviorTarget,
             planeOrient, eventDispatcher);
     },
 
     /** Sets up a XMOT.interaction.behaviors.Translater for 2D translation.
      *  An event dispatcher will be configured for mousedown event to allow
      *  only left button in combination if the ctrl key being pressed.
+     *
+     *  @this {XMOT.interaction.widgets.TranslateGizmo}
+     *  @private
      *
      *  @param {string} id
      *  @param {string} pickGrpId id of the geometry item for picking
@@ -136,20 +117,20 @@ XMOT.interaction.widgets.TranslateGizmo = new XMOT.Class(
         });
 
         var constraint = this._createTranslationConstraint(function(){});
-
-        var graphRootXfmable = XMOT.ClientMotionFactory.createTransformable(
-            this.geometry.getRoot(), constraint
-        );
+        var behaviorTarget = this.createBehaviorTarget(constraint);
 
         var pickGrps = [this.geometry.getGeo(pickGrpId)];
 
         return new XMOT.interaction.behaviors.Translater(
-            this.globalID(id), pickGrps, graphRootXfmable,
+            this.globalID(id), pickGrps, behaviorTarget,
             planeOrient, eventDispatcher);
     },
 
     /** Creates a translation constraint, where the given constraint function is applied
      *  and afterwards updates the real target's translation with the new translation.
+     *
+     *  @this {XMOT.interaction.widgets.TranslateGizmo}
+     *  @private
      *
      *  @param {function(window.XML3DVec3,window.XML3DVec3)} constrainTranslationFunction
      *  @return {XMOT.Constraint}
@@ -159,27 +140,18 @@ XMOT.interaction.widgets.TranslateGizmo = new XMOT.Class(
      */
     _createTranslationConstraint: function(constrainTranslationFunction) {
 
-        var target = this._realTarget;
+        function constrainTranslation(newTranslation, opts)
+        {
+            if(!opts.transformable)
+                throw new Error("Constraint: no transformable given.");
 
-        return {
-            constrainRotation: function(newRotation, opts){
-                return true;
-            },
-            constrainScaling: function(newScale, opts){
-                return true;
-            },
+            var currentTranslation = opts.transformable.getPosition();
 
-            constrainTranslation: function(newTranslation, opts) {
-                if(!opts.transformable)
-                    throw new Error("Constraint: no transformable given.");
+            constrainTranslationFunction(currentTranslation, newTranslation);
 
-                var currentTranslation = opts.transformable.getPosition();
-
-                constrainTranslationFunction(currentTranslation, newTranslation);
-                target.setPosition(newTranslation);
-
-                return true;
-            }
+            return true;
         };
+
+        return this.createReflectingConstraint({constrainTranslation: constrainTranslation});
     }
 });
