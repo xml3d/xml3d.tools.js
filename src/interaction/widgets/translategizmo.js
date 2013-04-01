@@ -89,15 +89,12 @@ XMOT.interaction.widgets.TranslateGizmo = new XMOT.Class(
         });
 
         var constraint = this._createTranslationConstraint(constraintFn);
-
-        var graphRootXfmable = XMOT.ClientMotionFactory.createTransformable(
-            this.geometry.getRoot(), constraint
-        );
+        var behaviorTarget = this.createBehaviorTarget(constraint);
 
         var pickGrps = [this.geometry.getGeo(id)];
 
         return new XMOT.interaction.behaviors.Translater(
-            this.globalID(id), pickGrps, graphRootXfmable,
+            this.globalID(id), pickGrps, behaviorTarget,
             planeOrient, eventDispatcher);
     },
 
@@ -120,15 +117,12 @@ XMOT.interaction.widgets.TranslateGizmo = new XMOT.Class(
         });
 
         var constraint = this._createTranslationConstraint(function(){});
-
-        var graphRootXfmable = XMOT.ClientMotionFactory.createTransformable(
-            this.geometry.getRoot(), constraint
-        );
+        var behaviorTarget = this.createBehaviorTarget(constraint);
 
         var pickGrps = [this.geometry.getGeo(pickGrpId)];
 
         return new XMOT.interaction.behaviors.Translater(
-            this.globalID(id), pickGrps, graphRootXfmable,
+            this.globalID(id), pickGrps, behaviorTarget,
             planeOrient, eventDispatcher);
     },
 
@@ -146,27 +140,18 @@ XMOT.interaction.widgets.TranslateGizmo = new XMOT.Class(
      */
     _createTranslationConstraint: function(constrainTranslationFunction) {
 
-        var target = this.mirror().target();
+        function constrainTranslation(newTranslation, opts)
+        {
+            if(!opts.transformable)
+                throw new Error("Constraint: no transformable given.");
 
-        return {
-            constrainRotation: function(newRotation, opts){
-                return true;
-            },
-            constrainScaling: function(newScale, opts){
-                return true;
-            },
+            var currentTranslation = opts.transformable.getPosition();
 
-            constrainTranslation: function(newTranslation, opts) {
-                if(!opts.transformable)
-                    throw new Error("Constraint: no transformable given.");
+            constrainTranslationFunction(currentTranslation, newTranslation);
 
-                var currentTranslation = opts.transformable.getPosition();
-
-                constrainTranslationFunction(currentTranslation, newTranslation);
-                target.setPosition(newTranslation);
-
-                return true;
-            }
+            return true;
         };
+
+        return this.createReflectingConstraint({constrainTranslation: constrainTranslation});
     }
 });
