@@ -25,9 +25,9 @@ XMOT.interaction.geometry.TranslateGizmo = new XMOT.Class(XMOT.interaction.geome
      */
     onCreateDefsElements: function()
     {
-        this._createAxisDefsElements("xAxis", "1 0.1 0.1", "1 0 0", "0 1 0");
-        this._createAxisDefsElements("yAxis", "0.1 1 0.1", "0 1 0", "1 0 0");
-        this._createAxisDefsElements("zAxis", "0.1 0.1 1", "0 0 1", "0 0 1");
+        this._createAxisDefsElements("xAxis", "1 0 0", "0 1 0 1.57", "0 1 0");
+        this._createAxisDefsElements("yAxis", "0 1 0", "1 0 0 -1.57", "1 0 0");
+        this._createAxisDefsElements("zAxis", "0 0 1", "0 0 1 0", "0 0 1");
     },
 
     /**
@@ -55,11 +55,11 @@ XMOT.interaction.geometry.TranslateGizmo = new XMOT.Class(XMOT.interaction.geome
     {
     },
 
-    _createAxisDefsElements: function(id, scale, translation, color)
+    _createAxisDefsElements: function(id, translation, rotation, color)
     {
         this.geo.addTransforms("t_" + id, {
-            scale: scale,
-            translation: translation
+            translation: translation,
+            rotation: rotation
         });
 
         this.geo.addShaders("s_" + id, {
@@ -74,7 +74,7 @@ XMOT.interaction.geometry.TranslateGizmo = new XMOT.Class(XMOT.interaction.geome
             transform: "#" + this.geo.globalID("t_" + id),
             shader: "#" + this.geo.globalID("s_" + id),
             children: [
-                XMOT.creation.box(this.geo.xml3d)
+                XMOT.creation.arrow(this.geo.xml3d)
             ]
         });
     }
