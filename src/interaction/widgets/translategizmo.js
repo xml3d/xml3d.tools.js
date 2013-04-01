@@ -2,9 +2,11 @@
 XMOT.namespace("XMOT.interaction.widgets");
 
 /**
- * TODO
+ *  A TranslateGizmo attaches three arrow-handles to the target and
+ *  through that enables constraint translation either along a single
+ *  axis or a plane.
  *
- * @extends XMOT.interaction.widgets.Widget
+ *  @extends XMOT.interaction.widgets.Widget
  */
 XMOT.interaction.widgets.TranslateGizmo = new XMOT.Class(
     XMOT.interaction.widgets.Widget, {
@@ -18,7 +20,7 @@ XMOT.interaction.widgets.TranslateGizmo = new XMOT.Class(
      *
      *  @this {XMOT.interaction.widgets.TranslateGizmo}
      *  @param {string} _id
-     *  @param {XMOT.Transformable} _target
+     *  @param {Object} options
      */
     initialize: function(_id, _target)
     {
@@ -40,6 +42,10 @@ XMOT.interaction.widgets.TranslateGizmo = new XMOT.Class(
         this._setup2DTranslaters();
     },
 
+    /**
+     *  @this {XMOT.interaction.widgets.TranslateGizmo}
+     *  @private
+     */
     _setup1DTranslaters: function()
     {
         var xAxisConstraintFn = function(currentTranslation, newTranslation) {
@@ -68,6 +74,10 @@ XMOT.interaction.widgets.TranslateGizmo = new XMOT.Class(
             "zaxis", zAxisConstraintFn, new XML3DVec3(1,0,0));
     },
 
+    /**
+     *  @this {XMOT.interaction.widgets.TranslateGizmo}
+     *  @private
+     */
     _setup2DTranslaters: function()
     {
         this.behavior["xyaxis"] = this._create2DTranslater(
@@ -81,6 +91,9 @@ XMOT.interaction.widgets.TranslateGizmo = new XMOT.Class(
     /** Sets up a XMOT.interaction.behaviors.Translater for 1D translation.
      *  An event dispatcher will be configured for mousedown event to allow
      *  only left button in combination if no ctrl key being pressed.
+     *
+     *  @this {XMOT.interaction.widgets.TranslateGizmo}
+     *  @private
      *
      *  @param {string} id should be the axisname, e.g. xaxis and correspond to the geometry name
      *  @param {function(window.XML3DVec3,window.XML3DVec3)} constraintFn
@@ -110,6 +123,9 @@ XMOT.interaction.widgets.TranslateGizmo = new XMOT.Class(
      *  An event dispatcher will be configured for mousedown event to allow
      *  only left button in combination if the ctrl key being pressed.
      *
+     *  @this {XMOT.interaction.widgets.TranslateGizmo}
+     *  @private
+     *
      *  @param {string} id
      *  @param {string} pickGrpId id of the geometry item for picking
      *  @param {XML3DVec3|!window.Element=} planeOrient the plane orientation of the translater
@@ -136,6 +152,9 @@ XMOT.interaction.widgets.TranslateGizmo = new XMOT.Class(
 
     /** Creates a translation constraint, where the given constraint function is applied
      *  and afterwards updates the real target's translation with the new translation.
+     *
+     *  @this {XMOT.interaction.widgets.TranslateGizmo}
+     *  @private
      *
      *  @param {function(window.XML3DVec3,window.XML3DVec3)} constrainTranslationFunction
      *  @return {XMOT.Constraint}
