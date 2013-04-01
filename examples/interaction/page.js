@@ -29,14 +29,20 @@ var EXAMPLE_LIST = [
         href: "tests/test_rotatorbox.xhtml",
         info: "A widget for performing constrained rotation and translation."
     },
+
+    // --- Simple Widgets ---
     {
-        cat: "complexwidgets",
+        cat: "simplewidgets",
         name: "TranslateGizmo",
         href: "tests/test_translategizmo.xhtml",
         info: "A widget for performing constrained translation."
     },
-
-    // --- Simple Widgets ---
+    {
+        cat: "simplewidgets",
+        name: "RotateGizmo",
+        href: "tests/test_rotategizmo.xhtml",
+        info: "A widget for performing constrained rotation."
+    },
     {
         cat: "simplewidgets",
         name: "TranslateBox",
