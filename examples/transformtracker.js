@@ -41,7 +41,7 @@ function toggleXfmAttrOfGrpAll()
     xfmAttrPresent = !xfmAttrPresent;
 }
 
-function onXfmChange(evt, targetNode)
+function onXfmChange(targetNode, evt)
 {
     $("#xfmchanged").text("transform changed of target: " + targetNode.id);
 
