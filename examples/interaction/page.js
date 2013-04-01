@@ -13,6 +13,12 @@ var EXAMPLE_LIST = [
     // --- Complex Widgets ---
     {
         cat: "complexwidgets",
+        name: "TranslateRotateGizmo",
+        href: "tests/test_translaterotategizmo.xhtml",
+        info: "A widget for performing constrained rotation and translation."
+    },
+    {
+        cat: "complexwidgets",
         name: "RingMenu",
         href: "tests/test_ringmenu.xhtml",
         info: "A widget for selecting objects placed on a ring."
