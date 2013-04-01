@@ -47,6 +47,12 @@ XMOT.interaction.behaviors.Rotater = new XMOT.Class(
         this.addListener("translchanged", this.callback("_onRotaterTranslChanged"));
     },
 
+    /**
+     *  @this {XMOT.interaction.behaviors.Rotater}
+     *
+     *  @param {string=} axis. Should be "x", "y" or "z"
+     *  @return {string} current/new restriction
+     */
     axisRestriction: function(axis)
     {
         if(XMOT.util.isDefined(axis))
@@ -57,6 +63,9 @@ XMOT.interaction.behaviors.Rotater = new XMOT.Class(
         return this._axisRestriction;
     },
 
+    /**
+     *  @this {XMOT.interaction.behaviors.Rotater}
+     */
     clearAxisRestriction: function()
     {
         this._axisRestriction = undefined;
