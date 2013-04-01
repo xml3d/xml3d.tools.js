@@ -27,14 +27,19 @@ XMOT.interaction.widgets.TranslateGizmo = new XMOT.Class(
 
         this._realTarget = _target;
 
+        // overlay
         var xml3dTarget = XMOT.util.getXml3dRoot(_target.object);
-
         this._xml3dOverlay = new XMOT.XML3DOverlay(xml3dTarget);
 
-        var mirroredTarget = this._createMirroredTarget(_id, _target);
+        // mirror the target node
+        var mirroredTargetId = _id + "_mirroredTarget";
+        this._mirroredTarget = new XMOT.interaction.behaviors.MirroredWidgetTarget(
+            mirroredTargetId, this._xml3dOverlay, _target);
+        this._mirroredTarget.attach();
 
+        // setup widget using mirrored node
         var mirroredTargetXfmable =
-            XMOT.ClientMotionFactory.createTransformable(mirroredTarget);
+            XMOT.ClientMotionFactory.createTransformable(this._mirroredTarget.getNode());
         this.callSuper(_id, mirroredTargetXfmable);
     },
 
@@ -47,86 +52,6 @@ XMOT.interaction.widgets.TranslateGizmo = new XMOT.Class(
     {
         this._setup1DTranslaters();
         this._setup2DTranslaters();
-    },
-
-    /** Will mirror the transformations of the target node in the
-     *  xml3d overlay and append it to the overlay.
-     *
-     *  The following tree is created:
-     *  o target's grandparent
-     *      o target's parent
-     *          o target
-     *
-     *  This is needed because:
-     *  1) the widget needs access to the target node itself, so it's replicated.
-     *  2) the widget will modify the target's parent node, so the exact parent node transformation
-     *      has to be replicated.
-     *  3) because of the above the grandparent node will hold the world transformation of the
-     *      target's grandparent node.
-     *
-     *  @this {XMOT.interaction.widgets.TranslateGizmo}
-     *  @return {Element} the mirrored target
-     */
-    _createMirroredTarget: function(id, target)
-    {
-        var defsOverlay = XMOT.util.getOrCreateDefs(this._xml3dOverlay.xml3d);
-
-        var targetNode = target.object;
-
-        // target node
-        var mirroredTarget = this._createTransformedGroup(
-            "t_mirroredTarget_" + id, targetNode.getLocalMatrix());
-
-        // target parent
-        var targetParent = targetNode.parentNode;
-        var parentMatrix = new XML3DMatrix();
-        if(targetParent && targetParent.getLocalMatrix)
-            parentMatrix = targetParent.getLocalMatrix();
-
-        var mirroredTargetParent = this._createTransformedGroup("t_mirroredTargetParent_" + id,
-            parentMatrix, mirroredTarget);
-
-        // target's grandparent
-        var targetGrandparent = targetParent ? targetParent.parentNode : null;
-        var grandparentMatrix = new XML3DMatrix();
-        if(targetGrandparent && targetGrandparent.getWorldMatrix)
-            grandparentMatrix = targetGrandparent.getWorldMatrix();
-
-        var mirroredTargetGrandparent = this._createTransformedGroup(
-            "t_mirroredTargetParentsParent_" + id, grandparentMatrix, mirroredTargetParent);
-
-        this._xml3dOverlay.xml3d.appendChild(mirroredTargetGrandparent);
-
-        return mirroredTarget;
-    },
-
-    /** Create a group that is transformed by the given matrix.
-     *
-     *  @this {XMOT.interaction.widgets.TranslateGizmo}
-     *  @private
-     *
-     *  @param {string} transformId
-     *  @param {window.XML3DMatrix} xfmMatrix
-     *  @param {window.Element=} child
-     */
-    _createTransformedGroup: function(transformId, xfmMatrix, child)
-    {
-        var defsOverlay = XMOT.util.getOrCreateDefs(this._xml3dOverlay.xml3d);
-
-        defsOverlay.appendChild(XMOT.creation.element("transform", {
-            id: transformId,
-            translation: xfmMatrix.translation().str(),
-            rotation: xfmMatrix.rotation().str()
-        }));
-
-        var group = XMOT.creation.element("group", {
-            transform: "#" + transformId
-        });
-
-        if(child)
-            group.appendChild(child);
-
-        return group;
     },
 
     _setup1DTranslaters: function()
