@@ -126,6 +126,18 @@ XMOT.interaction.widgets.Widget = new XMOT.Class(
         this.root.setConstraint(newConstraint);
     },
 
+    /** This is the target that should be used for the behaviors.
+     *  It will be a transformable pointing to the widget's root node, i.e.
+     *  the target's parent node.
+     *
+     *  @this {XMOT.interaction.widgets.Widget}
+     *  @return {XMOT.Transformable}
+     */
+    createBehaviorTarget: function(constraint)
+    {
+        return XMOT.ClientMotionFactory.createTransformable(this.root.object, constraint);
+    },
+
     // --- Methods to be overriden ---
 
     /** Called after defs and groups are attached and the behavior can be set up. This
