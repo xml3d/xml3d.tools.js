@@ -53,6 +53,7 @@ XMOT.ViewTracker = new XMOT.Class({
             this._xfmObs.xfmChanged = this.callback("_onXfmChanged");
             this._xfmObs.attach();
 
+            this._onXfmChanged();
             this._attached = true;
         }
     },
