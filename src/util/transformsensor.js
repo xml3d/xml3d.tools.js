@@ -60,6 +60,7 @@ XMOT.TransformSensor = new XMOT.Class(
                 var tar = grps[i];
                 this._observers[tar] = new XMOT.TransformTracker(tar);
                 this._observers[tar].xfmChanged = this.callback("_xfmChanged");
+                this._observers[tar].attach();
             }
 
             this._isAttached = true;

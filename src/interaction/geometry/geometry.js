@@ -25,6 +25,7 @@ XMOT.interaction.geometry.Geometry = new XMOT.Class({
 
         this._targetTracker = new XMOT.TransformTracker(widget.target.object);
         this._targetTracker.xfmChanged = this.callback("onTargetXfmChanged");
+        this._targetTracker.attach();
     },
 
     /** Shortcut to graph root
