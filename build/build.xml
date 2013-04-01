@@ -74,6 +74,7 @@
         <file name="interaction/behaviors/ringmenu.js" />
         <file name="interaction/behaviors/mirroredwidgettarget.js" />
         <file name="interaction/behaviors/mirroredview.js" />
+        <file name="interaction/behaviors/groupmirror.js" />
 
         <file name="interaction/widgets/widget.js" />
         <file name="interaction/widgets/ringmenu.js" />
