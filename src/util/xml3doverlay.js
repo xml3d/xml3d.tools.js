@@ -2,7 +2,11 @@
 
     "use strict";
 
-    /** This class will create an xml3d element on top of the given one */
+    /** This class will create an xml3d element on top of the given one.
+     *  It will forward any mouse events that don't hit an xml3d element to the target
+     *  element.
+     *  Also it will mirror and track the target element's view.
+     */
     XMOT.XML3DOverlay = new XMOT.Class({
 
         initialize: function(targetXML3DElement)
@@ -10,17 +14,22 @@
             this.xml3dTarget = targetXML3DElement;
             this.xml3d = this._createXML3DElement();
 
+            this._mirroredView = new XMOT.interaction.behaviors.MirroredView(
+                targetXML3DElement, this.xml3d);
+
             this.attach();
         },
 
         attach: function()
         {
             document.body.appendChild(this.xml3d);
+            this._mirroredView.attach();
             this._registerEventListeners(true);
         },
 
         detach: function()
         {
+            this._mirroredView.detach();
             this._registerEventListeners(false);
             document.body.removeChild(this.xml3d);
         },
