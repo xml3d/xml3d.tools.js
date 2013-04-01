@@ -18,7 +18,8 @@
     <div id="content">
       <h1>TranslateGizmo Test</h1>
 
-      <xml3d id="xml3dMain" style="width:640px;height:480px;background-color: #aaaaff;">
+      <xml3d id="xml3dMain" style="width:640px;height:480px;background-color: #aaaaff;"
+        activeView="#v_camera">
         <defs>
           <data id="d_rectangle">
                 <int id="indices" name="index">0 1 2 1 2 3</int>
@@ -37,6 +38,10 @@
           <group id="g_mainTarget" transform="#t_mainTarget" shader="#s_rectangle">
             <mesh type="triangles" src="#d_rectangle" />
           </group>
+        </group>
+
+        <group id="g_camera">
+          <view position="0 0 10" id="v_camera" />
         </group>
       </xml3d>
   </div>
