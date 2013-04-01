@@ -73,6 +73,12 @@ XMOT.ViewTracker = new XMOT.Class({
         }
     },
 
+    /** @this {XMOT.ViewTracker} */
+    getCurrentView: function()
+    {
+        return this._currentViewElement;
+    },
+
     /**
      *  @private
      *  @this {XMOT.ViewTracker}
