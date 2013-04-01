@@ -6,30 +6,12 @@ XMOT.namespace("XMOT.interaction.widgets");
  *  through that enables constraint translation either along a single
  *  axis or a plane.
  *
- *  @extends XMOT.interaction.widgets.Widget
+ *  @extends XMOT.interaction.widgets.OverlayWidget
  */
 XMOT.interaction.widgets.TranslateGizmo = new XMOT.Class(
-    XMOT.interaction.widgets.Widget, {
+    XMOT.interaction.widgets.OverlayWidget, {
 
     GeometryType: XMOT.interaction.geometry.TranslateGizmo,
-
-    /** Unlike the other widgets we have to use an xml3d overlay.
-     *  Thus, in the constructor at first the overlay will be created and there the target
-     *  will be mirrored in the overlay. On that mirrored node the widget's constructor will
-     *  be invoked.
-     *
-     *  @this {XMOT.interaction.widgets.TranslateGizmo}
-     *  @param {string} _id
-     *  @param {Object} options
-     */
-    initialize: function(_id, _target)
-    {
-        if(_target.object.parentNode.tagName !== "group")
-            throw new Error("XMOT.interaction.widgets.TranslateGizmo: target's parent node must be a group.");
-
-        this._mirror = new XMOT.interaction.behaviors.GroupMirror(_id, _target);
-        this.callSuper(_id, this._mirror.mirroredTarget());
-    },
 
     /**
      *  @this {XMOT.interaction.widgets.TranslateGizmo}
@@ -164,7 +146,7 @@ XMOT.interaction.widgets.TranslateGizmo = new XMOT.Class(
      */
     _createTranslationConstraint: function(constrainTranslationFunction) {
 
-        var target = this._mirror.target();
+        var target = this.mirror().target();
 
         return {
             constrainRotation: function(newRotation, opts){
