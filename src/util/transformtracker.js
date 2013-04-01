@@ -65,17 +65,14 @@
             if(node.tagName == "group")
             {
                 node.addEventListener("DOMAttrModified",
-                    XMOT.util.wrapCallback(this, _onGrpAttrModified), false);
+                    XMOT.util.wrapCallback(this, this._onGrpAttrModified), false);
 
-                var xfm = XMOT.util.transform(node);
-                if(xfm)
-                    xfm.addEventListener("DOMAttrModified",
-                        XMOT.util.wrapCallback(this, _onXfmAttrModified), false);
+                this._attachToTransformOfGrp(node);
             }
             else if(node.tagName == "view")
             {
                 node.addEventListener("DOMAttrModified",
-                    XMOT.util.wrapCallback(this, _onViewAttrModified), false);
+                    XMOT.util.wrapCallback(this, this._onViewAttrModified), false);
             }
 
             this.attach(node.parentNode);
@@ -104,17 +101,14 @@
             if(node.tagName == "group")
             {
                 node.removeEventListener("DOMAttrModified",
-                    XMOT.util.wrapCallback(this, _onGrpAttrModified), false);
+                    XMOT.util.wrapCallback(this, this._onGrpAttrModified), false);
 
-                var xfm = XMOT.util.transform(node);
-                if(xfm)
-                    node.removeEventListener("DOMAttrModified",
-                        XMOT.util.wrapCallback(this, _onXfmAttrModified), false);
+                this._detachFromTransformOfGrp(node);
             }
             else if(node.tagName == "view")
             {
                 node.removeEventListener("DOMAttrModified",
-                    XMOT.util.wrapCallback(this, _onViewAttrModified), false);
+                    XMOT.util.wrapCallback(this, this._onViewAttrModified), false);
             }
 
             this.detach(node.parentNode);
@@ -123,15 +117,26 @@
         }
     };
 
-    function _onGrpAttrModified(evt)
+    p._onGrpAttrModified = function(evt)
     {
         if(evt.attrName !== "transform")
             return;
 
+        switch(evt.attrChange)
+        {
+        case 2: // addition
+            this._attachToTransformOfGrp(evt.target);
+            break;
+
+        case 3: // removal
+            this._detachFromTransformOfGrp(evt.target);
+            break;
+        }
+
         this.xfmChanged(this.targetNode, evt);
     };
 
-    function _onViewAttrModified(evt)
+    p._onViewAttrModified = function(evt)
     {
         if(evt.attrName !== "position"
         && evt.attrName !== "orientation")
@@ -140,9 +145,29 @@
         this.xfmChanged(this.targetNode, evt);
     };
 
-    function _onXfmAttrModified(evt)
+    p._onXfmAttrModified = function(evt)
     {
         this.xfmChanged(this.targetNode, evt);
+    };
+
+    p._attachToTransformOfGrp = function(grp)
+    {
+        var xfm = XMOT.util.transform(grp);
+        if(!xfm)
+            return;
+
+        xfm.addEventListener("DOMAttrModified",
+            XMOT.util.wrapCallback(this, this._onXfmAttrModified), false);
+    };
+
+    p._detachFromTransformOfGrp = function(grp)
+    {
+        var xfm = XMOT.util.transform(grp);
+        if(!xfm)
+            return;
+
+        xfm.removeEventListener("DOMAttrModified",
+            XMOT.util.wrapCallback(this, this._onXfmAttrModified), false);
     };
 
     // export
