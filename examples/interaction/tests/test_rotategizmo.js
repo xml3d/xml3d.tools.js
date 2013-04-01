@@ -8,7 +8,7 @@ function onLoad() {
     var targetGroup = $("#g_mainTarget")[0];
     var targetTransformable = XMOT.ClientMotionFactory.createTransformable(targetGroup);
 
-    gizmo = new XMOT.interaction.widgets.RotateGizmo("myGizmo", targetTransformable);
+    gizmo = new XMOT.interaction.widgets.RotateGizmo("myGizmo", {target:targetTransformable});
     gizmo.attach();
 
     var initialRotation = new XML3DRotation(new XML3DVec3(0, 0, 0), 0);
