@@ -6,30 +6,12 @@ XMOT.namespace("XMOT.interaction.widgets");
  *  rotation of the target can be controlled, constrained to single axes the
  *  rectangle present.
  *
- * @extends XMOT.interaction.widgets.Widget
+ * @extends XMOT.interaction.widgets.OverlayWidget
  */
 XMOT.interaction.widgets.RotateGizmo = new XMOT.Class(
-    XMOT.interaction.widgets.Widget, {
+    XMOT.interaction.widgets.OverlayWidget, {
 
     GeometryType: XMOT.interaction.geometry.RotateGizmo,
-
-    /** Unlike the other widgets we have to use an xml3d overlay.
-     *  Thus, in the constructor at first the overlay will be created and there the target
-     *  will be mirrored in the overlay. On that mirrored node the widget's constructor will
-     *  be invoked.
-     *
-     *  @this {XMOT.interaction.widgets.RotateGizmo}
-     *  @param {string} _id
-     *  @param {XMOT.Transformable} _target
-     */
-    initialize: function(_id, _target)
-    {
-        if(_target.object.parentNode.tagName !== "group")
-            throw new Error("XMOT.interaction.widgets.RotateGizmo: target's parent node must be a group.");
-
-        this._mirror = new XMOT.interaction.behaviors.GroupMirror(_id, _target);
-        this.callSuper(_id, this._mirror.mirroredTarget());
-    },
 
     /**
      *  @this {XMOT.interaction.widgets.RotateGizmo}
@@ -83,7 +65,7 @@ XMOT.interaction.widgets.RotateGizmo = new XMOT.Class(
      */
     _createRotationConstraint: function() {
 
-        var target = this._mirror.target();
+        var target = this.mirror().target();
 
         return {
             constrainRotation: function(newRotation, opts){
