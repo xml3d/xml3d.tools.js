@@ -32,10 +32,10 @@
             <float3 name="diffuseColor">0.8 0.8 0.8</float3>
             <float name="ambientIntensity">1</float>
          </shader>
-          <transform id="t_mainTarget" translation="0 0 -10" />
+          <transform id="t_mainTargetParent" translation="0 0 -10" />
         </defs>
-        <group>
-          <group id="g_mainTarget" transform="#t_mainTarget" shader="#s_rectangle">
+        <group transform="#t_mainTargetParent">
+          <group id="g_mainTarget" shader="#s_rectangle">
             <mesh type="triangles" src="#d_rectangle" />
           </group>
         </group>
