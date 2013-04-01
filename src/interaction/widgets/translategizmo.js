@@ -25,22 +25,8 @@ XMOT.interaction.widgets.TranslateGizmo = new XMOT.Class(
         if(_target.object.parentNode.tagName !== "group")
             throw new Error("XMOT.interaction.widgets.TranslateGizmo: target's parent node must be a group.");
 
-        this._realTarget = _target;
-
-        // overlay
-        var xml3dTarget = XMOT.util.getXml3dRoot(_target.object);
-        this._xml3dOverlay = new XMOT.XML3DOverlay(xml3dTarget);
-
-        // mirror the target node
-        var mirroredTargetId = _id + "_mirroredTarget";
-        this._mirroredTarget = new XMOT.interaction.behaviors.MirroredWidgetTarget(
-            mirroredTargetId, this._xml3dOverlay, _target);
-        this._mirroredTarget.attach();
-
-        // setup widget using mirrored node
-        var mirroredTargetXfmable =
-            XMOT.ClientMotionFactory.createTransformable(this._mirroredTarget.getNode());
-        this.callSuper(_id, mirroredTargetXfmable);
+        this._mirror = new XMOT.interaction.behaviors.GroupMirror(_id, _target);
+        this.callSuper(_id, this._mirror.mirroredTarget());
     },
 
     /**
@@ -159,7 +145,7 @@ XMOT.interaction.widgets.TranslateGizmo = new XMOT.Class(
      */
     _createTranslationConstraint: function(constrainTranslationFunction) {
 
-        var target = this._realTarget;
+        var target = this._mirror.target();
 
         return {
             constrainRotation: function(newRotation, opts){
