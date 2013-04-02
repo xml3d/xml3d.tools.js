@@ -88,7 +88,7 @@
 
             // target node
             var mirroredTarget = this._createTransformedGroup(
-                "t_mirroredTarget", targetNode.getLocalMatrix());
+                "t_mirroredTarget", this._getTargetLocalMatrix());
 
             // target parent
             var targetParent = targetNode.parentNode;
@@ -110,6 +110,40 @@
 
             this._mirroredTarget = mirroredTarget;
             this._mirroredTargetRoot = mirroredTargetGrandparent;
+        },
+
+        /** Create and return the local matrix of the target node itself.
+         *  There is one speciality: we want the scaling to be the bounding box
+         *  of the target node. The mirrored target node has no content, so the
+         *  bounding box is empty. But we still want the scaling, so we set the
+         *  scaling to be related to the target's bounding box size.
+         *
+         *  @return {window.XML3DMatrix}
+         */
+        _getTargetLocalMatrix: function()
+        {
+            var targetNode = this._target.object;
+
+            var targetMatrix = targetNode.getLocalMatrix();
+            var targetScale = targetNode.getBoundingBox().size().scale(0.5);
+
+            // we pre-multiply the scaling to the target's local matrix
+            // however we don't want an already set scaling to be affected
+            // but it's included in the bounding box.
+            // So we remove the local matrix' scaling from the new scale
+            var targetMatrixScale = targetMatrix.scaling();
+            var invTargetMatrixScale = new XML3DVec3(
+                1/targetMatrixScale.x, 1/targetMatrixScale.y, 1/targetMatrixScale.z);
+
+            targetScale = targetScale.multiply(invTargetMatrixScale);
+            var scaleAvg = (targetScale.x + targetScale.y + targetScale.z) / 3;
+
+            var targetScaleMatrix = new XML3DMatrix();
+            targetScaleMatrix.m11 = scaleAvg;
+            targetScaleMatrix.m22 = scaleAvg;
+            targetScaleMatrix.m33 = scaleAvg;
+
+            return targetScaleMatrix.multiply(targetMatrix);
         },
 
         /** Create a group that is transformed by the given matrix.
