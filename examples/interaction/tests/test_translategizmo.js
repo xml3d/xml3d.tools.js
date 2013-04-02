@@ -17,6 +17,8 @@ function onLoad() {
     $("#xml3dMain").mousedown(onXML3DMouseDown);
     $(document.body).mousemove(onBodyMouseMove);
     $(document.body).mouseup(onBodyMouseUp);
+
+    $("#b_detach").click(onClickDetachButton);
 };
 
 var mouseDown = false;
@@ -37,3 +39,20 @@ function onBodyMouseMove(evt) {
 function onBodyMouseUp(evt) {
     cameraCtrl.stop({x: evt.pageX, y: evt.pageY});
 };
+
+var isAttached = true;
+
+function onClickDetachButton() {
+    isAttached = !isAttached;
+
+    if(isAttached)
+    {
+        gizmo.attach();
+        $("#b_detach").val("Detach");
+    }
+    else
+    {
+        gizmo.detach();
+        $("#b_detach").val("Attach");
+    }
+}

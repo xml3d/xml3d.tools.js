@@ -72,7 +72,7 @@ XMOT.util.GeoObject = new XMOT.Class({
      */
     detach: function()
     {
-        this._removeChildren(this.rootGrp, this.graph);
+        this.rootGrp.removeChild(this.graph["root"]);
         this._removeChildren(this.defsRoot, this.defs);
     },
 

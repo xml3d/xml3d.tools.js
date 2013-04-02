@@ -31,11 +31,12 @@
           <shader id="s_rectangle" script="urn:xml3d:shader:phong">
             <float3 name="diffuseColor">0.8 0.8 0.8</float3>
             <float name="ambientIntensity">1</float>
-         </shader>
+          </shader>
           <transform id="t_mainTargetParent" translation="0 0 -10" />
+          <transform id="t_mainTarget" scale="2 2 2" />
         </defs>
         <group transform="#t_mainTargetParent">
-          <group id="g_mainTarget" shader="#s_rectangle">
+          <group id="g_mainTarget" shader="#s_rectangle" transform="#t_mainTarget">
             <mesh type="triangles" src="#d_rectangle" />
           </group>
         </group>
@@ -44,6 +45,10 @@
           <view position="0 0 10" id="v_camera" />
         </group>
       </xml3d>
+
+      <div>
+        <input id="b_detach" type="button" value="Detach" />
+      </div>
   </div>
 </div>
 </body>

@@ -180,7 +180,7 @@
          *  @this {XMOT.util.EventDispatcher}
          *  @private
          */
-        _findContextIdx: function(targetElement, eventName, callback) {
+        _findContextIndex: function(targetElement, eventName, callback) {
 
             for(var i = 0; i < this._callbackContexts.length; i++) {
 
