@@ -128,7 +128,8 @@
             defsOverlay.appendChild(XMOT.creation.element("transform", {
                 id: this.globalID(transformId),
                 translation: xfmMatrix.translation().str(),
-                rotation: xfmMatrix.rotation().str()
+                rotation: xfmMatrix.rotation().str(),
+                scale: xfmMatrix.scaling().str()
             }));
 
             var group = XMOT.creation.element("group", {
