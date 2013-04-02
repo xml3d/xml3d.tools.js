@@ -91,7 +91,8 @@
         {
             this.geo.addTransforms("t_root", {
                 rotation: this.widget.target.getOrientation().str(),
-                translation: this.widget.target.getPosition().str()
+                translation: this.widget.target.getPosition().str(),
+                scale: this.widget.target.getScale().str()
             });
             this.onCreateDefsElements();
         },
