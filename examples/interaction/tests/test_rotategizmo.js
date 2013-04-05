@@ -11,7 +11,6 @@ function onLoad() {
     gizmo = new XMOT.interaction.widgets.RotateGizmo("myGizmo", {target:targetTransformable});
     gizmo.attach();
 
-    var initialRotation = new XML3DRotation(new XML3DVec3(0, 0, 0), 0);
     cameraCtrl = new XMOT.ExamineController("g_camera");
 
     $("#xml3dMain").mousedown(onXML3DMouseDown);
@@ -25,8 +24,15 @@ var mouseDown = false;
 
 function onXML3DMouseDown(evt) {
 
+    if(evt.button !== XMOT.MOUSEBUTTON_LEFT && evt.button !== XMOT.MOUSEBUTTON_RIGHT)
+        return;
+
+    var action = XMOT.ExamineController.ROTATE;
+    if(evt.button === XMOT.MOUSEBUTTON_RIGHT)
+        action = XMOT.ExamineController.DOLLY;
+
     mouseDown = true;
-    cameraCtrl.start({x: evt.pageX, y: evt.pageY}, XMOT.ExamineController.ROTATE);
+    cameraCtrl.start({x: evt.pageX, y: evt.pageY}, action);
 };
 
 function onBodyMouseMove(evt) {
