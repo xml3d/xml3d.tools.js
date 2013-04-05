@@ -13,7 +13,8 @@
      *
      *  The axes can be retrieved by their name using getGeo().
      */
-    XMOT.interaction.geometry.RotateGizmo = new XMOT.Class(XMOT.interaction.geometry.Geometry, {
+    XMOT.interaction.geometry.RotateGizmo = new XMOT.Class(
+        XMOT.interaction.geometry.ViewedConstantSizeGeometry, {
 
         /**
          *  @this {XMOT.interaction.geometry.RotateGizmo}
@@ -21,7 +22,7 @@
          */
         initialize: function(widget)
         {
-            this.callSuper(widget);
+            this.callSuper(widget, new XML3DVec3(0.1, 0.1, 0.1));
         },
 
         /**
@@ -31,6 +32,8 @@
          */
         onCreateDefsElements: function()
         {
+            this.callSuper();
+
             this._halfSize = 0.3;
             var xTransl = "0 " + this._halfSize + " " + this._halfSize;
             this._createAxisDefsElements("xAxis", xTransl, "0 1 0 1.57", "0 1 0");
@@ -49,6 +52,8 @@
          */
         onCreateGraph: function()
         {
+            this.callSuper();
+
             this.setGeo("xaxis", this._createAxisGroup("xAxis"));
             this.setGeo("yaxis", this._createAxisGroup("yAxis"));
             this.setGeo("zaxis", this._createAxisGroup("zAxis"));
@@ -58,15 +63,6 @@
                 this.getGeo("yaxis"),
                 this.getGeo("zaxis")
             ]);
-        },
-
-        /**
-         *  @this {XMOT.interaction.geometry.RotateGizmo}
-         *  @override
-         *  @protected
-         */
-        onTargetXfmChanged: function()
-        {
         },
 
         /**
