@@ -91,8 +91,10 @@
 
     /** @inheritDoc */
     p.scale = function(factor){
-    	this.transform.scale.multiply(factor);
-    	return this;
+        var newScale = this.transform.scale.multiply(factor);
+        if(this.constraint.constrainScaling(newScale, {transformable: this}))
+            this.transform.scale.set(newScale);
+        return this;
     };
 
     /** @inheritDoc */
