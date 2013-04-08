@@ -21,7 +21,8 @@
      *
      *  @constructor
      */
-    XMOT.interaction.behaviors.MirroredWidgetTarget = new XMOT.Class({
+    XMOT.interaction.behaviors.MirroredWidgetTarget = new XMOT.Class(
+        XMOT.util.Attachable, {
 
         /** Sets up the mirrored node ready for attaching.
          *
@@ -47,22 +48,6 @@
         /**
          *  @this {XMOT.interaction.behaviors.MirroredWidgetTarget}
          */
-        attach: function()
-        {
-            this._xml3dOverlay.xml3d.appendChild(this._mirroredTargetRoot);
-        },
-
-        /**
-         *  @this {XMOT.interaction.behaviors.MirroredWidgetTarget}
-         */
-        detach: function()
-        {
-            this._xml3dOverlay.xml3d.removeChild(this._mirroredTargetRoot);
-        },
-
-        /**
-         *  @this {XMOT.interaction.behaviors.MirroredWidgetTarget}
-         */
         getNode: function()
         {
             return this._mirroredTarget;
@@ -74,6 +59,26 @@
         globalID: function(id)
         {
             return this.ID + "_" + id;
+        },
+
+        /**
+         *  @this {XMOT.interaction.behaviors.MirroredWidgetTarget}
+         *  @override
+         *  @protected
+         */
+        onAttach: function()
+        {
+            this._xml3dOverlay.xml3d.appendChild(this._mirroredTargetRoot);
+        },
+
+        /**
+         *  @this {XMOT.interaction.behaviors.MirroredWidgetTarget}
+         *  @override
+         *  @protected
+         */
+        onDetach: function()
+        {
+            this._xml3dOverlay.xml3d.removeChild(this._mirroredTargetRoot);
         },
 
         /**
@@ -117,6 +122,9 @@
          *  of the target node. The mirrored target node has no content, so the
          *  bounding box is empty. But we still want the scaling, so we set the
          *  scaling to be related to the target's bounding box size.
+         *
+         *  @this {XMOT.interaction.behaviors.MirroredWidgetTarget}
+         *  @private
          *
          *  @return {window.XML3DMatrix}
          */
