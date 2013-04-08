@@ -59,6 +59,18 @@ function getGizmoType()
     return "none";
 };
 
+function getRotationSpeed()
+{
+    var val = $("#i_rotationSpeed").val();
+    if(!isNaN(val) || val <= 0)
+        return val;
+    else
+    {
+        alert("Enter a valid number greater than zero.");
+        return 1;
+    }
+};
+
 function detachGizmos()
 {
     if(gizmo)
@@ -89,7 +101,8 @@ function createGizmosCombined()
     gizmo.attach();
 
     gizmo1 = new XMOT.interaction.widgets.RotateGizmo("myGizmo2", {
-        mirror: targetMirror
+        mirror: targetMirror,
+        rotationSpeed: getRotationSpeed()
     });
     gizmo1.attach();
 };
@@ -97,7 +110,8 @@ function createGizmosCombined()
 function createGizmosTranslateRotate()
 {
     gizmo = new XMOT.interaction.widgets.TranslateRotateGizmo("myGizmo", {
-        target: targetTransformable
+        target: targetTransformable,
+        rotationSpeed: getRotationSpeed()
     });
     gizmo.attach();
 };
@@ -113,7 +127,8 @@ function createGizmosTranslate()
 function createGizmosRotate()
 {
     gizmo = new XMOT.interaction.widgets.RotateGizmo("myGizmo", {
-        target: targetTransformable
+        target: targetTransformable,
+        rotationSpeed: getRotationSpeed()
     });
     gizmo.attach();
 };
