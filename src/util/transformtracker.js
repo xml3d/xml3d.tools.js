@@ -76,7 +76,8 @@
                         XMOT.util.wrapCallback(this, this._onViewAttrModified), false);
                 }
 
-                this.attach(node.parentNode);
+                if(node.parentNode)
+                    this.attach(node.parentNode);
 
                 this._attached = true;
             }
@@ -112,7 +113,8 @@
                         XMOT.util.wrapCallback(this, this._onViewAttrModified), false);
                 }
 
-                this.detach(node.parentNode);
+                if(node.parentNode)
+                    this.detach(node.parentNode);
 
                 this._attached = false;
             }
