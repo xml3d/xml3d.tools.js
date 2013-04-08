@@ -7,7 +7,8 @@
     /** A GroupMirror mirrors a given group in an own overlay.
      *  It creates the overlay and sets up a MirroredWidgetTarget.
      */
-    XMOT.interaction.behaviors.GroupMirror = new XMOT.Class({
+    XMOT.interaction.behaviors.GroupMirror = new XMOT.Class(
+        XMOT.util.Attachable, {
 
         /**
          *  @this {XMOT.interaction.behaviors.GroupMirror}
@@ -21,11 +22,23 @@
             // overlay
             var xml3dTarget = XMOT.util.getXml3dRoot(_target.object);
             this._xml3dOverlay = new XMOT.XML3DOverlay(xml3dTarget);
+            this._xml3dOverlay.attach();
 
             // mirror the target node
             this._mirroredTarget = new XMOT.interaction.behaviors.MirroredWidgetTarget(
                 _id, this._xml3dOverlay, _target);
+        },
+
+        onAttach: function()
+        {
+            this._xml3dOverlay.attach();
             this._mirroredTarget.attach();
+        },
+
+        onDetach: function()
+        {
+            this._mirroredTarget.detach();
+            this._xml3dOverlay.detach();
         },
 
         /**
