@@ -34,7 +34,31 @@
             else
                 throw new Error("XMOT.interaction.widgets.TranslateGizmo: the options must be either a target or a mirror.");
 
+            this._mirror.attach();
+
             this.callSuper(id, this._mirror.mirroredTarget(), options);
+        },
+
+        /**
+         *  @this {XMOT.interaction.widgets.OverlayWidget}
+         *  @override
+         *  @protected
+         */
+        onBeforeAttach: function()
+        {
+            this.callSuper();
+            this._mirror.attach();
+        },
+
+        /**
+         *  @this {XMOT.interaction.widgets.OverlayWidget}
+         *  @override
+         *  @protected
+         */
+        onAfterDetach: function()
+        {
+            this.callSuper();
+            this._mirror.detach();
         },
 
         /**
