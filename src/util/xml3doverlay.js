@@ -7,8 +7,12 @@
      *  element.
      *  Also it will mirror and track the target element's view.
      */
-    XMOT.XML3DOverlay = new XMOT.Class({
+    XMOT.XML3DOverlay = new XMOT.Class(
+        XMOT.util.Attachable, {
 
+        /**
+         *  @this {XMOT.XML3DOverlay}
+         */
         initialize: function(targetXML3DElement)
         {
             this.xml3dTarget = targetXML3DElement;
@@ -16,24 +20,40 @@
 
             this._mirroredView = new XMOT.interaction.behaviors.MirroredView(
                 targetXML3DElement, this.xml3d);
-
-            this.attach();
         },
 
-        attach: function()
+        /**
+         *  @this {XMOT.XML3DOverlay}
+         *  @override
+         *  @protected
+         */
+        onAttach: function()
         {
             document.body.appendChild(this.xml3d);
             this._mirroredView.attach();
             this._registerEventListeners(true);
         },
 
-        detach: function()
+        /**
+         *  @this {XMOT.XML3DOverlay}
+         *  @override
+         *  @protected
+         */
+        onDetach: function()
         {
-            this._mirroredView.detach();
             this._registerEventListeners(false);
-            document.body.removeChild(this.xml3d);
+
+            this._mirroredView.detach();
+            var canvas = this.xml3d.parentNode.previousSibling;
+
+            document.body.removeChild(this.xml3d.parentNode);
+            document.body.removeChild(canvas);
         },
 
+        /**
+         *  @this {XMOT.XML3DOverlay}
+         *  @private
+         */
         _createXML3DElement: function()
         {
             var targetWidth = this.xml3dTarget.offsetWidth;
@@ -50,6 +70,10 @@
             return XMOT.creation.element("xml3d", { style: styleAttrib });
         },
 
+        /**
+         *  @this {XMOT.XML3DOverlay}
+         *  @private
+         */
         _registerEventListeners: function(doAddListener)
         {
             var registerFn = this.xml3d.addEventListener.bind(this.xml3d);
@@ -64,6 +88,10 @@
             registerFn("mouseout", this.callback("_onOverlayMouseEvent"), false);
         },
 
+        /**
+         *  @this {XMOT.XML3DOverlay}
+         *  @private
+         */
         _onOverlayMouseEvent: function(evt)
         {
             var posOverlay = XML3D.util.convertPageCoords(this.xml3d, evt.pageX, evt.pageY);
@@ -86,6 +114,10 @@
             }
         },
 
+        /**
+         *  @this {XMOT.XML3DOverlay}
+         *  @private
+         */
         _getTargetZIndex: function()
         {
             var zIndex = this._getTargetStyleProperty("z-index");
@@ -97,6 +129,10 @@
             return zIndex;
         },
 
+        /**
+         *  @this {XMOT.XML3DOverlay}
+         *  @private
+         */
         _getTargetStyleProperty: function(stylePropertyName)
         {
             if (this.xml3dTarget.currentStyle)
