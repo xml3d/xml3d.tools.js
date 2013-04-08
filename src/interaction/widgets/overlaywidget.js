@@ -31,7 +31,8 @@
             if(!options)
                 throw new Error("XMOT.interaction.widgets.TranslateGizmo: no options given.");
 
-            if(options.target)
+            this._selfCreatedMirror = (options.target !== undefined);
+            if(this._selfCreatedMirror)
             {
                 if(options.target.object.parentNode.tagName !== "group")
                     throw new Error("XMOT.interaction.widgets.TranslateGizmo: target's parent node must be a group.");
@@ -39,7 +40,9 @@
                     id, options.target, options.xml3dOverlay);
             }
             else if(options.mirror)
+            {
                 this._mirror = options.mirror;
+            }
             else
                 throw new Error("XMOT.interaction.widgets.TranslateGizmo: the options must be either a target or a mirror.");
 
@@ -56,7 +59,8 @@
         onBeforeAttach: function()
         {
             this.callSuper();
-            this._mirror.attach();
+            if(this._selfCreatedMirror)
+                this._mirror.attach();
         },
 
         /**
@@ -67,7 +71,8 @@
         onAfterDetach: function()
         {
             this.callSuper();
-            this._mirror.detach();
+            if(this._selfCreatedMirror)
+                this._mirror.detach();
         },
 
         /**
