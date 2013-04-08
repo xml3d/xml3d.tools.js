@@ -2,14 +2,28 @@ window.addEventListener("load", onLoad, false);
 
 var gizmo = null;
 var camCtrl = null;
+var targetMirror = null;
 
 function onLoad() {
 
     var targetGroup = $("#g_mainTarget")[0];
     var targetTransformable = XMOT.ClientMotionFactory.createTransformable(targetGroup);
 
-    gizmo = new XMOT.interaction.widgets.TranslateRotateGizmo("myGizmo", {target:targetTransformable});
+    //gizmo = new XMOT.interaction.widgets.TranslateRotateGizmo("myGizmo", {target:targetTransformable});
+    //gizmo.attach();
+
+    targetMirror = new XMOT.interaction.behaviors.GroupMirror("myGroupMirror",
+        targetTransformable);
+
+    gizmo = new XMOT.interaction.widgets.TranslateGizmo("myGizmo", {
+        mirror: targetMirror
+    });
     gizmo.attach();
+
+    gizmo1 = new XMOT.interaction.widgets.RotateGizmo("myGizmo2", {
+        mirror: targetMirror
+    });
+    gizmo1.attach();
 
     cameraCtrl = new XMOT.ExamineController("g_camera");
 
