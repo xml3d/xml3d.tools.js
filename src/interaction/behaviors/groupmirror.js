@@ -12,21 +12,30 @@
 
         /**
          *  @this {XMOT.interaction.behaviors.GroupMirror}
-         *  @param {string} _id
-         *  @param {XMOT.Transformable} _target
+         *  @param {string} id
+         *  @param {XMOT.Transformable} target
+         *  @param {XMOT.XML3DOverlay=} xml3dOverlay
+         *
+         *  The overlay is optional. If it is not given, one will be created
+         *  with the xml3d element of the given target node.
          */
-        initialize: function(_id, _target)
+        initialize: function(id, target, xml3dOverlay)
         {
-            this._realTarget = _target;
+            this._realTarget = target;
 
             // overlay
-            var xml3dTarget = XMOT.util.getXml3dRoot(_target.object);
-            this._xml3dOverlay = new XMOT.XML3DOverlay(xml3dTarget);
-            this._xml3dOverlay.attach();
+            var xml3dTarget = XMOT.util.getXml3dRoot(target.object);
+            if(xml3dOverlay)
+                this._xml3dOverlay = xml3dOverlay;
+            else
+            {
+                this._xml3dOverlay = new XMOT.XML3DOverlay(xml3dTarget);
+                this._xml3dOverlay.attach();
+            }
 
             // mirror the target node
             this._mirroredTarget = new XMOT.interaction.behaviors.MirroredWidgetTarget(
-                _id, this._xml3dOverlay, _target);
+                id, this._xml3dOverlay, target);
         },
 
         onAttach: function()
