@@ -16,7 +16,15 @@
         /**
          *  @this {XMOT.interaction.widgets.OverlayWidget}
          *  @param {string} id
-         *  @param {{target:XMOT.Transformable|mirror:XMOT.interaction.behaviors.GroupMirror}} options
+         *  @param {Object} options
+         *
+         *  The options are the following:
+         *  o target: if given a GroupMirror is constructed with that target
+         *  o xml3dOverlay: if target is given, an overlay can be specified that is given to
+         *      the GroupMirror constructor
+         *  o mirror: if given, the given mirror is used as basis for this widget.
+         *
+         *  Either target (and optionally xml3dOverlay) or mirror must be given.
          */
         initialize: function(id, options)
         {
@@ -27,7 +35,8 @@
             {
                 if(options.target.object.parentNode.tagName !== "group")
                     throw new Error("XMOT.interaction.widgets.TranslateGizmo: target's parent node must be a group.");
-                this._mirror = new XMOT.interaction.behaviors.GroupMirror(id, options.target);
+                this._mirror = new XMOT.interaction.behaviors.GroupMirror(
+                    id, options.target, options.xml3dOverlay);
             }
             else if(options.mirror)
                 this._mirror = options.mirror;
