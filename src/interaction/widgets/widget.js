@@ -83,6 +83,7 @@
         {
             if(!this._isAttached)
             {
+                this.onBeforeAttach();
                 this.geometry.constructAndAttach();
                 this._createBehavior();
 
@@ -99,6 +100,8 @@
             {
                 this._destroyBehavior();
                 this.geometry.destroy();
+
+                this.onAfterDetach();
 
                 this._isAttached = false;
             }
@@ -152,6 +155,20 @@
 
         // --- Methods to be overriden ---
 
+        /** Called before anything is attached.
+         *
+         *  @this {XMOT.interaction.widgets.Widget}
+         *  @protected
+         */
+        onBeforeAttach: function() {},
+
+        /** Called after everything is detached.
+         *
+         *  @this {XMOT.interaction.widgets.Widget}
+         *  @protected
+         */
+        onAfterDetach: function() {},
+
         /** Called after defs and groups are attached and the behavior can be set up. This
          *  is done afterwards a TransformTracker is placed in behavior["target_track"] which
          *  will invoke the onTarXfmChanged() method, so that clients have a place to adjust
@@ -161,6 +178,7 @@
          *  @protected
          */
         onCreateBehavior: function() {},
+
         /** Called before geometry is destroyed and where the sensor attribute is still filled.
          *
          *  @this {XMOT.interaction.widgets.Widget}
