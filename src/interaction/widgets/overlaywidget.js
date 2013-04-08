@@ -15,26 +15,64 @@
 
         /**
          *  @this {XMOT.interaction.widgets.OverlayWidget}
-         *  @param {string} _id
-         *  @param {{target:XMOT.Transformable|mirror:XMOT.interaction.behaviors.GroupMirror}} options
+         *  @param {string} id
+         *  @param {Object} options
+         *
+         *  The options are the following:
+         *  o target: if given a GroupMirror is constructed with that target
+         *  o xml3dOverlay: if target is given, an overlay can be specified that is given to
+         *      the GroupMirror constructor
+         *  o mirror: if given, the given mirror is used as basis for this widget.
+         *
+         *  Either target (and optionally xml3dOverlay) or mirror must be given.
          */
-        initialize: function(_id, _options)
+        initialize: function(id, options)
         {
-            if(!_options)
+            if(!options)
                 throw new Error("XMOT.interaction.widgets.TranslateGizmo: no options given.");
 
-            if(_options.target)
+            this._selfCreatedMirror = (options.target !== undefined);
+            if(this._selfCreatedMirror)
             {
-                if(_options.target.object.parentNode.tagName !== "group")
+                if(options.target.object.parentNode.tagName !== "group")
                     throw new Error("XMOT.interaction.widgets.TranslateGizmo: target's parent node must be a group.");
-                this._mirror = new XMOT.interaction.behaviors.GroupMirror(_id, _options.target);
+                this._mirror = new XMOT.xml3doverlay.GroupMirror(
+                    id, options.target, options.xml3dOverlay);
             }
-            else if(_options.mirror)
-                this._mirror = _options.mirror;
+            else if(options.mirror)
+            {
+                this._mirror = options.mirror;
+            }
             else
                 throw new Error("XMOT.interaction.widgets.TranslateGizmo: the options must be either a target or a mirror.");
 
-            this.callSuper(_id, this._mirror.mirroredTarget());
+            this._mirror.attach();
+
+            this.callSuper(id, this._mirror.mirroredTarget(), options);
+        },
+
+        /**
+         *  @this {XMOT.interaction.widgets.OverlayWidget}
+         *  @override
+         *  @protected
+         */
+        onBeforeAttach: function()
+        {
+            this.callSuper();
+            if(this._selfCreatedMirror)
+                this._mirror.attach();
+        },
+
+        /**
+         *  @this {XMOT.interaction.widgets.OverlayWidget}
+         *  @override
+         *  @protected
+         */
+        onAfterDetach: function()
+        {
+            this.callSuper();
+            if(this._selfCreatedMirror)
+                this._mirror.detach();
         },
 
         /**

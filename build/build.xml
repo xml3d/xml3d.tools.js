@@ -41,7 +41,7 @@
         <file name="gamepad/GamepadEventProvider.js" />
 
         <file name="util/xml3d_datatype_extensions.js" />
-        <file name="util/xml3doverlay.js" />
+        <file name="util/attachable.js" />
 
         <file name="util/util.js" />
         <file name="util/creation.js" />
@@ -56,7 +56,13 @@
         <file name="util/viewtracker.js" />
         <file name="util/transformsensor.js" />
 
+        <file name="xml3doverlay/mirroredwidgettarget.js" />
+        <file name="xml3doverlay/mirroredview.js" />
+        <file name="xml3doverlay/groupmirror.js" />
+        <file name="xml3doverlay/xml3doverlay.js" />
+
         <file name="interaction/geometry/geometry.js" />
+        <file name="interaction/geometry/viewedconstantsizegeometry.js" />
         <file name="interaction/geometry/ringmenu.js" />
         <file name="interaction/geometry/uniformscaler.js" />
         <file name="interaction/geometry/rotatorbox.js" />
@@ -72,9 +78,6 @@
         <file name="interaction/behaviors/rotater.js" />
         <file name="interaction/behaviors/translater.js" />
         <file name="interaction/behaviors/ringmenu.js" />
-        <file name="interaction/behaviors/mirroredwidgettarget.js" />
-        <file name="interaction/behaviors/mirroredview.js" />
-        <file name="interaction/behaviors/groupmirror.js" />
 
         <file name="interaction/widgets/widget.js" />
         <file name="interaction/widgets/overlaywidget.js" />

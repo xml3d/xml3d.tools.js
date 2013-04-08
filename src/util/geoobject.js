@@ -36,6 +36,8 @@ XMOT.util.GeoObject = new XMOT.Class({
         else
             this.rootGrp = _xml3d;
 
+        this._rootTransformable = null; // updated during setGraphRoot()
+
         this.defs = {};     // local IDs -> defs element
         this.graph = {}; // local IDs -> graph element. this.graph["root"] will hold the root node
     },
@@ -74,6 +76,8 @@ XMOT.util.GeoObject = new XMOT.Class({
     {
         this.rootGrp.removeChild(this.graph["root"]);
         this._removeChildren(this.defsRoot, this.defs);
+
+        this._rootTransformable = null;
     },
 
     /** Add all defs elements to the defsRoot
@@ -134,6 +138,22 @@ XMOT.util.GeoObject = new XMOT.Class({
     getGraphRoot: function()
     {
         return this.graph["root"];
+    },
+
+
+    /** Retrieve a transformable to the graph root node.
+     *
+     *  @this {XMOT.util.GeoObject}
+     *  @return {XMOT.Transformable}
+     */
+    getGraphRootTransformable: function()
+    {
+        if(!this._rootTransformable)
+        {
+            this._rootTransformable =
+                XMOT.ClientMotionFactory.createTransformable(this.getGraphRoot());
+        }
+        return this._rootTransformable;
     },
 
     // ========================================================================

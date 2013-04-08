@@ -26,7 +26,7 @@
          */
         initialize: function(_id, _target, _radius)
         {
-            this.callSuper(_id, _target, false);
+            this.callSuper(_id, _target, {autoScale: false});
 
             /** @private */
             this._radius = _radius;

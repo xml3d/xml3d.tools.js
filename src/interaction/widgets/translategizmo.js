@@ -52,11 +52,11 @@
             };
 
             this.behavior["xaxis"] = this._create1DTranslater(
-                "xaxis", xAxisConstraintFn, new XML3DVec3(0,0,1));
+                "xaxis", "zaxis", xAxisConstraintFn);
             this.behavior["yaxis"] = this._create1DTranslater(
-                "yaxis", yAxisConstraintFn, new XML3DVec3(0,0,1));
+                "yaxis", "zaxis", yAxisConstraintFn);
             this.behavior["zaxis"] = this._create1DTranslater(
-                "zaxis", zAxisConstraintFn, new XML3DVec3(1,0,0));
+                "zaxis", "xaxis", zAxisConstraintFn);
         },
 
         /**
@@ -66,11 +66,11 @@
         _setup2DTranslaters: function()
         {
             this.behavior["xyaxis"] = this._create2DTranslater(
-                "xyaxis", "zaxis", new XML3DVec3(0,0,1));
+                "xyaxis", "zaxis");
             this.behavior["zyaxis"] = this._create2DTranslater(
-                "zyaxis", "xaxis", new XML3DVec3(1,0,0));
+                "zyaxis", "xaxis");
             this.behavior["xzaxis"] = this._create2DTranslater(
-                "xzaxis", "yaxis", new XML3DVec3(0,1,0));
+                "xzaxis", "yaxis");
         },
 
         /** Sets up a XMOT.interaction.behaviors.Translater for 1D translation.
@@ -81,11 +81,11 @@
          *  @private
          *
          *  @param {string} id should be the axisname, e.g. xaxis and correspond to the geometry name
+         *  @param {string} planeOrientGrp the plane orientation of the translater
          *  @param {function(window.XML3DVec3,window.XML3DVec3)} constraintFn
-         *  @param {XML3DVec3|!window.Element=} planeOrient the plane orientation of the translater
          *  @return {XMOT.interaction.behaviors.Translater}
          */
-        _create1DTranslater: function(id, constraintFn, planeOrient)
+        _create1DTranslater: function(id, planeOrientGrpId, constraintFn)
         {
             var eventDispatcher = new XMOT.util.EventDispatcher("mousedown", function(evt){
                 return (!evt.ctrlKey && evt.button === XMOT.MOUSEBUTTON_LEFT);
@@ -98,7 +98,7 @@
 
             return new XMOT.interaction.behaviors.Translater(
                 this.globalID(id), pickGrps, behaviorTarget,
-                planeOrient, eventDispatcher);
+                this.geometry.getGeo(planeOrientGrpId), eventDispatcher);
         },
 
         /** Sets up a XMOT.interaction.behaviors.Translater for 2D translation.
@@ -113,7 +113,7 @@
          *  @param {XML3DVec3|!window.Element=} planeOrient the plane orientation of the translater
          *  @return {XMOT.interaction.behaviors.Translater}
          */
-        _create2DTranslater: function(id, pickGrpId, planeOrient)
+        _create2DTranslater: function(id, pickGrpId)
         {
             var eventDispatcher = new XMOT.util.EventDispatcher("mousedown", function(evt) {
                 return (evt.ctrlKey && evt.button === XMOT.MOUSEBUTTON_LEFT);
@@ -126,7 +126,7 @@
 
             return new XMOT.interaction.behaviors.Translater(
                 this.globalID(id), pickGrps, behaviorTarget,
-                planeOrient, eventDispatcher);
+                pickGrps[0], eventDispatcher);
         },
 
         /** Creates a translation constraint, where the given constraint function is applied
@@ -139,7 +139,9 @@
          *  @return {XMOT.Constraint}
          *
          *  The constraint function is given the current translation and new translation
-         *  and should update the new translation.
+         *  and should update the new translation. The given translation values are
+         *  in local space of the target node. This is supposed to ease the constraining,
+         *  which it does.
          */
         _createTranslationConstraint: function(constrainTranslationFunction) {
 
@@ -148,9 +150,17 @@
                 if(!opts.transformable)
                     throw new Error("Constraint: no transformable given.");
 
+                var worldMatrix = opts.transformable.object.getWorldMatrix();
+                var invWorldMatrix = worldMatrix.inverse();
+
                 var currentTranslation = opts.transformable.getPosition();
 
-                constrainTranslationFunction(currentTranslation, newTranslation);
+                var localCurrentTransl = invWorldMatrix.multiplyPt(currentTranslation);
+                var localNewTransl = invWorldMatrix.multiplyPt(newTranslation);
+
+                constrainTranslationFunction(localCurrentTransl, localNewTransl);
+
+                newTranslation.set(worldMatrix.multiplyPt(localNewTransl));
 
                 return true;
             };

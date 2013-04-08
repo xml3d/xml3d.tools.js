@@ -2,7 +2,7 @@
 
     "use strict";
 
-    XMOT.namespace("XMOT.interaction.behaviors");
+    XMOT.namespace("XMOT.xml3doverlay");
 
     /** Will mirror the transformations of the target node in a hierarchy in the
      *  xml3d overlay. Can then be attached/deatched.
@@ -21,11 +21,12 @@
      *
      *  @constructor
      */
-    XMOT.interaction.behaviors.MirroredWidgetTarget = new XMOT.Class({
+    XMOT.xml3doverlay.MirroredWidgetTarget = new XMOT.Class(
+        XMOT.util.Attachable, {
 
         /** Sets up the mirrored node ready for attaching.
          *
-         *  @this {XMOT.interaction.behaviors.MirroredWidgetTarget}
+         *  @this {XMOT.xml3doverlay.MirroredWidgetTarget}
          *
          *  @param {string} _id
          *  @param {XMOT.XML3DOverlay} _xml3dOverlay
@@ -45,23 +46,7 @@
         },
 
         /**
-         *  @this {XMOT.interaction.behaviors.MirroredWidgetTarget}
-         */
-        attach: function()
-        {
-            this._xml3dOverlay.xml3d.appendChild(this._mirroredTargetRoot);
-        },
-
-        /**
-         *  @this {XMOT.interaction.behaviors.MirroredWidgetTarget}
-         */
-        detach: function()
-        {
-            this._xml3dOverlay.xml3d.removeChild(this._mirroredTargetRoot);
-        },
-
-        /**
-         *  @this {XMOT.interaction.behaviors.MirroredWidgetTarget}
+         *  @this {XMOT.xml3doverlay.MirroredWidgetTarget}
          */
         getNode: function()
         {
@@ -69,7 +54,7 @@
         },
 
         /**
-         *  @this {XMOT.interaction.behaviors.MirroredWidgetTarget}
+         *  @this {XMOT.xml3doverlay.MirroredWidgetTarget}
          */
         globalID: function(id)
         {
@@ -77,7 +62,27 @@
         },
 
         /**
-         *  @this {XMOT.interaction.behaviors.MirroredWidgetTarget}
+         *  @this {XMOT.xml3doverlay.MirroredWidgetTarget}
+         *  @override
+         *  @protected
+         */
+        onAttach: function()
+        {
+            this._xml3dOverlay.xml3d.appendChild(this._mirroredTargetRoot);
+        },
+
+        /**
+         *  @this {XMOT.xml3doverlay.MirroredWidgetTarget}
+         *  @override
+         *  @protected
+         */
+        onDetach: function()
+        {
+            this._xml3dOverlay.xml3d.removeChild(this._mirroredTargetRoot);
+        },
+
+        /**
+         *  @this {XMOT.xml3doverlay.MirroredWidgetTarget}
          *  @private
          */
         _setupMirroredTarget: function()
@@ -118,6 +123,9 @@
          *  bounding box is empty. But we still want the scaling, so we set the
          *  scaling to be related to the target's bounding box size.
          *
+         *  @this {XMOT.xml3doverlay.MirroredWidgetTarget}
+         *  @private
+         *
          *  @return {window.XML3DMatrix}
          */
         _getTargetLocalMatrix: function()
@@ -132,13 +140,13 @@
             // but it's included in the bounding box.
             // So we remove the local matrix' scaling from the new scale
             var targetMatrixScale = targetMatrix.scaling();
-            var invTargetMatrixScale = new XML3DVec3(
+            var invTargetMatrixScale = new window.XML3DVec3(
                 1/targetMatrixScale.x, 1/targetMatrixScale.y, 1/targetMatrixScale.z);
 
             targetScale = targetScale.multiply(invTargetMatrixScale);
             var scaleAvg = (targetScale.x + targetScale.y + targetScale.z) / 3;
 
-            var targetScaleMatrix = new XML3DMatrix();
+            var targetScaleMatrix = new window.XML3DMatrix();
             targetScaleMatrix.m11 = scaleAvg;
             targetScaleMatrix.m22 = scaleAvg;
             targetScaleMatrix.m33 = scaleAvg;
@@ -148,7 +156,7 @@
 
         /** Create a group that is transformed by the given matrix.
          *
-         *  @this {XMOT.interaction.behaviors.MirroredWidgetTarget}
+         *  @this {XMOT.xml3doverlay.MirroredWidgetTarget}
          *  @private
          *
          *  @param {string} transformId

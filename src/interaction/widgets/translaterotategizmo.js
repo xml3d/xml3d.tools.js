@@ -12,6 +12,16 @@
     XMOT.interaction.widgets.TranslateRotateGizmo = new XMOT.Class(
         XMOT.interaction.widgets.OverlayWidget, {
 
+        initialize: function(id, options)
+        {
+            this.callSuper(id, options);
+
+            if(options.rotationSpeed)
+                this._rotationSpeed = options.rotationSpeed;
+            else
+                this._rotationSpeed = 1;
+        },
+
         /**
          *  @this {XMOT.interaction.widgets.TranslateRotateGizmo}
          *  @override
@@ -19,14 +29,21 @@
          */
         onCreateBehavior: function()
         {
+            this.callSuper();
+
+            var options = {
+                mirror: this.mirror(),
+                geometry: {scale: new XML3DVec3(0.08,0.08,0.08)}
+            };
+
             this.behavior["translater"] = new XMOT.interaction.widgets.TranslateGizmo(
-                this.globalID("translater"), {mirror: this.mirror()}
-            );
+                this.globalID("translater"), options);
             this.behavior["translater"].attach();
 
+            options.rotationSpeed = this._rotationSpeed;
+
             this.behavior["rotater"] = new XMOT.interaction.widgets.RotateGizmo(
-                this.globalID("rotater"), {mirror: this.mirror()}
-            );
+                this.globalID("rotater"), options);
             this.behavior["rotater"].attach();
         }
     });

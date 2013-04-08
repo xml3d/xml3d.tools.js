@@ -370,16 +370,10 @@
         /**
          * @param {!Object} data
          */
-        initialize: function(data)
+        initialize: function(id, data)
         {
+            this.ID = id;
             this.dataElements = {};
-
-            /* keep track how many instance are in scene, per xml3d
-             * element. If there are none the data element is removed, too.
-             *
-             * map xml3d element -> num instances
-             */
-            this.numInstances = {};
 
             this.data = data;
 
@@ -398,9 +392,12 @@
             if(!xml3d)
                 throw "XMOT.creation call: xml3d not given!";
 
-            if(!this.numInstances[xml3d] || this.numInstances[xml3d] < 1)
+            if(!xml3d.__creationNumInstances)
+                xml3d.__creationNumInstances = {};
+
+            if(!xml3d.__creationNumInstances[this.ID] || xml3d.__creationNumInstances[this.ID] < 1)
             {
-                this.numInstances[xml3d] = 0; // initialize to zero, incremented below
+                xml3d.__creationNumInstances[this.ID] = 0; // initialize to zero, incremented below
 
                 var newEl = XMOT.creation.data({
                     id: this.data.id + "_" + this._totalNumInstances,
@@ -417,7 +414,7 @@
             }
 
             this._totalNumInstances++;
-            this.numInstances[xml3d]++;
+            xml3d.__creationNumInstances[this.ID]++;
 
             var mesh = XMOT.creation.element("mesh", {
                 type: "triangles",
@@ -462,8 +459,8 @@
     _arrow.position = "0.035355 0.035355 0.2 0.0 0.05 0.2 0.0 0.1 0.2 0.070711 0.070711 0.2 -0.035355 0.035355 0.2 -0.070711 0.070711 0.2 -0.05 0.0 0.2 -0.1 0.0 0.2 -0.035355 -0.035355 0.2 -0.070711 -0.070711 0.2 0.0 -0.05 0.2 0.0 -0.1 0.2 0.035355 -0.035355 0.2 0.070711 -0.070711 0.2 0.05 0.0 0.2 0.1 0.0 0.2 0.05 0.0 -1.0 -0.035355 0.035355 -1.0 0.035355 0.035355 -1.0 0.035355 0.035355 -1.0 0.0 0.05 -1.0 0.0 0.05 0.2 0.035355 0.035355 0.2 9.9341E-10 -1.3245E-9 1.0 0.070711 0.070711 0.2 0.0 0.1 0.2 -0.035355 0.035355 -1.0 -0.035355 0.035355 0.2 -0.070711 0.070711 0.2 -0.05 0.0 -1.0 -0.05 0.0 0.2 -0.1 0.0 0.2 -0.035355 -0.035355 -1.0 -0.035355 -0.035355 0.2 -0.070711 -0.070711 0.2 0.0 -0.05 -1.0 0.0 -0.05 0.2 0.0 -0.1 0.2 0.035355 -0.035355 -1.0 0.035355 -0.035355 0.2 0.070711 -0.070711 0.2 0.05 0.0 -1.0 0.05 0.0 0.2 0.1 0.0 0.2 0.035355 -0.035355 -1.0 0.0 -0.05 -1.0 -0.035355 -0.035355 -1.0 -0.05 0.0 -1.0 0.0 0.05 -1.0";
     _arrow.normal = "-1.7561E-7 0.0 -1.0 0.0 0.0 -1.0 0.0 0.0 -1.0 -1.7561E-7 0.0 -1.0 8.7806E-8 0.0 -1.0 8.7806E-8 0.0 -1.0 2.6342E-7 0.0 -1.0 2.6342E-7 0.0 -1.0 1.7561E-7 0.0 -1.0 1.7561E-7 0.0 -1.0 0.0 0.0 -1.0 0.0 0.0 -1.0 0.0 0.0 -1.0 0.0 0.0 -1.0 -1.7561E-7 0.0 -1.0 -1.7561E-7 0.0 -1.0 0.0 0.0 -1.0 0.0 0.0 -1.0 0.0 0.0 -1.0 0.70711 0.70711 0.0 0.0 1.0 0.0 0.0 1.0 0.0 0.70711 0.70711 0.0 -1.2989E-7 0.0 1.0 0.70165 0.70165 0.12403 -3.2221E-8 0.99228 0.12403 -0.70711 0.70711 0.0 -0.70711 0.70711 0.0 -0.70165 0.70165 0.12403 -1.0 0.0 0.0 -1.0 0.0 0.0 -0.99228 3.2221E-8 0.12403 -0.70711 -0.70711 0.0 -0.70711 -0.70711 0.0 -0.70165 -0.70165 0.12403 -6.4516E-8 -1.0 0.0 -6.4516E-8 -1.0 0.0 -3.2221E-8 -0.99228 0.12403 0.70711 -0.70711 0.0 0.70711 -0.70711 0.0 0.70165 -0.70165 0.12403 1.0 3.2258E-8 0.0 1.0 3.2258E-8 0.0 0.99228 0.0 0.12403 0.0 0.0 -1.0 0.0 0.0 -1.0 0.0 0.0 -1.0 0.0 0.0 -1.0 0.0 0.0 -1.0";
 
-    var sphereObj = new DataObject(_sphere);
-    var rectObj = new DataObject(_rect);
-    var boxObj = new DataObject(_box);
-    var arrowObj = new DataObject(_arrow);
+    var sphereObj = new DataObject("sphere", _sphere);
+    var rectObj = new DataObject("rect", _rect);
+    var boxObj = new DataObject("box", _box);
+    var arrowObj = new DataObject("arrow", _arrow);
 }());
