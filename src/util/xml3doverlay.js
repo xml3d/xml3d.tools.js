@@ -4,8 +4,25 @@
 
     /** This class will create an xml3d element on top of the given one.
      *  It will forward any mouse events that don't hit an xml3d element to the target
-     *  element.
-     *  Also it will mirror and track the target element's view.
+     *  element. Also it will mirror and track the target element's view.
+     *
+     *  This implementation will attach listeners to the canvas element, that is
+     *  created for xml3d. The graph looks as follows:
+     *  o canvas: the visible stuff
+     *  o invisible div: container for the xml3d tree
+     *      - xml3d: the actual xml3d element
+     *
+     *  This is wanted because the xml3d element itself will receive other mouse
+     *  events. For example an mouseout event of geometry in the overlay will
+     *  probably not be a mouseout event in the underlying element.
+     *  Thus, we will simply forward the unfiltered events, that the canvas itself
+     *  receives.
+     *
+     *  PROBLEM
+     *  There is a general problem with overlays: multiple ones on top of each other.
+     *  Now the propagation to underlying elements is done by making itself invisible.
+     *  However, if multiple overlays are present that causes an infinite loop (switch
+     *  the overlay below another one invisible...).
      */
     XMOT.XML3DOverlay = new XMOT.Class(
         XMOT.util.Attachable, {
@@ -17,6 +34,8 @@
         {
             this.xml3dTarget = targetXML3DElement;
             this.xml3d = this._createXML3DElement();
+
+            this._xml3dCanvas = null; // set in _registerEventListeners()
 
             this._mirroredView = new XMOT.interaction.behaviors.MirroredView(
                 targetXML3DElement, this.xml3d);
@@ -76,9 +95,17 @@
          */
         _registerEventListeners: function(doAddListener)
         {
-            var registerFn = this.xml3d.addEventListener.bind(this.xml3d);
+            if(!this.xml3d.parentNode || !this.xml3d.parentNode.previousElementSibling)
+                throw new Error("XML3DOverlay: xml3d element has no parent node or no canvas attached.");
+
+            this._xml3dCanvas = this.xml3d.parentNode.previousElementSibling;
+
+            if(this._xml3dCanvas.tagName !== "canvas")
+                throw new Error("XML3DOverlay: associated element must be a canvas.");
+
+            var registerFn = this._xml3dCanvas.addEventListener.bind(this._xml3dCanvas);
             if(doAddListener === false)
-                registerFn = this.xml3d.removeEventListener.bind(this.xml3d);
+                registerFn = this._xml3dCanvas.removeEventListener.bind(this._xml3dCanvas);
 
             registerFn("click", this.callback("_onOverlayMouseEvent"), false);
             registerFn("mousedown", this.callback("_onOverlayMouseEvent"), false);
@@ -95,23 +122,29 @@
         _onOverlayMouseEvent: function(evt)
         {
             var posOverlay = XML3D.util.convertPageCoords(this.xml3d, evt.pageX, evt.pageY);
-            var posTarget = XML3D.util.convertPageCoords(this.xml3dTarget, evt.pageX, evt.pageY);
-
             var elOverlay = this.xml3d.getElementByPoint(posOverlay.x, posOverlay.y);
-            var elTarget = this.xml3dTarget.getElementByPoint(posTarget.x, posTarget.y);
-            if(!elOverlay) {
-                var newEvt = document.createEvent("MouseEvents");
-                newEvt.initMouseEvent(evt.type, true, true, window, evt.detail, evt.screenX,
-                    evt.screenY, evt.clientX, evt.clientY, evt.ctrlKey, evt.altKey, evt.shiftKey,
-                    evt.metaKey, evt.button, null);
+            if(elOverlay)
+                return; // hit: do not delegate anything
 
-                if(elTarget) {
-                    elTarget.dispatchEvent(newEvt);
-                }
-                else {
-                    this.xml3dTarget.dispatchEvent(newEvt);
-                }
-            }
+            var oldStyleDisplay = this._xml3dCanvas.style.display;
+
+            this._xml3dCanvas.style.display = "none";
+            var newEl = document.elementFromPoint(evt.clientX, evt.clientY);
+            this._xml3dCanvas.style.display = oldStyleDisplay;
+
+            if(newEl)
+                this._delegateEvent(evt, newEl);
+        },
+
+        _delegateEvent: function(evt, newTarget)
+        {
+            var newEvt = document.createEvent("MouseEvents");
+            newEvt.initMouseEvent(evt.type, evt.bubbles, evt.cancelable,
+                evt.view, evt.detail, evt.screenX, evt.screenY,
+                evt.clientX, evt.clientY, evt.ctrlKey, evt.altKey, evt.shiftKey,
+                evt.metaKey, evt.button, evt.relatedTarget);
+
+            newTarget.dispatchEvent(newEvt);
         },
 
         /**
