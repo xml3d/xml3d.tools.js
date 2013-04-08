@@ -12,12 +12,16 @@
         /**
          *  @this {XMOT.interaction.geometry.ViewedConstantSizeGeometry}
          *  @param {XMOT.interaction.widgets.Widget} widget
+         *  @param {Object=} options
          */
-        initialize: function(widget, initialScale)
+        initialize: function(widget, options)
         {
+            if(!options)
+                options = {};
+
             this.callSuper(widget);
 
-            this._customWidgetScale = new XML3DVec3(initialScale);
+            this._customWidgetScale = new XML3DVec3(options.scale);
             this._initialRootScaling = new XML3DVec3(1,1,1);
         },
 

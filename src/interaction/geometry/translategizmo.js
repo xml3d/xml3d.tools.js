@@ -19,10 +19,17 @@
         /**
          *  @this {XMOT.interaction.geometry.TranslateGizmo}
          *  @param {XMOT.interaction.widgets.Widget} widget
+         *  @param {Object=} options
          */
-        initialize: function(widget)
+        initialize: function(widget, options)
         {
-            this.callSuper(widget, new XML3DVec3(0.1, 0.1, 0.1));
+            if(!options)
+                options = {};
+
+            if(!options.scale)
+                options.scale = new XML3DVec3(0.08, 0.08, 0.08);
+
+            this.callSuper(widget, options);
         },
 
         /**
