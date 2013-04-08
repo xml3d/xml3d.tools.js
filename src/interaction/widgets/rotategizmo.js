@@ -18,6 +18,17 @@
 
         /**
          *  @this {XMOT.interaction.widgets.RotateGizmo}
+         */
+        initialize: function(id, options)
+        {
+            this.callSuper(id, options);
+
+            if(options.rotationSpeed)
+                this._rotationSpeed = options.rotationSpeed;
+        },
+
+        /**
+         *  @this {XMOT.interaction.widgets.RotateGizmo}
          *  @override
          *  @protected
          */
@@ -48,7 +59,7 @@
             var pickGrps = [this.geometry.getGeo(geoId)];
 
             var rot = new XMOT.interaction.behaviors.Rotater(
-                this.globalID(geoId), pickGrps, behaviorTarget, undefined, eventDispatcher);
+                this.globalID(geoId), pickGrps, behaviorTarget, this._rotationSpeed, eventDispatcher);
             rot.axisRestriction(axis);
 
             return rot;
