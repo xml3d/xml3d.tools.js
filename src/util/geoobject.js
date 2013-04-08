@@ -76,6 +76,8 @@ XMOT.util.GeoObject = new XMOT.Class({
     {
         this.rootGrp.removeChild(this.graph["root"]);
         this._removeChildren(this.defsRoot, this.defs);
+
+        this._rootTransformable = null;
     },
 
     /** Add all defs elements to the defsRoot
@@ -108,7 +110,6 @@ XMOT.util.GeoObject = new XMOT.Class({
     setGraphRoot: function(rootNode)
     {
         this.graph["root"] = rootNode;
-        this._rootTransformable = XMOT.ClientMotionFactory.createTransformable(rootNode);
     },
 
     /** Add the given array of children to the graph root, set previously by
@@ -147,6 +148,11 @@ XMOT.util.GeoObject = new XMOT.Class({
      */
     getGraphRootTransformable: function()
     {
+        if(!this._rootTransformable)
+        {
+            this._rootTransformable =
+                XMOT.ClientMotionFactory.createTransformable(this.getGraphRoot());
+        }
         return this._rootTransformable;
     },
 
