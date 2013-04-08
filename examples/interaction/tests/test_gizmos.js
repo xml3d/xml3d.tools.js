@@ -80,7 +80,7 @@ function detachGizmos()
 
 function createGizmosCombined()
 {
-    targetMirror = new XMOT.interaction.behaviors.GroupMirror("myGroupMirror",
+    targetMirror = new XMOT.xml3doverlay.GroupMirror("myGroupMirror",
         targetTransformable);
 
     gizmo = new XMOT.interaction.widgets.TranslateGizmo("myGizmo", {

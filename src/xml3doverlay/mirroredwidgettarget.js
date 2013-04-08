@@ -2,7 +2,7 @@
 
     "use strict";
 
-    XMOT.namespace("XMOT.interaction.behaviors");
+    XMOT.namespace("XMOT.xml3doverlay");
 
     /** Will mirror the transformations of the target node in a hierarchy in the
      *  xml3d overlay. Can then be attached/deatched.
@@ -21,12 +21,12 @@
      *
      *  @constructor
      */
-    XMOT.interaction.behaviors.MirroredWidgetTarget = new XMOT.Class(
+    XMOT.xml3doverlay.MirroredWidgetTarget = new XMOT.Class(
         XMOT.util.Attachable, {
 
         /** Sets up the mirrored node ready for attaching.
          *
-         *  @this {XMOT.interaction.behaviors.MirroredWidgetTarget}
+         *  @this {XMOT.xml3doverlay.MirroredWidgetTarget}
          *
          *  @param {string} _id
          *  @param {XMOT.XML3DOverlay} _xml3dOverlay
@@ -46,7 +46,7 @@
         },
 
         /**
-         *  @this {XMOT.interaction.behaviors.MirroredWidgetTarget}
+         *  @this {XMOT.xml3doverlay.MirroredWidgetTarget}
          */
         getNode: function()
         {
@@ -54,7 +54,7 @@
         },
 
         /**
-         *  @this {XMOT.interaction.behaviors.MirroredWidgetTarget}
+         *  @this {XMOT.xml3doverlay.MirroredWidgetTarget}
          */
         globalID: function(id)
         {
@@ -62,7 +62,7 @@
         },
 
         /**
-         *  @this {XMOT.interaction.behaviors.MirroredWidgetTarget}
+         *  @this {XMOT.xml3doverlay.MirroredWidgetTarget}
          *  @override
          *  @protected
          */
@@ -72,7 +72,7 @@
         },
 
         /**
-         *  @this {XMOT.interaction.behaviors.MirroredWidgetTarget}
+         *  @this {XMOT.xml3doverlay.MirroredWidgetTarget}
          *  @override
          *  @protected
          */
@@ -82,7 +82,7 @@
         },
 
         /**
-         *  @this {XMOT.interaction.behaviors.MirroredWidgetTarget}
+         *  @this {XMOT.xml3doverlay.MirroredWidgetTarget}
          *  @private
          */
         _setupMirroredTarget: function()
@@ -123,7 +123,7 @@
          *  bounding box is empty. But we still want the scaling, so we set the
          *  scaling to be related to the target's bounding box size.
          *
-         *  @this {XMOT.interaction.behaviors.MirroredWidgetTarget}
+         *  @this {XMOT.xml3doverlay.MirroredWidgetTarget}
          *  @private
          *
          *  @return {window.XML3DMatrix}
@@ -156,7 +156,7 @@
 
         /** Create a group that is transformed by the given matrix.
          *
-         *  @this {XMOT.interaction.behaviors.MirroredWidgetTarget}
+         *  @this {XMOT.xml3doverlay.MirroredWidgetTarget}
          *  @private
          *
          *  @param {string} transformId

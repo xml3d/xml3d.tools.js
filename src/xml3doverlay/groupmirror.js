@@ -2,19 +2,19 @@
 
     "use strict";
 
-    XMOT.namespace("XMOT.interaction.behaviors");
+    XMOT.namespace("XMOT.xml3doverlay");
 
     /** A GroupMirror mirrors a given group in an own overlay.
      *  It creates the overlay and sets up a MirroredWidgetTarget.
      */
-    XMOT.interaction.behaviors.GroupMirror = new XMOT.Class(
+    XMOT.xml3doverlay.GroupMirror = new XMOT.Class(
         XMOT.util.Attachable, {
 
         /**
-         *  @this {XMOT.interaction.behaviors.GroupMirror}
+         *  @this {XMOT.xml3doverlay.GroupMirror}
          *  @param {string} id
          *  @param {XMOT.Transformable} target
-         *  @param {XMOT.xml3doverlay.XML3DOverlay=} xml3dOverlay
+         *  @param {XMOT.XML3DOverlay=} xml3dOverlay
          *
          *  The overlay is optional. If it is not given, one will be created
          *  with the xml3d element of the given target node.
@@ -34,7 +34,7 @@
             }
 
             // mirror the target node
-            this._mirroredTarget = new XMOT.interaction.behaviors.MirroredWidgetTarget(
+            this._mirroredTarget = new XMOT.xml3doverlay.MirroredWidgetTarget(
                 id, this._xml3dOverlay, target);
         },
 
@@ -51,8 +51,8 @@
         },
 
         /**
-         *  @this {XMOT.interaction.behaviors.GroupMirror}
-         *  @return {XMOT.xml3doverlay.XML3DOverlay}
+         *  @this {XMOT.xml3doverlay.GroupMirror}
+         *  @return {XMOT.XML3DOverlay}
          */
         overlay: function()
         {
@@ -60,7 +60,7 @@
         },
 
         /**
-         *  @this {XMOT.interaction.behaviors.GroupMirror}
+         *  @this {XMOT.xml3doverlay.GroupMirror}
          *  @return {XMOT.Transformable} the target node that is mirrored
          */
         target: function()
@@ -71,7 +71,7 @@
         /** Returns a transformable for the mirrored target node with
          *  the given constraint.
          *
-         *  @this {XMOT.interaction.behaviors.GroupMirror}
+         *  @this {XMOT.xml3doverlay.GroupMirror}
          *  @param {function(XML3DVec3,Object):boolean=} constraint
          *  @return {XMOT.Transformable}
          */

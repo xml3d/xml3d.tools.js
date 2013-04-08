@@ -2,7 +2,7 @@
 
     "use strict";
 
-    XMOT.namespace("XMOT.interaction.behaviors");
+    XMOT.namespace("XMOT.xml3doverlay");
 
     /** A mirrored view will create a view-subtree of the view of the target xml3d element.
      *  It will track changes to that view and reflect it in the created subtree.
@@ -11,7 +11,7 @@
      *  o view group node (target view's parent node world matrix)
      *      o view node (target view's position and rotation elements)
      */
-    XMOT.interaction.behaviors.MirroredView = new XMOT.Class(
+    XMOT.xml3doverlay.MirroredView = new XMOT.Class(
         XMOT.util.Attachable, {
 
         nextViewId: 0,
