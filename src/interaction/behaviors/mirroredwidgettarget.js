@@ -132,13 +132,13 @@
             // but it's included in the bounding box.
             // So we remove the local matrix' scaling from the new scale
             var targetMatrixScale = targetMatrix.scaling();
-            var invTargetMatrixScale = new XML3DVec3(
+            var invTargetMatrixScale = new window.XML3DVec3(
                 1/targetMatrixScale.x, 1/targetMatrixScale.y, 1/targetMatrixScale.z);
 
             targetScale = targetScale.multiply(invTargetMatrixScale);
             var scaleAvg = (targetScale.x + targetScale.y + targetScale.z) / 3;
 
-            var targetScaleMatrix = new XML3DMatrix();
+            var targetScaleMatrix = new window.XML3DMatrix();
             targetScaleMatrix.m11 = scaleAvg;
             targetScaleMatrix.m22 = scaleAvg;
             targetScaleMatrix.m33 = scaleAvg;
