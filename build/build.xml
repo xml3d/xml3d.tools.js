@@ -57,6 +57,7 @@
         <file name="util/transformsensor.js" />
 
         <file name="interaction/geometry/geometry.js" />
+        <file name="interaction/geometry/viewedconstantsizegeometry.js" />
         <file name="interaction/geometry/ringmenu.js" />
         <file name="interaction/geometry/uniformscaler.js" />
         <file name="interaction/geometry/rotatorbox.js" />

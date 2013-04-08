@@ -13,15 +13,23 @@
      *
      *  The axes can be retrieved by their name using getGeo().
      */
-    XMOT.interaction.geometry.TranslateGizmo = new XMOT.Class(XMOT.interaction.geometry.Geometry, {
+    XMOT.interaction.geometry.TranslateGizmo = new XMOT.Class(
+        XMOT.interaction.geometry.ViewedConstantSizeGeometry, {
 
         /**
          *  @this {XMOT.interaction.geometry.TranslateGizmo}
          *  @param {XMOT.interaction.widgets.Widget} widget
+         *  @param {Object=} options
          */
-        initialize: function(widget)
+        initialize: function(widget, options)
         {
-            this.callSuper(widget);
+            if(!options)
+                options = {};
+
+            if(!options.scale)
+                options.scale = new XML3DVec3(0.08, 0.08, 0.08);
+
+            this.callSuper(widget, options);
         },
 
         /**
@@ -29,6 +37,8 @@
          */
         onCreateDefsElements: function()
         {
+            this.callSuper();
+
             this._createAxisDefsElements("xAxis", "1 0 0", "0 1 0 1.57", "0 1 0");
             this._createAxisDefsElements("yAxis", "0 1 0", "1 0 0 -1.57", "1 0 0");
             this._createAxisDefsElements("zAxis", "0 0 1", "0 0 1 0", "0 0 1");
@@ -39,6 +49,8 @@
          */
         onCreateGraph: function()
         {
+            this.callSuper();
+
             this.setGeo("xaxis", this._createAxisGroup("xAxis"));
             this.setGeo("yaxis", this._createAxisGroup("yAxis"));
             this.setGeo("zaxis", this._createAxisGroup("zAxis"));
@@ -48,15 +60,6 @@
                 this.getGeo("yaxis"),
                 this.getGeo("zaxis")
             ]);
-        },
-
-        /**
-         *  @this {XMOT.interaction.geometry.TranslateGizmo}
-         *  @override
-         *  @protected
-         */
-        onTargetXfmChanged: function()
-        {
         },
 
         _createAxisDefsElements: function(id, translation, rotation, color)

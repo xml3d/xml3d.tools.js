@@ -36,6 +36,8 @@ XMOT.util.GeoObject = new XMOT.Class({
         else
             this.rootGrp = _xml3d;
 
+        this._rootTransformable = null; // updated during setGraphRoot()
+
         this.defs = {};     // local IDs -> defs element
         this.graph = {}; // local IDs -> graph element. this.graph["root"] will hold the root node
     },
@@ -106,6 +108,7 @@ XMOT.util.GeoObject = new XMOT.Class({
     setGraphRoot: function(rootNode)
     {
         this.graph["root"] = rootNode;
+        this._rootTransformable = XMOT.ClientMotionFactory.createTransformable(rootNode);
     },
 
     /** Add the given array of children to the graph root, set previously by
@@ -134,6 +137,17 @@ XMOT.util.GeoObject = new XMOT.Class({
     getGraphRoot: function()
     {
         return this.graph["root"];
+    },
+
+
+    /** Retrieve a transformable to the graph root node.
+     *
+     *  @this {XMOT.util.GeoObject}
+     *  @return {XMOT.Transformable}
+     */
+    getGraphRootTransformable: function()
+    {
+        return this._rootTransformable;
     },
 
     // ========================================================================

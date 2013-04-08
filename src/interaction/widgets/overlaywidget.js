@@ -15,26 +15,26 @@
 
         /**
          *  @this {XMOT.interaction.widgets.OverlayWidget}
-         *  @param {string} _id
+         *  @param {string} id
          *  @param {{target:XMOT.Transformable|mirror:XMOT.interaction.behaviors.GroupMirror}} options
          */
-        initialize: function(_id, _options)
+        initialize: function(id, options)
         {
-            if(!_options)
+            if(!options)
                 throw new Error("XMOT.interaction.widgets.TranslateGizmo: no options given.");
 
-            if(_options.target)
+            if(options.target)
             {
-                if(_options.target.object.parentNode.tagName !== "group")
+                if(options.target.object.parentNode.tagName !== "group")
                     throw new Error("XMOT.interaction.widgets.TranslateGizmo: target's parent node must be a group.");
-                this._mirror = new XMOT.interaction.behaviors.GroupMirror(_id, _options.target);
+                this._mirror = new XMOT.interaction.behaviors.GroupMirror(id, options.target);
             }
-            else if(_options.mirror)
-                this._mirror = _options.mirror;
+            else if(options.mirror)
+                this._mirror = options.mirror;
             else
                 throw new Error("XMOT.interaction.widgets.TranslateGizmo: the options must be either a target or a mirror.");
 
-            this.callSuper(_id, this._mirror.mirroredTarget());
+            this.callSuper(id, this._mirror.mirroredTarget(), options);
         },
 
         /**

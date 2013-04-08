@@ -31,9 +31,13 @@
          *
          *  @param {string} _id the id if this TransformBox and also the id of the corresponding root group node
          *  @param {XMOT.Transformable} _target the target transformable
-         *  @param {boolean=} _autoScaleAdj automatically fit the scale of the widget's root group to the
+         *  @param {Object=} options
+         *
+         *  Options:
+         *  o autoScale automatically fit the scale of the widget's root group to the
          *      scaling of the target node. Default: true. Useful when widgets have to match the dimensions of the
          *      target node.
+         *  o geometry: options given to the instanciated geometry class
          *
          *  Most probably the target is not the group, that will be modified, but it's parent group,
          *  i.e. the group where the widget will be attached. Thus, an additional constraint for
@@ -44,27 +48,32 @@
          *  group node has no transform element attached one is created.
          *  If the _target's parent node is not a group node an exception is thrown.
          */
-        initialize: function(_id, _target, _autoScaleAdj)
+        initialize: function(id, target, options)
         {
-            if(_target.object.parentNode.tagName !== "group")
+            if(target.object.parentNode.tagName !== "group")
                 throw new Error("XMOT.interaction.widgets.Widget: target's parent node must be a group.");
+
+            if(!options)
+                options = {};
+            if(!options.autoScale)
+                options.autoScale = true;
 
             this.callSuper();
             this.addListenerTypes(["dragstart", "drag", "dragend"]); // arg: this
 
-            this.xml3d = XMOT.util.getXml3dRoot(_target.object);
-            this.ID = _id;
-            this.target = _target;
+            this.xml3d = XMOT.util.getXml3dRoot(target.object);
+            this.ID = id;
+            this.target = target;
 
             // root: the container node whose transform a widget modifies.
             var rootGrp = this.target.object.parentNode;
             this.root = XMOT.ClientMotionFactory.createTransformable(rootGrp);
 
-            this.geometry = new this.GeometryType(this);
+            this.geometry = new this.GeometryType(this, options.geometry);
             this.behavior = {}; // localID -> behavior, storage for all sensors and alike
 
             /** @private */
-            this._autoScaleAdj = (_autoScaleAdj !== undefined) ? _autoScaleAdj : true;
+            this._autoScaleAdj = options.autoScale;
 
             this._isAttached = false;
         },

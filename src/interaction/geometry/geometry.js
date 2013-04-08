@@ -28,8 +28,10 @@
             this.widget = widget;
 
             this._targetTracker = new XMOT.TransformTracker(widget.target.object);
-            this._targetTracker.xfmChanged = this.callback("onTargetXfmChanged");
-            this._targetTracker.attach();
+            this._targetTracker.xfmChanged = this.callback("_onTargetXfmChanged");
+
+            this._viewTracker = new XMOT.ViewTracker(widget.xml3d);
+            this._viewTracker.xfmChanged = this.callback("_onViewXfmChanged");
         },
 
         /** Shortcut to graph root
@@ -75,11 +77,14 @@
             this.createGraph();
             this.geo.attachGraph();
 
-            this.onTargetXfmChanged();
+            this._targetTracker.attach();
+            this._viewTracker.attach();
         },
 
         destroy: function()
         {
+            this._targetTracker.detach();
+            this._viewTracker.detach();
             this.geo.destroy();
         },
 
@@ -91,8 +96,7 @@
         {
             this.geo.addTransforms("t_root", {
                 rotation: this.widget.target.getOrientation().str(),
-                translation: this.widget.target.getPosition().str(),
-                scale: this.widget.target.getScale().str()
+                translation: this.widget.target.getPosition().str()
             });
             this.onCreateDefsElements();
         },
@@ -114,8 +118,21 @@
          *
          *  @this {XMOT.interaction.geometry.Geometry}
          *  @protected
+         *
+         *  @param {!Object} targetNode the node this observer tracks
+         *  @param {!Event} evt the original DOM event that caused the change
          */
-        onTargetXfmChanged: function() {},
+        onTargetXfmChanged: function(targetNode, evt) {},
+
+        /** This is called when the view transformation changes.
+         *
+         *  @this {XMOT.interaction.geometry.Geometry}
+         *  @protected
+         *
+         *  @param {Object} viewTracker the internal tracker used
+         *  @param {Object} evt the original DOM event that caused the change
+         */
+        onViewXfmChanged: function(viewTracker, evt) {},
 
         /** This is called when the defs elements are created. The geometry's
          *  root transform t_root is already created.
@@ -131,6 +148,29 @@
          *  @this {XMOT.interaction.geometry.Geometry}
          *  @protected
          */
-        onCreateGraph: function() {}
+        onCreateGraph: function() {},
+
+        /**
+         *  @this {XMOT.interaction.geometry.Geometry}
+         *  @param {!Object} targetNode the node this observer tracks
+         *  @param {!Event} evt the original DOM event that caused the change
+         */
+        _onTargetXfmChanged: function(targetNode, evt)
+        {
+            if(this.onTargetXfmChanged)
+                this.onTargetXfmChanged(targetNode, evt);
+        },
+
+        /** This is called when the view transformation changes.
+         *
+         *  @this {XMOT.interaction.geometry.Geometry}
+         *  @param {Object} viewTracker the internal tracker used
+         *  @param {Object} evt the original DOM event that caused the change
+         */
+        _onViewXfmChanged: function(viewTracker, evt)
+        {
+            if(this.onViewXfmChanged)
+                this.onViewXfmChanged(viewTracker, evt);
+        }
     });
 }());
