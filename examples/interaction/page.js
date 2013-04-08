@@ -13,9 +13,9 @@ var EXAMPLE_LIST = [
     // --- Complex Widgets ---
     {
         cat: "complexwidgets",
-        name: "TranslateRotateGizmo",
-        href: "tests/test_translaterotategizmo.xhtml",
-        info: "A widget for performing constrained rotation and translation."
+        name: "Gizmos",
+        href: "tests/test_gizmos.xhtml",
+        info: "Widgets for performing constrained rotation and translation."
     },
     {
         cat: "complexwidgets",
@@ -37,18 +37,6 @@ var EXAMPLE_LIST = [
     },
 
     // --- Simple Widgets ---
-    {
-        cat: "simplewidgets",
-        name: "TranslateGizmo",
-        href: "tests/test_translategizmo.xhtml",
-        info: "A widget for performing constrained translation."
-    },
-    {
-        cat: "simplewidgets",
-        name: "RotateGizmo",
-        href: "tests/test_rotategizmo.xhtml",
-        info: "A widget for performing constrained rotation."
-    },
     {
         cat: "simplewidgets",
         name: "TranslateBox",
