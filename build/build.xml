@@ -41,6 +41,7 @@
         <file name="gamepad/GamepadEventProvider.js" />
 
         <file name="util/xml3d_datatype_extensions.js" />
+        <file name="util/attachable.js" />
         <file name="util/xml3doverlay.js" />
 
         <file name="util/util.js" />
