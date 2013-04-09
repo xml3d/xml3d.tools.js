@@ -32,8 +32,7 @@
             this.callSuper();
 
             var options = {
-                mirror: this.mirror(),
-                geometry: {scale: new XML3DVec3(0.08,0.08,0.08)}
+                mirror: this.mirror()
             };
 
             this.behavior["translater"] = new XMOT.interaction.widgets.TranslateGizmo(
