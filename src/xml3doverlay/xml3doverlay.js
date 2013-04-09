@@ -34,6 +34,7 @@
          */
         initialize: function(targetXML3DElement)
         {
+            this.callSuper();
             this.xml3dTarget = targetXML3DElement;
             this.xml3d = this._createXML3DElement();
 
