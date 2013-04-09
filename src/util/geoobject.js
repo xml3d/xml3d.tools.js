@@ -15,7 +15,7 @@
  * For example addShaders() or addTransforms() take local IDs, but construct elements with global
  * IDs, formed by the method globalID().
  */
-XMOT.util.GeoObject = new XMOT.Class({
+XMOT.util.GeoObject = new XMOT.Class(XMOT.util.Attachable, {
 
     /** Initializes the object.
      *
@@ -27,6 +27,8 @@ XMOT.util.GeoObject = new XMOT.Class({
      */
     initialize: function(_id, _xml3d, _rootGrp)
     {
+        this.callSuper();
+
         this.ID = _id;
         this.xml3d = _xml3d;
         this.defsRoot = XMOT.util.getOrCreateDefs(_xml3d);
@@ -61,8 +63,10 @@ XMOT.util.GeoObject = new XMOT.Class({
      *  attachGraph() can be called seperately.
      *
      *  @this {XMOT.util.GeoObject}
+     *  @protected
+     *  @override
      */
-    attach: function()
+    onAttach: function()
     {
     	this.attachDefs();
     	this.attachGraph();
@@ -71,8 +75,10 @@ XMOT.util.GeoObject = new XMOT.Class({
     /** Remove the graph and defs elements from the DOM.
      *
      *  @this {XMOT.util.GeoObject}
+     *  @protected
+     *  @override
      */
-    detach: function()
+    onDetach: function()
     {
         this.rootGrp.removeChild(this.graph["root"]);
         this._removeChildren(this.defsRoot, this.defs);
@@ -87,6 +93,7 @@ XMOT.util.GeoObject = new XMOT.Class({
     attachDefs: function()
     {
         this._appendChildren(this.defsRoot, this.defs);
+        this.setAttached(true);
     },
 
     /** Add the graph["root"] object to the root group
@@ -96,6 +103,7 @@ XMOT.util.GeoObject = new XMOT.Class({
     attachGraph: function()
     {
         this.rootGrp.appendChild(this.graph["root"]);
+        this.setAttached(true);
     },
 
     // ========================================================================
