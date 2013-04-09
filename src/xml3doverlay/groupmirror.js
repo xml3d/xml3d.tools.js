@@ -25,8 +25,11 @@
 
             // overlay
             var xml3dTarget = XMOT.util.getXml3dRoot(target.object);
-            if(xml3dOverlay)
+            this._isSelfCreatedOverlay = (xml3dOverlay == undefined);
+            if(!this._isSelfCreatedOverlay)
+            {
                 this._xml3dOverlay = xml3dOverlay;
+            }
             else
             {
                 this._xml3dOverlay = new XMOT.xml3doverlay.XML3DOverlay(xml3dTarget);
@@ -40,14 +43,16 @@
 
         onAttach: function()
         {
-            this._xml3dOverlay.attach();
+            if(this._isSelfCreatedOverlay)
+                this._xml3dOverlay.attach();
             this._mirroredTarget.attach();
         },
 
         onDetach: function()
         {
             this._mirroredTarget.detach();
-            this._xml3dOverlay.detach();
+            if(this._isSelfCreatedOverlay)
+                this._xml3dOverlay.detach();
         },
 
         /**
