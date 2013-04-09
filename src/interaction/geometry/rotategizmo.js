@@ -27,7 +27,7 @@
                 options = {};
 
             if(!options.scale)
-                options.scale = new XML3DVec3(0.08, 0.08, 0.08);
+                options.scale = new XML3DVec3(0.05, 0.05, 0.05);
 
             this.callSuper(widget, options);
         },
@@ -41,15 +41,9 @@
         {
             this.callSuper();
 
-            this._halfSize = 0.3;
-            var xTransl = "0 " + this._halfSize + " " + this._halfSize;
-            this._createAxisDefsElements("xAxis", xTransl, "0 1 0 1.57", "0 1 0");
-
-            var yTransl = this._halfSize + " 0 " + this._halfSize;
-            this._createAxisDefsElements("yAxis", yTransl, "1 0 0 1.57", "1 0 0");
-
-            var zTransl = this._halfSize + " " + this._halfSize + " 0";
-            this._createAxisDefsElements("zAxis", zTransl, "0 0 1 0", "0 0 1");
+            this._createAxisDefsElements("xAxis", "0 1 0", "0 1 0 -1.57");
+            this._createAxisDefsElements("yAxis", "1 0 0", "1 0 0 1.57");
+            this._createAxisDefsElements("zAxis", "0 0 1");
         },
 
         /**
@@ -77,17 +71,16 @@
          *  @private
          *
          *  @param {string} id
-         *  @param {string} translation
-         *  @param {string} rotation
          *  @param {string} color
+         *  @param {string=} rotation
          */
-        _createAxisDefsElements: function(id, translation, rotation, color)
+        _createAxisDefsElements: function(id, color, rotation)
         {
-            var scale = this._halfSize + " " + this._halfSize + " " + this._halfSize;
+            if(!rotation)
+                rotation = "0 0 1 0";
+
             this.geo.addTransforms("t_" + id, {
-                translation: translation,
-                rotation: rotation,
-                scale: scale
+                rotation: rotation
             });
 
             this.geo.addShaders("s_" + id, {
@@ -108,7 +101,7 @@
                 transform: "#" + this.geo.globalID("t_" + id),
                 shader: "#" + this.geo.globalID("s_" + id),
                 children: [
-                    XMOT.creation.rectangle(this.geo.xml3d)
+                    XMOT.creation.quarterDisc(this.geo.xml3d)
                 ]
             });
         }
