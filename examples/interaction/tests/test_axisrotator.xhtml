@@ -5,10 +5,9 @@
 <head>
   <title>SingleAxisRotator Test</title>
   <link rel="stylesheet" type="text/css" media="all" href="../../style/default.css" />
-  
+
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
   <script type="text/javascript" src="../../external/xml3d.js"></script>
-  <script type="text/javascript" src="../../external/xml3d-tools.js"></script>
   <script type="text/javascript" src="../../../build/output/xml3d-motion.js"></script>
   <script type="text/javascript" src="../page.js" />
 
@@ -33,12 +32,12 @@
           <light id="light1" intensity="10.8" global="false" />
 
           <defs>
-            <transform id="t_widgetgeo_root" rotation="0 0 1 1.57" /> 
-             
+            <transform id="t_widgetgeo_root" rotation="0 0 1 1.57" />
+
             <transform id="trans1" translation="-5 0 0"/>
             <transform id="trans2" />
             <transform id="trans3" translation="5 0 0" />
-            
+
             <shader id="s_target" script="urn:xml3d:shader:phong">
               <float3 name="diffuseColor">0.9 0 0</float3>
               <float name="ambientIntensity">0.3</float>
@@ -48,12 +47,12 @@
               <float3 name="reflective">0 0 0</float3>
               <float3 name="emissiveColor">0 0 0</float3>
             </shader>
-            
+
             <lightshader id="s_light" script="urn:xml3d:lightshader:point">
               <float3 name="intensity">0.7 0.7 0.7</float3>
               <float3 name="attenuation">1.0 0.01 0</float3>
             </lightshader>
-            
+
             <transform id="t_light1" translation="0 0 5" />
             <transform id="t_light2" translation="0 0 -5" />
             <transform id="t_light3" translation="0 5 0" />
@@ -61,7 +60,7 @@
             <transform id="t_light5" translation="5 0 0" />
             <transform id="t_light6" translation="-5 0 0" />
           </defs>
-          
+
           <group transform="#t_light1">
             <light shader="#s_light"/>
           </group>
@@ -84,7 +83,7 @@
           <group id="group_all" shader="#s_target">
             <group transform="#trans1">
               <group id="group1">
-                  <!-- mesh inserted by script -->             
+                  <!-- mesh inserted by script -->
               </group>
             </group>
             <group transform="#trans2">
@@ -103,11 +102,11 @@
     </div>
 
     <div class="actions">
-        <input id="toggle" type="button" value="Attach" onclick="toggle();"/> 
-    </div> 
+        <input id="toggle" type="button" value="Attach" onclick="toggle();"/>
+    </div>
     <div class="message">
         A SingleAxisRotator places 4 interactive handles around a predefined axis. By dragging one of those
-        handles the target object is rotated constrained to the defined axis.  
+        handles the target object is rotated constrained to the defined axis.
     </div>
   </div>
 </div>

@@ -5,10 +5,9 @@
 <head>
   <title>.rotatable() Test</title>
   <link rel="stylesheet" type="text/css" media="all" href="../../style/default.css" />
-  
+
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
   <script type="text/javascript" src="../../external/xml3d.js"></script>
-  <script type="text/javascript" src="../../external/xml3d-tools.js"></script>
   <script type="text/javascript" src="../../../build/output/xml3d-motion.js"></script>
   <script type="text/javascript" src="../page.js" />
 
@@ -36,7 +35,7 @@
             <transform id="trans1" />
             <transform id="trans2" translation="0 -2.5 0" />
             <transform id="transall" />
-            
+
             <shader id="s_target" script="urn:xml3d:shader:phong">
               <float3 name="diffuseColor">0.9 0 0</float3>
               <float name="ambientIntensity">0.3</float>
@@ -46,12 +45,12 @@
               <float3 name="reflective">0 0 0</float3>
               <float3 name="emissiveColor">0 0 0</float3>
             </shader>
-            
+
             <lightshader id="s_light" script="urn:xml3d:lightshader:point">
               <float3 name="intensity">0.7 0.7 0.7</float3>
               <float3 name="attenuation">1.0 0.01 0</float3>
             </lightshader>
-            
+
             <transform id="t_light1" translation="0 0 5" />
             <transform id="t_light2" translation="0 0 -5" />
             <transform id="t_light3" translation="0 5 0" />
@@ -59,7 +58,7 @@
             <transform id="t_light5" translation="5 0 0" />
             <transform id="t_light6" translation="-5 0 0" />
           </defs>
-          
+
           <group transform="#t_light1">
             <light shader="#s_light"/>
           </group>
@@ -81,7 +80,7 @@
 
           <group id="group_all" shader="#s_target" transform="#transall">
             <group id="group1" transform="#trans1">
-                <!-- mesh inserted by script -->               
+                <!-- mesh inserted by script -->
             </group>
           </group>
         </xml3d>
@@ -92,21 +91,21 @@
       <input type="button" value="Activate Trackball" id="toggletrackball" onclick="toggleTrackBall();" />
       <input type="button" value="Reset Rotation" onclick="resetRotation();" />
       <span style="margin-left: 10px;">axis restriction:
-        <input type="radio" name="axisrestrict" 
+        <input type="radio" name="axisrestrict"
                value="none" onclick="changeRestriction(null)"
                checked="true" />
             none&nbsp;&nbsp;
-        <input type="radio" name="axisrestrict" 
+        <input type="radio" name="axisrestrict"
                value="x" onclick="changeRestriction('x')" />
             x&nbsp;&nbsp;
-        <input type="radio" name="axisrestrict" 
+        <input type="radio" name="axisrestrict"
                value="y" onclick="changeRestriction('y')" />
             y&nbsp;&nbsp;
-        <input type="radio" name="axisrestrict" 
+        <input type="radio" name="axisrestrict"
                value="z" onclick="changeRestriction('z')" />
             z&nbsp;&nbsp;
       </span>
-    </div> 
+    </div>
     <div class="message">
       <p>Upon activation the rotation of the rectangle can be controlled by dragging it.
       This is done using the jQuery plugin .rotatable().</p>
