@@ -247,12 +247,10 @@
         _pickAndUpdateStatus: function(pageX, pageY)
         {
             // update pd sensor status
-            var pos = XML3D.util.convertPageCoords(this.xml3d, pageX, pageY);
-
-            this.pdPose = this.xml3d.generateRay(pos.x, pos.y);
+            this.pdPose = this.xml3d.generateRay(pageX, pageY);
             this.curHitPoint = new window.XML3DVec3();
 
-            this.curHitElement = this.xml3d.getElementByPoint(pos.x, pos.y, this.curHitPoint);
+            this.curHitElement = this.xml3d.getElementByPoint(pageX, pageY, this.curHitPoint);
             if(!this.curHitElement)
                 this.curHitPoint = null; // invalidate hit point
         }

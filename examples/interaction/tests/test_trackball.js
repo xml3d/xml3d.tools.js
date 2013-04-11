@@ -4,9 +4,9 @@ var xml3d = null;
 function initScene()
 {
     xml3d = document.getElementById("MyXml3d");
-    
+
     if(XML3D.Xml3dSceneController)
-        XML3D.Xml3dSceneController.detachAllControllers(); 
+        XML3D.Xml3dSceneController.detachAllControllers();
 
     trackball = new XMOT.interaction.behaviors.TrackBall(300, 200);
 }
@@ -62,8 +62,7 @@ function onTargetMouseDown(evt)
     if(evt.button == 0)
     {
         dragging = true;
-        var pos = XML3D.util.convertPageCoords(xml3d, evt.pageX, evt.pageY);
-        trackball.dragStart(pos.x, pos.y);
+        trackball.dragStart(evt.pageX, evt.pageY);
 
         $("#dragstatus").html("true");
     }
@@ -73,8 +72,7 @@ function onRootMouseMove(evt)
 {
     if(dragging)
     {
-        var pos = XML3D.util.convertPageCoords(xml3d, evt.pageX, evt.pageY);
-        var rot = trackball.drag(pos.x, pos.y);
+        var rot = trackball.drag(evt.pageX, evt.pageY);
         var rotStr = rot.axis.x + " " + rot.axis.y + " " + rot.axis.z
                     + " " + rot.angle;
 

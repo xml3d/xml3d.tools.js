@@ -21,13 +21,13 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-@version: DEVELOPMENT SNAPSHOT (27.03.2013 11:39:36 CET)
+@version: DEVELOPMENT SNAPSHOT (11.04.2013 15:05:04 CEST)
 **/
 /** @namespace * */
 var XML3D = XML3D || {};
 
 /** @define {string} */
-XML3D.version = 'DEVELOPMENT SNAPSHOT (27.03.2013 11:39:36 CET)';
+XML3D.version = 'DEVELOPMENT SNAPSHOT (11.04.2013 15:05:04 CEST)';
 /** @const */
 XML3D.xml3dNS = 'http://www.xml3d.org/2009/xml3d';
 /** @const */
@@ -54,6 +54,21 @@ XML3D.extend = function(a, b) {
 };
 
 /**
+ * Returns true if ctor is a superclass of subclassCtor.
+ * @param ctor
+ * @param subclassCtor
+ * @return {Boolean}
+ */
+XML3D.isSuperclassOf = function(ctor, subclassCtor) {
+    while (subclassCtor && subclassCtor.superclass) {
+        if (subclassCtor.superclass === ctor.prototype)
+            return true;
+        subclassCtor = subclassCtor.superclass.constructor;
+    }
+    return false;
+}
+
+/**
  *
  * @param {Object} ctor Constructor
  * @param {Object} parent Parent class
@@ -71,6 +86,7 @@ XML3D.createClass = function(ctor, parent, methods) {
         ctor.prototype.constructor = ctor;
         ctor.superclass = parent.prototype;
     }
+    ctor.isSuperclassOf = XML3D.isSuperclassOf.bind(ctor, ctor);
     for ( var m in methods) {
         ctor.prototype[m] = methods[m];
     }
@@ -122,16 +138,33 @@ XML3D.createClass = function(ctor, parent, methods) {
         hideDiv.parentNode.insertBefore(infoDiv, hideDiv);
     };
 
+    /*  a list of elements that are currently initialized. More specifically,
+     *  they're currently in a call to the method below.
+     *
+     *  Why?
+     *  In webgl we actually reattach the xml3d element in the DOM. Thus, when
+     *  we're in the middle of working on a onNodeInserted event, there will probably
+     *  come right another event which we actually don't care for.
+     *  So we use this list to keep track of which elements are currently initializing.
+     */
+    var curXML3DInitElements = [];
+
     function initXML3DElement(xml3dElement) {
 
         if (XML3D._native)
             return;
+
+        if(-1 < curXML3DInitElements.indexOf(xml3dElement))
+            return;
+
+        curXML3DInitElements.push(xml3dElement);
 
         var debug = XML3D.debug.setup();
 
         if (!(XML3D.webgl && XML3D.webgl.supported())) {
             debug && XML3D.debug.logWarning("Could not initialise WebGL, sorry :-(");
             displayWebGLNotSupportedInfo(xml3dElement);
+            curXML3DInitElements.splice(curXML3DInitElements.indexOf(xml3dElement), 1);
             return;
         }
 
@@ -139,23 +172,57 @@ XML3D.createClass = function(ctor, parent, methods) {
             XML3D.config.configure(xml3dElement);
         } catch (e) {
             debug && XML3D.debug.logException(e);
+            curXML3DInitElements.splice(curXML3DInitElements.indexOf(xml3dElement), 1);
             return;
         }
         try {
             XML3D.webgl.configure(xml3dElement);
         } catch (e) {
             debug && XML3D.debug.logException(e);
+            curXML3DInitElements.splice(curXML3DInitElements.indexOf(xml3dElement), 1);
             return;
         }
 
         // initialize all attached adapters
         XML3D.base.sendAdapterEvent(xml3dElement, {onConfigured : []});
+
+        curXML3DInitElements.splice(curXML3DInitElements.indexOf(xml3dElement), 1);
+    };
+
+    function destroyXML3DElement(xml3dElement)
+    {
+        if(-1 < curXML3DInitElements.indexOf(xml3dElement))
+            return;
+
+        xml3dElement._configured = undefined;
+
+        if(!xml3dElement.parentNode)
+            return; // already removed
+
+        var canvas = xml3dElement.parentNode.previousElementSibling;
+
+        var grandParentNode = xml3dElement.parentNode.parentNode;
+        if(!grandParentNode)
+            return; // subtree containing canvas is not attached, can't remove it
+
+        if(!canvas || canvas.tagName !== "canvas")
+            return; // an element we didn't create, skip deletion
+
+        grandParentNode.removeChild(xml3dElement.parentNode);
+        grandParentNode.removeChild(canvas);
     };
 
     function onNodeInserted(evt) {
 
         if(evt.target.tagName === "xml3d") {
             initXML3DElement(evt.target);
+        }
+    };
+
+    function onNodeRemoved(evt) {
+
+        if(evt.target.tagName === "xml3d") {
+            destroyXML3DElement(evt.target);
         }
     };
 
@@ -193,6 +260,7 @@ XML3D.createClass = function(ctor, parent, methods) {
     window.addEventListener('unload', onUnload, false);
     window.addEventListener('reload', onUnload, false);
     document.addEventListener('DOMNodeInserted', onNodeInserted, false);
+    document.addEventListener('DOMNodeRemoved', onNodeRemoved, false);
 
 })();
 // utils/misc.js
@@ -340,62 +408,11 @@ window.requestAnimFrame = (function(){
         var vid = "xml3d.autocreatedview_" + __autoCreatedViewId++; 
         var v = XML3D.createElement("view");
         v.setAttribute("id", vid);
-        
-        xml3d.appendChild(v); 
-        xml3d.setAttribute("activeView", "#" + vid); 
-        
-        return v; 
-    }; 
-    
-    /** Calculate the offset of the given element and return it.
-     *
-     *  @param {Object} element
-     *  @return {{top:number, left:number}} the offset
-     *
-     *  This code is taken from http://javascript.info/tutorial/coordinates .
-     *  We don't want to do it with the offsetParent way, because the xml3d
-     *  element is actually invisible and thus offsetParent will return null
-     *  at least in WebKit. Also it's slow. So we use getBoundingClientRect().
-     *  However it returns the box relative to the window, not the document.
-     *  Thus, we need to incorporate the scroll factor. And because IE is so
-     *  awesome some workarounds have to be done and the code gets complicated.
-     */
-    function calculateOffset(element)
-    {
-        var box = element.getBoundingClientRect();
-        var body = document.body;
-        var docElem = document.documentElement;
 
-        // get scroll factor (every browser except IE supports page offsets)
-        var scrollTop = window.pageYOffset || docElem.scrollTop || body.scrollTop;
-        var scrollLeft = window.pageXOffset || docElem.scrollLeft || body.scrollLeft;
+        xml3d.appendChild(v);
+        xml3d.setAttribute("activeView", "#" + vid);
 
-        // the document (`html` or `body`) can be shifted from left-upper corner in IE. Get the shift.
-        var clientTop = docElem.clientTop || body.clientTop || 0;
-        var clientLeft = docElem.clientLeft || body.clientLeft || 0;
-
-        var top  = box.top +  scrollTop - clientTop;
-        var left = box.left + scrollLeft - clientLeft;
-
-        // for Firefox an additional rounding is sometimes required
-        return {top: Math.round(top), left: Math.round(left)};
-    }
-
-    /** Convert a given mouse page position to be relative to the given target element.
-     *  Most probably the page position are the MouseEvent's pageX and pageY attributes.
-     *  The result are the proper coordinates to be given to e.g.
-     *  the <xml3d>'s getElementByPoint() method.
-     *
-     *  @param {!Object} xml3dEl the xml3d element to which the coords need to be translated
-     *  @param {!number} pageX the x-coordinate relative to the page
-     *  @param {!number} pageY the y-coordinate relative to the page
-     *  @return {{x: number, y: number}} the converted coordinates
-     */
-    u.convertPageCoords = function(xml3dEl, pageX, pageY)
-    {
-        var off = calculateOffset(xml3dEl);
-
-        return {x: pageX - off.left, y: pageY - off.top};
+        return v;
     };
 }());
 // Add convienent array methods if non-existant
@@ -5769,7 +5786,185 @@ if(typeof(exports) !== 'undefined') {
 
 }(this));
 
-// XML3DVec3
+// Ported from Stefan Gustavson's java implementation
+// http://staffwww.itn.liu.se/~stegu/simplexnoise/simplexnoise.pdf
+// Read Stefan's excellent paper for details on how this code works.
+//
+// Sean McCullough banksean@gmail.com
+
+/**
+ * You can pass in a random number generator object if you like.
+ * It is assumed to have a random() method.
+ */
+var SimplexNoise = function(r) {
+	if (r == undefined) r = Math;
+  this.grad3 = [[1,1,0],[-1,1,0],[1,-1,0],[-1,-1,0], 
+                                 [1,0,1],[-1,0,1],[1,0,-1],[-1,0,-1], 
+                                 [0,1,1],[0,-1,1],[0,1,-1],[0,-1,-1]]; 
+  this.p = [];
+  for (var i=0; i<256; i++) {
+	  this.p[i] = Math.floor(r.random()*256);
+  }
+  // To remove the need for index wrapping, double the permutation table length 
+  this.perm = []; 
+  for(var i=0; i<512; i++) {
+		this.perm[i]=this.p[i & 255];
+	} 
+
+  // A lookup table to traverse the simplex around a given point in 4D. 
+  // Details can be found where this table is used, in the 4D noise method. 
+  this.simplex = [ 
+    [0,1,2,3],[0,1,3,2],[0,0,0,0],[0,2,3,1],[0,0,0,0],[0,0,0,0],[0,0,0,0],[1,2,3,0], 
+    [0,2,1,3],[0,0,0,0],[0,3,1,2],[0,3,2,1],[0,0,0,0],[0,0,0,0],[0,0,0,0],[1,3,2,0], 
+    [0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0], 
+    [1,2,0,3],[0,0,0,0],[1,3,0,2],[0,0,0,0],[0,0,0,0],[0,0,0,0],[2,3,0,1],[2,3,1,0], 
+    [1,0,2,3],[1,0,3,2],[0,0,0,0],[0,0,0,0],[0,0,0,0],[2,0,3,1],[0,0,0,0],[2,1,3,0], 
+    [0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0], 
+    [2,0,1,3],[0,0,0,0],[0,0,0,0],[0,0,0,0],[3,0,1,2],[3,0,2,1],[0,0,0,0],[3,1,2,0], 
+    [2,1,0,3],[0,0,0,0],[0,0,0,0],[0,0,0,0],[3,1,0,2],[0,0,0,0],[3,2,0,1],[3,2,1,0]]; 
+};
+
+SimplexNoise.prototype.dot = function(g, x, y) { 
+	return g[0]*x + g[1]*y;
+};
+
+SimplexNoise.prototype.noise = function(xin, yin) { 
+  var n0, n1, n2; // Noise contributions from the three corners 
+  // Skew the input space to determine which simplex cell we're in 
+  var F2 = 0.5*(Math.sqrt(3.0)-1.0); 
+  var s = (xin+yin)*F2; // Hairy factor for 2D 
+  var i = Math.floor(xin+s); 
+  var j = Math.floor(yin+s); 
+  var G2 = (3.0-Math.sqrt(3.0))/6.0; 
+  var t = (i+j)*G2; 
+  var X0 = i-t; // Unskew the cell origin back to (x,y) space 
+  var Y0 = j-t; 
+  var x0 = xin-X0; // The x,y distances from the cell origin 
+  var y0 = yin-Y0; 
+  // For the 2D case, the simplex shape is an equilateral triangle. 
+  // Determine which simplex we are in. 
+  var i1, j1; // Offsets for second (middle) corner of simplex in (i,j) coords 
+  if(x0>y0) {i1=1; j1=0;} // lower triangle, XY order: (0,0)->(1,0)->(1,1) 
+  else {i1=0; j1=1;}      // upper triangle, YX order: (0,0)->(0,1)->(1,1) 
+  // A step of (1,0) in (i,j) means a step of (1-c,-c) in (x,y), and 
+  // a step of (0,1) in (i,j) means a step of (-c,1-c) in (x,y), where 
+  // c = (3-sqrt(3))/6 
+  var x1 = x0 - i1 + G2; // Offsets for middle corner in (x,y) unskewed coords 
+  var y1 = y0 - j1 + G2; 
+  var x2 = x0 - 1.0 + 2.0 * G2; // Offsets for last corner in (x,y) unskewed coords 
+  var y2 = y0 - 1.0 + 2.0 * G2; 
+  // Work out the hashed gradient indices of the three simplex corners 
+  var ii = i & 255; 
+  var jj = j & 255; 
+  var gi0 = this.perm[ii+this.perm[jj]] % 12; 
+  var gi1 = this.perm[ii+i1+this.perm[jj+j1]] % 12; 
+  var gi2 = this.perm[ii+1+this.perm[jj+1]] % 12; 
+  // Calculate the contribution from the three corners 
+  var t0 = 0.5 - x0*x0-y0*y0; 
+  if(t0<0) n0 = 0.0; 
+  else { 
+    t0 *= t0; 
+    n0 = t0 * t0 * this.dot(this.grad3[gi0], x0, y0);  // (x,y) of grad3 used for 2D gradient 
+  } 
+  var t1 = 0.5 - x1*x1-y1*y1; 
+  if(t1<0) n1 = 0.0; 
+  else { 
+    t1 *= t1; 
+    n1 = t1 * t1 * this.dot(this.grad3[gi1], x1, y1); 
+  }
+  var t2 = 0.5 - x2*x2-y2*y2; 
+  if(t2<0) n2 = 0.0; 
+  else { 
+    t2 *= t2; 
+    n2 = t2 * t2 * this.dot(this.grad3[gi2], x2, y2); 
+  } 
+  // Add contributions from each corner to get the final noise value. 
+  // The result is scaled to return values in the interval [-1,1]. 
+  return 70.0 * (n0 + n1 + n2); 
+};
+
+// 3D simplex noise 
+SimplexNoise.prototype.noise3d = function(xin, yin, zin) { 
+  var n0, n1, n2, n3; // Noise contributions from the four corners 
+  // Skew the input space to determine which simplex cell we're in 
+  var F3 = 1.0/3.0; 
+  var s = (xin+yin+zin)*F3; // Very nice and simple skew factor for 3D 
+  var i = Math.floor(xin+s); 
+  var j = Math.floor(yin+s); 
+  var k = Math.floor(zin+s); 
+  var G3 = 1.0/6.0; // Very nice and simple unskew factor, too 
+  var t = (i+j+k)*G3; 
+  var X0 = i-t; // Unskew the cell origin back to (x,y,z) space 
+  var Y0 = j-t; 
+  var Z0 = k-t; 
+  var x0 = xin-X0; // The x,y,z distances from the cell origin 
+  var y0 = yin-Y0; 
+  var z0 = zin-Z0; 
+  // For the 3D case, the simplex shape is a slightly irregular tetrahedron. 
+  // Determine which simplex we are in. 
+  var i1, j1, k1; // Offsets for second corner of simplex in (i,j,k) coords 
+  var i2, j2, k2; // Offsets for third corner of simplex in (i,j,k) coords 
+  if(x0>=y0) { 
+    if(y0>=z0) 
+      { i1=1; j1=0; k1=0; i2=1; j2=1; k2=0; } // X Y Z order 
+      else if(x0>=z0) { i1=1; j1=0; k1=0; i2=1; j2=0; k2=1; } // X Z Y order 
+      else { i1=0; j1=0; k1=1; i2=1; j2=0; k2=1; } // Z X Y order 
+    } 
+  else { // x0<y0 
+    if(y0<z0) { i1=0; j1=0; k1=1; i2=0; j2=1; k2=1; } // Z Y X order 
+    else if(x0<z0) { i1=0; j1=1; k1=0; i2=0; j2=1; k2=1; } // Y Z X order 
+    else { i1=0; j1=1; k1=0; i2=1; j2=1; k2=0; } // Y X Z order 
+  } 
+  // A step of (1,0,0) in (i,j,k) means a step of (1-c,-c,-c) in (x,y,z), 
+  // a step of (0,1,0) in (i,j,k) means a step of (-c,1-c,-c) in (x,y,z), and 
+  // a step of (0,0,1) in (i,j,k) means a step of (-c,-c,1-c) in (x,y,z), where 
+  // c = 1/6.
+  var x1 = x0 - i1 + G3; // Offsets for second corner in (x,y,z) coords 
+  var y1 = y0 - j1 + G3; 
+  var z1 = z0 - k1 + G3; 
+  var x2 = x0 - i2 + 2.0*G3; // Offsets for third corner in (x,y,z) coords 
+  var y2 = y0 - j2 + 2.0*G3; 
+  var z2 = z0 - k2 + 2.0*G3; 
+  var x3 = x0 - 1.0 + 3.0*G3; // Offsets for last corner in (x,y,z) coords 
+  var y3 = y0 - 1.0 + 3.0*G3; 
+  var z3 = z0 - 1.0 + 3.0*G3; 
+  // Work out the hashed gradient indices of the four simplex corners 
+  var ii = i & 255; 
+  var jj = j & 255; 
+  var kk = k & 255; 
+  var gi0 = this.perm[ii+this.perm[jj+this.perm[kk]]] % 12; 
+  var gi1 = this.perm[ii+i1+this.perm[jj+j1+this.perm[kk+k1]]] % 12; 
+  var gi2 = this.perm[ii+i2+this.perm[jj+j2+this.perm[kk+k2]]] % 12; 
+  var gi3 = this.perm[ii+1+this.perm[jj+1+this.perm[kk+1]]] % 12; 
+  // Calculate the contribution from the four corners 
+  var t0 = 0.6 - x0*x0 - y0*y0 - z0*z0; 
+  if(t0<0) n0 = 0.0; 
+  else { 
+    t0 *= t0; 
+    n0 = t0 * t0 * this.dot(this.grad3[gi0], x0, y0, z0); 
+  }
+  var t1 = 0.6 - x1*x1 - y1*y1 - z1*z1; 
+  if(t1<0) n1 = 0.0; 
+  else { 
+    t1 *= t1; 
+    n1 = t1 * t1 * this.dot(this.grad3[gi1], x1, y1, z1); 
+  } 
+  var t2 = 0.6 - x2*x2 - y2*y2 - z2*z2; 
+  if(t2<0) n2 = 0.0; 
+  else { 
+    t2 *= t2; 
+    n2 = t2 * t2 * this.dot(this.grad3[gi2], x2, y2, z2); 
+  } 
+  var t3 = 0.6 - x3*x3 - y3*y3 - z3*z3; 
+  if(t3<0) n3 = 0.0; 
+  else { 
+    t3 *= t3; 
+    n3 = t3 * t3 * this.dot(this.grad3[gi3], x3, y3, z3); 
+  } 
+  // Add contributions from each corner to get the final noise value. 
+  // The result is scaled to stay just inside [-1,1] 
+  return 32.0*(n0 + n1 + n2 + n3); 
+};// XML3DVec3
 
 (function($) {
     // Is native?
@@ -5812,19 +6007,38 @@ if(typeof(exports) !== 'undefined') {
         /** @private */
         this._data = new Float32Array(3);
 
-        if (typeof x == 'object' && x._data) {
-            this._data[0] = x._data[0];
-            this._data[1] = x._data[1];
-            this._data[2] = x._data[2];
-        } else {
-            this._data[0] = x || 0;
-            this._data[1] = y || 0;
-            this._data[2] = z || 0;
+        if(x !== undefined && x !== null) {
+            this.set(x,y,z);
         }
 
         this._callback = typeof cb == 'function' ? cb : 0;
 
     }, p = XML3DVec3.prototype;
+
+    /**
+     * The set method copies the values from other.
+     * @param {Object} other another XML3DVec3, Float32Array or a number. In the last case the other args are considered, too.
+     * @param {number=} y
+     * @param {number=} z
+     */
+    p.set = function(other,y,z) {
+        if(other.length && other.length >= 3) {
+            this._data[0] = other[0];
+            this._data[1] = other[1];
+            this._data[2] = other[2];
+        }
+        else if(other._data && other._data.length && other._data.length === 3) {
+            this._data[0] = other._data[0];
+            this._data[1] = other._data[1];
+            this._data[2] = other._data[2];
+        } else if(arguments.length == 3) {
+            this._data[0] = other;
+            this._data[1] = y;
+            this._data[2] = z;
+        }
+        if (this._callback)
+            this._callback(this);
+    };
 
     /** @type {number} */
     Object.defineProperty(p, "x", prop(0));
@@ -5896,24 +6110,6 @@ if(typeof(exports) !== 'undefined') {
         this._data[0] = +m[1];
         this._data[1] = +m[2];
         this._data[2] = +m[3];
-        if (this._callback)
-            this._callback(this);
-    };
-
-    /**
-     * The set method copies the values from other.
-     * @param {XML3DVec3} other The other vector
-     */
-    p.set = function(other,y,z) {
-        if(arguments.length == 1) {
-            this._data[0] = other._data[0];
-            this._data[1] = other._data[1];
-            this._data[2] = other._data[2];
-        } else if(arguments.length == 3) {
-            this._data[0] = other;
-            this._data[1] = y;
-            this._data[2] = z;
-        }
         if (this._callback)
             this._callback(this);
     };
@@ -6024,9 +6220,8 @@ if(typeof(exports) !== 'undefined') {
      * three-dimensional vector as a 3-tuple floating point values.
      * @constructor
      * @this {XML3DRotation}
-     * @param {number=} x The x value (optional). Default: 0.
-     * @param {number=} y The y value (optional). Default: 0.
-     * @param {number=} z The z value (optional). Default: 0.
+     * @param {XML3DVec3=} axis
+     * @param {number=} angle
      * @param {function(XML3DVec3=)=} cb Called, if value has changed.
      *                                   Has this as first parameter.
      */
@@ -6034,30 +6229,45 @@ if(typeof(exports) !== 'undefined') {
         var that = this;
         this._data = new Float32Array(4);
 
-        /** @private */
-        this._callback = typeof cb == 'function' ? cb : 0;
-
-        /** @private */
         var vec_cb = function() {
             that._updateQuaternion();
             if (that._callback)
                 that._callback(that);
         };
 
-        if (axis instanceof XML3DRotation) {
-            this._axis = new window.XML3DVec3(0, 0, 1, vec_cb);
-            this._angle = 0;
-            this.setAxisAngle(axis.axis, axis.angle);
-        } else {
-            this._axis = axis ? new window.XML3DVec3(axis.x, axis.y, axis.z, vec_cb) : new window.XML3DVec3(0, 0, 1, vec_cb);
-            /** @private */
-            this._angle = angle || 0;
-            this._updateQuaternion();
+        /** @private */
+        this._axis = new window.XML3DVec3(0, 0, 1, vec_cb);
+        /** @private */
+        this._angle = 0;
+
+        this._updateQuaternion();
+
+        if(axis !== undefined && axis !== null) {
+            this.set(axis, angle);
         }
 
-    }; 
-    
+        /** @private */
+        this._callback = typeof cb == 'function' ? cb : 0;
+    };
+
     var p = XML3DRotation.prototype;
+
+    /**
+     * The set method copies the values from other.
+     * @param {Object} other another XML3DRotation, Float32Array or XML3DVec3. In the last case the 2nd argument is considered.
+     * @param {number=} angle
+     */
+    p.set = function(other, angle) {
+        if(other.axis && other.angle !== undefined) {
+            this.setAxisAngle(other.axis, other.angle);
+        } else if(other.length && other.length >= 4) {
+            this._setQuaternion(other);
+        } else if(other._data && other._data.length && other._data.length === 3) {
+            this.setAxisAngle(other, angle);
+        } else {
+            XML3D.debug.logError("XML3DRotation.set(): invalid argument given. Expect XML3DRotation or Float32Array.");
+        }
+    };
 
     /** @type {number} */
     Object.defineProperty(p, "axis", {
@@ -6188,15 +6398,7 @@ if(typeof(exports) !== 'undefined') {
     };
 
     /**
-     * The set method copies the values from other.
-     * @param {XML3DRotation} other The other rotation
-     */
-    p.set = function(other) {
-        this.setAxisAngle(other.axis, other.angle);
-    };
-
-    /**
-     * Returns a XML3DMatrix that describes this 3D rotation in a 
+     * Returns a XML3DMatrix that describes this 3D rotation in a
      * 4x4 matrix representation.
      * @return {XML3DMatrix} Rotation matrix
      */
@@ -6206,13 +6408,13 @@ if(typeof(exports) !== 'undefined') {
         XML3D.math.mat4.fromRotationTranslation(m._data, q, [0, 0, 0]);
         return m;
     };
-    
+
     /**
-     * Rotates the vector passed as parameter with this rotation 
+     * Rotates the vector passed as parameter with this rotation
      * representation. The result is returned as new vector instance.
      * Neither this nor the inputVector are changed.
      * 4x4 matrix representation.
-     * @param {XML3DVec3} inputVector 
+     * @param {XML3DVec3} inputVector
      * @return {XML3DVec3} The rotated vector
      */
     p.rotateVec3 = function(inputVector) {
@@ -6220,7 +6422,7 @@ if(typeof(exports) !== 'undefined') {
         XML3D.math.vec3.transformQuat(result._data, inputVector._data, this._data)
         return result;
     };
-    
+
     /**
      * Replaces the existing rotation with the quaternion representation passed
      * as argument
@@ -6249,7 +6451,7 @@ if(typeof(exports) !== 'undefined') {
     /**
      * Multiplies this rotation with the passed rotation. This rotation is not
      * changed.
-     * 
+     *
      * @param {XML3DRotation} rot1
      * @return {XML3DVec3} The result
      */
@@ -6268,20 +6470,34 @@ if(typeof(exports) !== 'undefined') {
         var na = this._axis.normalize();
         return new XML3DRotation(na, this._angle);
     };
-    
-    /** 
-     * Returns the quaternion, that underlies this rotation. 
-     * 
-     * @return {Float32Array} 
+
+    /**
+     * Returns the quaternion, that underlies this rotation.
+     *
+     * @return {Float32Array}
      */
     p.getQuaternion = function() {
-        return XML3D.math.quat.copy(XML3D.math.quat.create(), this._data); 
+        return XML3D.math.quat.copy(XML3D.math.quat.create(), this._data);
+    };
+
+    /**
+     * Set this rotation based on the given base vectors.
+     *
+     * @param {XML3DVec3} xAxis
+     * @param {XML3DVec3} yAxis
+     * @param {XML3DVec3} zAxis
+     */
+    p.setFromBasis = function(xAxis, yAxis, zAxis) {
+        var q = XML3D.math.quat.create();
+        XML3D.math.quat.setFromBasis(xAxis._data, yAxis._data, zAxis._data, q);
+        this._setQuaternion(q);
     };
 
     XML3D.XML3DRotation = XML3DRotation;
     window.XML3DRotation = XML3DRotation;
 
-}(XML3D._native));// box.js
+}(XML3D._native));
+// box.js
 (function($) {
     // Is native?
     if($) return;
@@ -6457,7 +6673,7 @@ if(typeof(exports) !== 'undefined') {
 }(XML3D._native));
 // matrix.js
 (function(isNative) {
-    
+
     if(isNative) return;
 
     /**
@@ -6523,10 +6739,10 @@ if(typeof(exports) !== 'undefined') {
             m32, m33, m34, m41, m42, m43, m44, cb) {
         /** @private */
         if (typeof m11 == 'number' && arguments.length >= 16) {
-            this._data = new Float32Array(arguments);
+            this.set(m11, m12, m13, m14, m21, m22, m23, m24, m31, m32, m33, m34, m41, m42, m43, m44);
             this._callback = typeof cb == 'function' ? cb : 0;
         } else if (typeof m11 == 'object' && arguments.length == 1) {
-            this._data = new Float32Array(m11._data);
+            this.set(m11);
         } else{
             this._data = new Float32Array( [ 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1,
                     0, 0, 0, 0, 1 ]);
@@ -6567,6 +6783,47 @@ if(typeof(exports) !== 'undefined') {
     Object.defineProperty(p, "m43", prop(14));
     /** @type {number} */
     Object.defineProperty(p, "m44", prop(15));
+
+    /**
+     * Set the value of the matrix.
+     *
+     * @param {Object} m11 another XML3DMatrix, Float32Array or a number. In the last case the remaining arguments are considered.
+     * @param {number=} m12
+     * @param {number=} m13
+     * @param {number=} m14
+     * @param {number=} m21
+     * @param {number=} m22
+     * @param {number=} m23
+     * @param {number=} m24
+     * @param {number=} m31
+     * @param {number=} m32
+     * @param {number=} m33
+     * @param {number=} m34
+     * @param {number=} m41
+     * @param {number=} m42
+     * @param {number=} m43
+     * @param {number=} m44
+     */
+    p.set = function(m11, m12, m13, m14, m21, m22, m23, m24, m31,
+            m32, m33, m34, m41, m42, m43, m44) {
+
+        if (typeof m11 == 'number' && arguments.length >= 16) {
+            this._data = new Float32Array(arguments);
+            return;
+        }
+
+        if(m11._data && m11._data.length && m11._data.length === 16) {
+            this._data = new Float32Array(m11._data);
+            return;
+        }
+
+        if(m11.length && m11.length >= 16) {
+            this._data = new Float32Array(m11);
+            return;
+        }
+
+        XML3D.debug.logError("XML3DMatrix.set(): invalid parameter(s). Expect XML3DMatrix, Float32Array or 16 numbers.");
+    };
 
     /**
      * String representation of the XML3DBox.
@@ -6924,6 +7181,8 @@ if(typeof(exports) !== 'undefined') {
             case Xflow.DATA_TYPE.INT4 : return XML3DDataEntry.INT4;
             case Xflow.DATA_TYPE.BOOL : return XML3DDataEntry.BOOL;
             case Xflow.DATA_TYPE.TEXTURE : return XML3DDataEntry.TEXTURE;
+            case Xflow.DATA_TYPE.BYTE : return XML3DDataEntry.BYTE;
+            case Xflow.DATA_TYPE.UBYTE : return XML3DDataEntry.UBYTE;
             default: throw new Error("WHAT IS THIS I DON'T EVEN...");
         }
     }
@@ -6943,6 +7202,8 @@ if(typeof(exports) !== 'undefined') {
     XML3DDataEntry.INT4 = 11;
     XML3DDataEntry.BOOL = 20;
     XML3DDataEntry.TEXTURE = 30;
+    XML3DDataEntry.BYTE = 40;
+    XML3DDataEntry.UBYTE = 50;
 
     var XML3DDataChannelInfo = function(type, origin, originalName, seqLength, seqMinKey, seqMaxKey){
         this.type = getXML3DDataType(type);
@@ -7141,10 +7402,20 @@ XML3D.base.AdapterFactory = function(aspect, mimetypes, canvasId) {
  * Implemented by subclass
  * Create adapter from an object (node in case of an xml, and object in case of json)
  * @param {object} obj
+ * @param {String} mimetype optional mimetype of obj
  * @returns {XML3D.base.Adapter=} created adapter or null if no adapter can be created
  */
-XML3D.base.AdapterFactory.prototype.createAdapter = function(obj) {
+XML3D.base.AdapterFactory.prototype.createAdapter = function(obj, mimetype) {
     return null;
+};
+
+/**
+ * Checks if the adapter factory supports specified mimetype. Can be overridden by subclass.
+ * @param {String} mimetype
+ * @return {Boolean} true if the adapter factory supports specified mimetype
+ */
+XML3D.base.AdapterFactory.prototype.supportsMimetype = function(mimetype) {
+    return this.mimetypes.indexOf(mimetype) != -1;
 };
 
 /**
@@ -7163,9 +7434,10 @@ XML3D.createClass(XML3D.base.NodeAdapterFactory, XML3D.base.AdapterFactory);
  * This function first checks, if an adapter has been already created for the corresponding node
  * If yes, this adapter is returned, otherwise, a new adapter is created and returned.
  * @param {Object} node
+ * @param {String} mimetype optional mimetype of obj
  * @returns {XML3D.base.Adapter} The adapter of the node
  */
-XML3D.base.NodeAdapterFactory.prototype.getAdapter = function(node) {
+XML3D.base.NodeAdapterFactory.prototype.getAdapter = function(node, mimetype) {
     if (!node || node._configured === undefined)
         return null;
     var elemHandler = node._configured;
@@ -7175,7 +7447,7 @@ XML3D.base.NodeAdapterFactory.prototype.getAdapter = function(node) {
         return adapter;
 
     // No adapter found, try to create one
-    adapter = this.createAdapter(node);
+    adapter = this.createAdapter(node, mimetype);
     if (adapter) {
         elemHandler.adapters[key] = adapter;
         adapter.init();
@@ -7326,12 +7598,151 @@ XML3D.base.sendAdapterEvent = function(node, events) {
     XML3D.base.AdapterHandle = AdapterHandle;
 
 }());(function() {
+
+    /**
+     * A format handler is provide functionality for detecting format of resources
+     * and providing format-specific services.
+     * FormatHandlers are registered with XML3D.base.resourceManager.registerFormat() function.
+     * @constructor
+     */
+    var FormatHandler = function() {
+        this.factories = {}; // a map from an aspect name to a factory class
+    };
+
+    FormatHandler.prototype.registerFactoryClass = function(factoryClass) {
+        if (!factoryClass.aspect || !XML3D.isSuperclassOf(XML3D.base.AdapterFactory, factoryClass))
+            throw new Error("factoryClass must be a subclass of XML3D.base.AdapterFactory");
+        this.factories[factoryClass.aspect] = factoryClass;
+    }
+
+    /**
+     * Returns true if response data format is supported.
+     * response, responseType, and mimetype values are returned by XMLHttpRequest.
+     * Data type of the response is one of ArrayBuffer, Blob, Document, String, Object.
+     * responseType is one of "", "arraybuffer", "blob", "document", "json", "text"
+     *
+     * @override
+     * @param {Object} response
+     * @param {string} responseType
+     * @param {string} mimetype
+     * @return {Boolean}
+     */
+    FormatHandler.prototype.isFormatSupported = function(response, responseType, mimetype) {
+        return false;
+    }
+
+    /**
+     * Converts response data to format data.
+     * Default implementation returns value of response.
+     *
+     * @override
+     * @param {Object} response
+     * @param {string} responseType
+     * @param {string} mimetype
+     * @return {Object}
+     */
+    FormatHandler.prototype.getFormatData = function(response, responseType, mimetype) {
+        return response;
+    }
+
+    /**
+     * Extracts data for a fragment from document data and fragment reference.
+     *
+     * @override
+     * @param {Object} documentData
+     * @param {string} fragment Fragment without pound key which defines the part of the document
+     * @return {*}
+     */
+    FormatHandler.prototype.getFragmentData = function(documentData, fragment) {
+        if (!fragment)
+            return documentData;
+        return null;
+    }
+
+    // Export
+    XML3D.base.FormatHandler = FormatHandler;
+
+    /**
+     * XMLFormatHandler supports all XML and HTML-based documents.
+     * @constructor
+     */
+    var XMLFormatHandler = function() {
+    }
+
+    XMLFormatHandler.prototype.isFormatSupported = function(response, responseType, mimetype) {
+        return response && response.nodeType === 9 && (mimetype === "application/xml" || mimetype === "text/xml");
+    }
+
+    XMLFormatHandler.prototype.getFormatData = function(response, responseType, mimetype) {
+        return response;
+    }
+
+    XMLFormatHandler.prototype.getFragmentData = function(documentData, fragment) {
+        return documentData.querySelectorAll("*[id="+fragment+"]")[0];
+    }
+
+    XML3D.createClass(XMLFormatHandler, FormatHandler);
+
+    // Export
+    XML3D.base.XMLFormatHandler = XMLFormatHandler;
+
+    var XML3DFormatHandler = function() {
+    }
+
+    XML3DFormatHandler.prototype.isFormatSupported = function(response, responseType, mimetype) {
+        var supported = XMLFormatHandler.prototype.isFormatSupported.call(this, response, responseType, mimetype);
+        // FIXME add check by searching for 'xml3d' tags in the document
+        return supported;
+    }
+
+    XML3DFormatHandler.prototype.getFormatData = function(response, responseType) {
+        // Configure all xml3d elements:
+        var xml3dElements = response.querySelectorAll("xml3d");
+        for(var i = 0; i < xml3dElements.length; ++i) {
+            XML3D.config.element(xml3dElements[i]);
+        }
+
+        return response;
+    }
+
+    XML3D.createClass(XML3DFormatHandler, XMLFormatHandler);
+
+    // Export
+    XML3D.base.XML3DFormatHandler = XML3DFormatHandler;
+
+    var JSONFormatHandler = function() {
+    }
+
+    JSONFormatHandler.prototype.isFormatSupported = function(response, responseType, mimetype) {
+        return mimetype === "application/json";
+    }
+
+    JSONFormatHandler.prototype.getFormatData = function(response, responseType, mimetype) {
+        return response;
+    }
+
+    XML3D.createClass(JSONFormatHandler, FormatHandler);
+
+    // Export
+    XML3D.base.JSONFormatHandler = JSONFormatHandler;
+
+    var BinaryFormatHandler = function() {
+    }
+
+    XML3D.createClass(BinaryFormatHandler, FormatHandler);
+
+    // Export
+    XML3D.base.BinaryFormatHandler = BinaryFormatHandler;
+
+}());
+(function() {
     "use strict";
 
     var c_cachedDocuments = {};
     var c_factories = {};
     var c_cachedAdapterHandles = {};
     var c_canvasIdCounters = {};
+    var c_formatHandlers = [];
 
     /**
      * Register a factory with the resource manager
@@ -7343,6 +7754,21 @@ XML3D.base.sendAdapterEvent = function(node, events) {
             c_factories[canvasId] = [];
         c_factories[canvasId].push(factory);
     };
+
+    XML3D.base.registerFormat = function(formatHandler) {
+        if (formatHandler)
+            c_formatHandlers.push(formatHandler);
+    }
+
+    XML3D.base.findFormat = function(response, responseType, mimetype) {
+        for (var i = 0; i < c_formatHandlers.length; ++i) {
+            var formatHandler = c_formatHandlers[i];
+            if (c_formatHandlers[i].isFormatSupported(response, responseType, mimetype)) {
+                return formatHandler;
+            }
+        }
+        return null;
+    }
 
     /**
      * @constructor
@@ -7418,6 +7844,52 @@ XML3D.base.sendAdapterEvent = function(node, events) {
         }
     };
 
+    var binaryContentTypes = ["application/octet-stream", "text/plain; charset=x-user-defined"];
+    var binaryExtensions = [".bin", ".bson"];
+
+    function endsWith(str, suffix) {
+        return str.indexOf(suffix, str.length - suffix.length) !== -1;
+    }
+
+    ResourceManager.prototype.addBinaryContentType = function (type) {
+        if (binaryContentTypes.indexOf(type) == -1)
+            binaryContentTypes.push(type);
+    };
+
+    ResourceManager.prototype.removeBinaryContentType = function (type) {
+        var idx = binaryContentTypes.indexOf(type);
+        if (idx != -1)
+            binaryContentTypes.splice(idx, 1);
+    };
+
+    function isBinaryContentType(contentType) {
+        for (var i in binaryContentTypes) {
+            if (contentType == binaryContentTypes[i]) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    ResourceManager.prototype.addBinaryExtension = function(extension) {
+        if (binaryExtensions.indexOf(extension) == -1)
+            binaryExtensions.push(extension);
+    };
+
+    ResourceManager.prototype.removeBinaryExtension = function(extension) {
+        var idx = binaryExtensions.indexOf(extension);
+        if (idx != -1)
+            binaryExtensions.splice(idx, 1);
+    };
+
+    function isBinaryExtension(url) {
+        for (var i in binaryExtensions) {
+            if (endsWith(url, binaryExtensions[i]))
+                return true;
+        }
+        return false;
+    }
+
     /**
      * Load a document via XMLHttpRequest
      * @private
@@ -7432,11 +7904,56 @@ XML3D.base.sendAdapterEvent = function(node, events) {
         }
         if (xmlHttp) {
             xmlHttp._url = url;
+            xmlHttp._contentChecked = false;
             xmlHttp.open('GET', url, true);
+            if (isBinaryExtension(url))
+                xmlHttp.responseType = "arraybuffer";
+
             xmlHttp.onreadystatechange = function() {
+                if (xmlHttp._aborted) // This check is possibly not needed
+                    return;
+                // check compatibility between content and request mode
+                if (!xmlHttp._contentChecked &&
+                    // 2 - HEADERS_RECEIVED, 3 - LOADING, 4 - DONE
+                    ((xmlHttp.readyState == 2 || xmlHttp.readyState == 3 ||xmlHttp.readyState == 4) &&
+                        xmlHttp.status == 200)) {
+                    xmlHttp._contentChecked = true; // we check only once
+                    // check if we need to change request mode
+                    var contentType = xmlHttp.getResponseHeader("content-type");
+                    if (contentType) {
+                        var binaryContent = isBinaryContentType(contentType);
+                        var binaryRequest = (xmlHttp.responseType == "arraybuffer");
+                        // When content is not the same as request, we need to repeat request
+                        if (binaryContent != binaryRequest) {
+                            xmlHttp._aborted = true;
+                            var cb = xmlHttp.onreadystatechange;
+                            xmlHttp.onreadystatechange = null;
+                            var url = xmlHttp._url;
+                            xmlHttp.abort();
+
+                            // Note: We do not recycle XMLHttpRequest !
+                            //       This does work only when responseType is changed to "arraybuffer",
+                            //       however the size of the xmlHttp.response buffer is then wrong !
+                            //       It does not work at all (at least in Chrome) when we use overrideMimeType
+                            //       with "text/plain; charset=x-user-defined" argument.
+                            //       The latter mode require creation of the fresh XMLHttpRequest.
+
+                            xmlHttp = new XMLHttpRequest();
+                            xmlHttp._url = url;
+                            xmlHttp._contentChecked = true;
+                            xmlHttp.open('GET', url, true);
+                            if (binaryContent)
+                                xmlHttp.responseType = "arraybuffer";
+                            xmlHttp.onreadystatechange = cb;
+                            xmlHttp.send(null);
+                            return;
+                        }
+                    }
+                }
+                // Request mode and content type are compatible here (both binary or both text)
                 if (xmlHttp.readyState == 4) {
                     if(xmlHttp.status == 200){
-                        XML3D.debug.logDebug("Loaded: " + url);
+                        XML3D.debug.logDebug("Loaded: " + xmlHttp._url);
                         XML3D.xmlHttpCallback && XML3D.xmlHttpCallback(xmlHttp);
                         processResponse(xmlHttp);
                     }
@@ -7480,7 +7997,9 @@ XML3D.base.sendAdapterEvent = function(node, events) {
         var docCache = c_cachedDocuments[url];
         docCache.mimetype = mimetype;
 
-        if (mimetype == "application/json") {
+        if (req.responseType == "arraybuffer") {
+            docCache.response = req.response;
+        } else if (mimetype == "application/json") {
             docCache.response = JSON.parse(req.responseText);
         } else if (mimetype == "application/xml" || mimetype == "text/xml") {
             docCache.response = req.responseXML;
@@ -7491,11 +8010,15 @@ XML3D.base.sendAdapterEvent = function(node, events) {
                 return;
             }
 
+            // FIXME moved code to XML3DFormatHandler.prototype.getFormatData, cleanup
             // Configure all xml3d elements:
             var xml3dElements = docCache.response.querySelectorAll("xml3d");
             for(var i = 0; i < xml3dElements.length; ++i){
                 XML3D.config.element(xml3dElements[i]);
             }
+        } else if (mimetype == "application/octet-stream" || mimetype == "text/plain; charset=x-user-defined") {
+            XML3D.debug.logError("Possibly wrong loading of resource "+url+". Mimetype is "+mimetype+" but response is not an ArrayBuffer");
+            docCache.response = req.response;
         }
     }
 
@@ -7548,7 +8071,10 @@ XML3D.base.sendAdapterEvent = function(node, events) {
             // TODO: Select subset of data according to fragment
             data = response;
         } else if (mimetype == "application/xml" || mimetype == "text/xml") {
+            // FIXME: This code moved to XMLFormatHandler.prototype.getFragmentData, cleanup
             data = response.querySelectorAll("*[id="+fragment+"]")[0];
+        } else {
+            data = response; // for "application/octet-stream" and "text/plain; charset=x-user-defined"
         }
 
         if (data) {
@@ -7607,8 +8133,8 @@ XML3D.base.sendAdapterEvent = function(node, events) {
 
         for ( var i = 0; i < factories.length; ++i) {
             var fac = factories[i];
-            if (fac.aspect == adapterType && fac.mimetypes.indexOf(mimetype) != -1) {
-                var adapter = fac.getAdapter ? fac.getAdapter(data) : fac.createAdapter(data);
+            if (fac.aspect == adapterType && fac.supportsMimetype(mimetype)) {
+                var adapter = fac.getAdapter ? fac.getAdapter(data, mimetype) : fac.createAdapter(data, mimetype);
                 if (adapter) {
                     handle.setAdapter(adapter, XML3D.base.AdapterHandle.STATUS.READY);
                 }
@@ -7735,6 +8261,100 @@ XML3D.base.sendAdapterEvent = function(node, events) {
         }
     }
 
+
+    /**
+     * Load data via XMLHttpRequest
+     * @private
+     * @param {string} url URL of the document
+     */
+    ResourceManager.prototype.loadData = function(url, loadListener, errorListener) {
+        var xmlHttp = null;
+        try {
+            xmlHttp = new XMLHttpRequest();
+        } catch (e) {
+            xmlHttp = null;
+        }
+        if (xmlHttp) {
+            xmlHttp._url = url;
+            xmlHttp._contentChecked = false;
+            xmlHttp.open('GET', url, true);
+            if (isBinaryExtension(url))
+                xmlHttp.responseType = "arraybuffer";
+
+            xmlHttp.onreadystatechange = function() {
+                if (xmlHttp._aborted) // This check is possibly not needed
+                    return;
+                // check compatibility between content and request mode
+                if (!xmlHttp._contentChecked &&
+                    // 2 - HEADERS_RECEIVED, 3 - LOADING, 4 - DONE
+                    ((xmlHttp.readyState == 2 || xmlHttp.readyState == 3 ||xmlHttp.readyState == 4) &&
+                        xmlHttp.status == 200)) {
+                    xmlHttp._contentChecked = true; // we check only once
+                    // check if we need to change request mode
+                    var contentType = xmlHttp.getResponseHeader("content-type");
+                    if (contentType) {
+                        var binaryContent = isBinaryContentType(contentType);
+                        var binaryRequest = (xmlHttp.responseType == "arraybuffer");
+                        // When content is not the same as request, we need to repeat request
+                        if (binaryContent != binaryRequest) {
+                            xmlHttp._aborted = true;
+                            var cb = xmlHttp.onreadystatechange;
+                            xmlHttp.onreadystatechange = null;
+                            var url = xmlHttp._url;
+                            xmlHttp.abort();
+
+                            // Note: We do not recycle XMLHttpRequest !
+                            //       This does work only when responseType is changed to "arraybuffer",
+                            //       however the size of the xmlHttp.response buffer is then wrong !
+                            //       It does not work at all (at least in Chrome) when we use overrideMimeType
+                            //       with "text/plain; charset=x-user-defined" argument.
+                            //       The latter mode require creation of the fresh XMLHttpRequest.
+
+                            xmlHttp = new XMLHttpRequest();
+                            xmlHttp._url = url;
+                            xmlHttp._contentChecked = true;
+                            xmlHttp.open('GET', url, true);
+                            if (binaryContent)
+                                xmlHttp.responseType = "arraybuffer";
+                            xmlHttp.onreadystatechange = cb;
+                            xmlHttp.send(null);
+                            return;
+                        }
+                    }
+                }
+                // Request mode and content type are compatible here (both binary or both text)
+                if (xmlHttp.readyState == 4) {
+                    if(xmlHttp.status == 200) {
+                        XML3D.debug.logDebug("Loaded: " + xmlHttp._url);
+
+                        var mimetype = xmlHttp.getResponseHeader("content-type");
+                        var response = null;
+
+                        if (xmlHttp.responseType == "arraybuffer") {
+                            response = xmlHttp.response;
+                        } else if (mimetype == "application/json") {
+                            response = JSON.parse(xmlHttp.responseText);
+                        } else if (mimetype == "application/xml" || mimetype == "text/xml") {
+                            response = xmlHttp.responseXML;
+                        } else if (mimetype == "application/octet-stream" || mimetype == "text/plain; charset=x-user-defined") {
+                            XML3D.debug.logError("Possibly wrong loading of resource "+url+". Mimetype is "+mimetype+" but response is not an ArrayBuffer");
+                            response = xmlHttp.responseText; // FIXME is this correct ?
+                        }
+                        if (loadListener)
+                            loadListener(response);
+                    }
+                    else {
+                        XML3D.debug.logError("Could not load external document '" + xmlHttp._url +
+                            "': " + xmlHttp.status + " - " + xmlHttp.statusText);
+                        if (errorListener)
+                            errorListener(xmlHttp);
+                    }
+                }
+            };
+            xmlHttp.send(null);
+        }
+    };
+
     /**
      * This function is called to load an Image.
      *
@@ -7784,7 +8404,7 @@ XML3D.base.sendAdapterEvent = function(node, events) {
             loadComplete(0, uri);
         }
 
-        video.addEventListener("canplaythrough", loadCompleteCallback, true);
+        video.addEventListener("canplay", loadCompleteCallback, true);
         video.addEventListener("error", loadCompleteCallback, true);
         video.crossorigin = "anonymous";
         video.autoplay = autoplay;
@@ -8811,6 +9431,15 @@ new (function() {
         }
         return null;
     };
+
+    methods.videoPlay = function() {
+        XML3D.base.sendAdapterEvent(this, {play: []});
+    };
+
+    methods.videoPause = function() {
+        XML3D.base.sendAdapterEvent(this, {pause: []});
+    };
+
     methods.protoGetOutputNames = methods.dataGetOutputNames;
 
     methods.dataGetResult = function(filter) {
@@ -8853,6 +9482,50 @@ new (function() {
         return false;
     }
     methods.protoIsOutputConnected = methods.dataIsOutputConnected;
+
+
+    function createValues(result, names) {
+        var values = {};
+        for (var i in names) {
+            var name = names[i];
+            var data = result.getOutputData(name) && result.getOutputData(name).getValue();
+            if (data)
+                values[name] = data;
+        }
+        return values;
+    };
+
+    /** Register data listener for data fields specified by names.
+     *
+     * @param names   single name or array of names that are monitored.
+     * @param callback function that is called when selected data are changed.
+     * @return {Boolean}
+     */
+    methods.dataAddOutputFieldListener = function(names, callback) {
+        if (!names)
+            return false;
+
+        // check if names is a single string, and convert it to array then
+        var typeOfNames = Object.prototype.toString.call(names).slice(8, -1);
+        if (typeOfNames === "String") {
+            names = [names];
+        }
+        if (names.length == 0)
+            return false;
+
+        var request = XML3D.base.callAdapterFunc(this, {
+            getComputeRequest : [names, function(request, changeType) {
+                callback(createValues(request.getResult(), names));
+            }
+            ]});
+        if (request.length == 0)
+            return false;
+        var result = request[0].getResult();
+        var values = createValues(result, names);
+        if (Object.keys(values).length)
+            callback(values);
+        return true;
+    };
 
     // Export to xml3d namespace
     XML3D.extend(XML3D.methods, methods);
@@ -8972,6 +9645,8 @@ XML3D.classInfo['data'] = {
     getProtoInfo : {m: XML3D.methods.dataGetProtoInfo},
     isOutputConnected : {m: XML3D.methods.dataIsOutputConnected},
     getResult : {m: XML3D.methods.dataGetResult},
+    addOutputFieldListener : {m: XML3D.methods.dataAddOutputFieldListener},
+    getOutputNames : {m: XML3D.methods.dataGetOutputNames},
     src : {a: XML3D.ReferenceHandler},
     proto : {a: XML3D.ReferenceHandler},
     _term: undefined
@@ -9272,6 +9947,9 @@ XML3D.classInfo['video'] = {
     className : {a: XML3D.StringAttributeHandler, id: 'class'},
     // TODO: Handle style for video
     src : {a: XML3D.StringAttributeHandler},
+    play : {m: XML3D.methods.videoPlay},
+    pause : {m: XML3D.methods.videoPause},
+    autoplay : {a: XML3D.BoolAttributeHandler, params: false},
     _term: undefined
 };
 /**
@@ -9295,6 +9973,7 @@ XML3D.classInfo['view'] = {
     position : {a: XML3D.XML3DVec3AttributeHandler, params: [0, 0, 0]},
     orientation : {a: XML3D.XML3DRotationAttributeHandler, params: [0, 0, 1, 0]},
     fieldOfView : {a: XML3D.FloatAttributeHandler, params: 0.785398},
+    perspective : {a: XML3D.ReferenceHandler},
     getWorldMatrix : {m: XML3D.methods.XML3DGraphTypeGetWorldMatrix},
     setDirection : {m: XML3D.methods.viewSetDirection},
     setUpVector : {m: XML3D.methods.viewSetUpVector},
@@ -9305,6 +9984,7 @@ XML3D.classInfo['view'] = {
     _term: undefined
 };
 /* END GENERATED */
+window=this;
 var Xflow = {};
 
 Xflow.EPSILON = 0.000001;
@@ -9323,7 +10003,9 @@ Xflow.DATA_TYPE = {
     INT : 20,
     INT4 : 21,
     BOOL: 30,
-    TEXTURE: 40
+    TEXTURE: 40,
+    BYTE : 50,
+    UBYTE : 60
 }
 
 Xflow.DATA_TYPE_TUPLE_SIZE = {};
@@ -9336,6 +10018,8 @@ Xflow.DATA_TYPE_TUPLE_SIZE[Xflow.DATA_TYPE.INT] = 1;
 Xflow.DATA_TYPE_TUPLE_SIZE[Xflow.DATA_TYPE.INT4] = 4;
 Xflow.DATA_TYPE_TUPLE_SIZE[Xflow.DATA_TYPE.BOOL] = 1;
 Xflow.DATA_TYPE_TUPLE_SIZE[Xflow.DATA_TYPE.TEXTURE] = 1;
+Xflow.DATA_TYPE_TUPLE_SIZE[Xflow.DATA_TYPE.BYTE] = 1;
+Xflow.DATA_TYPE_TUPLE_SIZE[Xflow.DATA_TYPE.UBYTE] = 1;
 
 Xflow.DATA_TYPE_MAP = {
     'float' : Xflow.DATA_TYPE.FLOAT,
@@ -9346,7 +10030,9 @@ Xflow.DATA_TYPE_MAP = {
     'int' : Xflow.DATA_TYPE.INT,
     'int4' : Xflow.DATA_TYPE.INT4,
     'bool' : Xflow.DATA_TYPE.BOOL,
-    'texture' : Xflow.DATA_TYPE.TEXTURE
+    'texture' : Xflow.DATA_TYPE.TEXTURE,
+    'byte' : Xflow.DATA_TYPE.BYTE,
+    'ubyte' : Xflow.DATA_TYPE.UBYTE
 }
 
 Xflow.getTypeName = function(type){
@@ -9361,25 +10047,24 @@ Xflow.getTypeName = function(type){
  * @enum {number}
  */
 Xflow.TEX_FILTER_TYPE = {
-    NONE: 0,
-    REPEAT: 1,
-    LINEAR: 2
+    NEAREST: 0x2600,
+    LINEAR: 0x2601,
+    MIPMAP_NEAREST: 0x2700,
+    MIPMAP_LINEAR: 0x2701
+
 };
 /**
  * @enum {number}
  */
 Xflow.TEX_WRAP_TYPE = {
-    CLAMP: 0,
-    REPEAT: 1,
-    BORDER: 2
+    CLAMP: 0x812F,
+    REPEAT: 0x2901
 };
 /**
  * @enum {number}
  */
 Xflow.TEX_TYPE = {
-    TEXTURE_1D: 0,
-    TEXTURE_2D: 1,
-    TEXTURE_3D: 2
+    TEXTURE_2D: 0x0DE1
 };
 
 
@@ -9453,7 +10138,32 @@ Xflow.ORIGIN = {
     PROTO: 3
 };
 
-(function(){
+
+/* Tools */
+
+/**
+ *
+ * @param {Object} ctor Constructor
+ * @param {Object} parent Parent class
+ * @param {Object=} methods Methods to add to the class
+ * @returns {Object}
+ */
+Xflow.createClass = function(ctor, parent, methods) {
+    methods = methods || {};
+    if (parent) {
+        /** @constructor */
+        var F = function() {
+        };
+        F.prototype = parent.prototype;
+        ctor.prototype = new F();
+        ctor.prototype.constructor = ctor;
+        ctor.superclass = parent.prototype;
+    }
+    for ( var m in methods) {
+        ctor.prototype[m] = methods[m];
+    }
+    return ctor;
+};(function(){
 
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -9465,9 +10175,9 @@ Xflow.ORIGIN = {
  * @constructor
  */
 Xflow.SamplerConfig = function(){
-    this.filterMin = 0;
-    this.filterMag = 0;
-    this.filterMip = 0;
+    this.minFilter = 0;
+    this.magFilter = 0;
+    this.mipFilter = 0;
     this.wrapS = 0;
     this.wrapT = 0;
     this.wrapU = 0;
@@ -9476,6 +10186,33 @@ Xflow.SamplerConfig = function(){
     this.colorG = 0;
     this.colorB = 0;
     this.generateMipMap = 0;
+};
+Xflow.SamplerConfig.prototype.setDefaults = function() {
+    // FIXME Generate this from the spec ?
+    this.minFilter = Xflow.TEX_FILTER_TYPE.LINEAR;
+    this.magFilter = Xflow.TEX_FILTER_TYPE.LINEAR;
+    this.mipFilter = Xflow.TEX_FILTER_TYPE.NEAREST;
+    this.wrapS = Xflow.TEX_WRAP_TYPE.CLAMP;
+    this.wrapT = Xflow.TEX_WRAP_TYPE.CLAMP;
+    this.wrapU = Xflow.TEX_WRAP_TYPE.CLAMP;
+    this.textureType = Xflow.TEX_TYPE.TEXTURE_2D;
+    this.colorR = 0;
+    this.colorG = 0;
+    this.colorB = 0;
+    this.generateMipMap = 0;
+};
+Xflow.SamplerConfig.prototype.set = function(other) {
+    this.minFilter = other.minFilter;
+    this.magFilter = other.magFilter;
+    this.mipFilter = other.mipFilter;
+    this.wrapS = other.wrapS;
+    this.wrapT = other.wrapT;
+    this.wrapU = other.wrapU;
+    this.textureType = other.textureType;
+    this.colorR = other.colorR;
+    this.colorG = other.colorG;
+    this.colorB = other.colorB;
+    this.generateMipMap = other.generateMipMap;
 };
 var SamplerConfig = Xflow.SamplerConfig;
 
@@ -9538,7 +10275,7 @@ Xflow.BufferEntry = function(type, value){
     this._value = value;
     notifyListeners(this, Xflow.DATA_ENTRY_STATE.CHANGED_NEW);
 };
-XML3D.createClass(Xflow.BufferEntry, Xflow.DataEntry);
+Xflow.createClass(Xflow.BufferEntry, Xflow.DataEntry);
 var BufferEntry = Xflow.BufferEntry;
 
 
@@ -9583,6 +10320,44 @@ BufferEntry.prototype.isEmpty = function(){
 // Xflow.TextureEntry
 //----------------------------------------------------------------------------------------------------------------------
 
+var tmpCanvas = null;
+var tmpContext = null;
+
+/** Xflow.toImageData converts ImageData-like objects to real ImageData
+ *
+ * @param imageData
+ * @return {*}
+ */
+Xflow.toImageData = function(imageData) {
+    if (imageData instanceof ImageData)
+        return imageData;
+    if (!imageData.data)
+        throw new Error("no data property");
+    if (!imageData.width)
+        throw new Error("no width property");
+    if (!imageData.height)
+        throw new Error("no height property");
+    if (!tmpContext) {
+        tmpCanvas = document.createElement('canvas');
+        tmpContext = tmpCanvas.getContext('2d');
+    }
+    var newImageData = tmpContext.createImageData(imageData.width, imageData.height);
+    for (var i = 0; i < imageData.data.length; ++i) {
+        var v = imageData.data[i];
+        if (v > 255)
+            v = 255;
+        if (v < 0)
+            v = 0;
+        newImageData.data[i] = v;
+    }
+    return newImageData;
+};
+
+
+// TextureEntry data conversion order
+// image -> canvas -> context -> -> imageData
+// Note: don't use TextureEntry's width and height properties, they are deprecated and cause issues with video loading
+// Instead use getWidth and getHeight methods
 
 /**
  * @constructor
@@ -9591,29 +10366,192 @@ BufferEntry.prototype.isEmpty = function(){
  */
 Xflow.TextureEntry = function(image){
     Xflow.DataEntry.call(this, Xflow.DATA_TYPE.TEXTURE);
-    this._image = image;
     this._samplerConfig = new SamplerConfig();
+    this._formatType = null; // null | 'ImageData' | 'number' | 'float32' | 'float64'
+    this._updateImage(image);
+
     notifyListeners(this, Xflow.DATA_ENTRY_STATE.CHANGED_NEW);
 };
-XML3D.createClass(Xflow.TextureEntry, Xflow.DataEntry);
+Xflow.createClass(Xflow.TextureEntry, Xflow.DataEntry);
 var TextureEntry = Xflow.TextureEntry;
 
-TextureEntry.prototype.isEmpty = function(){
-    return !this._image;
+TextureEntry.prototype.isLoading = function() {
+    var image = this._image;
+    if (!image)
+        return false;
+    var nodeName = image.nodeName.toLowerCase();
+    if (nodeName == 'img')
+        return !image.complete;
+    if (nodeName == 'canvas')
+        return this._image.width <= 0 || this._image.height <= 0;
+    if (nodeName == 'video')
+        // readyState == 0 is HAVE_NOTHING
+        return image.readyState == 0 || this._image.videoWidth <= 0 || this._image.videoHeight <= 0;
+    return false;
+};
+
+TextureEntry.prototype._updateImage = function(image) {
+    this._image = image;
+    this._context = null;
+    this._imageData = null;
+    if (this._image) {
+        var nodeName = this._image.nodeName.toLowerCase();
+        if (nodeName == 'video') {
+            this.width = this._image.videoWidth;
+            this.height = this._image.videoHeight;
+        } else {
+            this.width = this._image.width;
+            this.height = this._image.height;
+        }
+        if (nodeName == 'canvas') {
+            this._canvas = this._image;
+            this._copyImageToCtx = false;
+        } else {
+            this._canvas = null;
+            this._copyImageToCtx = true;
+        }
+    } else {
+        this.width = 0;
+        this.height = 0;
+        this._canvas = null;
+    }
+};
+
+/** Create new image
+ *
+ * @param width
+ * @param height
+ * @param formatType
+ * @param samplerConfig
+ * @return {Image|Canvas}
+ */
+TextureEntry.prototype.createImage = function(width, height, formatType, samplerConfig) {
+    if (!this._image || this.getWidth() != width || this.getHeight() != height || this._formatType != formatType) {
+        if (!width || !height)
+            throw new Error("Width or height is not specified");
+        // create dummy image
+        var img = document.createElement('canvas');
+        img.width = width;
+        img.height = height;
+        img.complete = true;
+
+        this._formatType = formatType;
+        if (!samplerConfig) {
+            samplerConfig = new Xflow.SamplerConfig();
+            samplerConfig.setDefaults();
+        }
+        this._samplerConfig.set(samplerConfig);
+        this.setImage(img);
+    } else {
+        this.notifyChanged();
+    }
+    return this._image;
 };
 
 /** @param {Object} v */
-TextureEntry.prototype.setImage = function(v){
-    this._image = v;
+TextureEntry.prototype.setImage = function(v) {
+    this._updateImage(v);
     notifyListeners(this, Xflow.DATA_ENTRY_STATE.CHANGED_VALUE);
-}
+};
+
+TextureEntry.prototype.getFormatType = function() {
+    return this._formatType;
+};
+
+TextureEntry.prototype.getWidth = function() {
+    if (!this._image)
+        return 0;
+    return this._image.videoWidth || this._image.width || 0;
+};
+
+TextureEntry.prototype.getHeight = function() {
+    if (!this._image)
+        return 0;
+    return this._image.videoHeight || this._image.height || 0;
+};
+
+TextureEntry.prototype._flush = function() {
+    if (this._imageData) {
+        if (this._imageData instanceof ImageData) {
+            this._context.putImageData(this._imageData, 0, 0);
+            this._imageData = null;
+        } else {
+            var imageData = Xflow.toImageData(this._imageData);
+            this._context.putImageData(imageData, 0, 0);
+            this._imageData = null;
+        }
+    }
+    if (this._canvas) {
+        this._canvas.complete = true; // for compatibility with img element
+        this._image = this._canvas;
+    }
+};
 
 /** @return {Object} */
-TextureEntry.prototype.getImage = function(){
+TextureEntry.prototype.getImage = function() {
+    this._flush();
     return this._image;
-}
+};
 
-/** @return {Object} */
+TextureEntry.prototype.getCanvas = function() {
+    if (!this._canvas) {
+        this._canvas = document.createElement('canvas');
+        this._canvas.width = this.getWidth();
+        this._canvas.height = this.getHeight();
+        this._canvas.complete = false; // for compatibility with img element
+    } else
+        this._flush();
+    return this._canvas;
+};
+
+TextureEntry.prototype.getFilledCanvas = function() {
+    var canvas = this.getCanvas();
+    this._context = canvas.getContext("2d");
+    if (!this._context)
+        throw new Error("Could not create 2D context.");
+    if (this._copyImageToCtx) {
+        this._context.drawImage(this._image, 0, 0);
+        this._copyImageToCtx = false;
+    }
+    return canvas;
+};
+
+TextureEntry.prototype.getContext2D = function() {
+    if (!this._context) {
+        this.getFilledCanvas(); // will implicitly create context for filled canvas
+    } else
+        this._flush();
+    return this._context;
+};
+
+
+
+
+/** @return {ImageData} */
+TextureEntry.prototype.getValue = function() {
+    if (!this._image)
+        return null;
+    if (!this._imageData && !this.isLoading()) {
+        var ctx = this.getContext2D();
+        this._imageData = ctx.getImageData(0, 0, this.getWidth(), this.getHeight());
+        if (this._formatType == 'float32') {
+            this._imageData = {
+                data : new Float32Array(this._imageData.data),
+                width : this._imageData.width,
+                height : this._imageData.height
+            };
+        } else if (this._formatType == 'float64') {
+            this._imageData = {
+                data : new Float64Array(this._imageData.data),
+                width : this._imageData.width,
+                height : this._imageData.height
+            };
+        }
+    }
+    return this._imageData;
+};
+
+/** @return {SamplerConfig} */
 TextureEntry.prototype.getSamplerConfig = function(){
     return this._samplerConfig;
 };
@@ -9622,8 +10560,145 @@ TextureEntry.prototype.getSamplerConfig = function(){
 TextureEntry.prototype.getLength = function(){
     return 1;
 };
+TextureEntry.prototype.isEmpty = function(){
+    return !this._image
+};
 
 
+    /** @return {number} */
+TextureEntry.prototype.getIterateCount = function() {
+    return 1;
+};
+
+//TextureEntry.prototype.finish = function() {
+//    if (this._imageData && this._context) {
+//        if (this._imageData instanceof ImageData) {
+//            // Do we need to do this always ?
+//            // Better mark canvas dirty !
+//            this._context.putImageData(this._imageData, 0, 0);
+//            this._imageData = null;
+//        } else {
+//            // FIXME What to do here ?
+//        }
+//    }
+//    if (this._canvas) {
+//        this._canvas.complete = true; // for compatibility with img element
+//        this._image = this._canvas;
+//    }
+//};
+
+//----------------------------------------------------------------------------------------------------------------------
+// Xflow.ImageDataTextureEntry
+//----------------------------------------------------------------------------------------------------------------------
+
+
+Xflow.ImageDataTextureEntry = function(imageData){
+    Xflow.DataEntry.call(this, Xflow.DATA_TYPE.TEXTURE);
+    this._samplerConfig = new SamplerConfig();
+    this._imageData = null;
+    this._formatType = null;
+    this._updateImageData(imageData);
+
+    notifyListeners(this, Xflow.DATA_ENTRY_STATE.CHANGED_NEW);
+};
+Xflow.createClass(Xflow.ImageDataTextureEntry, Xflow.DataEntry);
+var ImageDataTextureEntry = Xflow.ImageDataTextureEntry;
+
+ImageDataTextureEntry.prototype.isLoading = function() {
+    return !this._imageData;
+};
+
+ImageDataTextureEntry.prototype._updateImageData = function(imageData) {
+    this._formatType = null;
+    this._imageData = imageData;
+};
+
+/** Create new image
+ *
+ * @param width
+ * @param height
+ * @param formatType
+ * @param samplerConfig
+ * @return {Image|Canvas}
+ */
+ImageDataTextureEntry.prototype.createImage = function(width, height, formatType, samplerConfig) {
+    if (!this._image || this.getWidth() != width || this.getHeight() != height || this._formatType != formatType) {
+        if (!width || !height)
+            throw new Error("Width or height is not specified");
+        this._formatType = formatType;
+        if (!samplerConfig) {
+            samplerConfig = new Xflow.SamplerConfig();
+            samplerConfig.setDefaults();
+        }
+        this._samplerConfig.set(samplerConfig);
+
+        var imageData = {
+            width: width,
+            height: height,
+            data: null
+        };
+        if(formatType == 'float64'){
+            imageData.data = new Float64Array(width*height*4);
+        }
+        else if(formatType == 'float32'){
+            imageData.data = new Float32Array(width*height*4);
+        }
+        else {
+            // FIXME: We should allocate Uint8ClampedArray here instead
+            // But Uint8ClampedArray can't be allocated in Chrome inside a Web Worker
+            // See bug: http://code.google.com/p/chromium/issues/detail?id=176479
+            // As a work around, we allocate Int16Array which results in correct clamping outside of web worker
+            if(Uint8Array == Uint8ClampedArray)
+                imageData.data = new Int16Array(width*height*4);
+            else
+                imageData.data = new Uint8ClampedArray(width*height*4);
+        }
+        this._imageData = imageData;
+    }
+    this.notifyChanged();
+};
+
+/** @param {Object} v */
+ImageDataTextureEntry.prototype.setImageData = function(v) {
+    this._updateImageData(v);
+    notifyListeners(this, Xflow.DATA_ENTRY_STATE.CHANGED_VALUE);
+};
+
+ImageDataTextureEntry.prototype.getWidth = function() {
+    return this._imageData && this._imageData.width || 0;
+};
+
+ImageDataTextureEntry.prototype.getHeight = function() {
+    return this._imageData && this._imageData.height || 0;
+};
+
+/** @return {ImageData} */
+ImageDataTextureEntry.prototype.getValue = function() {
+    return this._imageData;
+};
+
+/** @return {SamplerConfig} */
+ImageDataTextureEntry.prototype.getSamplerConfig = function(){
+    return this._samplerConfig;
+};
+
+/** @return {number} */
+ImageDataTextureEntry.prototype.getLength = function(){
+    return 1;
+};
+ImageDataTextureEntry.prototype.isEmpty = function(){
+    return !this._imageData
+};
+
+ImageDataTextureEntry.prototype.getFormatType = function() {
+    return this._formatType;
+};
+
+
+/** @return {number} */
+ImageDataTextureEntry.prototype.getIterateCount = function() {
+    return 1;
+};
 
 //----------------------------------------------------------------------------------------------------------------------
 // Xflow.DataChangeNotifier
@@ -9732,7 +10807,7 @@ Xflow.InputNode = function(graph){
     this._data = null;
     this._param = false;
 };
-XML3D.createClass(Xflow.InputNode, Xflow.GraphNode);
+Xflow.createClass(Xflow.InputNode, Xflow.GraphNode);
 var InputNode = Xflow.InputNode;
 
 InputNode.prototype.notify = function(newValue, notification) {
@@ -9798,7 +10873,7 @@ Xflow.DataNode = function(graph, protoNode){
 
     this.loading = false;
 
-    
+
     this._isProtoNode = protoNode;
     this._children = [];
     this._sourceNode = null;
@@ -9815,7 +10890,7 @@ Xflow.DataNode = function(graph, protoNode){
     this._requests = [];
 
 };
-XML3D.createClass(Xflow.DataNode, Xflow.GraphNode);
+Xflow.createClass(Xflow.DataNode, Xflow.GraphNode);
 var DataNode = Xflow.DataNode;
 
 
@@ -9837,7 +10912,7 @@ Xflow.OrderMapping = function(owner){
     Xflow.Mapping.call(this, owner);
     this._names = [];
 };
-XML3D.createClass(Xflow.OrderMapping, Xflow.Mapping);
+Xflow.createClass(Xflow.OrderMapping, Xflow.Mapping);
 
 /**
  * @constructor
@@ -9850,7 +10925,7 @@ Xflow.NameMapping = function(owner){
     this._srcNames = [];
 
 };
-XML3D.createClass(Xflow.NameMapping, Xflow.Mapping);
+Xflow.createClass(Xflow.NameMapping, Xflow.Mapping);
 
 
 
@@ -11251,6 +12326,7 @@ Xflow.ProcessNode = function(channelNode, operator, substitution){
     this.outputDataSlots = {};
     this.processed = false;
     this.valid = false;
+    this.loading = false;
     this.useCount = 0;
 
     this.children = [];
@@ -11272,19 +12348,32 @@ ProcessNode.prototype.clear = function(){
         this.inputChannels[name].removeListener(this.channelListener);
     }
 }
-
+/**
+ *
+ */
 ProcessNode.prototype.process = function(){
     if(!this.processed){
+        this.loading = false;
+        this.valid = true;
         for(var i = 0; i < this.children.length; ++i){
             this.children[i].process();
+            if(this.children[i].loading){
+                this.loading = true;
+                return;
+            }
         }
         this.processed = true;
+        if(isInputLoading(this.operator, this.inputChannels)){
+            this.loading = true;
+            return;
+        }
         if(!checkInput(this.operator, this.owner.owner._computeInputMapping, this.inputChannels)){
             this.valid = false;
             return;
         }
         this.applyOperator();
     }
+
 }
 
 function constructProcessNode(processNode, channelNode, operator, substitution){
@@ -11307,6 +12396,18 @@ function synchronizeInputChannels(processNode, channelNode, dataNode, substituti
     }
 }
 
+function isInputLoading(operator, inputChannels){
+    for(var i in operator.params){
+        var entry = operator.params[i];
+        var channel = inputChannels[entry.source];
+        if(!channel) continue;
+        var dataEntry = channel.getDataEntry();
+        if(!dataEntry) continue;
+        if(dataEntry.isLoading && dataEntry.isLoading()) return true;
+    }
+    return false;
+}
+
 function checkInput(operator, inputMapping, inputChannels){
     for(var i in operator.params){
         var entry = operator.params[i];
@@ -11324,7 +12425,7 @@ function checkInput(operator, inputMapping, inputChannels){
                 return false;
             }
             var dataEntry = channel.getDataEntry();
-            if(!entry.optional && (!dataEntry || dataEntry.getLength() == 0)){
+            if(!entry.optional && (!dataEntry || dataEntry.isEmpty())){
                 XML3D.debug.logError("Xflow: operator " + operator.name + ": Input for " + entry.source +
                     ' contains no data.');
                 return false;
@@ -11363,7 +12464,7 @@ function synchronizeOutput(operator, outputs){
             entry = new Xflow.BufferEntry(type, null);
         }
         else{
-            entry = new Xflow.TextureEntry(null);
+            entry = window.document ? new Xflow.TextureEntry(null) : new Xflow.ImageDataTextureEntry(null);
         }
         outputs[d.name] = new Xflow.DataSlot(entry, 0);
     }
@@ -11402,19 +12503,21 @@ RequestNode.prototype.synchronize = function(){
 
 RequestNode.prototype.getResult = function(resultType){
     this.synchronize();
-    if(!this.owner.loading)
+    this.loading = this.owner.loading;
+    if(!this.loading)
         doRequestNodeProcessing(this);
     var result = null;
     if(resultType == Xflow.RESULT_TYPE.COMPUTE){
         result = getRequestComputeResult(this);
     }
-    result.loading = this.owner.loading;
+    result.loading = this.loading;
     return result;
 }
 
 RequestNode.prototype.setStructureOutOfSync = function(){
     this.outOfSync = true;
     this.processed = false;
+    this.loading = false;
     for(var type in this.results){
         this.results[type].notifyChanged(Xflow.RESULT_STATE.CHANGED_STRUCTURE);
     }
@@ -11454,8 +12557,14 @@ function synchronizeRequestChannels(requestNode, channelNode){
 
 function doRequestNodeProcessing(requestNode){
     if(!requestNode.processed){
+        requestNode.loading = false;
+        requestNode.processed = true;
         for(var i = 0; i < requestNode.children.length; ++i){
             requestNode.children[i].process();
+            if(requestNode.children[i].loading){
+                requestNode.loading = true;
+                return;
+            }
         }
     }
 }
@@ -11543,7 +12652,7 @@ var ComputeRequest = function(dataNode, filter, callback){
     Xflow.Request.call(this, dataNode, filter, callback);
     this.callback = this.onResultChanged.bind(this);
 };
-XML3D.createClass(ComputeRequest, Xflow.Request);
+Xflow.createClass(ComputeRequest, Xflow.Request);
 Xflow.ComputeRequest = ComputeRequest;
 
 ComputeRequest.prototype.getResult = function(){
@@ -11623,7 +12732,7 @@ Result.prototype.notifyChanged = function(state){
 Xflow.ComputeResult = function(channelNode){
     Xflow.Result.call(this, channelNode);
 };
-XML3D.createClass(Xflow.ComputeResult, Xflow.Result);
+Xflow.createClass(Xflow.ComputeResult, Xflow.Result);
 var ComputeResult = Xflow.ComputeResult;
 
 
@@ -11733,14 +12842,14 @@ Xflow.utils.binarySearch = function(keys, key, maxIndex){
 var operators = {};
 
 Xflow.registerOperator = function(name, data){
-    var actualName = "xflow." + name;
+    var actualName = name;
     initOperator(data);
     operators[actualName] = data;
     data.name = actualName;
 };
 
 Xflow.getOperator = function(name){
-    if (!operators[name])
+    if (name && !operators[name])
     {
         XML3D.debug.logError("Unknown operator: '" + name+"'");
         return null;
@@ -11906,23 +13015,55 @@ function allocateOutput(operator, inputData, output, operatorData){
         var d = operator.outputs[i];
         var entry = output[d.name].dataEntry;
 
-        var size = (d.customAlloc ? c_sizes[d.name] : operatorData.iterateCount) * entry.getTupleSize();
+        if (entry.type == Xflow.DATA_TYPE.TEXTURE) {
+            // texture entry
+            if (d.customAlloc)
+            {
+                var texParams = c_sizes[d.name];
+                var newWidth = texParams.imageFormat.width;
+                var newHeight = texParams.imageFormat.height;
+                var newFormatType = texParams.imageFormat.type;
+                var newSamplerConfig = texParams.samplerConfig;
+                entry.createImage(newWidth, newHeight, newFormatType, newSamplerConfig);
+            } else if (d.sizeof) {
+                var srcEntry = null;
+                for (var j in operator.mapping) {
+                    if (operator.mapping[j].source == d.sizeof) {
+                        srcEntry = inputData[operator.mapping[j].paramIdx];
+                        break;
+                    }
+                }
+                if (srcEntry) {
+                    var newWidth = Math.max(srcEntry.getWidth(), 1);
+                    var newHeight = Math.max(srcEntry.getHeight(), 1);
+                    var newFormatType = d.formatType || srcEntry.getFormatType();
+                    var newSamplerConfig = d.samplerConfig || srcEntry.getSamplerConfig();
+                    entry.createImage(newWidth, newHeight, newFormatType, newSamplerConfig);
+                }
+                else
+                    throw new Error("Unknown texture input parameter '" + d.sizeof+"' in operator '"+operator.name+"'");
+            } else
+                throw new Error("Cannot create texture. Use customAlloc or sizeof parameter attribute");
+        } else {
+            // buffer entry
+            var size = (d.customAlloc ? c_sizes[d.name] : operatorData.iterateCount) * entry.getTupleSize();
 
-        if( !entry._value || entry._value.length != size){
-            switch(entry.type){
-                case Xflow.DATA_TYPE.FLOAT:
-                case Xflow.DATA_TYPE.FLOAT2:
-                case Xflow.DATA_TYPE.FLOAT3:
-                case Xflow.DATA_TYPE.FLOAT4:
-                case Xflow.DATA_TYPE.FLOAT4X4: entry.setValue(new Float32Array(size)); break;
-                case Xflow.DATA_TYPE.INT:
-                case Xflow.DATA_TYPE.INT4:
-                case Xflow.DATA_TYPE.BOOL: entry.setValue(new Int32Array(size)); break;
-                default: XML3D.debug.logWarning("Could not allocate output buffer of TYPE: " + entry.type);
+            if( !entry._value || entry._value.length != size){
+                switch(entry.type){
+                    case Xflow.DATA_TYPE.FLOAT:
+                    case Xflow.DATA_TYPE.FLOAT2:
+                    case Xflow.DATA_TYPE.FLOAT3:
+                    case Xflow.DATA_TYPE.FLOAT4:
+                    case Xflow.DATA_TYPE.FLOAT4X4: entry.setValue(new Float32Array(size)); break;
+                    case Xflow.DATA_TYPE.INT:
+                    case Xflow.DATA_TYPE.INT4:
+                    case Xflow.DATA_TYPE.BOOL: entry.setValue(new Int32Array(size)); break;
+                    default: XML3D.debug.logWarning("Could not allocate output buffer of TYPE: " + entry.type);
+                }
             }
-        }
-        else{
-            entry.notifyChanged();
+            else{
+                entry.notifyChanged();
+            }
         }
     }
 }
@@ -11932,7 +13073,8 @@ function assembleFunctionArgs(operator, inputData, outputData){
     for(var i in operator.outputs){
         var d = operator.outputs[i];
         var entry = outputData[d.name].dataEntry;
-        args.push(entry ? entry._value : null);
+        var value = entry ? entry.getValue() : null;
+        args.push(value);
     }
     addInputToArgs(args, inputData);
     return args;
@@ -11940,7 +13082,9 @@ function assembleFunctionArgs(operator, inputData, outputData){
 
 function addInputToArgs(args, inputData){
     for(var i = 0; i < inputData.length; ++i){
-        args.push(inputData[i] ? inputData[i]._value : null);
+        var entry = inputData[i];
+        var value = entry ? entry.getValue() : null;
+        args.push(value);
     }
 }
 
@@ -11962,6 +13106,64 @@ function applyCoreOperation(operator, inputData, outputData, operatorData){
     operator._inlineLoop[key].apply(operatorData, args);
 }
 
+if(window.ParallelArray){
+    var createParallelArray = (function() {
+        function F(args) {
+            return ParallelArray.apply(this, args);
+        }
+        F.prototype = ParallelArray.prototype;
+
+        return function() {
+            return new F(arguments);
+        }
+    })();
+}
+
+function riverTrailAvailable(){
+    return window.ParallelArray && window.RiverTrail && window.RiverTrail.compiler;
+}
+
+
+function applyParallelOperator(operator, inputData, outputData, operatorData){
+    var args = [];
+    // Compute Output image size:
+    var size = [];
+    args.push(size);
+    args.push(operator.evaluate_parallel);
+    for(var i = 0; i < operator.mapping.length; ++i){
+        var entry = inputData[i];
+        var value = null;
+        if(entry){
+            if(operator.mapping[i].internalType == Xflow.DATA_TYPE.TEXTURE){
+                if(size.length == 0){
+                    size[0] = inputData[i].getHeight();
+                    size[1] = inputData[i].getWidth();
+                }
+                else{
+                    size[0] = Math.min(size[0], inputData[i].getHeight());
+                    size[1] = Math.min(size[1], inputData[i].getWidth());
+                }
+                value = new ParallelArray(inputData[i].getFilledCanvas());
+            }
+            else{
+                value = new ParallelArray(inputData[i].getValue());
+            }
+        }
+        args.push(value);
+    }
+    var result = createParallelArray.apply(this, args);
+    result.materialize();
+    var outputName = operator.outputs[0].name;
+    var outputDataEntry = outputData[outputName].dataEntry;
+
+    window.RiverTrail.compiler.openCLContext.writeToContext2D(outputDataEntry.getContext2D(),
+        result.data, outputDataEntry.getWidth(), outputDataEntry.getHeight());
+
+    var value = outputDataEntry.getValue();
+    return value;
+}
+
+
 Xflow.ProcessNode.prototype.applyOperator = function(){
     if(!this._operatorData)
         this._operatorData = {
@@ -11972,12 +13174,17 @@ Xflow.ProcessNode.prototype.applyOperator = function(){
     var inputData = [];
     prepareInputs(this.operator, this.inputChannels, inputData);
     var count = getIterateCount(this.operator, inputData, this._operatorData);
-    allocateOutput(this.operator, inputData, this.outputDataSlots, this._operatorData);
 
-    if(this.operator.evaluate_core){
+    if( this.operator.evaluate_parallel && riverTrailAvailable() ){
+        allocateOutput(this.operator, inputData, this.outputDataSlots, this._operatorData);
+        applyParallelOperator(this.operator, inputData, this.outputDataSlots, this._operatorData);
+    }
+    else if(this.operator.evaluate_core){
+        allocateOutput(this.operator, inputData, this.outputDataSlots, this._operatorData);
         applyCoreOperation(this.operator, inputData, this.outputDataSlots, this._operatorData);
     }
     else{
+        allocateOutput(this.operator, inputData, this.outputDataSlots, this._operatorData);
         applyDefaultOperation(this.operator, inputData, this.outputDataSlots, this._operatorData);
     }
     for (var i in this.outputDataSlots) {
@@ -11988,7 +13195,7 @@ Xflow.ProcessNode.prototype.applyOperator = function(){
 }
 
 })();
-Xflow.registerOperator("morph", {
+Xflow.registerOperator("xflow.morph", {
     outputs: [{type: 'float3', name: 'result'}],
     params:  [
         { type: 'float3', source: 'value' },
@@ -12009,7 +13216,7 @@ Xflow.registerOperator("morph", {
         result[1] = value[1] + weight[0] * valueAdd[1];
         result[2] = value[2] + weight[0] * valueAdd[2];
     }
-});Xflow.registerOperator("sub", {
+});Xflow.registerOperator("xflow.sub", {
     outputs: [  {type: 'float3', name: 'result'}],
     params:  [  {type: 'float3', source: 'value1'},
                 {type: 'float3', source: 'value2'}],
@@ -12021,12 +13228,13 @@ Xflow.registerOperator("morph", {
 
         return true;
     },
+
     evaluate_core: function(result, value1, value2){
         result[0] = value1[0] - value2[0];
         result[1] = value1[1] - value2[1];
         result[2] = value1[2] - value2[2];
     }
-});Xflow.registerOperator("normalize", {
+});Xflow.registerOperator("xflow.normalize", {
     outputs: [  {type: 'float3', name: 'result'}],
     params:  [  {type: 'float3', source: 'value'}],
     evaluate: function(result, value, info) {
@@ -12042,7 +13250,7 @@ Xflow.registerOperator("morph", {
         }
     }
 });
-Xflow.registerOperator("lerpSeq", {
+Xflow.registerOperator("xflow.lerpSeq", {
     outputs: [  {type: 'float3', name: 'result'}],
     params:  [  {type: 'float3', source: 'sequence'},
         {type: 'float', source: 'key'}],
@@ -12074,7 +13282,7 @@ Xflow.registerOperator("lerpSeq", {
     }
 });
 
-Xflow.registerOperator("lerpKeys", {
+Xflow.registerOperator("xflow.lerpKeys", {
     outputs: [  {type: 'float3', name: 'result'}],
     params:  [  {type: 'float', source: 'keys', array: true},
         {type: 'float3', source: 'values', array: true},
@@ -12107,7 +13315,7 @@ Xflow.registerOperator("lerpKeys", {
 
 
 
-Xflow.registerOperator("slerpSeq", {
+Xflow.registerOperator("xflow.slerpSeq", {
     outputs: [  {type: 'float4', name: 'result'}],
     params:  [  {type: 'float4', source: 'sequence'},
                 {type: 'float', source: 'key'}],
@@ -12143,7 +13351,7 @@ Xflow.registerOperator("slerpSeq", {
 });
 
 
-Xflow.registerOperator("slerpKeys", {
+Xflow.registerOperator("xflow.slerpKeys", {
     outputs: [  {type: 'float4', name: 'result'}],
     params:  [  {type: 'float', source: 'keys', array: true},
         {type: 'float4', source: 'values', array: true},
@@ -12170,7 +13378,7 @@ Xflow.registerOperator("slerpKeys", {
                 result, 0, true);
         }
     }
-});Xflow.registerOperator("createTransform", {
+});Xflow.registerOperator("xflow.createTransform", {
     outputs: [  {type: 'float4x4', name: 'result'}],
     params:  [  {type: 'float3', source: 'translation', optional: true},
                 {type: 'float4', source: 'rotation', optional: true},
@@ -12289,7 +13497,7 @@ Xflow.registerOperator("slerpKeys", {
         return true;
     }
      */
-});Xflow.registerOperator("createTransformInv", {
+});Xflow.registerOperator("xflow.createTransformInv", {
     outputs: [  {type: 'float4x4', name: 'result'}],
     params:  [  {type: 'float3', source: 'translation', optional: true},
                 {type: 'float4', source: 'rotation', optional: true},
@@ -12408,7 +13616,7 @@ Xflow.registerOperator("slerpKeys", {
 	*/
         return true;
     }
-});Xflow.registerOperator("mul", {
+});Xflow.registerOperator("xflow.mul", {
     outputs: [  {type: 'float4x4', name: 'result'}],
     params:  [  {type: 'float4x4', source: 'value1'},
                 {type: 'float4x4', source: 'value2'}],
@@ -12486,7 +13694,7 @@ Xflow.registerOperator("slerpKeys", {
          */
         return true;
     }
-});Xflow.registerOperator("skinDirection", {
+});Xflow.registerOperator("xflow.skinDirection", {
     outputs: [  {type: 'float3', name: 'result' }],
     params:  [  {type: 'float3', source: 'dir' },
                 {type: 'int4', source: 'boneIdx' },
@@ -12554,7 +13762,7 @@ Xflow.registerOperator("slerpKeys", {
         */
         return true;
     }
-});Xflow.registerOperator("skinPosition", {
+});Xflow.registerOperator("xflow.skinPosition", {
     outputs: [  {type: 'float3', name: 'result' }],
     params:  [  {type: 'float3', source: 'pos' },
                 {type: 'int4', source: 'boneIdx' },
@@ -12621,7 +13829,7 @@ Xflow.registerOperator("slerpKeys", {
         */
         return true;
     }
-});Xflow.registerOperator("forwardKinematics", {
+});Xflow.registerOperator("xflow.forwardKinematics", {
     outputs: [  {type: 'float4x4',  name: 'result', customAlloc: true}],
     params:  [  {type: 'int',       source: 'parent', array: true },
                 {type: 'float4x4',  source: 'xform', array: true }],
@@ -12731,7 +13939,7 @@ Xflow.registerOperator("slerpKeys", {
 
         return true;
     }
-});Xflow.registerOperator("forwardKinematicsInv", {
+});Xflow.registerOperator("xflow.forwardKinematicsInv", {
     outputs: [  {type: 'float4x4',  name: 'result', customAlloc: true}],
     params:  [  {type: 'int',       source: 'parent', array: true },
                 {type: 'float4x4',  source: 'xform', array: true }],
@@ -12779,12 +13987,47 @@ Xflow.registerOperator("slerpKeys", {
             i++;
         }
     }
-});Xflow.registerOperator("flipNormal", {
+});Xflow.registerOperator("xflow.flipNormal", {
     outputs: [  {type: 'float3', name: 'result'}],
     params:  [  {type: 'float3', source: 'value'}],
     evaluate: function(result, value, info) {
         for(var i = 0; i<info.iterateCount*3; i++)
             result[i] = -value[i];
+    }
+});Xflow.registerOperator("xflow.createIGIndex", {
+    outputs:[
+        //{type:'int', name:'index', customAlloc:true },
+        {type:'float2', name:'texcoord', customAlloc:true }
+    ],
+    params:[
+        {type:'int', source:'vertexCount', optional:false},
+        {type:'texture', source:'positionTex', optional: false}
+    ],
+    alloc:function (sizes, vertexCount, image) {
+        sizes['texcoord'] = image.width * image.height;
+        //sizes['index'] = vertexCount[0];
+    },
+    evaluate:function (texcoord, vertexCount, image, info) {
+        // tex coords
+        var halfPixel = {
+            x: 0.5 / image.width,
+            y: 0.5 / image.height
+        };
+        var i = 0;
+        for (var y = 0, ylength = image.height; y < ylength; y++)
+        {
+            for (var x = 0, xlength = image.width; x < xlength; x++)
+            {
+                texcoord[i++] = (x / xlength) + halfPixel.x;
+                texcoord[i++] = 1 - ((y / ylength) + halfPixel.y);
+            }
+        }
+
+        // index creation
+        /*for(var i = 0; i < vertexCount[0]; i++) {
+            index[i] = i;
+        }*/
+        return true;
     }
 });// Additional methods in glMatrix style
 
@@ -12994,7 +14237,756 @@ XML3D.math.quat.slerpOffset = function(quat, offset1, quat2, offset2, t, dest, d
     dest[iyd] = c1*quat[iy1] + c2*quat2[iy2];
     dest[izd] = c1*quat[iz1] + c2*quat2[iz2];
     dest[iwd] = c1*quat[iw1] + c2*quat2[iw2];
-};XML3D.data = {
+};Xflow.registerOperator("xflow.noiseImage", {
+    outputs: [ {type: 'texture', name : 'image', customAlloc: true} ],
+    params:  [ {type: 'int', source: 'width'},
+               {type: 'int', source:'height'},
+               {type: 'float2', source: 'scale'},
+               {type: 'float', source: 'minFreq'},
+               {type: 'float', source: 'maxFreq'} ],
+    alloc: function(sizes, width, height, scale, minFreq, maxFreq) {
+        var samplerConfig = new Xflow.SamplerConfig;
+        samplerConfig.setDefaults();
+        sizes['image'] = {
+            imageFormat : {width: width[0], height :height[0]},
+            samplerConfig : samplerConfig
+        };
+    },
+    evaluate: function(image, width, height, scale, minFreq, maxFreq) {
+        width = width[0];
+        height = height[0];
+        minFreq = minFreq[0];
+        maxFreq = maxFreq[0];
+
+        var id = image;
+        var pix = id.data;
+        this.noise = this.noise || new SimplexNoise();
+        var noise = this.noise;
+
+        var useTurbulence = minFreq != 0.0 && maxFreq != 0.0 && minFreq < maxFreq;
+
+        var snoise = function(x,y) {
+            return noise.noise(x, y); // noise.noise returns values in range [-1,1]
+            //return 2.0 * noise.noise(x, y) - 1.0; // this code is for noise value in range [0,1]
+        };
+
+        var turbulence = function(minFreq, maxFreq, s, t) {
+            var value = 0;
+            for (var f = minFreq; f < maxFreq; f *= 2)
+            {
+                value += Math.abs(snoise(s * f, t * f))/f;
+            }
+            return value;
+        };
+
+        for (var y = 0; y < height; ++y)
+        {
+            var t = y / height * scale[1];
+            var invWidth = 1.0 / width;
+
+            for (var x = 0; x < width; ++x)
+            {
+                var s = x * invWidth * scale[0];
+                var v = useTurbulence ? turbulence(minFreq, maxFreq, s, t) : snoise(s, t);
+                var offset = (x * width + y) * 4;
+                pix[offset] =  Math.floor(v * 255);
+                pix[offset+1] = Math.floor(v * 255);
+                pix[offset+2] = Math.floor(v * 255);
+                pix[offset+3] = 255;
+            }
+        }
+
+        /* Fill with green color
+        for (var y = 0; y < height; ++y)
+        {
+            for (var x = 0; x < width; ++x)
+            {
+                var offset = (x * width + y) * 4;
+                pix[offset] =  0
+                pix[offset+1] = 255;
+                pix[offset+2] = 0;
+                pix[offset+3] = 255;
+            }
+        }
+        */
+
+        return true;
+    }
+});
+// Code portions from http://www.html5rocks.com/en/tutorials/canvas/imagefilters/
+(function() {
+    Xflow.Filters = {};
+
+    var tmpCanvas = null;
+    var tmpCtx = null;
+
+    Xflow.Filters.createImageData = function(w,h) {
+        if (!tmpCanvas)
+            tmpCanvas = document.createElement('canvas');
+        if (!tmpCtx)
+            tmpCtx = tmpCanvas.getContext('2d');
+        return tmpCtx.createImageData(w, h);
+    };
+
+    Xflow.Filters.createImageDataFloat32 = function(w, h) {
+        return {width: w, height: h, data: new Float32Array(w * h * 4)};
+    };
+
+    Xflow.Filters.grayscale = function(inpixels, outpixels, args) {
+            var s = inpixels.data;
+            var d = outpixels.data;
+            for (var i=0; i<s.length; i+=4) {
+                var r = s[i];
+                var g = s[i+1];
+                var b = s[i+2];
+                var a = s[i+3];
+                // CIE luminance for the RGB
+                // The human eye is bad at seeing red and blue, so we de-emphasize them.
+                var v = 0.2126*r + 0.7152*g + 0.0722*b;
+                d[i] = d[i+1] = d[i+2] = v
+                d[i+3] = a;
+            }
+            return inpixels;
+    };
+
+    Xflow.Filters.convolute = function(inpixels, outpixels, weights, opaque) {
+            var side = Math.round(Math.sqrt(weights.length));
+            var halfSide = Math.floor(side/2);
+            var src = inpixels.data;
+            var sw = inpixels.width;
+            var sh = inpixels.height;
+            // pad output by the convolution matrix
+            var w = sw;
+            var h = sh;
+            var dst = outpixels.data;
+            // go through the destination image pixels
+            var alphaFac = opaque ? 1 : 0;
+            for (var y=0; y<h; y++) {
+                for (var x=0; x<w; x++) {
+                    var sy = y;
+                    var sx = x;
+                    var dstOff = (y*w+x)*4;
+                    // calculate the weighed sum of the source image pixels that
+                    // fall under the convolution matrix
+                    var r=0, g=0, b=0, a=0;
+                    for (var cy=0; cy<side; cy++) {
+                        for (var cx=0; cx<side; cx++) {
+                            var scy = sy + cy - halfSide;
+                            var scx = sx + cx - halfSide;
+                            if (scy >= 0 && scy < sh && scx >= 0 && scx < sw) {
+                                var srcOff = (scy*sw+scx)*4;
+                                var wt = weights[cy*side+cx];
+                                r += src[srcOff] * wt;
+                                g += src[srcOff+1] * wt;
+                                b += src[srcOff+2] * wt;
+                                a += src[srcOff+3] * wt;
+                            }
+                        }
+                    }
+                    dst[dstOff] = r;
+                    dst[dstOff+1] = g;
+                    dst[dstOff+2] = b;
+                    dst[dstOff+3] = a + alphaFac*(255-a);
+                }
+            }
+            return outpixels;
+        };
+/*
+    Xflow.Filters.convoluteFloat32 = function(pixels, weights, opaque) {
+        var side = Math.round(Math.sqrt(weights.length));
+        var halfSide = Math.floor(side / 2);
+
+        var src = pixels.data;
+        var sw = pixels.width;
+        var sh = pixels.height;
+
+        var w = sw;
+        var h = sh;
+        var output = {
+            width: w, height: h, data: new Float32Array(w * h * 4)
+        };
+        var dst = output.data;
+
+        var alphaFac = opaque ? 1 : 0;
+
+        for (var y = 0; y < h; y++) {
+            for (var x = 0; x < w; x++) {
+                var sy = y;
+                var sx = x;
+                var dstOff = (y * w + x) * 4;
+                var r = 0, g = 0, b = 0, a = 0;
+                for (var cy = 0; cy < side; cy++) {
+                    for (var cx = 0; cx < side; cx++) {
+                        var scy = Math.min(sh - 1, Math.max(0, sy + cy - halfSide));
+                        var scx = Math.min(sw - 1, Math.max(0, sx + cx - halfSide));
+                        var srcOff = (scy * sw + scx) * 4;
+                        var wt = weights[cy * side + cx];
+                        r += src[srcOff] * wt;
+                        g += src[srcOff + 1] * wt;
+                        b += src[srcOff + 2] * wt;
+                        a += src[srcOff + 3] * wt;
+                    }
+                }
+                dst[dstOff] = r;
+                dst[dstOff + 1] = g;
+                dst[dstOff + 2] = b;
+                dst[dstOff + 3] = a + alphaFac * (255 - a);
+            }
+        }
+        return output;
+    }
+*/
+}());
+
+function float4(x,y,z,w) {
+    var v = new Float32Array(4);
+    switch (arguments.length) {
+        case 0:
+            v[0] = 0;
+            v[1] = 0;
+            v[2] = 0;
+            v[3] = 0;
+            break;
+        case 1:
+            v[0] = x;
+            v[1] = x;
+            v[2] = x;
+            v[3] = x;
+            break;
+        case 2:
+            v[0] = x;
+            v[1] = y;
+            v[2] = 0;
+            v[3] = 0;
+            break;
+        case 3:
+            v[0] = x;
+            v[1] = y;
+            v[2] = z;
+            v[3] = 0;
+            break;
+        default:
+            v[0] = x;
+            v[1] = y;
+            v[2] = z;
+            v[3] = w;
+    }
+    return v;
+}
+
+function hypot(a, b)
+{
+    return Math.sqrt(a*a + b*b);
+}
+
+function hypot4(a, b)
+{
+    return float4(hypot(a[0], b[0]),
+                  hypot(a[1], b[1]),
+                  hypot(a[2], b[2]),
+                  hypot(a[3], b[3]));
+}
+
+function hypot4To(r, a, b)
+{
+    r[0] = hypot(a[0], b[0]);
+    r[1] = hypot(a[1], b[1]);
+    r[2] = hypot(a[2], b[2]);
+    r[3] = hypot(a[3], b[3]);
+}
+
+function getTexel2D(imagedata, x, y) {
+    var offset = (y * imagedata.width + x) * 4;
+    var data = imagedata.data;
+    var color = new Float32Array(4);
+    color[0] = data[offset] / 255.0;
+    color[1] = data[offset+1] / 255.0;
+    color[2] = data[offset+2] / 255.0;
+    color[3] = data[offset+3] / 255.0;
+    return color;
+}
+
+function getTexel2DTo(color, imagedata, x, y) {
+    var offset = (y * imagedata.width + x) * 4;
+    var data = imagedata.data;
+    color[0] = data[offset] / 255.0;
+    color[1] = data[offset+1] / 255.0;
+    color[2] = data[offset+2] / 255.0;
+    color[3] = data[offset+3] / 255.0;
+    return color;
+}
+
+function setTexel2D(imagedata, x, y, color) {
+    var offset = (y * imagedata.width + x) * 4;
+    var data = imagedata.data;
+    data[offset] = color[0] * 255.0 ;
+    data[offset+1] = color[1] * 255.0;
+    data[offset+2] = color[2] * 255.0;
+    data[offset+3] = color[3] * 255.0;
+}
+
+Xflow.registerOperator("xflow.sobelImage", {
+    outputs: [ {type: 'texture', name : 'result', sizeof : 'image'} ],
+    params:  [ {type: 'texture', source : 'image'} ],
+    evaluate: function(result, image) {
+        var width = image.width;
+        var height = image.height;
+
+        // Sobel filter, AnySL method
+        var gx = float4(0.0);
+        var gy = float4(0.0);
+        var i00 = float4();
+        var i00 = float4();
+        var i10 = float4();
+        var i20 = float4();
+        var i01 = float4();
+        var i11 = float4();
+        var i21 = float4();
+        var i02 = float4();
+        var i12 = float4();
+        var i22 = float4();
+        var color = float4();
+
+        for (var y = 0; y < height; ++y)
+        {
+            for (var x = 0; x < width; ++x)
+            {
+                /* Read each texel component and calculate the filtered value using neighbouring texel components */
+                if ( x >= 1 && x < (width-1) && y >= 1 && y < height - 1)
+                {
+                    getTexel2DTo(i00, image, x-1, y-1);
+                    getTexel2DTo(i10, image, x, y-1);
+                    getTexel2DTo(i20, image, x+1, y-1);
+                    getTexel2DTo(i01, image, x-1, y);
+                    getTexel2DTo(i11, image, x, y);
+                    getTexel2DTo(i21, image, x+1, y);
+                    getTexel2DTo(i02, image, x-1, y+1);
+                    getTexel2DTo(i12, image, x, y+1);
+                    getTexel2DTo(i22, image, x+1, y+1);
+
+                    gx[0] = i00[0] + 2 * i10[0] + i20[0] - i02[0]  - 2 * i12[0] - i22[0];
+                    gx[1] = i00[1] + 2 * i10[1] + i20[1] - i02[1]  - 2 * i12[1] - i22[1];
+                    gx[2] = i00[2] + 2 * i10[2] + i20[2] - i02[2]  - 2 * i12[2] - i22[2];
+
+                    gy[0] = i00[0] - i20[0]  + 2*i01[0] - 2*i21[0] + i02[0]  -  i22[0];
+                    gy[1] = i00[1] - i20[1]  + 2*i01[1] - 2*i21[1] + i02[1]  -  i22[1];
+                    gy[2] = i00[2] - i20[2]  + 2*i01[2] - 2*i21[2] + i02[2]  -  i22[2];
+
+                    /* taking root of sums of squares of Gx and Gy */
+                    hypot4To(color, gx, gy);
+                    color[0]/=2;
+                    color[1]/=2;
+                    color[2]/=2;
+                    color[3]=1.0;
+                    setTexel2D(result, x, y, color);
+                }
+            }
+        }
+
+
+
+// Sobel filter with separate steps
+//
+//        var vertical = Xflow.Filters.createImageDataFloat32(width, height);
+//        Xflow.Filters.convolute(result, vertical,
+//            [ -1, 0, 1,
+//              -2, 0, 2,
+//              -1, 0, 1 ]);
+//        var horizontal = Xflow.Filters.createImageDataFloat32(width, height);
+//        Xflow.Filters.convolute(result, horizontal,
+//            [ -1, -2, -1,
+//               0,  0,  0,
+//               1,  2,  1 ]);
+//
+//        for (var i=0; i<result.data.length; i+=4) {
+//            // make the vertical gradient red
+//            var v = Math.abs(vertical.data[i]);
+//            result.data[i] = v;
+//            // make the horizontal gradient green
+//            var h = Math.abs(horizontal.data[i]);
+//            result.data[i+1] = h;
+//            // and mix in some blue for aesthetics
+//            result.data[i+2] = (v+h)/4;
+//            result.data[i+3] = 255; // opaque alpha
+//        }
+
+        /* Copy image
+        var destpix = result.data;
+        var srcpix = image.data;
+
+        for (var y = 0; y < height; ++y)
+        {
+            for (var x = 0; x < width; ++x)
+            {
+                var offset = (y * width + x) * 4;
+                destpix[offset] =  srcpix[offset];
+                destpix[offset+1] = srcpix[offset+1];
+                destpix[offset+2] = srcpix[offset+2];
+                destpix[offset+3] = srcpix[offset+3];
+            }
+        }
+        */
+        return true;
+    }
+});
+Xflow.registerOperator("xflow.grayscaleImage", {
+    outputs: [ {type: 'texture', name : 'result', sizeof : 'image'} ],
+    params:  [ {type: 'texture', source : 'image'} ],
+    evaluate: function(result, image) {
+        var width = image.width;
+        var height = image.height;
+
+        var s = image.data;
+        var d = result.data;
+        for (var i = 0; i < s.length; i += 4) {
+            var r = s[i];
+            var g = s[i + 1];
+            var b = s[i + 2];
+            var a = s[i + 3];
+            // CIE luminance for the RGB
+            // The human eye is bad at seeing red and blue, so we de-emphasize them.
+            var v = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+            d[i] = d[i + 1] = d[i + 2] = v
+            d[i + 3] = a;
+        }
+        return true;
+    }
+});
+Xflow.registerOperator("xflow.sepiaImage", {
+    outputs: [ {type: 'texture', name : 'result', sizeof : 'image'} ],
+    params:  [ {type: 'texture', source : 'image'} ],
+    evaluate: function(result, image) {
+        var s = image.data;
+        var d = result.data;
+        var r = 0, g = 0, b = 0;
+        for(var i = 0 ; i < s.length; i += 4) {
+            r = (s[i] * 0.393 + s[i+1] * 0.769 + s[i+2] * 0.189);
+            g = (s[i] * 0.349 + s[i+1] * 0.686 + s[i+2] * 0.168);
+            b = (s[i] * 0.272 + s[i+1] * 0.534 + s[i+2] * 0.131);
+            if (r>255) r = 255;
+            if (g>255) g = 255;
+            if (b>255) b = 255;
+            if (r<0) r = 0;
+            if (g<0) g = 0;
+            if (b<0) b = 0;
+            d[i] = r;
+            d[i+1] = g;
+            d[i+2] = b;
+            d[i+3] = 255;
+        }
+        return true;
+    },
+    evaluate_parallel: function(index, image){
+        var x = index[0], y = index[1];
+        var r = (image[x][y][0] * 0.393 + image[x][y][1] * 0.769 + image[x][y][2] * 0.189);
+        var g = (image[x][y][0] * 0.349 + image[x][y][1] * 0.686 + image[x][y][2] * 0.168);
+        var b = (image[x][y][0] * 0.272 + image[x][y][1] * 0.534 + image[x][y][2] * 0.131);
+        if (r>255) r = 255;
+        if (g>255) g = 255;
+        if (b>255) b = 255;
+        if (r<0) r = 0;
+        if (g<0) g = 0;
+        if (b<0) b = 0;
+        return [r,g,b,255];
+    }
+});
+Xflow.registerOperator("xflow.clampImage", {
+    outputs: [ {type: 'texture', name : 'result', sizeof : 'image', formatType: 'ImageData'} ],
+    params:  [ {type: 'texture', source : 'image'},
+               {type: 'float', source : 'min'},
+               {type: 'float', source : 'max'}
+             ],
+    evaluate: function(result, image, min, max) {
+        var inpix = image.data;
+        var outpix = result.data;
+        var minv = min[0];
+        var maxv = max[0];
+        var len = image.data.length;
+        for (var i = 0 ; i < len; i++) {
+            var val = inpix[i];
+            if (val < minv) val = minv;
+            if (val > maxv) val = maxv;
+            outpix[i] = val;
+        }
+        return true;
+    }
+});
+// Code portions from http://www.html5rocks.com/en/tutorials/canvas/imagefilters/
+
+(function() {
+
+    function convolute(inpixels, outpixels, weights, opaque) {
+        var side = Math.round(Math.sqrt(weights.length));
+        var halfSide = Math.floor(side/2);
+        var src = inpixels.data;
+        var sw = inpixels.width;
+        var sh = inpixels.height;
+        // pad output by the convolution matrix
+        var w = sw;
+        var h = sh;
+        var dst = outpixels.data;
+        // go through the destination image pixels
+        var alphaFac = opaque ? 1 : 0;
+        for (var y=0; y<h; y++) {
+            for (var x=0; x<w; x++) {
+                var sy = y;
+                var sx = x;
+                var dstOff = (y*w+x)*4;
+                // calculate the weighed sum of the source image pixels that
+                // fall under the convolution matrix
+                var r=0, g=0, b=0, a=0;
+                for (var cy=0; cy<side; cy++) {
+                    for (var cx=0; cx<side; cx++) {
+                        var scy = sy + cy - halfSide;
+                        var scx = sx + cx - halfSide;
+                        if (scy >= 0 && scy < sh && scx >= 0 && scx < sw) {
+                            var srcOff = (scy*sw+scx)*4;
+                            var wt = weights[cy*side+cx];
+                            r += src[srcOff] * wt;
+                            g += src[srcOff+1] * wt;
+                            b += src[srcOff+2] * wt;
+                            a += src[srcOff+3] * wt;
+                        }
+                    }
+                }
+                dst[dstOff] = r;
+                dst[dstOff+1] = g;
+                dst[dstOff+2] = b;
+                dst[dstOff+3] = a + alphaFac*(255-a);
+            }
+        }
+        return outpixels;
+    };
+
+    Xflow.registerOperator("xflow.convoluteImage", {
+        outputs: [ {type: 'texture', name : 'result', sizeof : 'image'} ],
+        params:  [
+            {type: 'texture', source : 'image'},
+            {type: 'float', source : 'kernel'}
+        ],
+        evaluate: function(result, image, kernel) {
+            convolute(image, result, kernel, true);
+            return true;
+        }
+    });
+
+    Xflow.registerOperator("xflow.convoluteImageToFloat", {
+        outputs: [ {type: 'texture', name : 'result', sizeof: 'image', formatType : 'float32'} ],
+        params:  [
+            {type: 'texture', source : 'image'},
+            {type: 'float', source : 'kernel'}
+        ],
+        evaluate: function(result, image, kernel) {
+            convolute(image, result, kernel, true);
+            return true;
+        }
+    });
+
+})();
+// Based on: http://web.archive.org/web/20100310063925/http://dem.ocracy.org/libero/photobooth/
+
+Xflow.registerOperator("xflow.funMirrorImage", {
+    outputs: [ {type: 'texture', name : 'result', sizeof : 'image'} ],
+    params:  [ {type: 'texture', source : 'image'},
+               {type: 'float', source : 'time'} ],
+    evaluate: function(result, image, time) {
+        var width = result.width;
+        var height = result.height;
+        var time = time[0];
+
+        var s = image.data;
+        var d = result.data;
+
+        for (var y = 0; y < height; ++y) {
+            for (var x = 0; x < width; ++x) {
+
+                /*original coordinates*/
+                // [0.0 ,1.0] x [0.0, 1.0]
+                var coordX = x / width;
+                var coordY = y / height;
+
+                // [-1.0 ,1.0] x [-1.0, 1.0]
+                var normCoordX = 2.0 * coordX - 1.0;
+                var normCoordY = 2.0 * coordY - 1.0;
+
+                /*go to polar coordinates*/
+                var r = Math.sqrt(normCoordX*normCoordX + normCoordY*normCoordY); // length(normCoord)
+                var phi = Math.atan2(normCoordY, normCoordX);
+
+                /*squeeze and vary it over time*/
+                r = Math.pow(r, 1.0/1.8) * time;
+
+                /*back to cartesian coordinates*/
+                normCoordX = r * Math.cos(phi);
+                normCoordY = r * Math.sin(phi);
+                // [0.0 ,1.0] x [0.0, 1.0]
+                coordX = normCoordX / 2.0 + 0.5;
+                coordY = normCoordY / 2.0 + 0.5;
+
+                var sX = Math.round(coordX * width);
+                var sY = Math.round(coordY * height);
+
+                var i = (sY * width + sX)*4;
+                var r = s[i];
+                var g = s[i + 1];
+                var b = s[i + 2];
+                var a = s[i + 3];
+
+                /*color the fragment with calculated texture*/
+                var i = (y * width + x)*4;
+                d[i] = r;
+                d[i + 1] = g;
+                d[i + 2] = b;
+                d[i + 3] = a;
+            }
+        }
+        return true;
+    }
+});
+// Based on http://kodemongki.blogspot.de/2011/06/kameraku-custom-shader-effects-example.html
+Xflow.registerOperator("xflow.popartImage", {
+    outputs: [ {type: 'texture', name : 'result', sizeof : 'image'} ],
+    params:  [ {type: 'texture', source : 'image'},
+        {type: 'float', source : 'time'} ],
+    evaluate: function(result, image, time) {
+        var width = image.width;
+        var height = image.height;
+
+        var s = image.data;
+        var d = result.data;
+        for (var i = 0; i < s.length; i += 4) {
+            var r = s[i] / 255;
+            var g = s[i + 1] / 255;
+            var b = s[i + 2] / 255;
+            var a = s[i + 3] / 255;
+
+            var y = 0.3 * r + 0.59 * g + 0.11 * b;
+            y = y < 0.3 ? 0.0 : (y < 0.6 ? 0.5 : 1.0);
+            if (y == 0.5) {
+                d[i]   = 0.8 * 255;
+                d[i+1] = 0;
+                d[i+2] = 0;
+            } else if (y == 1.0) {
+                d[i]   = 0.9 * 255;
+                d[i+1] = 0.9 * 255;
+                d[i+2] = 0;
+            } else {
+                d[i] = 0;
+                d[i+1] = 0;
+                d[i+2] = 0;
+            }
+            d[i+3] = s[i+3];
+        }
+        return true;
+    }
+});
+Xflow.registerOperator("xflow.magnitudeImage", {
+    outputs: [ {type: 'texture', name : 'result', sizeof : 'image1'} ],
+    params:  [
+        {type: 'texture', source : 'image1'},
+        {type: 'texture', source : 'image2'}
+    ],
+    evaluate: function(result, image1, image2) {
+        var inpix1 = image1.data;
+        var inpix2 = image2.data;
+        var outpix = result.data;
+
+        var len = inpix1.length;
+        for (var i = 0 ; i < len; i+=1) {
+            var val1 = inpix1[i];
+            var val2 = inpix2[i];
+            outpix[i] = Math.sqrt(val1*val1 + val2*val2);
+        }
+        return true;
+    }
+});
+Xflow.registerOperator("xflow.flipVerticalImage", {
+    outputs: [ {type: 'texture', name : 'result', sizeof : 'image'} ],
+    params:  [ {type: 'texture', source : 'image'} ],
+    evaluate: function(result, image) {
+        var width = image.width;
+        var height = image.height;
+
+        var destpix = result.data;
+        var srcpix = image.data;
+
+        for (var y = 0; y < height; ++y) {
+            for (var x = 0; x < width; ++x) {
+                var rowOffset = y * width;
+                var srcOffset = (rowOffset + x) * 4;
+                var dstOffset = (rowOffset + ((width-1) - x)) * 4;
+                destpix[dstOffset] =  srcpix[srcOffset];
+                destpix[dstOffset+1] = srcpix[srcOffset+1];
+                destpix[dstOffset+2] = srcpix[srcOffset+2];
+                destpix[dstOffset+3] = srcpix[srcOffset+3];
+            }
+        }
+        return true;
+    }
+});
+Xflow.registerOperator("xflow.selectTransform", {
+    outputs: [ {type: 'float4x4', name : 'result', customAlloc: true} ],
+    params:  [ {type: 'int', source : 'index'},
+               {type: 'float4x4', source: 'transform'} ],
+    alloc: function(sizes, index, transform) {
+        sizes['result'] = 1;
+    },
+    evaluate: function(result, index, transform) {
+        var i = 16 * index[0];
+        if (i < transform.length && i+15 < transform.length) {
+            result[0] = transform[i+0];
+            result[1] = transform[i+1];
+            result[2] = transform[i+2];
+            result[3] = transform[i+3];
+            result[4] = transform[i+4];
+            result[5] = transform[i+5];
+            result[6] = transform[i+6];
+            result[7] = transform[i+7];
+            result[8] = transform[i+8];
+            result[9] = transform[i+9];
+            result[10] = transform[i+10];
+            result[11] = transform[i+11];
+            result[12] = transform[i+12];
+            result[13] = transform[i+13];
+            result[14] = transform[i+14];
+            result[15] = transform[i+15];
+        } else {
+            result[0] = 1;
+            result[1] = 0;
+            result[2] = 0;
+            result[3] = 0;
+            result[4] = 0;
+            result[5] = 1;
+            result[6] = 0;
+            result[7] = 0;
+            result[8] = 0;
+            result[9] = 0;
+            result[10] = 1;
+            result[11] = 0;
+            result[12] = 0;
+            result[13] = 0;
+            result[14] = 0;
+            result[15] = 1;
+        }
+    }
+});
+Xflow.registerOperator("xflow.selectBool", {
+    outputs: [ {type: 'bool', name : 'result', customAlloc: true} ],
+    params:  [ {type: 'int', source : 'index'},
+               {type: 'bool', source: 'value'} ],
+    alloc: function(sizes, index, value) {
+        sizes['result'] = 1;
+    },
+    evaluate: function(result, index, value) {
+        var i = index[0];
+        if (i < value.length) {
+            result[0] = value[i];
+        } else {
+            result[0] = false;
+        }
+    }
+});
+XML3D.data = {
     toString : function() {
         return "data";
     }
@@ -13187,6 +15179,8 @@ XML3D.data.DataAdapter.prototype.toString = function() {
     var BUFFER_TYPE_TABLE = {};
     BUFFER_TYPE_TABLE['float']    = Xflow.DATA_TYPE.FLOAT;
     BUFFER_TYPE_TABLE['int']      = Xflow.DATA_TYPE.INT;
+    BUFFER_TYPE_TABLE['byte']     = Xflow.DATA_TYPE.BYTE;
+    BUFFER_TYPE_TABLE['ubyte']    = Xflow.DATA_TYPE.UBYTE;
     BUFFER_TYPE_TABLE['bool']     = Xflow.DATA_TYPE.BOOL;
     BUFFER_TYPE_TABLE['float2']   = Xflow.DATA_TYPE.FLOAT2;
     BUFFER_TYPE_TABLE['float3']   = Xflow.DATA_TYPE.FLOAT3;
@@ -13445,6 +15439,8 @@ XML3D.data.DataAdapter.prototype.toString = function() {
         XML3D.data.DataAdapter.call(this, factory, node);
         this.textureEntry = null;
         this.video = null;
+        this._ticking = false;
+        this._boundTick = this._tick.bind(this);
         if (node.src)
             this.createVideoFromURL(node.src);
     };
@@ -13458,18 +15454,11 @@ XML3D.data.DataAdapter.prototype.toString = function() {
     VideoDataAdapter.prototype.createVideoFromURL = function(url) {
         var that = this;
         var uri = new XML3D.URI(url).getAbsoluteURI(this.node.ownerDocument.documentURI);
-        this.video = XML3D.base.resourceManager.getVideo(uri, /* autoplay= */true,
+        this.video = XML3D.base.resourceManager.getVideo(uri, this.node.autoplay,
             {
-                canplaythrough : function(event, video) {
-                    XML3D.util.dispatchCustomEvent(that.node, 'canplaythrough', true, true, null);
-                    video.play();
-                    function tick() {
-                        window.requestAnimFrame(tick, XML3D.webgl.MAXFPS);
-                        if (that.textureEntry) {
-                            that.textureEntry.setImage(video);
-                        }
-                    }
-                    tick();
+                canplay : function(event, video) {
+                    XML3D.util.dispatchCustomEvent(that.node, 'canplay', true, true, null);
+                    that._startVideoRefresh();
                 },
                 ended : function(event, video) {
                     XML3D.util.dispatchCustomEvent(that.node, 'ended', true, true, null);
@@ -13483,6 +15472,32 @@ XML3D.data.DataAdapter.prototype.toString = function() {
                 }
             }
         );
+        if (this.textureEntry)
+            this.textureEntry.setImage(this.video);
+    };
+
+    VideoDataAdapter.prototype.play = function() {
+        if (this.video)
+            this.video.play();
+    };
+
+    VideoDataAdapter.prototype.pause = function() {
+        if (this.video)
+            this.video.pause();
+    };
+
+    VideoDataAdapter.prototype._startVideoRefresh = function() {
+        if (!this._ticking)
+            this._tick();
+    };
+
+    VideoDataAdapter.prototype._tick = function() {
+        this._ticking = true;
+        window.requestAnimFrame(this._boundTick, XML3D.webgl.MAXFPS);
+        // FIXME Do this only when currentTime is changed (what about webcam ?)
+        if (this.textureEntry) {
+            this.textureEntry.setImage(this.video);
+        }
     };
 
     /**
@@ -13657,6 +15672,8 @@ XML3D.data.DataAdapter.prototype.toString = function() {
     reg['int']         = data.ValueDataAdapter;
     reg['int4']        = data.ValueDataAdapter;
     reg['bool']        = data.ValueDataAdapter;
+    reg['byte']        = data.ValueDataAdapter;
+    reg['ubyte']        = data.ValueDataAdapter;
     reg['img']         = data.ImgDataAdapter;
     reg['texture']     = data.TextureDataAdapter;
     reg['data']        = data.DataAdapter;
@@ -13699,30 +15716,71 @@ XML3D.data.DataAdapter.prototype.toString = function() {
         "float3" : Float32Array,
         "float4" : Float32Array,
         "float4x4" : Float32Array,
-        "bool" : Uint8Array
+        "bool" : Uint8Array,
+        "byte" : Int8Array,
+        "ubyte" : Uint8Array
     };
+
+    var isLittleEndian = (function () {
+        var buf = new ArrayBuffer(4);
+        var dv = new DataView(buf);
+        var view = new Int32Array(buf);
+        view[0] = 0x01020304;
+        var littleEndian = (dv.getInt32(0, true) === 0x01020304);
+        return function () { return littleEndian; }
+    })();
+
+    function realTypeOf(obj) {
+        return Object.prototype.toString.call(obj).slice(8, -1);
+    }
+
+    function createXflowValue(dataNode, dataType, name, key, value) {
+        var v = new (TYPED_ARRAY_MAP[dataType])(value);
+        var type = XML3D.data.BUFFER_TYPE_TABLE[dataType];
+        var buffer = new Xflow.BufferEntry(type, v);
+
+        var inputNode = XML3D.data.xflowGraph.createInputNode();
+        inputNode.data = buffer;
+        inputNode.name = name;
+        inputNode.key = key;
+        dataNode.appendChild(inputNode);
+    }
+
+    function createXflowValueFromBuffer(dataNode, dataType, name, key, arrayBuffer, byteOffset, byteLength) {
+        var ArrayType = TYPED_ARRAY_MAP[dataType];
+        var v = new (ArrayType)(arrayBuffer, byteOffset, byteLength/ArrayType.BYTES_PER_ELEMENT);
+        var type = XML3D.data.BUFFER_TYPE_TABLE[dataType];
+        var buffer = new Xflow.BufferEntry(type, v);
+
+        var inputNode = XML3D.data.xflowGraph.createInputNode();
+        inputNode.data = buffer;
+        inputNode.name = name;
+        inputNode.key = key;
+        dataNode.appendChild(inputNode);
+    }
 
     function createXflowInputs(dataNode, name, jsonData){
         var v = null;
 
-        if(!TYPED_ARRAY_MAP[jsonData.type])
+        if (!TYPED_ARRAY_MAP[jsonData.type])
             return;
 
-        for(var i = 0; i < jsonData.seq.length; ++i){
+        for(var i = 0; i < jsonData.seq.length; ++i) {
             var entry = jsonData.seq[i];
             var value = entry.value;
             var key = entry.key;
 
-            var v = new (TYPED_ARRAY_MAP[jsonData.type])(value);
-            var type = XML3D.data.BUFFER_TYPE_TABLE[jsonData.type];
-            var buffer = new Xflow.BufferEntry(type, v);
-
-            var inputNode = XML3D.data.xflowGraph.createInputNode();
-            inputNode.data = buffer;
-            inputNode.name = name;
-            inputNode.key = key;
-            dataNode.appendChild(inputNode);
-
+            if (realTypeOf(value) === 'Object' && value.url) {
+                if (!isLittleEndian()) {
+                    // FIXME add big-endian -> little-endian conversion
+                    throw new Error("Big-endian binary data are not supported yet");
+                }
+                XML3D.base.resourceManager.loadData(value.url, function (arrayBuffer) {
+                    createXflowValueFromBuffer(dataNode, jsonData.type, name, key, arrayBuffer, value.byteOffset, value.byteLength);
+                }, null);
+            } else {
+                createXflowValue(dataNode, jsonData.type, name, key, value);
+            }
         }
     }
 
@@ -13774,6 +15832,83 @@ XML3D.data.DataAdapter.prototype.toString = function() {
     }
 
     var jsonFactoryInstance = new JSONFactory();
+}());
+// data/adapter/binary/factory.js
+(function() {
+
+    var empty = function() {};
+
+    var TYPED_ARRAY_MAP = {
+        "int" : Int32Array,
+        "int4" : Int32Array,
+        "float" : Float32Array,
+        "float2" : Float32Array,
+        "float3" : Float32Array,
+        "float4" : Float32Array,
+        "float4x4" : Float32Array,
+        "bool" : Uint8Array,
+        "byte" : Int8Array,
+        "ubyte" : Uint8Array
+    };
+
+    function createXflowInput(dataNode, name, type, data) {
+        var v = null;
+
+        if (!TYPED_ARRAY_MAP[type])
+            return;
+
+        var v = new (TYPED_ARRAY_MAP[type])(data);
+        var type = XML3D.data.BUFFER_TYPE_TABLE[type];
+        var buffer = new Xflow.BufferEntry(type, v);
+
+        var inputNode = XML3D.data.xflowGraph.createInputNode();
+        inputNode.data = buffer;
+        inputNode.name = name;
+        dataNode.appendChild(inputNode);
+    }
+
+    function createXflowNode(data) {
+        if (!data instanceof ArrayBuffer && !data instanceof ArrayBufferView)
+            throw new Error("Unknown binary type: " + typeof data);
+
+        var node = XML3D.data.xflowGraph.createDataNode();
+        createXflowInput(node, "data", "ubyte", data);
+        return node;
+    }
+
+    /**
+     * @implements IDataAdapter
+     */
+    var BinaryDataAdapter = function(data) {
+        this.data = data;
+        try {
+            this.xflowDataNode = createXflowNode(data);
+        } catch (e) {
+            XML3D.debug.logException(e, "Failed to process binary file");
+        }
+    };
+
+    BinaryDataAdapter.prototype.getXflowNode = function(){
+        return this.xflowDataNode;
+    }
+
+    /**
+     * @constructor
+     * @implements {XML3D.base.IFactory}
+     */
+    var BinaryFactory = function()
+    {
+        XML3D.base.AdapterFactory.call(this, XML3D.data,
+            ["application/octet-stream", "text/plain; charset=x-user-defined"]);
+    };
+
+    XML3D.createClass(BinaryFactory, XML3D.base.AdapterFactory);
+
+    BinaryFactory.prototype.createAdapter = function(data) {
+        return new BinaryDataAdapter(data);
+    }
+
+    var binaryFactoryInstance = new BinaryFactory();
 }());
 XML3D.webgl = {
     toString : function() {
@@ -13841,19 +15976,12 @@ XML3D.webgl.MAXFPS = 30;
 
 
     XML3D.webgl.configure = function(xml3ds) {
+
         if(!(xml3ds instanceof Array))
             xml3ds = [xml3ds];
 
         var handlers = {};
         for(var i in xml3ds) {
-            if(xml3ds[i]._configuredWebGL)
-                continue;
-            // has to be set before anything else below is done
-            // because during createCanvas() below the xml3d element is replaced
-            // and thus, another DOMNodeInserted event is fired which will cause
-            // this function to be called again (see xml3d.js initXML3DElement())
-            xml3ds[i]._configuredWebGL = true;
-
             // Creates a HTML <canvas> using the style of the <xml3d> Element
             var canvas = XML3D.webgl.createCanvas(xml3ds[i], i);
             // Creates the CanvasHandler for the <canvas>  Element
@@ -13888,6 +16016,8 @@ XML3D.webgl.MAXFPS = 30;
         this.currentPickObj = null;
         this.lastPickObj = null;
         this.timeNow = Date.now() / 1000.0;
+
+        this.lastKnownDimensions = {width : canvas.width, height : canvas.height};
 
         var context = this.getContextForCanvas(canvas);
         if (context) {
@@ -13924,7 +16054,7 @@ XML3D.webgl.MAXFPS = 30;
 
             XML3D.updateXflowObserver();
 
-            if (handler.needDraw) {
+            if (handler.canvasSizeChanged() || handler.needDraw) {
                 handler.dispatchUpdateEvent();
                 handler.draw();
             }
@@ -13990,17 +16120,6 @@ XML3D.webgl.MAXFPS = 30;
         }
     };
 
-
-
-    // TODO: Connect resize listener with this function
-    CanvasHandler.prototype.resize = function(gl, width, height) {
-        if (width < 1 || height < 1)
-            return false;
-
-        this.renderer.resize(width, height);
-
-        return true;
-    };
 
     /** 
      * Convert the given y-coordinate on the canvas to a y-coordinate appropriate in 
@@ -14090,7 +16209,22 @@ XML3D.webgl.MAXFPS = 30;
     CanvasHandler.prototype.getCanvasWidth = function() { 
     	
     	return this.canvas.width; 
-    };  
+    };
+
+    CanvasHandler.prototype.canvasSizeChanged = function() {
+        var rect = this.canvas.getBoundingClientRect();
+        if (rect.width !== this.lastKnownDimensions.width ||
+            rect.height !== this.lastKnownDimensions.height) {
+
+            this.renderer.resizeCanvas(rect.width, rect.height);
+            this.lastKnownDimensions.width = this.canvas.width = rect.width;
+            this.lastKnownDimensions.height = this.canvas.height = rect.height;
+
+            this.needDraw = this.needPickingDraw = true;
+            return true;
+        }
+        return false;
+    };
 
     /**
      * Uses gluUnProject() to transform the 2D screen point to a 3D ray.
@@ -14859,6 +16993,54 @@ XML3D.webgl.stopEvent = function(ev) {
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
     };
 
+    /** Calculate the offset of the given element and return it.
+     *
+     *  @param {Object} element
+     *  @return {{top:number, left:number}} the offset
+     *
+     *  This code is taken from http://javascript.info/tutorial/coordinates .
+     *  We don't want to do it with the offsetParent way, because the xml3d
+     *  element is actually invisible and thus offsetParent will return null
+     *  at least in WebKit. Also it's slow. So we use getBoundingClientRect().
+     *  However it returns the box relative to the window, not the document.
+     *  Thus, we need to incorporate the scroll factor. And because IE is so
+     *  awesome some workarounds have to be done and the code gets complicated.
+     */
+    function calculateOffset(element)
+    {
+        var box = element.getBoundingClientRect();
+        var body = document.body;
+        var docElem = document.documentElement;
+
+        // get scroll factor (every browser except IE supports page offsets)
+        var scrollTop = window.pageYOffset || docElem.scrollTop || body.scrollTop;
+        var scrollLeft = window.pageXOffset || docElem.scrollLeft || body.scrollLeft;
+
+        // the document (`html` or `body`) can be shifted from left-upper corner in IE. Get the shift.
+        var clientTop = docElem.clientTop || body.clientTop || 0;
+        var clientLeft = docElem.clientLeft || body.clientLeft || 0;
+
+        var top  = box.top +  scrollTop - clientTop;
+        var left = box.left + scrollLeft - clientLeft;
+
+        // for Firefox an additional rounding is sometimes required
+        return {top: Math.round(top), left: Math.round(left)};
+    }
+
+    /** Convert a given mouse page position to be relative to the given target element.
+     *  Most probably the page position are the MouseEvent's pageX and pageY attributes.
+     *
+     *  @param {!Object} xml3dEl the xml3d element to which the coords need to be translated
+     *  @param {!number} pageX the x-coordinate relative to the page
+     *  @param {!number} pageY the y-coordinate relative to the page
+     *  @return {{x: number, y: number}} the converted coordinates
+     */
+    XML3D.webgl.convertPageCoords = function(xml3dEl, pageX, pageY)
+    {
+        var off = calculateOffset(xml3dEl);
+
+        return {x: pageX - off.left, y: pageY - off.top};
+    };
 })();
 ﻿(function() {
 
@@ -14914,6 +17096,10 @@ XML3D.webgl.stopEvent = function(ev) {
         this.needsLights = true;
         this.vSource = sources.vertex;
         this.fSource = sources.fragment;
+        var maxTextureUnit = 0;
+        this.nextTextureUnit = function() {
+            return maxTextureUnit++;
+        }
     };
 
     var XML3DShaderManager = function(renderer, factory) {
@@ -15129,10 +17315,17 @@ XML3D.webgl.stopEvent = function(ev) {
             uniInfo.glType = uni.type;
             uniInfo.location = gl.getUniformLocation(prg, uni.name);
 
+            var name = uniInfo.name;
+            // Need to discuss how to sort out the consequences of doing this in the renderer first --Chris
+            //if(uni.size > 1 && name.substring(name.length-3) == "[0]") {
+            //    name = name.substring(0, name.length -3); // Remove [0]
+            //}
+
             if (uni.type == gl.SAMPLER_2D || uni.type == gl.SAMPLER_CUBE) {
-                programObject.samplers[uni.name] = uniInfo;
+                uniInfo.unit = programObject.nextTextureUnit();
+                programObject.samplers[name] = uniInfo;
             } else
-                programObject.uniforms[uni.name] = uniInfo;
+                programObject.uniforms[name] = uniInfo;
         }
 
         programObject.changes = [];
@@ -15275,8 +17468,6 @@ XML3D.webgl.stopEvent = function(ev) {
 
             if (u.value)
                 u = u.value;
-            if (u.clean)
-                continue;
 
             if (shader.uniforms[name]) {
                 XML3DShaderManager.setUniform(this.gl, shader.uniforms[name], u);
@@ -15285,8 +17476,12 @@ XML3D.webgl.stopEvent = function(ev) {
 
     };
 
-    XML3DShaderManager.prototype.bindShader = function(shader) {
-        var sp = (typeof shader == typeof "") ? this.getShaderById(shader) : shader;
+    /**
+     *
+     * @param {ProgramObject} programObject
+     */
+    XML3DShaderManager.prototype.bindShader = function(programObject) {
+        var sp = (typeof programObject == typeof "") ? this.getShaderById(programObject) : programObject;
 
         if (this.currentProgram != sp.handle) {
             this.currentProgram = sp.handle;
@@ -15299,8 +17494,8 @@ XML3D.webgl.stopEvent = function(ev) {
         }
     };
 
-    XML3DShaderManager.prototype.updateShader = function(sp) {
-        this.bindShader(sp);
+    /** Assumes, the shader is already bound **/
+    XML3DShaderManager.prototype.updateActiveShader = function(sp) {
         // Apply any changes encountered since the last time this shader was
         // rendered
         for ( var i = 0, l = sp.changes.length; i < l; i++) {
@@ -15400,14 +17595,32 @@ XML3D.webgl.stopEvent = function(ev) {
         this.gl.deleteProgram(shader.handle);
     };
 
+    /**
+     *
+     * @param {ProgramObject} programObject
+     * @param {Xflow.ComputeResult} result
+     */
+    XML3DShaderManager.prototype.createTexturesFromComputeResult = function(programObject, result) {
+        var samplers = programObject.samplers;
+        for ( var name in samplers) {
+            var sampler = samplers[name];
+            var entry = result.getOutputData(name);
+
+            if (!entry) {
+                sampler.info = sampler.info || new InvalidTexture();
+                continue;
+            }
+
+            this.createTextureFromEntry(entry, sampler);
+        }
+    };
 
     /**
      *
-     * @param {Xflow.TextureEntry} entry
+     * @param {Xflow.TextureEntry} texEntry
      * @param sampler
-     * @param {number} texUnit
      */
-    XML3DShaderManager.prototype.createTextureFromEntry = function(texEntry, sampler, texUnit) {
+    XML3DShaderManager.prototype.createTextureFromEntry = function(texEntry, sampler) {
         var img = texEntry.getImage();
         if (img) {
             var handle = null;
@@ -15427,7 +17640,7 @@ XML3D.webgl.stopEvent = function(ev) {
                 onload : function() {
                     renderer.requestRedraw.call(renderer, "Texture loaded");
                 },
-                unit : texUnit,
+                unit : sampler.unit,
                 image : img,
                 config : texEntry.getSamplerConfig(),
                 canvas : canvas,
@@ -15578,7 +17791,6 @@ XML3D.webgl.stopEvent = function(ev) {
             break;
         case TEXTURE_STATE.LOADED:
             // console.dir("Creating '"+ tex.name + "' from " + info.image.src);
-            // console.dir(info);
             this.createTex2DFromImage(info);
             this.bindTexture(tex);
             break;
@@ -15586,6 +17798,10 @@ XML3D.webgl.stopEvent = function(ev) {
             gl.activeTexture(gl.TEXTURE0 + info.unit + 1);
             gl.bindTexture(gl.TEXTURE_2D, null);
             XML3DShaderManager.setUniform(gl, tex, info.unit + 1);
+            break;
+        default:
+            XML3D.debug.logDebug("Invalid texture: ", tex);
+
         }
         ;
     };
@@ -15630,6 +17846,13 @@ XML3D.webgl.stopEvent = function(ev) {
     Material.prototype.samplers = {};
     Material.prototype.fragment = null;
     Material.prototype.vertex = null;
+    Material.prototype.meshRequest = {
+        index : null,
+        position: { required: true },
+        normal: null,
+        color: null,
+        texcoord: null
+    };
 
     Material.prototype.getRequestFields = function() {
         return Object.keys(this.uniforms).concat(Object.keys(this.samplers));
@@ -15676,7 +17899,7 @@ XML3D.webgl.stopEvent = function(ev) {
 
     /**
      * @param {Xflow.ComputeResult} dataTable
-     * @returns
+     * @returns {ProgramObject}
      */
     Material.prototype.getProgram = function(lights, dataTable) {
         if(!this.program) {
@@ -16000,14 +18223,13 @@ XML3D.webgl.XML3DBufferHandler.prototype.fillOptions = function(options) {
         this.transform = opt.transform || RenderObject.IDENTITY_MATRIX;
         this.visible = opt.visible !== undefined ? opt.visible : true;
         this.meshAdapter.renderObject = this;
+        /** {Object?} **/
+        this.override = null;
         this.create();
     };
 
     RenderObject.IDENTITY_MATRIX = XML3D.math.mat4.identity(XML3D.math.mat4.create());
 
-    RenderObject.prototype.onmaterialChanged = function() {
-        // console.log("Material changed");
-    };
 
     RenderObject.prototype = {
         onenterReady:function () {
@@ -16054,6 +18276,20 @@ XML3D.webgl.XML3DBufferHandler.prototype.fillOptions = function(options) {
         onchangestate:function (name, from, to) {
             XML3D.debug.logInfo("Changed: ", name, from, to);
         }
+    };
+
+    /**
+     * @param {Xflow.Result} result
+     */
+    RenderObject.prototype.setOverride = function(result) {
+        var prog = this.meshAdapter.factory.renderer.shaderManager.getShaderById(this.shader);
+        this.override = Object.create(null);
+        for(var name in prog.uniforms) {
+            var entry = result.getOutputData(name);
+            if (entry && entry.getValue())
+                this.override[name] = entry.getValue();
+        }
+        XML3D.debug.logInfo("Shader attribute override", result, this.override);
     };
 
     StateMachine.create({
@@ -16274,6 +18510,8 @@ Renderer.prototype.setGLContext = function(gl) {
 Renderer.prototype.resizeCanvas = function (width, height) {
     this.width = width;
     this.height = height;
+	this.fbos = this.initFrameBuffers(this.gl);
+    this.camera && (this.camera.projMatrix = null);
 };
 
 Renderer.prototype.activeViewChanged = function () {
@@ -16436,6 +18674,7 @@ var tmpModelViewProjection = XML3D.math.mat4.create();
 var identMat3 = XML3D.math.mat3.identity(XML3D.math.mat3.create());
 var identMat4 = XML3D.math.mat4.identity(XML3D.math.mat4.create());
 
+
 Renderer.prototype.drawObjects = function(objectArray, shaderId, xform, lights, stats) {
     var objCount = 0;
     var triCount = 0;
@@ -16471,7 +18710,7 @@ Renderer.prototype.drawObjects = function(objectArray, shaderId, xform, lights, 
 
 
     this.shaderManager.bindShader(shader);
-    this.shaderManager.updateShader(shader);
+    this.shaderManager.updateActiveShader(shader);
 
     parameters["viewMatrix"] = this.camera.viewMatrix;
     parameters["cameraPosition"] = this.camera.getWorldSpacePosition();
@@ -16501,6 +18740,10 @@ Renderer.prototype.drawObjects = function(objectArray, shaderId, xform, lights, 
           normalMatrix[8], normalMatrix[9], normalMatrix[10]]);
 
         this.shaderManager.setUniformVariables(shader, parameters);
+        if(obj.override !== null) { // TODO: Set back to default after rendering
+            this.shaderManager.setUniformVariables(shader, obj.override);
+        }
+
         triCount += this.drawObject(shader, mesh);
         objCount++;
     }
@@ -16510,66 +18753,76 @@ Renderer.prototype.drawObjects = function(objectArray, shaderId, xform, lights, 
 
 };
 
-
+/**
+ *
+ * @param shader
+ * @param {MeshInfo} meshInfo
+ * @return {*}
+ */
 Renderer.prototype.drawObject = function(shader, meshInfo) {
     var sAttributes = shader.attributes;
     var gl = this.gl;
     var triCount = 0;
     var vbos = meshInfo.vbos;
 
-    var numBins = meshInfo.isIndexed ? vbos.index.length : vbos.position.length;
+    if(!meshInfo.complete)
+        return;
+
+    var numBins = meshInfo.isIndexed ? vbos.index.length : (vbos.position ? vbos.position.length : 1);
 
     for (var i = 0; i < numBins; i++) {
     //Bind vertex buffers
-        for (var name in sAttributes) {
-            var shaderAttribute = sAttributes[name];
-            var vbo;
+    for (var name in sAttributes) {
+        var shaderAttribute = sAttributes[name];
 
-            if (!vbos[name]) {
-                //XML3D.debug.logWarning("Missing required mesh data [ "+name+" ], the object may not render correctly.");
-                continue;
-            }
-
-            if (vbos[name].length > 1)
-                vbo = vbos[name][i];
-            else
-                vbo = vbos[name][0];
-
-            gl.enableVertexAttribArray(shaderAttribute.location);
-            gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
-            gl.vertexAttribPointer(shaderAttribute.location, vbo.tupleSize, vbo.glType, false, 0, 0);
+        if (!vbos[name]) {
+            //XML3D.debug.logWarning("Missing required mesh data [ "+name+" ], the object may not render correctly.");
+            continue;
         }
+
+        var vbo;
+        if (vbos[name].length > 1)
+            vbo = vbos[name][i];
+        else
+            vbo = vbos[name][0];
+
+        //console.log("bindBuffer: ", name , vbo);
+        gl.enableVertexAttribArray(shaderAttribute.location);
+        gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+        gl.vertexAttribPointer(shaderAttribute.location, vbo.tupleSize, vbo.glType, false, 0, 0);
+    }
 
     //Draw the object
-        if (meshInfo.isIndexed) {
-            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, vbos.index[i]);
+    if (meshInfo.isIndexed) {
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, vbos.index[i]);
 
-            if (meshInfo.segments) {
-                //This is a segmented mesh (eg. a collection of disjunct line strips)
-                var offset = 0;
-				var sd = meshInfo.segments.value;
-                for (var j = 0; j < sd.length; j++) {
-                    gl.drawElements(meshInfo.glType, sd[j], gl.UNSIGNED_SHORT, offset);
-                    offset += sd[j] * 2; //GL size for UNSIGNED_SHORT is 2 bytes
-                }
-            } else {
-                gl.drawElements(meshInfo.glType, vbos.index[i].length, gl.UNSIGNED_SHORT, 0);
+        if (meshInfo.segments) {
+            //This is a segmented mesh (eg. a collection of disjunct line strips)
+            var offset = 0;
+            var sd = meshInfo.segments.value;
+            for (var j = 0; j < sd.length; j++) {
+                gl.drawElements(meshInfo.glType, sd[j], gl.UNSIGNED_SHORT, offset);
+                offset += sd[j] * 2; //GL size for UNSIGNED_SHORT is 2 bytes
             }
-
-            triCount = vbos.index[i].length / 3;
         } else {
-            if (meshInfo.size) {
-                var offset = 0;
-                var sd = meshInfo.size.data;
-                for (var j = 0; j < sd.length; j++) {
-                    gl.drawArrays(meshInfo.glType, offset, sd[j]);
-                    offset += sd[j] * 2; //GL size for UNSIGNED_SHORT is 2 bytes
-                }
-            } else {
-                gl.drawArrays(meshInfo.glType, 0, vbos.position[i].length);
-            }
-            triCount = vbos.position[i].length / 3;
+            gl.drawElements(meshInfo.glType, meshInfo.getVertexCount(), gl.UNSIGNED_SHORT, 0);
         }
+
+        triCount = meshInfo.getVertexCount() / 3;
+    } else {
+        if (meshInfo.size) {
+            var offset = 0;
+            var sd = meshInfo.size.data;
+            for (var j = 0; j < sd.length; j++) {
+                gl.drawArrays(meshInfo.glType, offset, sd[j]);
+                offset += sd[j] * 2; //GL size for UNSIGNED_SHORT is 2 bytes
+            }
+        } else {
+                //console.log("drawArrays: " + meshInfo.getVertexCount());
+                gl.drawArrays(meshInfo.glType, 0, meshInfo.getVertexCount());
+        }
+        triCount = vbos.position ? vbos.position[i].length / 3 : 0;
+    }
 
     //Unbind vertex buffers
         for (var name in sAttributes) {
@@ -17146,15 +19399,19 @@ Renderer.prototype.notifyDataChanged = function() {
     };
 
     XML3DRenderAdapter.prototype.getElementByPoint = function(x, y, hitPoint, hitNormal) {
+        var relativeMousePos = XML3D.webgl.convertPageCoords(this.node, x, y);
+        var relX = relativeMousePos.x;
+        var relY = relativeMousePos.y;
+
         var handler = this.factory.handler;
-        var object = handler.updatePickObjectByPoint(x, y);
+        var object = handler.updatePickObjectByPoint(relX, relY);
         if(object){
             if(hitPoint){
-                var vec = handler.getWorldSpacePositionByPoint(object, x, y);
+                var vec = handler.getWorldSpacePositionByPoint(object, relX, relY);
                 hitPoint.set(vec[0],vec[1],vec[2]);
             }
             if(hitNormal){
-                var vec = handler.getWorldSpaceNormalByPoint(object, x, y);
+                var vec = handler.getWorldSpaceNormalByPoint(object, relX, relY);
                 hitNormal.set(vec[0],vec[1],vec[2]);
             }
         }
@@ -17166,8 +19423,9 @@ Renderer.prototype.notifyDataChanged = function() {
     };
 
     XML3DRenderAdapter.prototype.generateRay = function(x, y) {
-        
-        return this.factory.handler.generateRay(x, y);
+        var relativeMousePos = XML3D.webgl.convertPageCoords(this.node, x, y);
+
+        return this.factory.handler.generateRay(relativeMousePos.x, relativeMousePos.y);
     };
     XML3D.webgl.XML3DRenderAdapter = XML3DRenderAdapter;
 
@@ -17252,6 +19510,12 @@ Renderer.prototype.notifyDataChanged = function() {
     XML3D.webgl.TransformRenderAdapter = TransformRenderAdapter;
 
 
+
+
+
+
+
+
     var DataRenderAdapter = function(factory, node) {
         XML3D.webgl.RenderAdapter.call(this, factory, node);
     };
@@ -17261,43 +19525,52 @@ Renderer.prototype.notifyDataChanged = function() {
     p.init = function() {
         // Create all matrices, no valid values yet
         this.dataAdapter = XML3D.data.factory.getAdapter(this.node);
-        this.needMatrixUpdate = true;
+        this.matrixReady = {};
+        this.matrices = {};
+        this.requests = {};
     };
 
-    p.updateMatrix = function() {
+    p.updateMatrix = function(type) {
 
-        if(!this.transformRequest){
-            var that = this;
-            this.transformRequest = this.dataAdapter.getComputeRequest(["transform"],
+        createRequest(this, type);
+
+        this.matrices[type] = XML3D.math.mat4.create();
+
+        var dataResult =  this.requests[type].getResult();
+        var transformData = (dataResult.getOutputData(type) && dataResult.getOutputData(type).getValue());
+        if(!transformData){
+            XML3D.math.mat4.identity(this.matrices[type]);
+            return;
+        }
+        for(var i = 0; i < 16; ++i){
+            this.matrices[type][i] = transformData[i];
+        }
+        this.matrixReady[type] = true;
+    };
+
+    p.getMatrix = function(type) {
+        !this.matrixReady[type] && this.updateMatrix(type);
+        return this.matrices[type];
+    };
+
+    p.dataChanged = function(request, changeType){
+        this.factory.renderer.requestRedraw("Transformation changed.", true);
+        for(var type in this.requests){
+            if(this.requests[type] == request)
+                delete this.matrixReady[type];
+        }
+        this.notifyOppositeAdapters();
+    }
+
+    function createRequest(adapter, key){
+        if(!adapter.requests[key]){
+            var that = adapter;
+            adapter.requests[key] = adapter.dataAdapter.getComputeRequest([key],
                 function(request, changeType) {
                     that.dataChanged(request, changeType);
                 }
             );
         }
-
-        this.matrix = XML3D.math.mat4.create();
-
-        var dataResult =  this.transformRequest.getResult();
-        var transformData = (dataResult.getOutputData("transform") && dataResult.getOutputData("transform").getValue());
-        if(!transformData){
-            this.matrix = XML3D.math.mat4.create();
-            return;
-        }
-        for(var i = 0; i < 16; ++i){
-            this.matrix[i] = transformData[i];
-        }
-        this.needMatrixUpdate = false;
-    };
-
-    p.getMatrix = function() {
-        this.needMatrixUpdate && this.updateMatrix();
-        return this.matrix;
-    };
-
-    p.dataChanged = function(request, changeType){
-        this.factory.renderer.requestRedraw("Transformation changed.", true);
-        this.needMatrixUpdate = true;
-        this.notifyOppositeAdapters();
     }
 
     // Export to XML3D.webgl namespace
@@ -17346,17 +19619,25 @@ Renderer.prototype.notifyDataChanged = function() {
         }
         this.worldPosition = [tmp[12], tmp[13], tmp[14]];
         XML3D.math.mat4.copy(this.viewMatrix, XML3D.math.mat4.invert(tmp, tmp));
+
+        connectProjectionAdapater(this);
     };
 
     p.getProjectionMatrix = function(aspect) {
         if (this.projMatrix == null) {
-            var fovy = this.node.fieldOfView;
-            var zfar = this.zFar;
-            var znear = this.zNear;
-            var f = 1 / Math.tan(fovy / 2);
-            this.projMatrix = XML3D.math.mat4.copy(XML3D.math.mat4.create(), [ f / aspect, 0, 0, 0, 0, f, 0, 0, 0, 0, (znear + zfar) / (znear - zfar), -1, 0, 0,
-                   2 * znear * zfar / (znear - zfar), 0 ]);
+            var adapter = this.getConnectedAdapter("perspective");
+            if(adapter){
+                this.projMatrix = adapter.getMatrix("perspective");
+            }
+            else{
+                var fovy = this.node.fieldOfView;
+                var zfar = this.zFar;
+                var znear = this.zNear;
+                var f = 1 / Math.tan(fovy / 2);
+                this.projMatrix = XML3D.math.mat4.copy(XML3D.math.mat4.create(), [ f / aspect, 0, 0, 0, 0, f, 0, 0, 0, 0, (znear + zfar) / (znear - zfar), -1, 0, 0,
+                    2 * znear * zfar / (znear - zfar), 0 ]);
 
+            }
         }
         return this.projMatrix;
     };
@@ -17394,30 +19675,50 @@ Renderer.prototype.notifyDataChanged = function() {
     };
 
     p.notifyChanged = function(evt) {
-        var target = evt.internalType || evt.attrName || evt.wrapped.attrName;
 
-        switch (target) {
-        case "parenttransform":
-            this.parentTransform = evt.newValue;
-            this.updateViewMatrix();
-        break;
-        
-        case "orientation":
-        case "position":
-             this.updateViewMatrix();
-        break;
-        
-        case "fieldOfView":
-             this.projMatrix = null;
-        break;
-        
-        default:
-            XML3D.debug.logWarning("Unhandled event in view adapter for parameter " + target);
-        break;
+        if( (evt.type == XML3D.events.ADAPTER_HANDLE_CHANGED) && !evt.internalType){
+            // The connected transform node changed;
+            this.projMatrix = null;
         }
- 
+        else{
+            var target = evt.internalType || evt.attrName || evt.wrapped.attrName;
+
+            switch (target) {
+                case "parenttransform":
+                    this.parentTransform = evt.newValue;
+                    this.updateViewMatrix();
+                    break;
+
+                case "orientation":
+                case "position":
+                    this.updateViewMatrix();
+                    break;
+                case "perspective":
+                case "fieldOfView":
+                    connectProjectionAdapater(this);
+                    this.projMatrix = null;
+                    break;
+
+                default:
+                    XML3D.debug.logWarning("Unhandled event in view adapter for parameter " + target);
+                    break;
+            }
+        }
+
         this.factory.handler.redraw("View changed");
     };
+
+    function connectProjectionAdapater(adapter){
+        var href = adapter.node.getAttribute("perspective");
+        if(href){
+            adapter.connectAdapterHandle("perspective", adapter.getAdapterHandle(href));
+        }
+        else{
+            adapter.disconnectAdapterHandle("perspective");
+        }
+
+    }
+
 
     // Export to XML3D.webgl namespace
     XML3D.webgl.ViewRenderAdapter = ViewRenderAdapter;
@@ -17540,17 +19841,27 @@ XML3D.webgl.MAX_MESH_INDEX_COUNT = 65535;
     var eventTypes = {onclick:1, ondblclick:1,
         ondrop:1, ondragenter:1, ondragleave:1};
 
-    var noDrawableObject = function() {
-        XML3D.debug.logError("Mesh adapter has no callback to its mesh object!");
-    },
-        /**
-         * @type WebGLRenderingContext
-         * @private
-         */
-            rc = window.WebGLRenderingContext;
+    var bboxAttributes = ["boundingBox"];
 
-    var staticAttributes = ["index", "position", "normal", "color", "texcoord", "size", "tangent"];
-    var bboxAttributes = ["boundingbox"];
+    /**
+     * @constructor
+     */
+    var MeshInfo = function(type) {
+        this.vbos = {};
+        this.isIndexed = false;
+        this.complete = false;
+        this.glType = getGLTypeFromString(type);
+        this.bbox = new window.XML3DBox();
+
+        this.getVertexCount = function() {
+            try {
+                return this.isIndexed ? this.vbos.index[0].length : (this.vertexCount !== undefined ? this.vertexCount[0] : this.vbos.position[0].length);
+            } catch(e) {
+                return 0;
+            }
+        }
+        this.update = emptyFunction;
+    }
 
     /**
      * @constructor
@@ -17563,6 +19874,7 @@ XML3D.webgl.MAX_MESH_INDEX_COUNT = 65535;
         this.parentVisible = true;
         this.renderObject = null; // This is set by renderObject itself
 
+        this.requestObject = {};
         this.computeRequest = null;
         this.bboxComputeRequest = null;
     };
@@ -17670,6 +19982,8 @@ XML3D.webgl.MAX_MESH_INDEX_COUNT = 65535;
         var shaderName = this.factory.renderer.shaderManager.createShader(adapter,
             this.factory.renderer.lights);
         this.renderObject.shader = shaderName;
+        XML3D.debug.logInfo("New shader, clearing requests: ", shaderName);
+        this.clearRequests(); // New shader, new requests
         this.renderObject.materialChanged();
         this.factory.renderer.requestRedraw("Shader changed.", false);
     }
@@ -17691,38 +20005,42 @@ XML3D.webgl.MAX_MESH_INDEX_COUNT = 65535;
 
     /**
      *
+     * @param {Array<String>} meshRequests
+     * @param {Array<String>} objectRequests
      */
-    p.createRequests = function() {
+    p.createRequests = function(meshRequests, objectRequests) {
         var that = this;
-        this.computeRequest = this.computeRequest || this.dataAdapter.getComputeRequest(staticAttributes,
+        this.computeRequest = this.computeRequest || this.dataAdapter.getComputeRequest(meshRequests,
             function(request, changeType) {
                 that.dataChanged(request, changeType);
         });
+        this.objectRequest = this.objectRequest || this.dataAdapter.getComputeRequest(objectRequests,
+            function(request, changeType) {
+                XML3D.debug.logInfo("Per object shader attributes changes not handled yet", request, changeType);
+            });
         this.bboxComputeRequest = this.bboxComputeRequest || this.dataAdapter.getComputeRequest(bboxAttributes);
     };
 
-    p.finishMesh = function() {
-        this.createRequests();
+    p.clearRequests = function() {
+        this.computeRequest && this.computeRequest.clear();
+        this.objectRequest && this.objectRequest.clear();
+        this.computeRequest = this.objectRequest = null;
+    }
 
-        this.bbox = this.calcBoundingBox();
+    p.finishMesh = function() {
+        var prog = this.factory.renderer.shaderManager.getShaderById(this.renderObject.shader);
+
+        this.requestObject = prog.material.meshRequest;
+
+        this.createRequests(Object.keys(this.requestObject), Object.keys(prog.uniforms));
+
         this.createMeshData();
+        this.createPerObjectData();
         return this.renderObject.mesh.valid;
     }
 
     var emptyFunction = function() {};
 
-    /**
-     * @param {string} type
-     */
-    function createMeshInfo(type) {
-        return {
-            vbos : {},
-            isIndexed: false,
-            glType: getGLTypeFromString(type),
-            bbox : new window.XML3DBox(),
-            update : emptyFunction
-        };
-    }
 
     /**
      * @param {Xflow.data.Request} request
@@ -17748,43 +20066,83 @@ XML3D.webgl.MAX_MESH_INDEX_COUNT = 65535;
         }
     };
 
+    p.createPerObjectData = function() {
+        var perObjectData = this.objectRequest.getResult();
+        this.renderObject.setOverride(perObjectData);
+    };
+
     /**
      *
      */
     p.createMeshData = function() {
-        var gl = this.factory.renderer.gl;
         var obj = this.renderObject;
-        obj.mesh = obj.mesh || createMeshInfo(this.node.type);
+        obj.mesh = obj.mesh || new MeshInfo(this.node.type);
 
-        var calculateBBox = false;
         var dataResult =  this.computeRequest.getResult();
 
-        if (!(dataResult.getOutputData("position") && dataResult.getOutputData("position").getValue())) {
-            if(!dataResult.loading)
-                XML3D.debug.logWarning("Mesh " + this.node.id + " has no data for required attribute 'position'.");
-            obj.mesh.valid = false;
-            return;
-        }
-        for ( var i in staticAttributes) {
-            var attr = staticAttributes[i];
-            var entry = dataResult.getOutputData(attr);
-            if (!entry || !entry.getValue())
+        obj.mesh.valid = obj.mesh.complete = true; // Optimistic appraoch
+        for ( var name in this.requestObject) {
+            var attr = this.requestObject[name] || {};
+            var entry = dataResult.getOutputData(name);
+            /*if (entry == undefined) {
+                if(attr.required) {
+                    // This needs a structural change before we get the required signature
+                    console.log("Invalid", name);
+                    obj.mesh.valid = false;
+                    return;
+                }
                 continue;
+            }*/
+            if(!entry || !entry.getValue()) {
+                if(attr.required) {
+                    XML3D.debug.logInfo("Mesh not complete, missing: ", name, entry);
+                    obj.mesh.complete = false;
+                }
+                continue;
+            }
+
+            if (name == "vertexCount") {
+                obj.mesh.vertexCount = entry.getValue();
+                continue;
+            }
+
+            switch(entry.type) {
+                case Xflow.DATA_TYPE.TEXTURE:
+                    this.handleTexture(name, entry, obj.shader, obj.mesh);
+                    break;
+                default:
+                    this.handleBuffer(name, attr, entry, obj.mesh);
+            };
+        }
+        var bbox = this.calcBoundingBox();
+        if(bbox)
+            obj.mesh.bbox.set(bbox);
+
+        obj.mesh.valid = true;
+    };
+
+    /**
+     * @param {string} name
+     * @param {Object} attr
+     * @param {Xflow.BufferEntry} entry
+     * @param {MeshInfo} meshInfo
+     */
+    p.handleBuffer = function(name, attr, entry, meshInfo) {
+        var webglData = XML3D.webgl.getXflowEntryWebGlData(entry, this.factory.canvasId);
+        var buffer = webglData.buffer;
+        var gl = this.factory.renderer.gl;
 
 
-            var webglData = XML3D.webgl.getXflowEntryWebGlData(entry, this.factory.canvasId);
-            var buffer = webglData.buffer;
-
-            switch(webglData.changed) {
+        switch(webglData.changed) {
             case Xflow.DATA_ENTRY_STATE.CHANGED_VALUE:
-                var bufferType = attr == "index" ? gl.ELEMENT_ARRAY_BUFFER : gl.ARRAY_BUFFER;
+                var bufferType = name == "index" ? gl.ELEMENT_ARRAY_BUFFER : gl.ARRAY_BUFFER;
 
                 gl.bindBuffer(bufferType, buffer);
                 gl.bufferSubData(bufferType, 0, entry.getValue());
                 break;
             case Xflow.DATA_ENTRY_STATE.CHANGED_NEW:
             case Xflow.DATA_ENTRY_STATE.CHANGE_SIZE:
-                if (attr == "index") {
+                if (name == "index") {
                     buffer = createBuffer(gl, gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(entry.getValue()));
                 } else {
                     buffer = createBuffer(gl, gl.ARRAY_BUFFER, entry.getValue());
@@ -17792,30 +20150,34 @@ XML3D.webgl.MAX_MESH_INDEX_COUNT = 65535;
                 buffer.tupleSize = entry.getTupleSize();
                 webglData.buffer = buffer;
                 break;
-             default:
-                 break;
-            }
-
-            obj.mesh.vbos[attr] = [];
-            obj.mesh.vbos[attr][0] = buffer;
-
-            //TODO: must set isIndexed if indices are removed
-            if (attr == "position")
-                calculateBBox = true;
-            if (attr == "index")
-                obj.mesh.isIndexed = true;
-
-            delete webglData.changed;
+            default:
+                break;
         }
 
-        //Calculate a bounding box for the mesh
-        if (calculateBBox) {
-            this.bbox = this.calcBoundingBox();
-            obj.mesh.bbox.set(this.bbox);
-        }
+        meshInfo.vbos[name] = [];
+        meshInfo.vbos[name][0] = buffer;
+        meshInfo.isIndexed = meshInfo.isIndexed || name == "index";
+        //if(meshInfo.isIndexed)
+            //console.error("Indexed");
 
-        obj.mesh.valid = true;
-    };
+        delete webglData.changed;
+    }
+    /**
+     * @param {string} name
+     * @param {Xflow.TextureEntry} entry
+     * @param {string} shaderId
+     * @param {MeshInfo} meshInfo
+     */
+    p.handleTexture = function(name, entry, shaderId, meshInfo) {
+        var prog = this.factory.renderer.shaderManager.getShaderById(shaderId);
+        meshInfo.sampler = meshInfo.sampler || {};
+        var webglData = XML3D.webgl.getXflowEntryWebGlData(entry, this.factory.canvasId);
+
+        if(webglData.changed && (name in prog.samplers)) {
+            this.factory.renderer.shaderManager.createTextureFromEntry(entry, prog.samplers[name]);
+        }
+        delete webglData.changed;
+    }
 
     /**
      *
@@ -17830,14 +20192,14 @@ XML3D.webgl.MAX_MESH_INDEX_COUNT = 65535;
     };
 
     /**
-     * @return {XML3DBox}
+     * @return {window.XML3DBox}
      */
     p.getBoundingBox = function() {
-        return new window.XML3DBox(this.bbox);
+        return new window.XML3DBox(this.renderObject.mesh.bbox);
     };
 
     /**
-     * @return {XML3DMatrix}
+     * @return {window.XML3DMatrix}
      */
     p.getWorldMatrix = function() {
 
@@ -17852,7 +20214,7 @@ XML3D.webgl.MAX_MESH_INDEX_COUNT = 65535;
 
     /**
      * @private
-     * @return {XML3DBox} the calculated bounding box of this mesh.
+     * @return {window.XML3DBox} the calculated bounding box of this mesh.
      */
     p.calcBoundingBox = function() {
 
@@ -17860,7 +20222,7 @@ XML3D.webgl.MAX_MESH_INDEX_COUNT = 65535;
 
         // try to compute bbox using the boundingbox property of xflow
         var bboxResult = this.bboxComputeRequest.getResult();
-        var bboxOutData = bboxResult.getOutputData("boundingbox");
+        var bboxOutData = bboxResult.getOutputData("boundingBox");
         if (bboxOutData)
         {
             var bboxVal = bboxOutData.getValue();
@@ -17885,42 +20247,44 @@ XML3D.webgl.MAX_MESH_INDEX_COUNT = 65535;
     };
 
     var getGLTypeFromArray = function(array) {
+        var GL = window.WebGLRenderingContext;
         if (array instanceof Int8Array)
-            return rc.BYTE;
+            return GL.BYTE;
         if (array instanceof Uint8Array)
-            return rc.UNSIGNED_BYTE;
+            return GL.UNSIGNED_BYTE;
         if (array instanceof Int16Array)
-            return rc.SHORT;
+            return GL.SHORT;
         if (array instanceof Uint16Array)
-            return rc.UNSIGNED_SHORT;
+            return GL.UNSIGNED_SHORT;
         if (array instanceof Int32Array)
-            return rc.INT;
+            return GL.INT;
         if (array instanceof Uint32Array)
-            return rc.UNSIGNED_INT;
+            return GL.UNSIGNED_INT;
         if (array instanceof Float32Array)
-            return rc.FLOAT;
-        return rc.FLOAT;
+            return GL.FLOAT;
+        return GL.FLOAT;
     };
 
     /**
      * @param {string} typeName
      */
     function getGLTypeFromString(typeName) {
-        if (typeName && typeName.toLowerCase)
+        var GL = window.WebGLRenderingContext;
+        if (typeName && typeName.toLoweGLase)
             typeName = typeName.toLowerCase();
         switch (typeName) {
             case "triangles":
-                return rc.TRIANGLES;
+                return GL.TRIANGLES;
             case "tristrips":
-                return rc.TRIANGLE_STRIP;
+                return GL.TRIANGLE_STRIP;
             case "points":
-                return rc.POINTS;
+                return GL.POINTS;
             case "lines":
-                return rc.LINES;
+                return GL.LINES;
             case "linestrips":
-                return rc.LINE_STRIP;
+                return GL.LINE_STRIP;
             default:
-                return rc.TRIANGLES;
+                return GL.TRIANGLES;
         }
     };
 
@@ -17969,7 +20333,7 @@ XML3D.webgl.MAX_MESH_INDEX_COUNT = 65535;
 
         var handle = this.getConnectedAdapter("transform");
         if (handle)
-            return handle.getMatrix();
+            return handle.getMatrix("transform");
 
         return null;
     }

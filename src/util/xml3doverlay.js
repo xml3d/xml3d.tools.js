@@ -121,8 +121,7 @@
          */
         _onOverlayMouseEvent: function(evt)
         {
-            var posOverlay = XML3D.util.convertPageCoords(this.xml3d, evt.pageX, evt.pageY);
-            var elOverlay = this.xml3d.getElementByPoint(posOverlay.x, posOverlay.y);
+            var elOverlay = this.xml3d.getElementByPoint(evt.pageX, evt.pageY);
             if(elOverlay)
                 return; // hit: do not delegate anything
 
