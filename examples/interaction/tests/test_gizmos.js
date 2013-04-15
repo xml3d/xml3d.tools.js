@@ -17,7 +17,7 @@ function onLoad() {
     onChangeGizmoType();
 
     var viewXfmable = XMOT.ClientMotionFactory.createTransformable($("#v_camera")[0].parentNode);
-    cameraCtrl = new XMOT.MouseHemisphereController(viewXfmable, {
+    cameraCtrl = new XMOT.MouseExamineController(viewXfmable, {
         examineOrigin: new XML3DVec3(0,0,-10)
     });
     cameraCtrl.attach();
