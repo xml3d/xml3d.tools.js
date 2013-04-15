@@ -16,10 +16,9 @@ function onLoad() {
     $(gizmoRadios).click(onChangeGizmoType);
     onChangeGizmoType();
 
-    cameraCtrl = new XMOT.ExamineController("g_camera");
-    $("#xml3dMain").mousedown(onXML3DMouseDown);
-    $(document.body).mousemove(onBodyMouseMove);
-    $(document.body).mouseup(onBodyMouseUp);
+    var viewXfmable = XMOT.ClientMotionFactory.createTransformable($("#v_camera")[0].parentNode);
+    cameraCtrl = new XMOT.MouseExamineController(viewXfmable);
+    cameraCtrl.attach();
 };
 
 function onChangeGizmoType()
@@ -131,30 +130,4 @@ function createGizmosRotate()
         rotationSpeed: getRotationSpeed()
     });
     gizmo.attach();
-};
-
-var mouseDown = false;
-
-function onXML3DMouseDown(evt) {
-
-    if(evt.button !== XMOT.MOUSEBUTTON_LEFT && evt.button !== XMOT.MOUSEBUTTON_RIGHT)
-        return;
-
-    var action = XMOT.ExamineController.ROTATE;
-    if(evt.button === XMOT.MOUSEBUTTON_RIGHT)
-        action = XMOT.ExamineController.DOLLY;
-
-    mouseDown = true;
-    cameraCtrl.start({x: evt.pageX, y: evt.pageY}, action);
-};
-
-function onBodyMouseMove(evt) {
-    if(!mouseDown)
-        return;
-
-    cameraCtrl.doAction({x: evt.pageX, y: evt.pageY});
-};
-
-function onBodyMouseUp(evt) {
-    cameraCtrl.stop({x: evt.pageX, y: evt.pageY});
 };
