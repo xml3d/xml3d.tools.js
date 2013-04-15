@@ -2,11 +2,23 @@
 
     "use strict";
 
-    /**
+    /** This class encapsulates the setup of mouse interaction for the use of camera controllers.
+     *  It registers callbacks to the appropriate elements, converts mouse coordinates to be
+     *  directly usable by a controller behavior and invokes methods in which users of this class
+     *  can perform actions.
+     *
+     *  Usage:
+     *  o instantiate or inherit from this class
+     *  o override doActivate(), doDeactivate() and doAction() to handle the mouse events
+     *  o call attach() at some point to enable the controller
+     *
      *  @constructor
      */
     XMOT.MouseController = new XMOT.Class(XMOT.util.Attachable, {
 
+        /**
+         *  @this {XMOT.MouseController}
+         */
         initialize: function(targetViewTransformable, options) {
 
             var options = options || {};
@@ -39,32 +51,29 @@
         },
 
         /**
-         *  @this {XMOT.MouseExamineController}
-         *  @protected
+         *  @this {XMOT.MouseController}
          */
         doActivate: function(action) {},
 
         /**
-         *  @this {XMOT.MouseExamineController}
-         *  @protected
+         *  @this {XMOT.MouseController}
          */
         doDeactivate: function(action) {},
 
         /**
-         *  @this {XMOT.MouseExamineController}
-         *  @protected
+         *  @this {XMOT.MouseController}
          */
         doAction: function(action) {},
 
         /**
-         *  @this {XMOT.MouseExamineController}
+         *  @this {XMOT.MouseController}
          */
         getScene: function() {
             return this._targetXml3d;
         },
 
         /**
-         *  @this {XMOT.MouseExamineController}
+         *  @this {XMOT.MouseController}
          *  @protected
          *  @override
          */
@@ -73,7 +82,7 @@
         },
 
         /**
-         *  @this {XMOT.MouseExamineController}
+         *  @this {XMOT.MouseController}
          *  @protected
          *  @override
          */
@@ -82,7 +91,7 @@
         },
 
         /**
-         *  @this {XMOT.MouseExamineController}
+         *  @this {XMOT.MouseController}
          *  @private
          */
         _toggleAttached: function(doAttach) {
@@ -101,7 +110,7 @@
         // --- Callbacks ---
 
         /**
-         *  @this {XMOT.MouseExamineController}
+         *  @this {XMOT.MouseController}
          *  @private
          */
         _onXML3DMouseDown: function(evt) {
@@ -111,7 +120,7 @@
         },
 
         /**
-         *  @this {XMOT.MouseExamineController}
+         *  @this {XMOT.MouseController}
          *  @private
          */
         _onBodyMouseMove: function(evt) {
@@ -121,7 +130,7 @@
         },
 
         /**
-         *  @this {XMOT.MouseExamineController}
+         *  @this {XMOT.MouseController}
          *  @private
          */
         _onBodyMouseUp: function(evt) {
@@ -130,7 +139,7 @@
         },
 
         /**
-         *  @this {XMOT.MouseExamineController}
+         *  @this {XMOT.MouseController}
          *  @private
          */
         _rememberPosition: function(evt) {
@@ -141,7 +150,7 @@
         // --- Utils ---
 
         /**
-         *  @this {XMOT.MouseExamineController}
+         *  @this {XMOT.MouseController}
          *  @private
          */
         _createDefaultEventDispatcher: function() {
@@ -160,7 +169,7 @@
         },
 
         /**
-         *  @this {XMOT.MouseExamineController}
+         *  @this {XMOT.MouseController}
          *  @private
          */
         _constructAction: function(evt) {

@@ -14,6 +14,9 @@
         ROTATE: 1,
         DOLLY: 2,
 
+        /**
+         *  @this {XMOT.MouseExamineController}
+         */
         initialize: function(targetViewTransformable, options) {
 
             this.callSuper(targetViewTransformable, options);
@@ -24,7 +27,7 @@
 
         /**
          *  @this {XMOT.MouseExamineController}
-         *  @protected
+         *  @override
          */
         doActivate: function(action) {
 
@@ -35,7 +38,7 @@
 
         /**
          *  @this {XMOT.MouseExamineController}
-         *  @protected
+         *  @override
          */
         doAction: function(action) {
 
@@ -52,7 +55,7 @@
 
         /**
          *  @this {XMOT.MouseExamineController}
-         *  @protected
+         *  @override
          */
         doDeactivate: function(action) {
             this._currentAction = this.NONE;

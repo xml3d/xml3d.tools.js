@@ -14,6 +14,9 @@
         ROTATE: 1,
         DOLLY: 2,
 
+        /**
+         *  @this {XMOT.MouseHemisphereController}
+         */
         initialize: function(targetViewTransformable, options) {
 
             this.callSuper(targetViewTransformable, options);
@@ -23,8 +26,8 @@
         },
 
         /**
-         *  @this {XMOT.ExamineController}
-         *  @protected
+         *  @this {XMOT.MouseHemisphereController}
+         *  @override
          */
         doActivate: function(action) {
 
@@ -34,8 +37,8 @@
         },
 
         /**
-         *  @this {XMOT.ExamineController}
-         *  @protected
+         *  @this {XMOT.MouseHemisphereController}
+         *  @override
          */
         doAction: function(action) {
 
@@ -51,8 +54,8 @@
         },
 
         /**
-         *  @this {XMOT.ExamineController}
-         *  @protected
+         *  @this {XMOT.MouseHemisphereController}
+         *  @override
          */
         doDeactivate: function(action) {
             this._currentAction = this.NONE;

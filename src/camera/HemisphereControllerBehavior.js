@@ -3,15 +3,19 @@
     "use strict";
 
     /** This behavior will provide "examine" mode camera control on a hemisphere.
-     *  From outside the methods doDollyAction() and doRotateAction() should be called.
      *  This behavior does have no notion of the interaction device. All it needs
      *  are deltaX and deltaY values, from which it computes the camera pose.
+     *
+     *  Usage: call doDollyAction() and doRotateAction().
      *
      *  @constructor
      */
     XMOT.HemisphereControllerBehavior = new XMOT.Class(
         XMOT.ExamineControllerBehavior, {
 
+        /**
+         *  @this {XMOT.HemisphereControllerBehavior}
+         */
         initialize: function(targetViewTransformable, options) {
 
             this.callSuper(targetViewTransformable, options);
@@ -71,10 +75,17 @@
             this.target.setOrientation(orientation);
         },
 
+        /**
+         *  @this {XMOT.HemisphereControllerBehavior}
+         */
         lookAt: function(targetPt) {
             this._setViewDirection(targetPt.subtract(this.target.getPosition()));
         },
 
+        /**
+         *  @this {XMOT.HemisphereControllerBehavior}
+         *  @private
+         */
         _setViewDirection: function(dir) {
             if (dir.length() < 1E-10)
                 return;
