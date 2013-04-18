@@ -2,7 +2,8 @@
 
     "use strict";
 
-    /** This behavior will provide "examine" mode camera control.
+    /** This behavior will provide "examine" mode camera control on the given
+     *  target transformable.
      *  This behavior does have no notion of the interaction device. All it needs
      *  are deltaX and deltaY values, from which it computes the camera pose.
      *
@@ -14,6 +15,9 @@
      */
     XMOT.ExamineControllerBehavior = new XMOT.Class({
 
+        /**
+         *  @this {XMOT.ExamineControllerBehavior}
+         */
         initialize: function(targetViewTransformable, options) {
 
             this.target = targetViewTransformable;

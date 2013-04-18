@@ -2,11 +2,22 @@
 
     "use strict";
 
-    /**
-     * @constructor
+    /** This behavior provides "fly" mode camera control on the given
+     *  camera transformable.
+     *  This behavior does have no notion of the interaction device. All it needs
+     *  are deltaX and deltaY values, from which it computes the camera pose.
+     *
+     *  Usage:
+     *  o instantiate this class
+     *  o call rotate(), move{Forward,Backward}(), step{Left,Right}()
+     *
+     *  @constructor
      */
     XMOT.FlyControllerBehavior = new XMOT.Class({
 
+        /**
+         *  @this {XMOT.FlyControllerBehavior}
+         */
         initialize: function(cameraTransformable, options) {
 
             var options = options || {};
@@ -24,6 +35,9 @@
             this._setInitialRotation(cameraTransformable.getOrientation());
         },
 
+        /**
+         *  @this {XMOT.FlyControllerBehavior}
+         */
         rotate: function(deltaX, deltaY) {
 
             var deltaXAxis = -this._rotateSpeed * deltaY * 2.0 * Math.PI;
@@ -46,38 +60,66 @@
             this.target.setOrientation(newRot);
         },
 
+        /**
+         *  @this {XMOT.FlyControllerBehavior}
+         */
         moveForward: function() {
             this._moveInCamDirection();
         },
 
+        /**
+         *  @this {XMOT.FlyControllerBehavior}
+         */
         moveBackward: function() {
             this._moveInCamDirection(true);
         },
 
+        /**
+         *  @this {XMOT.FlyControllerBehavior}
+         */
         stepRight: function() {
             this._stepRight();
         },
 
+        /**
+         *  @this {XMOT.FlyControllerBehavior}
+         */
         stepLeft: function() {
             this._stepRight(true);
         },
 
+        /**
+         *  @this {XMOT.FlyControllerBehavior}
+         */
         setPosition: function(position) {
             this.target.setPosition(position);
         },
 
+        /**
+         *  @this {XMOT.FlyControllerBehavior}
+         */
         setOrientation: function(orientation) {
             this._setInitialRotation(orientation);
         },
 
+        /**
+         *  @this {XMOT.FlyControllerBehavior}
+         */
         getPosition: function() {
             return this.target.getPosition();
         },
 
+        /**
+         *  @this {XMOT.FlyControllerBehavior}
+         */
         getOrientation: function() {
             return this.target.getOrientation();
         },
 
+        /**
+         *  @this {XMOT.FlyControllerBehavior}
+         *  @private
+         */
         _moveInCamDirection: function(doInvertDirection) {
 
             var moveDirection = this._getLookDirection();
@@ -89,6 +131,10 @@
             this._translateCamera(moveDirection);
         },
 
+        /**
+         *  @this {XMOT.FlyControllerBehavior}
+         *  @private
+         */
         _stepRight: function(doInvertDirection) {
 
             var lookDirection = this._getLookDirection();
@@ -102,6 +148,10 @@
             this._translateCamera(stepDirection);
         },
 
+        /**
+         *  @this {XMOT.FlyControllerBehavior}
+         *  @private
+         */
         _getLookDirection: function() {
 
             var curRot = this.target.getOrientation();
@@ -112,6 +162,10 @@
             return lookDirection;
         },
 
+        /**
+         *  @this {XMOT.FlyControllerBehavior}
+         *  @private
+         */
         _translateCamera: function(direction) {
 
             var transl = direction.scale(this._moveSpeed);
@@ -120,6 +174,10 @@
             this.target.setPosition(newPos);
         },
 
+        /**
+         *  @this {XMOT.FlyControllerBehavior}
+         *  @private
+         */
         _setInitialRotation: function(rot) {
 
             var euler = this._toEuler(rot);
@@ -132,6 +190,10 @@
             this.rotate(0, 0);
         },
 
+        /**
+         *  @this {XMOT.FlyControllerBehavior}
+         *  @private
+         */
         _toEuler: function(rot) {
 
             // from: http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/

@@ -43,18 +43,30 @@
             this._keyCtrl.onKeyDown = this.callback("_onKeyDown");
         },
 
+        /**
+         *  @this {XMOT.MouseKeyboardFlyController}
+         */
         setPosition: function(position) {
             this._behavior.setPosition(position);
         },
 
+        /**
+         *  @this {XMOT.MouseKeyboardFlyController}
+         */
         setOrientation: function(orientation) {
             this._behavior.setOrientation(orientation);
         },
 
+        /**
+         *  @this {XMOT.MouseKeyboardFlyController}
+         */
         getPosition: function() {
             return this._behavior.getPosition();
         },
 
+        /**
+         *  @this {XMOT.MouseKeyboardFlyController}
+         */
         getOrientation: function() {
             return this._behavior.getOrientation();
         },
@@ -110,7 +122,7 @@
         },
 
         /**
-         *  @this {XMOT.MouseExamineController}
+         *  @this {XMOT.MouseKeyboardFlyController}
          *  @private
          */
         _createMouseEventDispatcher: function() {
