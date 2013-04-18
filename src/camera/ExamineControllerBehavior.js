@@ -8,7 +8,7 @@
      *
      *  Usage:
      *  o instantiate this class
-     *  o call doDollyAction() and doRotateAction()
+     *  o call dolly() and rotate()
      *
      *  @constructor
      */
@@ -42,7 +42,7 @@
         /**
          *  @this {XMOT.ExamineControllerBehavior}
          */
-        doDollyAction: function(deltaX, deltaY) {
+        dolly: function(deltaX, deltaY) {
 
             var coef = 0.2 * this._sceneRadius;
             var dy = coef * this._dollySpeed * deltaY;
@@ -54,7 +54,7 @@
         /**
          *  @this {XMOT.ExamineControllerBehavior}
          */
-        doRotateAction: function(deltaX, deltaY) {
+        rotate: function(deltaX, deltaY) {
             var dx = -this._rotateSpeed * deltaX * 2.0 * Math.PI;
             var dy = -this._rotateSpeed * deltaY * 2.0 * Math.PI;
 
