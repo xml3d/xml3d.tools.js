@@ -6,7 +6,7 @@
      *  This behavior does have no notion of the interaction device. All it needs
      *  are deltaX and deltaY values, from which it computes the camera pose.
      *
-     *  Usage: call doDollyAction() and doRotateAction().
+     *  Usage: call dolly() and rotate().
      *
      *  @constructor
      */
@@ -31,7 +31,7 @@
          *  @this {XMOT.HemisphereControllerBehavior}
          *  @override
          */
-        doDollyAction: function(deltaX, deltaY) {
+        dolly: function(deltaX, deltaY) {
 
             this.callSuper(deltaX, deltaY);
             this._radius = this.target.getPosition().length();
@@ -41,7 +41,7 @@
          *  @this {XMOT.HemisphereControllerBehavior}
          *  @override
          */
-        doRotateAction: function(deltaX, deltaY) {
+        rotate: function(deltaX, deltaY) {
 
             this._longitude += deltaX * Math.PI / 2.0;
             this._latitude += deltaY * Math.PI / 4.0;

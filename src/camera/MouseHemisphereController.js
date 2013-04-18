@@ -7,58 +7,16 @@
      *
      *  @constructor
      */
-    XMOT.MouseHemisphereController = new XMOT.Class(XMOT.MouseController, {
-
-        // interaction types
-        NONE: 0,
-        ROTATE: 1,
-        DOLLY: 2,
+    XMOT.MouseHemisphereController = new XMOT.Class(XMOT.MouseExamineController, {
 
         /**
          *  @this {XMOT.MouseHemisphereController}
          */
         initialize: function(targetViewTransformable, options) {
 
+            var options = options || {};
+            options.behaviorType = XMOT.HemisphereControllerBehavior;
             this.callSuper(targetViewTransformable, options);
-
-            this._controller = new XMOT.HemisphereControllerBehavior(targetViewTransformable, options);
-            this._currentAction = this.NONE;
-        },
-
-        /**
-         *  @this {XMOT.MouseHemisphereController}
-         *  @override
-         */
-        doActivate: function(action) {
-
-            this._currentAction = this.ROTATE;
-            if(action.evt.button === XMOT.MOUSEBUTTON_RIGHT)
-                this._currentAction = this.DOLLY;
-        },
-
-        /**
-         *  @this {XMOT.MouseHemisphereController}
-         *  @override
-         */
-        doAction: function(action) {
-
-            switch (this._currentAction) {
-            case this.DOLLY:
-                this._controller.doDollyAction(action.delta.x, action.delta.y);
-                break;
-
-            case this.ROTATE:
-                this._controller.doRotateAction(action.delta.x, action.delta.y);
-                break;
-            }
-        },
-
-        /**
-         *  @this {XMOT.MouseHemisphereController}
-         *  @override
-         */
-        doDeactivate: function(action) {
-            this._currentAction = this.NONE;
         }
     });
 }());
