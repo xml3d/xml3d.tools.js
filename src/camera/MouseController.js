@@ -9,7 +9,7 @@
      *
      *  Usage:
      *  o instantiate or inherit from this class
-     *  o override doActivate(), doDeactivate() and doAction() to handle the mouse events
+     *  o override onDragStart(), onDrag() and onDragEnd() to handle the mouse events
      *  o call attach() at some point to enable the controller
      *
      *  @constructor
@@ -35,15 +35,16 @@
             this._canvasHeight = this._targetXml3d.height || 600;
 
             /** @private */
-            this._currentAction = this.NONE;
-
-            /** @private */
             this._lastMousePos = {
                 x : -1,
                 y : -1
             };
 
             /** @private */
+            this._isDragging = false;
+
+            /** @private */
+            this._eventDispatcher = null;
             if(options.eventDispatcher)
                 this._eventDispatcher = options.eventDispatcher;
             else
@@ -53,17 +54,17 @@
         /**
          *  @this {XMOT.MouseController}
          */
-        doActivate: function(action) {},
+        onDragStart: function(action) {},
 
         /**
          *  @this {XMOT.MouseController}
          */
-        doDeactivate: function(action) {},
+        onDrag: function(action) {},
 
         /**
          *  @this {XMOT.MouseController}
          */
-        doAction: function(action) {},
+        onDragEnd: function(action) {},
 
         /**
          *  @this {XMOT.MouseController}
@@ -115,7 +116,8 @@
          */
         _onXML3DMouseDown: function(evt) {
 
-            this.doActivate(this._constructAction(evt));
+            this._isDragging = true;
+            this.onDragStart(this._constructAction(evt));
             this._rememberPosition(evt);
         },
 
@@ -125,7 +127,10 @@
          */
         _onBodyMouseMove: function(evt) {
 
-            this.doAction(this._constructAction(evt));
+            if(!this._isDragging)
+                return;
+
+            this.onDrag(this._constructAction(evt));
             this._rememberPosition(evt);
         },
 
@@ -134,7 +139,11 @@
          *  @private
          */
         _onBodyMouseUp: function(evt) {
-            this.doDeactivate(this._constructAction(evt));
+            if(!this._isDragging)
+                return;
+
+            this._isDragging = false;
+            this.onDragEnd(this._constructAction(evt));
             this._rememberPosition(evt);
         },
 
