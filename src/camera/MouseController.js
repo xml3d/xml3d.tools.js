@@ -103,9 +103,9 @@
                 regFn = this._eventDispatcher.off.bind(this._eventDispatcher);
             }
 
-            regFn(this._targetXml3d, "mousedown", this._onXML3DMouseDown.bind(this));
-            regFn(document.body, "mousemove", this._onBodyMouseMove.bind(this));
-            regFn(document.body, "mouseup", this._onBodyMouseUp.bind(this));
+            regFn(this._targetXml3d, "mousedown", this.callback("_onXML3DMouseDown"));
+            regFn(document.body, "mousemove", this.callback("_onBodyMouseMove"));
+            regFn(document.body, "mouseup", this.callback("_onBodyMouseUp"));
         },
 
         // --- Callbacks ---
