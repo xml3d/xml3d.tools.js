@@ -91,6 +91,25 @@
         /**
          *  @this {XMOT.FlyControllerBehavior}
          */
+        lookAt: function(point) {
+
+            var initCamDirection = new XML3DVec3(0, 0, -1);
+
+            // calculate new direction
+            var position = this.getPosition();
+            var direction = point.subtract(position);
+            direction = direction.normalize();
+
+            // create rotation from angle b/w initial and new direction
+            var dirRot = new XML3DRotation();
+            dirRot.setRotation(initCamDirection, direction);
+
+            this._setInitialRotation(dirRot);
+        },
+
+        /**
+         *  @this {XMOT.FlyControllerBehavior}
+         */
         setPosition: function(position) {
             this.target.setPosition(position);
         },

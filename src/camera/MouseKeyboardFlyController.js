@@ -43,6 +43,10 @@
             this._keyCtrl.onKeyDown = this.callback("_onKeyDown");
         },
 
+        lookAt: function(point) {
+            this._behavior.lookAt(point);
+        },
+
         /**
          *  @this {XMOT.MouseKeyboardFlyController}
          */
