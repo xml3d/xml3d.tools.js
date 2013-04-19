@@ -16,6 +16,11 @@
     XMOT.ExamineControllerBehavior = new XMOT.Class({
 
         /**
+         *  options:
+         *  o rotateSpeed, default 1
+         *  o dollySpeed, default 40
+         *  o examineOrigin, default scene's bounding box center
+         *
          *  @this {XMOT.ExamineControllerBehavior}
          */
         initialize: function(targetViewTransformable, options) {
@@ -115,8 +120,6 @@
                 this._rotateSpeed = options.rotateSpeed;
             if(options.dollySpeed !== undefined)
                 this._dollySpeed = options.dollySpeed;
-            if(options.sceneRadius !== undefined)
-                this._sceneRadius = options.sceneRadius;
             if(options.examineOrigin !== undefined)
                 this._examineOrigin = options.examineOrigin;
         },
