@@ -96,7 +96,7 @@
             }
 
             var ctxIdx = this._findContextIndex(targetElement, eventName, callback);
-            if(!ctxIdx)
+            if(ctxIdx < 0)
                 return;
 
             var ctx = this._callbackContexts[ctxIdx];
