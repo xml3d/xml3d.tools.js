@@ -73,6 +73,34 @@
 
         /**
          *  @this {XMOT.MouseKeyboardFlyController}
+         */
+        getMoveSpeed: function() {
+            return this._behavior.getMoveSpeed();
+        },
+
+        /**
+         *  @this {XMOT.MouseKeyboardFlyController}
+         */
+        setMoveSpeed: function(speed) {
+            this._behavior.setMoveSpeed(speed);
+        },
+
+        /**
+         *  @this {XMOT.MouseKeyboardFlyController}
+         */
+        getRotationSpeed: function() {
+            return this._behavior.getRotationSpeed();
+        },
+
+        /**
+         *  @this {XMOT.MouseKeyboardFlyController}
+         */
+        setRotationSpeed: function(speed) {
+            this._behavior.setRotationSpeed(speed);
+        },
+
+        /**
+         *  @this {XMOT.MouseKeyboardFlyController}
          *  @protected
          *  @override
          */

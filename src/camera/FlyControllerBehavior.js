@@ -116,6 +116,22 @@
             return this.target.getOrientation();
         },
 
+        getMoveSpeed: function() {
+            return this._moveSpeed;
+        },
+
+        setMoveSpeed: function(speed) {
+            this._moveSpeed = speed;
+        },
+
+        getRotationSpeed: function() {
+            return this._rotateSpeed;
+        },
+
+        setRotationSpeed: function(speed) {
+            this._rotateSpeed = speed;
+        },
+
         /**
          *  @this {XMOT.FlyControllerBehavior}
          *  @private
