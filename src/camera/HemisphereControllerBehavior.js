@@ -22,7 +22,7 @@
 
             this._latitude = 0;
             this._longitude =  0;
-            this._radius = 1;
+            this._radius = this._getHemisphereRadius();
 
             this.lookAt(this.getExamineOrigin());
         },
@@ -34,7 +34,7 @@
         dolly: function(deltaX, deltaY) {
 
             this.callSuper(deltaX, deltaY);
-            this._radius = this.target.getPosition().length();
+            this._radius = this._getHemisphereRadius();
         },
 
         /**
@@ -80,6 +80,12 @@
          */
         lookAt: function(targetPt) {
             this._setViewDirection(targetPt.subtract(this.target.getPosition()));
+            this.rotate(0,0);
+        },
+
+        _getHemisphereRadius: function() {
+
+            return this.target.getPosition().length();
         },
 
         /**
