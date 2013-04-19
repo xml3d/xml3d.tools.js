@@ -5,33 +5,43 @@
 
 /**
  * Inherit the prototype methods from one constructor into another.
+ *
  * Usage:
- * function Parent(a, b) {}
- * Parent.prototype.foo = function(a) {}
- * function Child(a, b, c) {
- *   base(this, a, b);
+ * <pre>
+ * function ParentClass(a, b) { }
+ * ParentClass.prototype.foo = function(a) { }
+ *
+ * function ChildClass(a, b, c) {
+ *   XMOT.base(this, a, b);
  * }
- * inherit(Child, Parent);
+ * XMOT.inherit(ChildClass, ParentClass);
  *
- * var child = new Child('a', 'b', 'see');
+ * var child = new ChildClass('a', 'b', 'see');
  * child.foo(); // works
+ * </pre>
  *
- * A superclass' implementation of a method can be invoked as follows:
- * Child.prototype.foo = function(a) {
- *   Child.superClass_.foo.call(this, a);
+ * In addition, a superclass' implementation of a method can be invoked
+ * as follows:
+ *
+ * <pre>
+ * ChildClass.prototype.foo = function(a) {
+ *   ChildClass.superClass_.foo.call(this, a);
  *   // other code
  * };
- * @param {Function} child Child class.
- * @param {Function} parent Parent class.
+ * </pre>
+ *
+ * @param {Function} childCtor Child class.
+ * @param {Function} parentCtor Parent class.
  */
-function inherit(child, parent) {
-	/** @constructor */
-	function tmp() {}
-	tmp.prototype = parent.prototype;
-	child.superClass_ = parent.prototype;
-	child.prototype = new tmp();
-	child.prototype.constructor = child;
-}
+function inherit(childCtor, parentCtor) {
+  /** @constructor */
+  function tempCtor() {};
+  tempCtor.prototype = parentCtor.prototype;
+  childCtor.superClass_ = parentCtor.prototype;
+  childCtor.prototype = new tempCtor();
+  /** @override */
+  childCtor.prototype.constructor = childCtor;
+};
 
 /**
  * Call up to the superclass.
@@ -44,7 +54,7 @@ function inherit(child, parent) {
  * you do not, you will get a runtime error. This calls the superclass'
  * method with arguments 2-N.
  *
- * This function only works if you use inherit to express
+ * This function only works if you use XMOT.inherit() to express
  * inheritance relationships between your classes.
  *
  * This function is a compiler primitive. At compile-time, the
@@ -59,30 +69,43 @@ function inherit(child, parent) {
  * @return {*} The return value of the superclass method.
  */
 function base(me, opt_methodName, var_args) {
-	var caller = arguments.callee.caller;
-	if (caller.superClass_) {
-		// This is a constructor. Call the superclass constructor.
-		return caller.superClass_.constructor.apply( me, Array.prototype.slice.call(arguments, 1) );
+  	var caller = arguments.callee.caller;
+
+	if (!caller) {
+  		throw Error('arguments.caller not defined.  XMOT.base() expects not ' +
+              'to be running in strict mode. See ' +
+              'http://www.ecma-international.org/ecma-262/5.1/#sec-C');
 	}
-	var args = Array.prototype.slice.call(arguments, 2);
-	var foundCaller = false;
-	for (var ctor = me.constructor; ctor; ctor = ctor.superClass_ && ctor.superClass_.constructor) {
-		if (ctor.prototype[opt_methodName] === caller) {
-			foundCaller = true;
-		} else if (foundCaller) {
-			return ctor.prototype[opt_methodName].apply(me, args);
-		}
-	}
-	// If we did not find the caller in the prototype chain,
-	// then one of two things happened:
-	// 1) The caller is an instance method.
-	// 2) This method was not called by the right caller.
-	if (me[opt_methodName] === caller){
-		return me.constructor.prototype[opt_methodName].apply(me, args);
-	} else {
-		throw "base called from a method of one name to a method of a different name";
-	}
-}
+
+  	if (caller.superClass_) {
+    	// This is a constructor. Call the superclass constructor.
+    	return caller.superClass_.constructor.apply(
+        	me, Array.prototype.slice.call(arguments, 1));
+  	}
+
+  	var args = Array.prototype.slice.call(arguments, 2);
+  	var foundCaller = false;
+  	for (var ctor = me.constructor;
+       	ctor; ctor = ctor.superClass_ && ctor.superClass_.constructor) {
+    		if (ctor.prototype[opt_methodName] === caller) {
+      			foundCaller = true;
+    		} else if (foundCaller) {
+      			return ctor.prototype[opt_methodName].apply(me, args);
+    		}
+  	}
+
+  	// If we did not find the caller in the prototype chain,
+  	// then one of two things happened:
+  	// 1) The caller is an instance method.
+  	// 2) This method was not called by the right caller.
+  	if (me[opt_methodName] === caller) {
+    	return me.constructor.prototype[opt_methodName].apply(me, args);
+  	} else {
+    	throw Error(
+        	'XMOT.base called from a method of one name ' +
+        	'to a method of a different name');
+  	}
+};
 
 // ----------------------------------------------------------------------------
 
