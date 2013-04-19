@@ -3,19 +3,19 @@ var CONFIG_PAGETITLE = "XML3D Motion";
 
 var CATEGORY_LIST = {
     unknown : { name : "???" },
-    misc : { name: "Misc" }, 
+    misc : { name: "Misc" },
     utils : { name: "Utilities" }
 };
 
-var EXAMPLE_LIST = [    
+var EXAMPLE_LIST = [
 
-    // --- Miscellaneous --- 
+    // --- Miscellaneous ---
     {
         cat: "misc",
         name: "Animatable",
         href: "animation.xhtml",
         info: "Tests the XMOT.Animatable"
-    }, 
+    },
     {
         cat: "misc",
         name: "Transformable",
@@ -27,30 +27,36 @@ var EXAMPLE_LIST = [
         name: "CameraController",
         href: "cameracontroller.xhtml",
         info: "Tests the XMOT.CameraController"
-    }, 
+    },
+    {
+        cat: "misc",
+        name: "Camera Controllers",
+        href: "cameracontrollers.xhtml",
+        info: "Tests the camera controllers besides XMOT.CameraController"
+    },
     {
         cat: "misc",
         name: "GamePad",
         href: "gamepad.xhtml",
         info: "Tests the XMOT.GamepadEventProvider"
-    }, 
+    },
     {
         cat: "misc",
         name: "Interaction Components",
         href: "interaction/index.xhtml",
         info: "Various tests for the interaction components"
-    }, 
-    
+    },
+
     // --- Utilities ---
     {
-        cat: "utils", 
-        name: "TransformTracker", 
+        cat: "utils",
+        name: "TransformTracker",
         href: "transformtracker.xhtml",
         info: "Interactively test the observation of transformation changes."
     },
     {
-        cat: "utils", 
-        name: "ViewTracker", 
+        cat: "utils",
+        name: "ViewTracker",
         href: "viewtracker.xhtml",
         info: "Tests the view-tracking by placing a rectangle in the \"HUD\" of the user."
     },

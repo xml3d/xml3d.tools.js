@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd" >
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:webgl="http://www.xml3d.org/2009/xml3d/webgl" xmlns:x3d="http://www.web3d.org/specifications/x3d-namespace">
+    <head>
+        <title>Camera Controllers</title>
+
+        <link rel="stylesheet" type="text/css" media="all" href="style/default.css"/>
+
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+        <script type="text/javascript" src="page.js"></script>
+
+        <script type="text/javascript" src="external/xml3d.js"></script>
+        <script src="../build/output/xml3d-motion.js" type="text/javascript"/>
+        <script type="text/javascript" src="cameracontrollers.js"/>
+    </head>
+    <body>
+        <div id="overall">
+        <div id="content">
+        <h1>Camera Controllers</h1>
+        <xml3d id="scene" xmlns="http://www.xml3d.org/2009/xml3d"
+            style="width: 512px; height: 512px; background-color:rgb(14,56,102);"
+            activeView="#v_camera">
+            <defs>
+                <transform id="t_TRANS"/>
+                <shader id="s_d1e23" script="urn:xml3d:shader:phong">
+                    <float3 name="diffuseColor">0 0 0</float3>
+                    <float3 name="specularColor">0 0 0</float3>
+                    <float3 name="emissiveColor">1 1 0</float3>
+                    <float name="transparency">0</float>
+                    <float name="shininess">60</float>
+                    <float name="ambientIntensity">0.2</float>
+                </shader>
+                <data id="animation">
+                    <float name="key">0 0.08 0.16 0.24 0.32 0.4 0.48 0.56 0.64 0.72 0.8 0.88 0.96</float>
+                    <float3 name="position">0 0 0 -2 0 0 0 0 0 2 0 0 0 0 0 0 -2 0 0 0 0 0 2 0 0 0 0 0 0 -2 0 0 0 0 0 2 0 0 0</float3>
+                    <float4 name="orientation">1 0 0 0 0.7073882818222046 0.7068251967430115 0 0 0.0007963267271406949 0.9999997019767761 0 0 -0.7062616348266602 0.7079508900642395 0 0 -0.9999987483024597 0.0015926528722047806 0 0 1 0 0 0 0.7073882818222046 0 0.7068251967430115 0 0.0007963267271406949 0 0.9999997019767761 0 -0.7062616348266602 0 0.7079508900642395 0 -0.9999987483024597 0 0.0015926528722047806 0 1 0 0 0 0.7073882818222046 0 0 0.7068251967430115 0.0007963267271406949 0 0 0.9999997019767761</float4>
+                </data>
+                <transform id="t_camera" translation="0 0 10" />
+            </defs>
+            <group id="g_camera" transform="#t_camera">
+                <view id="v_camera"/>
+            </group>
+            <group id="root">
+                <group>
+                    <group id="shape_d1e22" shader="#s_d1e23" transform="#t_TRANS">
+                        <mesh type="triangles" id="m_d1e25">
+                            <int name="index">0 1 2 2 3 0 4 7 5 5 7 6 8 9 10 10 11 8 12 14 13 14 12 15 16 17 18 18 19 16 20 22 21 22 20 23 </int>
+                            <float3 name="position">-1.0 -1.0 -1.0 -1.0 1.0 -1.0 1.0 1.0 -1.0 1.0 -1.0 -1.0 -1.0 -1.0 1.0 -1.0 1.0 1.0 1.0 1.0 1.0 1.0 -1.0 1.0 -1.0 -1.0 -1.0 -1.0 -1.0 1.0 -1.0 1.0 1.0 -1.0 1.0 -1.0 1.0 -1.0 -1.0 1.0 -1.0 1.0 1.0 1.0 1.0 1.0 1.0 -1.0 -1.0 1.0 -1.0 -1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 -1.0 -1.0 -1.0 -1.0 -1.0 -1.0 1.0 1.0 -1.0 1.0 1.0 -1.0 -1.0 </float3>
+                            <float3 name="normal">0.0 0.0 -1.0 0.0 0.0 -1.0 0.0 0.0 -1.0 0.0 0.0 -1.0 0.0 0.0 1.0 0.0 0.0 1.0 0.0 0.0 1.0 0.0 0.0 1.0 -1.0 0.0 0.0 -1.0 0.0 0.0 -1.0 0.0 0.0 -1.0 0.0 0.0 1.0 0.0 0.0 1.0 0.0 0.0 1.0 0.0 0.0 1.0 0.0 0.0 0.0 1.0 0.0 0.0 1.0 0.0 0.0 1.0 0.0 0.0 1.0 0.0 0.0 -1.0 0.0 0.0 -1.0 0.0 0.0 -1.0 0.0 0.0 -1.0 0.0 </float3>
+                            <float2 name="texcoord">1.0 0.0 1.0 1.0 0.0 1.0 0.0 0.0 0.0 0.0 0.0 1.0 1.0 1.0 1.0 0.0 0.0 0.0 1.0 0.0 1.0 1.0 0.0 1.0 1.0 0.0 0.0 0.0 0.0 1.0 1.0 1.0 0.0 1.0 0.0 0.0 1.0 0.0 1.0 1.0 0.0 0.0 0.0 1.0 1.0 1.0 1.0 0.0 </float2>
+                        </mesh>
+                    </group>
+                </group>
+            </group>
+        </xml3d>
+        <div>
+            <span>
+                <input type="radio" name="camtype" value="examine" checked="true" />
+                Examine
+            </span>
+            <span>
+                <input type="radio" name="camtype" value="hemisphere" />
+                Hemisphere
+            </span>
+            <span>
+                <input type="radio" name="camtype" value="fly" />
+                Fly
+            </span>
+            <span>
+                <input type="radio" name="camtype" value="none" />
+                None
+            </span>
+          </div>
+        </div>
+        </div>
+    </body>
+</html>

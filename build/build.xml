@@ -27,6 +27,19 @@
         <file name="base/ClientAnimatable.js" />
         <file name="base/ClientKeyframeAnimation.js" />
 
+        <file name="util/xml3d_datatype_extensions.js" />
+        <file name="util/attachable.js" />
+        <file name="util/util.js" />
+        <file name="util/creation.js" />
+        <file name="util/input.js" />
+        <file name="util/geoobject.js" />
+        <file name="util/observable.js" />
+        <file name="util/eventdispatcher.js" />
+        <file name="util/plane.js" />
+        <file name="util/transformtracker.js" />
+        <file name="util/viewtracker.js" />
+        <file name="util/transformsensor.js" />
+
         <file name="animation/CombinedAnimation.js" />
 
         <file name="constraint/ConstraintCollection.js" />
@@ -35,26 +48,16 @@
         <file name="constraint/BoxedTranslationConstraint.js" />
 
         <file name="camera/CameraController.js" />
-        <file name="camera/ExamineController.js" />
-        <file name="camera/HemisphereController.js" />
+        <file name="camera/ExamineControllerBehavior.js" />
+        <file name="camera/HemisphereControllerBehavior.js" />
+        <file name="camera/MouseController.js" />
+        <file name="camera/KeyboardController.js" />
+        <file name="camera/MouseExamineController.js" />
+        <file name="camera/MouseHemisphereController.js" />
+        <file name="camera/FlyControllerBehavior.js" />
+        <file name="camera/MouseKeyboardFlyController.js" />
 
         <file name="gamepad/GamepadEventProvider.js" />
-
-        <file name="util/xml3d_datatype_extensions.js" />
-        <file name="util/attachable.js" />
-
-        <file name="util/util.js" />
-        <file name="util/creation.js" />
-        <file name="util/input.js" />
-
-        <file name="util/geoobject.js" />
-        <file name="util/observable.js" />
-        <file name="util/eventdispatcher.js" />
-        <file name="util/plane.js" />
-
-        <file name="util/transformtracker.js" />
-        <file name="util/viewtracker.js" />
-        <file name="util/transformsensor.js" />
 
         <file name="xml3doverlay/mirroredwidgettarget.js" />
         <file name="xml3doverlay/mirroredview.js" />
