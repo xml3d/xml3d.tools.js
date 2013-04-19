@@ -378,7 +378,7 @@
      * @return {string}
      */
     p.str = function() {
-        return this.axis.str() + " " + this.angle;
+        return this.axis.str() + " " + this.angle.toFixed(3);
     };
 
     /**
