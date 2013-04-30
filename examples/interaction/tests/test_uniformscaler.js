@@ -2,9 +2,13 @@ var sensor = null;
 var xml3d = null;
 
 var active = false;
+var cameraCtrl = null;
 
 function initScene()
 {
+    cameraCtrl = new XMOT.MouseExamineController($("#controller_view")[0].parentNode);
+    cameraCtrl.attach();
+
     xml3d = document.getElementById("MyXml3d");
 
     $("#group1").append(XMOT.creation.box(xml3d));
