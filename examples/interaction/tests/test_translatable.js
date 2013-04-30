@@ -8,6 +8,7 @@ var dragCounter = null; // thing that puts dots in the div as drag-feedback
 function initScene()
 {
     cameraCtrl = new XMOT.MouseExamineController($("#controller_view")[0].parentNode);
+    cameraCtrl.attach();
 
     var grp1ConstrBox = new XML3DBox(
         new XML3DVec3(-Number.MAX_VALUE, 1.5, -Number.MAX_VALUE),
