@@ -2,7 +2,7 @@ window.addEventListener("load", onLoad, false);
 
 var gizmo = null;
 var gizmo1 = null;
-var camCtrl = null;
+var cameraCtrl = null;
 var targetMirror = null;
 
 var gizmoRadios = null;
@@ -16,8 +16,7 @@ function onLoad() {
     $(gizmoRadios).click(onChangeGizmoType);
     onChangeGizmoType();
 
-    var viewXfmable = XMOT.ClientMotionFactory.createTransformable($("#v_camera")[0].parentNode);
-    cameraCtrl = new XMOT.MouseExamineController(viewXfmable, {
+    cameraCtrl = new XMOT.MouseExamineController($("#v_camera")[0].parentNode, {
         examineOrigin: new XML3DVec3(0,0,-10)
     });
     cameraCtrl.attach();

@@ -5,9 +5,6 @@ function initScene()
 {
     xml3d = document.getElementById("MyXml3d");
 
-    if(XML3D.Xml3dSceneController)
-        XML3D.Xml3dSceneController.detachAllControllers();
-
     trackball = new XMOT.interaction.behaviors.TrackBall(300, 200);
 }
 

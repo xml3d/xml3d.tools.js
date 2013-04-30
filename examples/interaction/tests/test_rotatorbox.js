@@ -1,6 +1,7 @@
 var xml3d = null;
 var xfmBoxOn = true;
 var xfmBox = null;
+var cameraCtrl = null;
 
 window.addEventListener("load", onLoad);
 
@@ -11,9 +12,10 @@ function onLoad()
 
     xml3d = $("xml3d")[0];
 
-    var ctrl = XML3D.Xml3dSceneController.getController(xml3d);
-    ctrl.mode = "lookaround";
-    ctrl.zoomSpeed = 1;
+    cameraCtrl = new XMOT.MouseExamineController($("#defaultView")[0].parentNode, {
+        examineOrigin: new XML3DVec3(0,0,-10)
+    });
+    cameraCtrl.attach();
 
     // xfm box creation
     var target = $("#g_target")[0];
