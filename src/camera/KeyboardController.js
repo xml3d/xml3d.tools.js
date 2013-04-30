@@ -17,15 +17,20 @@
 
         /**
          *  @this {XMOT.KeyboardController}
+         *  @param {Element|Transformable} targetViewGroup
+         *  @param {Object} options
+         *
+         *  options:
+         *  o eventDispatcher
          */
-        initialize: function(targetViewTransformable, options) {
+        initialize: function(targetViewGroup, options) {
 
             var options = options || {};
 
-            this.target = targetViewTransformable;
+            this.target = XMOT.util.getOrCreateTransformable(targetViewGroup);
 
             /** @private */
-            this._targetXml3d = XMOT.util.getXml3dRoot(targetViewTransformable.object);
+            this._targetXml3d = XMOT.util.getXml3dRoot(this.target.object);
 
             /** @private */
             if(options.eventDispatcher)

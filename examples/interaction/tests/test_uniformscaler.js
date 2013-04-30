@@ -1,6 +1,5 @@
 var sensor = null;
 var xml3d = null;
-var g_sphere = null;
 
 var active = false;
 

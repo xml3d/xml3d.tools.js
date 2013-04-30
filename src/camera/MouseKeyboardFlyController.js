@@ -10,6 +10,10 @@
     XMOT.MouseKeyboardFlyController = new XMOT.Class(XMOT.util.Attachable, {
 
         /**
+         *  @this {XMOT.MouseKeyboardFlyController}
+         *  @param {Element|Transformable} targetViewGroup
+         *  @param {Object} options
+         *
          *  options:
          *  o behavior: options to be passed to XMOT.FlyControllerBehavior
          *  o mouse: options to be passed to XMOT.MouseController
@@ -17,10 +21,8 @@
          *
          *  By default, the view can be rotated using the left mouse button,
          *  and movement can be done using W,A,S,D keys.
-         *
-         *  @this {XMOT.MouseKeyboardFlyController}
          */
-        initialize: function(targetViewTransformable, options) {
+        initialize: function(targetViewGroup, options) {
 
             this.callSuper();
 
@@ -29,17 +31,17 @@
             options.mouse = options.mouse || {};
             options.keyboard = options.keyboard || {};
 
-            this.target = targetViewTransformable;
+            this.target = XMOT.util.getOrCreateTransformable(targetViewGroup);
 
-            this._behavior = new XMOT.FlyControllerBehavior(targetViewTransformable, options.behavior);
+            this._behavior = new XMOT.FlyControllerBehavior(this.target, options.behavior);
 
             if(options.mouse.eventDispatcher === undefined)
                 options.mouse.eventDispatcher = this._createMouseEventDispatcher();
 
-            this._mouseCtrl = new XMOT.MouseController(targetViewTransformable, options.mouse);
+            this._mouseCtrl = new XMOT.MouseController(this.target, options.mouse);
             this._mouseCtrl.onDrag = this.callback("_onDrag");
 
-            this._keyCtrl = new XMOT.KeyboardController(targetViewTransformable, options.keyboard);
+            this._keyCtrl = new XMOT.KeyboardController(this.target, options.keyboard);
             this._keyCtrl.onKeyDown = this.callback("_onKeyDown");
         },
 

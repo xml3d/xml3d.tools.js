@@ -1,12 +1,13 @@
 var sensorsOn = true;
 var sensor1 = null;
 var sensor2 = null;
+var cameraCtrl = null;
 
 var dragCounter = null; // thing that puts dots in the div as drag-feedback
 
 function initScene()
 {
-    $("#controller_view")[0].lookAt(new XML3DVec3(0, 0, 0));
+    cameraCtrl = new XMOT.MouseExamineController($("#controller_view")[0].parentNode);
 
     var grp1ConstrBox = new XML3DBox(
         new XML3DVec3(-Number.MAX_VALUE, 1.5, -Number.MAX_VALUE),
