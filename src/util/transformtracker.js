@@ -81,6 +81,8 @@
 
                 this._attached = true;
             }
+
+            this.xfmChanged(this.targetNode);
         },
 
         /**
