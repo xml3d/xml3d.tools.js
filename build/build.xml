@@ -67,7 +67,6 @@
         <file name="interaction/geometry/geometry.js" />
         <file name="interaction/geometry/viewedconstantsizegeometry.js" />
         <file name="interaction/geometry/uniformscaler.js" />
-        <file name="interaction/geometry/rotatorbox.js" />
         <file name="interaction/geometry/singleaxisrotator.js" />
         <file name="interaction/geometry/translatebox.js" />
         <file name="interaction/geometry/translategizmo.js" />
@@ -86,7 +85,6 @@
         <file name="interaction/widgets/translatebox.js" />
         <file name="interaction/widgets/uniformscaler.js" />
         <file name="interaction/widgets/transformbox.js" />
-        <file name="interaction/widgets/rotatorbox.js" />
         <file name="interaction/widgets/translategizmo.js" />
         <file name="interaction/widgets/rotategizmo.js" />
         <file name="interaction/widgets/translaterotategizmo.js" />
