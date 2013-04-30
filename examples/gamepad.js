@@ -5,7 +5,6 @@
  */
 init = function(){
 	//create connector
-	new XMOT.GamepadEventProvider();
 	var ls = document.getElementById("ls");
 	window.addEventListener("GamepadButtonDown", function(e){if(e.detail.button == "LB" && e.detail.padID == 0) ls.innerHTML = "down";}, false);
 	window.addEventListener("GamepadButtonUp", function(e){if(e.detail.button == "LB" && e.detail.padID == 0) ls.innerHTML = "up";}, false);
