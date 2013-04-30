@@ -3,9 +3,13 @@ window.addEventListener("load", onLoad);
 
 var sensor = null;
 var sensorActive = true;
+var cameraCtrl = null;
 
 function onLoad()
 {
+    cameraCtrl = new XMOT.MouseExamineController($("#controller_view")[0].parentNode);
+    cameraCtrl.attach();
+
     if(sensorActive)
         attachSensor();
 }
