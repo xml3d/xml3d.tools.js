@@ -16,19 +16,21 @@
     XMOT.ExamineControllerBehavior = new XMOT.Class({
 
         /**
+         *  @this {XMOT.ExamineControllerBehavior}
+         *  @param {Element|Transformable} targetViewGroup
+         *  @param {Object} options
+         *
          *  options:
          *  o rotateSpeed, default 1
          *  o dollySpeed, default 40
          *  o examineOrigin, default scene's bounding box center
-         *
-         *  @this {XMOT.ExamineControllerBehavior}
          */
-        initialize: function(targetViewTransformable, options) {
+        initialize: function(targetViewGroup, options) {
 
-            this.target = targetViewTransformable;
+            this.target = XMOT.util.getOrCreateTransformable(targetViewGroup);
 
             /** @private */
-            this._scene = XMOT.util.getXml3dRoot(targetViewTransformable.object);
+            this._scene = XMOT.util.getXml3dRoot(this.target.object);
 
             /** @private */
             this._rotateSpeed = 1;

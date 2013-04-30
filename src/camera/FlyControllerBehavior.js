@@ -17,12 +17,18 @@
 
         /**
          *  @this {XMOT.FlyControllerBehavior}
+         *  @param {Element|Transformable} targetViewGroup
+         *  @param {Object} options
+         *
+         *  options:
+         *  o rotateSpeed
+         *  o moveSpeed
          */
-        initialize: function(cameraTransformable, options) {
+        initialize: function(targetViewGroup, options) {
+
+			this.target = XMOT.util.getOrCreateTransformable(targetViewGroup);
 
             var options = options || {};
-
-            this.target = cameraTransformable;
 
             this._rotateSpeed = options.rotateSpeed || 1;
             this._moveSpeed = options.moveSpeed || 1;
@@ -32,7 +38,7 @@
             this._xAxisAngle = 0;
             this._maxXAxisAngle = Math.PI/2 - 0.2;
 
-            this._setInitialRotation(cameraTransformable.getOrientation());
+            this._setInitialRotation(this.target.getOrientation());
         },
 
         /**

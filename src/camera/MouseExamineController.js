@@ -15,21 +15,22 @@
         DOLLY: 2,
 
         /**
+         *  @this {XMOT.MouseExamineController}
+         *  @inheritDoc
+         *
          *  options:
          *  o behaviorType: the behavior to be instantiated. Default: XMOT.ExamineControllerBehavior
-         *
-         *  @this {XMOT.MouseExamineController}
          */
-        initialize: function(targetViewTransformable, options) {
+        initialize: function(targetViewGroup, options) {
 
             var options = options || {};
             if(options.eventDispatcher === undefined)
                 options.eventDispatcher = this._createMouseEventDispatcher();
 
-            this.callSuper(targetViewTransformable, options);
+            this.callSuper(targetViewGroup, options);
 
             var BehaviorType = options.behaviorType || XMOT.ExamineControllerBehavior;
-            this._controller = new BehaviorType(targetViewTransformable, options);
+            this._controller = new BehaviorType(this.target, options);
             this._currentAction = this.NONE;
         },
 

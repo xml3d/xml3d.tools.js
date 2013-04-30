@@ -11,12 +11,13 @@
 
         /**
          *  @this {XMOT.MouseHemisphereController}
+         *  @inheritDoc
          */
-        initialize: function(targetViewTransformable, options) {
+        initialize: function(targetViewGroup, options) {
 
             var options = options || {};
             options.behaviorType = XMOT.HemisphereControllerBehavior;
-            this.callSuper(targetViewTransformable, options);
+            this.callSuper(targetViewGroup, options);
         }
     });
 }());

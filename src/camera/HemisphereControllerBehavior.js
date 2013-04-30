@@ -15,10 +15,11 @@
 
         /**
          *  @this {XMOT.HemisphereControllerBehavior}
+         *  @inheritDoc
          */
-        initialize: function(targetViewTransformable, options) {
+        initialize: function(targetViewGroup, options) {
 
-            this.callSuper(targetViewTransformable, options);
+            this.callSuper(targetViewGroup, options);
 
             this._latitude = 0;
             this._longitude =  0;
