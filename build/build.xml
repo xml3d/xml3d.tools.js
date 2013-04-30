@@ -66,7 +66,6 @@
 
         <file name="interaction/geometry/geometry.js" />
         <file name="interaction/geometry/viewedconstantsizegeometry.js" />
-        <file name="interaction/geometry/ringmenu.js" />
         <file name="interaction/geometry/uniformscaler.js" />
         <file name="interaction/geometry/rotatorbox.js" />
         <file name="interaction/geometry/singleaxisrotator.js" />
@@ -80,11 +79,9 @@
         <file name="interaction/behaviors/trackball.js" />
         <file name="interaction/behaviors/rotater.js" />
         <file name="interaction/behaviors/translater.js" />
-        <file name="interaction/behaviors/ringmenu.js" />
 
         <file name="interaction/widgets/widget.js" />
         <file name="interaction/widgets/overlaywidget.js" />
-        <file name="interaction/widgets/ringmenu.js" />
         <file name="interaction/widgets/singleaxisrotator.js" />
         <file name="interaction/widgets/translatebox.js" />
         <file name="interaction/widgets/uniformscaler.js" />

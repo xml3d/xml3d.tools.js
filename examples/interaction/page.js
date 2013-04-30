@@ -19,12 +19,6 @@ var EXAMPLE_LIST = [
     },
     {
         cat: "complexwidgets",
-        name: "RingMenu",
-        href: "tests/test_ringmenu.xhtml",
-        info: "A widget for selecting objects placed on a ring."
-    },
-    {
-        cat: "complexwidgets",
         name: "TransformBox",
         href: "tests/test_transformbox.xhtml",
         info: "A widget to perform translation, rotation and scaling."
