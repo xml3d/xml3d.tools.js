@@ -19,9 +19,9 @@
         <!-- contrib -->
         <file name="contrib/Tween.js" />
         <!-- our sources -->
-        <file name="base/math.js" />
         <file name="base/class.js" />
         <file name="base/util.js" />
+        <file name="base/math.js" />
         <file name="base/ClientTransformable.js" />
         <file name="base/ClientMotionFactory.js" />
         <file name="base/ClientAnimatable.js" />

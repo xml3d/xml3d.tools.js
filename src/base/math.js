@@ -3,8 +3,9 @@
  */
 (function() {
 
-    if (!XMOT.math)
-        XMOT.math = {};
+    "use strict";
+
+    XMOT.namespace("XMOT.math");
 
     var m = XMOT.math;
 

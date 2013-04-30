@@ -1,71 +1,75 @@
 (function(){
-	/**
-	 * ProhibitAxisMovementConstraint
-	 * prohibit axismovement, but allow movement around an epsilon of a specified center
-	 * @constructor
-	 * @param {Boolean} x prohibit x axis
-	 * @param {Boolean} y prohibit y axis
-	 * @param {Boolean} z prohibit z axis
-	 * @param {number} epsilon
-	 * @param {number} center
-	 * @implements {Constraint}
-	 */
-	var ProhibitAxisMovementConstraint = function(x,y,z, epsilon, center){
-		/**
-		 * prohibit x axis
-		 * @private
-		 * @type {Boolean}
-		 */
-		this.x = x;
-		/**
-		 * prohibit y axis
-		 * @private
-		 * @type {Boolean}
-		 */
-		this.y = y;
-		/**
-		 * prohibit z axis
-		 * @private
-		 * @type {Boolean}
-		 */
-		this.z = z;
-		/**
-		 * epsilon
-		 * @private
-		 * @type {number}
-		 */
-		this.epsilon = epsilon ? epsilon : 0;
-		/**
-		 * center
-		 * @private
-		 * @type {number}
-		 */
-		this.center =  center ? center : 0;
 
-	};
-	var c = ProhibitAxisMovementConstraint.prototype;
+    "use strict";
 
-	/** @inheritDoc */
-    c.constrainRotation = function(newRotation, opts){
-		return true;
-    };
+    /**
+     * ProhibitAxisMovementConstraint
+     * prohibit axismovement, but allow movement around an epsilon of a specified center
+     * @constructor
+     * @implements {Constraint}
+     */
+    XMOT.ProhibitAxisMovementConstraint = new XMOT.Class({
 
-    /** @inheritDoc */
-    c.constrainTranslation = function(newPosition, opts){
-        if(!opts || !opts.transformable)
-            throw "ProhibitAxisMovementConstraint.constrainTranslation: no transformable in options given.";
+        /**
+         * @param {Boolean} x prohibit x axis
+         * @param {Boolean} y prohibit y axis
+         * @param {Boolean} z prohibit z axis
+         * @param {number} epsilon
+         * @param {number} center
+         */
+        initialize: function(x,y,z, epsilon, center){
+            /**
+             * prohibit x axis
+             * @private
+             * @type {Boolean}
+             */
+            this.x = x;
+            /**
+             * prohibit y axis
+             * @private
+             * @type {Boolean}
+             */
+            this.y = y;
+            /**
+             * prohibit z axis
+             * @private
+             * @type {Boolean}
+             */
+            this.z = z;
+            /**
+             * epsilon
+             * @private
+             * @type {number}
+             */
+            this.epsilon = epsilon ? epsilon : 0;
+            /**
+             * center
+             * @private
+             * @type {number}
+             */
+            this.center =  center ? center : 0;
 
-    	var center = this.center;
-    	var epsilon = this.epsilon;
-    	var currentPosition = opts.transformable.getPosition();
+        },
 
-		if(this.x && Math.abs(center - newPosition.x) > epsilon) newPosition.x = currentPosition.x;
-		if(this.y && Math.abs(center - newPosition.y) > epsilon) newPosition.y = currentPosition.y;
-		if(this.z && Math.abs(center - newPosition.z) > epsilon) newPosition.z = currentPosition.z;
+        /** @inheritDoc */
+        constrainRotation: function(newRotation, opts){
+            return true;
+        },
 
-    	return true;
-    };
+        /** @inheritDoc */
+        constrainTranslation: function(newPosition, opts){
+            if(!opts || !opts.transformable)
+                throw "ProhibitAxisMovementConstraint.constrainTranslation: no transformable in options given.";
 
-    //export
-    XMOT.ProhibitAxisMovementConstraint = ProhibitAxisMovementConstraint;
+            var center = this.center;
+            var epsilon = this.epsilon;
+            var currentPosition = opts.transformable.getPosition();
+
+            if(this.x && Math.abs(center - newPosition.x) > epsilon) newPosition.x = currentPosition.x;
+            if(this.y && Math.abs(center - newPosition.y) > epsilon) newPosition.y = currentPosition.y;
+            if(this.z && Math.abs(center - newPosition.z) > epsilon) newPosition.z = currentPosition.z;
+
+            return true;
+        }
+    });
 }());
