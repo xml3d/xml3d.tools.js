@@ -1,208 +1,90 @@
 (function() {
 
-//The functions inherit and base are taken out of the google closure project.
-//Those functions are part of the Apache License (see Appache_License file)
+    "use strict";
 
-/**
- * Inherit the prototype methods from one constructor into another.
- *
- * Usage:
- * <pre>
- * function ParentClass(a, b) { }
- * ParentClass.prototype.foo = function(a) { }
- *
- * function ChildClass(a, b, c) {
- *   XMOT.base(this, a, b);
- * }
- * XMOT.inherit(ChildClass, ParentClass);
- *
- * var child = new ChildClass('a', 'b', 'see');
- * child.foo(); // works
- * </pre>
- *
- * In addition, a superclass' implementation of a method can be invoked
- * as follows:
- *
- * <pre>
- * ChildClass.prototype.foo = function(a) {
- *   ChildClass.superClass_.foo.call(this, a);
- *   // other code
- * };
- * </pre>
- *
- * @param {Function} childCtor Child class.
- * @param {Function} parentCtor Parent class.
- */
-function inherit(childCtor, parentCtor) {
-  /** @constructor */
-  function tempCtor() {};
-  tempCtor.prototype = parentCtor.prototype;
-  childCtor.superClass_ = parentCtor.prototype;
-  childCtor.prototype = new tempCtor();
-  /** @override */
-  childCtor.prototype.constructor = childCtor;
-};
+    /**
+     * global variable, used to check if an animation or movement is currently in progress
+     */
+    XMOT.animating = false;
 
-/**
- * Call up to the superclass.
- *
- * If this is called from a constructor, then this calls the superclass
- * contructor with arguments 1-N.
- *
- * If this is called from a prototype method, then you must pass
- * the name of the method as the second argument to this function. If
- * you do not, you will get a runtime error. This calls the superclass'
- * method with arguments 2-N.
- *
- * This function only works if you use XMOT.inherit() to express
- * inheritance relationships between your classes.
- *
- * This function is a compiler primitive. At compile-time, the
- * compiler will do macro expansion to remove a lot of
- * the extra overhead that this function introduces. The compiler
- * will also enforce a lot of the assumptions that this function
- * makes, and treat it as a compiler error if you break them.
- *
- * @param {!Object} me Should always be "this".
- * @param {*=} opt_methodName The method name if calling a super method.
- * @param {...*} var_args The rest of the arguments.
- * @return {*} The return value of the superclass method.
- */
-function base(me, opt_methodName, var_args) {
-  	var caller = arguments.callee.caller;
+    /**
+     * global variable, set a function, which is called within the animation loop
+     */
+    XMOT.animationHook = undefined;
 
-	if (!caller) {
-  		throw Error('arguments.caller not defined.  XMOT.base() expects not ' +
-              'to be running in strict mode. See ' +
-              'http://www.ecma-international.org/ecma-262/5.1/#sec-C');
-	}
+    /**
+     * a cameracontroller register here and the update of the gamepad is called
+     */
+    XMOT.registeredCameraController = undefined;
 
-  	if (caller.superClass_) {
-    	// This is a constructor. Call the superclass constructor.
-    	return caller.superClass_.constructor.apply(
-        	me, Array.prototype.slice.call(arguments, 1));
-  	}
+    /**
+     * Updates all the Tweens until all animations are finished and calls the hook.
+     */
+    XMOT.animate = function(){
+        if(TWEEN.getAll().length || XMOT.animationHook || XMOT.registeredCameraController) {
+            window.requestAnimFrame(XMOT.animate, undefined);
+            if(XMOT.animationHook) XMOT.animationHook();
+            if(XMOT.registeredCameraController) XMOT.registeredCameraController.update();
+            TWEEN.update();
+        }
+        else
+            XMOT.animating = false;
+    };
 
-  	var args = Array.prototype.slice.call(arguments, 2);
-  	var foundCaller = false;
-  	for (var ctor = me.constructor;
-       	ctor; ctor = ctor.superClass_ && ctor.superClass_.constructor) {
-    		if (ctor.prototype[opt_methodName] === caller) {
-      			foundCaller = true;
-    		} else if (foundCaller) {
-      			return ctor.prototype[opt_methodName].apply(me, args);
-    		}
-  	}
+    /**
+     * Merges two optionsobjects
+     * @param {{duration: number, loop: number, delay: number, easing: Function, callback: Function}} high options with high priority
+     * @param {{duration: number, loop: number, delay: number, easing: Function, callback: Function}} low options with low priority
+     * @return {{duration: number, loop: number, delay: number, easing: Function, callback: Function}} merged options
+     */
+    XMOT.mergeOptions = function(high, low){
+        var ret = {};
+        high = high || {};
+        low = low || {};
+        ret.duration 	= high.duration || low.duration;
+        ret.loop 		= high.loop 	|| low.loop;
+        ret.delay 		= high.delay 	|| low.delay;
+        ret.easing 		= high.easing 	|| low.easing;
+        ret.callback 	= high.callback || low.callback;
+        return ret;
+    };
 
-  	// If we did not find the caller in the prototype chain,
-  	// then one of two things happened:
-  	// 1) The caller is an instance method.
-  	// 2) This method was not called by the right caller.
-  	if (me[opt_methodName] === caller) {
-    	return me.constructor.prototype[opt_methodName].apply(me, args);
-  	} else {
-    	throw Error(
-        	'XMOT.base called from a method of one name ' +
-        	'to a method of a different name');
-  	}
-};
-
-// ----------------------------------------------------------------------------
-
-/**
- * global variable, used to check if an animation or movement is currently in progress
- */
-var animating = false;
-
-/**
- * global variable, set a function, which is called within the animation loop
- */
-var animationHook = undefined;
-
-/**
- * a cameracontroller register here and the update of the gamepad is called
- */
-var registeredCameraController = undefined;
-
-/**
- * Updates all the Tweens until all animations are finished and calls the hook.
- */
-function animate(){
-	if(TWEEN.getAll().length || XMOT.animationHook || XMOT.registeredCameraController) {
-		window.requestAnimFrame(XMOT.animate, undefined);
-		if(XMOT.animationHook) XMOT.animationHook();
-		if(XMOT.registeredCameraController) XMOT.registeredCameraController.update();
-		TWEEN.update();
-	}
-	else
-		XMOT.animating = false;
-}
-
-/**
- * Merges two optionsobjects
- * @param {{duration: number, loop: number, delay: number, easing: Function, callback: Function}} high options with high priority
- * @param {{duration: number, loop: number, delay: number, easing: Function, callback: Function}} low options with low priority
- * @return {{duration: number, loop: number, delay: number, easing: Function, callback: Function}} merged options
- */
-function mergeOptions(high, low){
-	var ret = {};
-	high = high || {};
-	low = low || {};
-	ret.duration 	= high.duration || low.duration;
-	ret.loop 		= high.loop 	|| low.loop;
-	ret.delay 		= high.delay 	|| low.delay;
-	ret.easing 		= high.easing 	|| low.easing;
-	ret.callback 	= high.callback || low.callback;
-	return ret;
-}
-
-/**
- *  Creates a namespace and subnamespaces, that are contained in the path.
- *
- *  @param {string} fullName the full name of the namespace
- *
- *  Example:
- *
- *  namespace("XMOT.interaction.behaviors"]) will create:
- *
- *  XMOT.interaction.behaviors
- */
-function namespace(fullName)
-{
-    var curParentNS = window;
-
-    var namespacePath = fullName.split(".");
-
-    for(var i = 0; i < namespacePath.length; i++)
+    /**
+     *  Creates a namespace and subnamespaces, that are contained in the path.
+     *
+     *  @param {string} fullName the full name of the namespace
+     *
+     *  Example:
+     *
+     *  namespace("XMOT.interaction.behaviors"]) will create:
+     *
+     *  XMOT.interaction.behaviors
+     */
+    XMOT.namespace = function(fullName)
     {
-        var ns = namespacePath[i];
+        var curParentNS = window;
 
-        if(!curParentNS[ns])
-            curParentNS[ns] = {};
+        var namespacePath = fullName.split(".");
 
-        curParentNS = curParentNS[ns];
-    }
-}
+        for(var i = 0; i < namespacePath.length; i++)
+        {
+            var ns = namespacePath[i];
 
-/** Extend the target object with all attributes from the source object
- *
- *  @param tarobj the object to be extended
- *  @param srcobj the object from which to take the attributes
- */
-function extend(tarobj, srcobj)
-{
-    for(var attr in srcobj)
-        tarobj[attr] = srcobj[attr];
-};
+            if(!curParentNS[ns])
+                curParentNS[ns] = {};
 
-//export
-XMOT.inherit = inherit;
-XMOT.base = base;
-XMOT.animate = animate;
-XMOT.animating = animating;
-XMOT.animationHook = animationHook;
-XMOT.registeredCameraController = registeredCameraController;
-XMOT.mergeOptions = mergeOptions;
-XMOT.namespace = namespace;
-XMOT.extend = extend;
+            curParentNS = curParentNS[ns];
+        }
+    };
+
+    /** Extend the target object with all attributes from the source object
+     *
+     *  @param tarobj the object to be extended
+     *  @param srcobj the object from which to take the attributes
+     */
+    XMOT.extend = function(tarobj, srcobj)
+    {
+        for(var attr in srcobj)
+            tarobj[attr] = srcobj[attr];
+    };
 }());
