@@ -23,12 +23,6 @@ var EXAMPLE_LIST = [
         href: "tests/test_transformbox.xhtml",
         info: "A widget to perform translation, rotation and scaling."
     },
-    {
-        cat: "complexwidgets",
-        name: "RotatorBox",
-        href: "tests/test_rotatorbox.xhtml",
-        info: "A widget for performing constrained rotation and translation."
-    },
 
     // --- Simple Widgets ---
     {

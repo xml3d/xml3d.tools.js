@@ -5,7 +5,7 @@ function initScene()
 {
     xml3d = document.getElementById("MyXml3d");
 
-    trackball = new XMOT.interaction.behaviors.TrackBall(300, 200);
+    trackball = new XMOT.interaction.behaviors.TrackBall(1024, 768);
 }
 
 var dragging = false;
@@ -46,7 +46,7 @@ function resetRotation()
 
 function onRootMouseUp(evt)
 {
-    if(evt.button == 0)
+    if(evt.button == XMOT.MOUSEBUTTON_LEFT)
     {
         dragging = false;
         trackball.dragEnd();
@@ -56,7 +56,7 @@ function onRootMouseUp(evt)
 
 function onTargetMouseDown(evt)
 {
-    if(evt.button == 0)
+    if(evt.button == XMOT.MOUSEBUTTON_LEFT)
     {
         dragging = true;
         trackball.dragStart(evt.pageX, evt.pageY);

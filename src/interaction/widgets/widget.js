@@ -29,8 +29,8 @@
          *
          *  @this {XMOT.interaction.widgets.Widget}
          *
-         *  @param {string} _id the id if this TransformBox and also the id of the corresponding root group node
-         *  @param {XMOT.Transformable} _target the target transformable
+         *  @param {string} id the id if this TransformBox and also the id of the corresponding root group node
+         *  @param {XMOT.Transformable} target the target transformable
          *  @param {Object=} options
          *
          *  Options:
