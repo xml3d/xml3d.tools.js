@@ -1,11 +1,15 @@
 var sensor = null;
 var xml3d = null;
 var target = null;
+var cameraCtrl = null;
 
 var trackballActive = false;
 
 function initScene()
 {
+    cameraCtrl = new XMOT.MouseExamineController($("#controller_view")[0].parentNode);
+    cameraCtrl.attach();
+
     xml3d = document.getElementById("MyXml3d");
 
     target = $("#group1")[0];
@@ -19,7 +23,7 @@ function attachSensor()
     var tarXfm = XMOT.ClientMotionFactory.createTransformable(target);
     sensor = new XMOT.interaction.behaviors.Rotater(
         "myRotater", [target],
-        tarXfm, 8
+        tarXfm
     );
 
     sensor.addListener("dragstart", onDragStart);
