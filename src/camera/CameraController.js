@@ -1,17 +1,20 @@
 (function(){
 	/**
 	 * A CameraController
-	 * In order to use this gamepad functiponality of this class do as follows:
-	 * 1. Use Chrome.
+	 * In order to use the gamepad functiponality of this class do as follows:
+	 * 1. Use Chrome 21 or higher.
 	 * 2. Get A XBox360 Controller.
-	 * 3. Activate the gamepad api of chrome -> about:flags
-	 * 4. Add the gamepad.js to your application: http://www.gamepadjs.com/
-	 * 5. Have Fun :-)
+	 * (2. a: Use another Controller in XBox360 Emulation Mode)
+	 * (2. b: Add your own XYZGamepad class in GamepadEventProvider.js)
+	 * 3. Have Fun :-)
 	 * @constructor
 	 * @param {string} camera_id name of the group of the camera
-	 * @param {Array.<number>} initialRotation rotation to rotate the camera in a manner, that "forward" is a movement along -z
+	 * @param {string} xml3dElementId name of the group of the complete scene
+	 * @param {XML3DRotation} initialRotation rotation to rotate the camera in a manner, that "forward" is a movement along -z
+	 * @param {string} mouseButton "left", "right", "middle"
+	 * @param {boolean} inspectMode determine wether to use inspectMode or not
 	 */
-	function CameraController(camera_id, initialRotation){
+	function CameraController(camera_id, xml3dElementId, initialRotation, mouseButton, inspectMode){
 		/**
 		 * @private
 		 * @type {Object}
@@ -40,7 +43,7 @@
 		 * @private
 		 * @type {boolean}
 		 */
-		this.allowPoi = true; 
+		this.allowPoi = true;
 		/**
 		 * Old mouse position
 		 * @private
@@ -64,13 +67,13 @@
 		 * @private
 		 * @type {number}
 		 */
-		this.moveSensivityPad = 0.4 * this.slowthis;
+		this.moveSensivityPad = 0.04 * this.slowthis;
 		/**
 		 * Sensivity for rotation of gamepad
 		 * @private
 		 * @type {number}
 		 */
-		this.rotationSensivityPad = 0.0025 * this.slowthis;
+		this.rotationSensivityPad = 0.01 * this.slowthis;
 		/**
 		 * Sensivity for movement of keyboard
 		 * @private
@@ -95,24 +98,48 @@
 		 * @type {ConstraintCollection}
 		 */
 		this.constraint = new XMOT.ConstraintCollection();
-	
-		var factory = new XMOT.ClientMotionFactory();
+		/**
+		 * Xml3d Element
+		 * @private
+		 * @type {HTMLElement}
+		 */
+		this.xml3dElement = document.getElementById(xml3dElementId);
+
+		var factory = XMOT.ClientMotionFactory;
 		var cam = document.getElementById(camera_id);
 		/**
-		 * The Moveable
+		 * The Transformable
 		 * @private
-		 * @type {Moveable}
+		 * @type {Transformable}
 		 */
-		this.moveable = factory.createMoveable(cam, this.constraint);
-		this.moveable.rotate(initialRotation);
+		this.transformable = factory.createTransformable(cam, this.constraint);
+		var initRot = initialRotation || new XML3DRotation();
+		this.transformable.rotate(initRot);
 		/**
-		 * starting point of the moveable, used to reset position and orientation
+		 * starting point of the transformable, used to reset position and orientation
 		 * @private
 		 * @type {{position: Array.<number>, orientation: Array.<number>}}
 		 */
-		this.startingPoint = {position:this.moveable.getPosition(), orientation:this.moveable.getOrientation()};
-	
-		this.initEvents();
+		this.startingPoint = {position:this.transformable.getPosition(), orientation:this.transformable.getOrientation()};
+
+		/**
+		 * Mousebutton on which the camera turns:
+		 * 0 = left, 1 = middle, 2 = right;
+		 */
+		this.mouseButton = 0;
+		this.setMouseButtonValue(mouseButton);
+		this.pointToRotateAround = this.xml3dElement.getBoundingBox().center();
+
+		/**
+		 * camera mode freeflight
+		 * @type {Boolean|null}
+		 */
+		this.cameraModeInspect = inspectMode || false;
+		this.cameraModeFreeflight = !this.cameraModeInspect;
+
+		this.gamepadEventProvider = XMOT.GamepadEventProvider;
+		this.padData = {};
+		this.activate();
 
 		//finally, register in the animation loop
 		if( !XMOT.registeredCameraController){
@@ -121,33 +148,52 @@
 		}
 		else
 			throw "Only one CameraController allowed.";
-	};
+	}
 	var cc = CameraController.prototype;
+
+	cc.activateInspectCameraMode = function(){
+		this.cameraModeInspect = true;
+		this.cameraModeFreeflight = !this.cameraModeInspect;
+	};
+
+	cc.activateFreeFlightCameraMode = function(){
+		this.cameraModeFreeflight = true;
+		this.cameraModeInspect = !this.cameraModeFreeflight;
+	};
+
+	/**
+	 * Sets the used mouseButton for camera motion
+	 */
+	cc.setMouseButtonValue = function(button){
+		if(button == "left") this.mouseButton = 0;
+		else if(button == "middle") this.mouseButton = 1;
+		else if(button == "right") this.mouseButton = 2;
+	};
 
 	/**
 	 * Get current position in local space
 	 * @public
-	 * @return {Array.<number>} 3D vector
+	 * @return {XML3DVec3} 3D vector
 	 */
 	cc.getPosition = function(){
-		return this.moveable.getPosition();
+		return this.transformable.getPosition();
 	};
 
 	/**
 	 * Get current orientation in local space
 	 * @public
-	 * @return {Array.<number>} quaternion
+	 * @return {XML3DRotation} quaternion
 	 */
 	cc.getOrientation = function(){
-		return this.moveable.getOrientation();
+		return this.transformable.getOrientation();
 	};
 
 	// public:
 	/**
 	 * Add a Point of Interest
 	 * @public
-	 * @param {Array.<number>} position
-	 * @param {Array.<number>} orientation
+	 * @param {XML3DVec3} position
+	 * @param {XML3DRotation} orientation
 	 * @return {CameraController} this
 	 */
 	cc.addPointOfInterest = function(position, orientation){
@@ -179,51 +225,8 @@
 	 * @public
 	 */
 	cc.update = function(){
-		this.updateController();
 		this.updateKeyMovement();
-	};
-
-	// private:
-	/**
-	 * updates the controller - gets called autmatically
-	 * To use the Controller the gamepad.js is needed as well.
-	 * @private
-	 */
-	cc.updateController = function() {
-		if(!window.Gamepad)return;
-		var pads = Gamepad.getStates();
-		for ( var i = 0; i < pads.length; ++i) {
-			var pad = pads[i];
-			if (pad) {
-				if(pad.rightShoulder1){ //lower shoulder buttons
-					this.nextPoi();
-				}
-				if(pad.leftShoulder1){
-					this.beforePoi();
-				}
-				if(pad.rightShoulder0){ //upper shoulder buttons
-					this.moveUpAndDown(-this.moveSensivityPad);
-				}
-				if(pad.leftShoulder0){
-					this.moveUpAndDown(this.moveSensivityPad);
-				}
-				if(pad.start){
-					this.reset();
-				}
-				//back and for
-				var y = (pad.leftStickY < -0.15 || pad.leftStickY > 0.15) ? pad.leftStickY : 0;
-				if(y != 0) this.moveBackAndForward(y*this.moveSensivityPad);
-				//left and right - transalte
-				var x = (pad.leftStickX < -0.15 || pad.leftStickX > 0.15) ? pad.leftStickX : 0;
-				if(x != 0) this.moveLeftAndRight(x*this.moveSensivityPad);
-				//up and down
-				var rotUpDown = (pad.rightStickY < -0.15 || pad.rightStickY > 0.15) ? pad.rightStickY : 0;
-				if(rotUpDown != 0) this.rotateCameraUpAndDown(-this.rotationSensivityPad*rotUpDown);
-				//left and right - rotate
-				var rotLeftRight = (pad.rightStickX < -0.15 || pad.rightStickX > 0.15) ? pad.rightStickX : 0;
-				if(rotLeftRight != 0) this.rotateCameraLeftAndRight(-this.rotationSensivityPad*rotLeftRight);
-			}
-		}
+		this.updateGamepadMovement();
 	};
 
 	// ---------- functions to handle movement ----------
@@ -233,10 +236,11 @@
 	 * @param {number} l length of the movement
 	 */
 	cc.moveBackAndForward = function(l){
-		var vecX = [0, 0, 1];
-		var result = vec3.create();
-		quat4.multiplyVec3(this.moveable.getOrientation(),vecX, result);
-		this.moveable.translate(vec3.scale(vec3.normalize(result), l));
+		if(l === 0) return;
+		var vecZ = new XML3DVec3(0, 0, 1);
+		var moveVec = this.transformable.getOrientation().rotateVec3(vecZ);
+		moveVec = moveVec.normalize().scale(l);
+		this.transformable.translate(moveVec);
 	};
 
 	/**
@@ -245,10 +249,12 @@
 	 * @param {number} l length of the movement
 	 */
 	cc.moveLeftAndRight = function(l){
-		var vecY = [1, 0, 0]; // global x is local z of the camera
-		var result = vec3.create();
-		quat4.multiplyVec3(this.moveable.getOrientation(),vecY, result);
-		this.moveable.translate(vec3.scale(vec3.normalize(result), l));
+		if(l === 0) return;
+		var vecX = new XML3DVec3(1, 0, 0); // global x is local z of the camera
+		var moveVec = this.transformable.getOrientation().rotateVec3(vecX);
+		moveVec = moveVec.normalize().scale(l);
+		this.transformable.translate(moveVec);
+		this.pointToRotateAround = this.pointToRotateAround.add(moveVec);
 	};
 
 	/**
@@ -257,10 +263,11 @@
 	 * @param {number} l length of the movement
 	 */
 	cc.moveUpAndDown = function(l){
-		var vecY = [0, 1, 0];
-		var result = vec3.create();
-		quat4.multiplyVec3(this.moveable.getOrientation(),vecY, result);
-		this.moveable.translate(vec3.scale(vec3.normalize(result), l));
+		if(l === 0) return;
+		var vecY = new XML3DVec3(0, 1, 0);
+		var moveVec = this.transformable.getOrientation().rotateVec3(vecY);
+		moveVec = moveVec.normalize().scale(l);
+		this.transformable.translate(moveVec);
 	};
 
 	/**
@@ -268,15 +275,12 @@
 	 * @private
 	 */
 	cc.nextPoi = function(){
-		if(this.poi.length == 0 || !this.allowPoi || this.moveable.movementInProgress()) return;
-
+		if(this.poi.length == 0 || !this.allowPoi || this.transformable.movementInProgress()) return;
 		this.currentPoi = this.currentPoi == this.poi.length-1 ? 0 : this.currentPoi+1;
 		var movetopoi = this.poi[this.currentPoi];
 		this.allowPoi = false;
-
-		this.preventRolling();
 		var that = this;
-		this.moveable.moveTo(movetopoi.pos, movetopoi.ori, this.poiMoveToTime, {queueing: false, callback: function(){that.moveToCallback();}});
+		this.transformable.moveTo(movetopoi.pos, movetopoi.ori, this.poiMoveToTime, {queueing: false, callback: function(){that.moveToCallback();}});
 	};
 
 	/**
@@ -284,15 +288,12 @@
 	 * @private
 	 */
 	cc.beforePoi = function(){
-		if(this.poi.length == 0 || !this.allowPoi || this.moveable.movementInProgress()) return;
-
+		if(this.poi.length == 0 || !this.allowPoi || this.transformable.movementInProgress()) return;
 		this.currentPoi = this.currentPoi == 0 ? this.poi.length-1 : this.currentPoi-1;
 		var movetopoi = this.poi[this.currentPoi];
 		this.allowPoi = false;
-
-		this.preventRolling();
 		var that = this;
-		this.moveable.moveTo(movetopoi.pos, movetopoi.ori, this.poiMoveToTime, {queueing: false, callback: function(){that.moveToCallback();}});
+		this.transformable.moveTo(movetopoi.pos, movetopoi.ori, this.poiMoveToTime, {queueing: false, callback: function(){that.moveToCallback();}});
 	};
 
 	/**
@@ -300,7 +301,7 @@
 	 * @public
 	 */
 	cc.stopMovementToPoi = function(){
-		this.moveable.stop();
+		this.transformable.stop();
 		this.allowPoi = true;
 	};
 
@@ -309,66 +310,209 @@
 	 * @private
 	 */
 	cc.preventRolling = function(){
-		this.moveable.rotate( XMOT.axisAngleToQuaternion( [1,0,0], -this.angleUp) );
+		this.transformable.rotate( new XML3DRotation( new XML3DVec3(1, 0, 0), -this.angleUp) );
 		this.angleUp = 0;
 	};
 
 	/**
 	 * Rotates the camera up and down by an given angle
-	 * @private 
+	 * @private
 	 * @param {number} angle
 	 */
 	cc.rotateCameraUpAndDown = function(angle){
 		this.angleUp += angle*Math.PI;
-		this.moveable.rotate( XMOT.axisAngleToQuaternion( [1,0,0], angle*Math.PI) );
+		this.transformable.rotate( new XML3DRotation(new XML3DVec3(1, 0, 0), angle*Math.PI) );
 	};
 
 	/**
 	 * Rotates the camera left and right by an given angle
-	 * @private 
+	 * @private
 	 * @param {number} angle
 	 */
 	cc.rotateCameraLeftAndRight = function(angle){
+
 		//rotate up/down befor rotating sidewards, this prevends from rolling
-		this.moveable.rotate( XMOT.axisAngleToQuaternion( [1,0,0], -this.angleUp) );
-		this.moveable.rotate( XMOT.axisAngleToQuaternion( [0,1,0], angle*Math.PI) );
+		this.transformable.rotate( new XML3DRotation(new XML3DVec3(1, 0, 0), -this.angleUp) );
+		this.transformable.rotate( new XML3DRotation(new XML3DVec3(0, 1, 0), angle) );
 		//and rotate up/down again
-		this.moveable.rotate( XMOT.axisAngleToQuaternion( [1,0,0], this.angleUp) );
+		this.transformable.rotate( new XML3DRotation(new XML3DVec3(1, 0, 0), this.angleUp) );
+	};
+
+	cc.rotateCameraAroundPointLeftAndRight = function(angle){
+		var distanceToLookAt = this.distanceBetweenCameraAndPoint(this.pointToRotateAround);
+		this.transformable.setPosition(new XML3DVec3(0, 0, 0));
+		this.rotateCameraLeftAndRight(angle);
+		var newDirection = this.cameraDirectionAsXML3D();
+		var tmp = newDirection.scale(distanceToLookAt).negate();
+		this.transformable.setPosition(tmp);
+		this.transformable.translate(this.pointToRotateAround);
+	};
+
+	cc.rotateCameraAroundPointUpAndDown = function(angle){
+		var distanceToLookAt = this.distanceBetweenCameraAndPoint(this.pointToRotateAround);
+		this.transformable.setPosition(new XML3DVec3(0, 0, 0));
+		this.rotateCameraUpAndDown(angle);
+		var newDirection = this.cameraDirectionAsXML3D();
+		var tmp = newDirection.scale(distanceToLookAt).negate();
+		this.transformable.setPosition(tmp);
+		this.transformable.translate(this.pointToRotateAround);
+	};
+
+	/**
+	 * distance between camera and a point
+	 * @param {XML3DVec3} point
+	 * @return {Number|void}
+	 */
+	cc.distanceBetweenCameraAndPoint = function(point){
+		var camPosition = this.transformable.transform.translation;
+		return camPosition.subtract(point).length();
+	};
+
+	/**
+	 * look at a certain point
+	 * @public
+	 * @param {XML3DVec3} point
+	 */
+	cc.lookAtPoint = function(point){
+		var initCamDirection = new XML3DVec3(0, 0, -1);
+
+		// reset orientation
+		this.angleUp = 0;
+		this.transformable.setOrientation(new XML3DRotation());
+
+		// calculate new direction
+		var position = this.getPosition();
+		var direction = point.subtract(position);
+		direction = direction.normalize();
+
+		// create rotation from angle b/w initial and new direction
+		var dirRot = new XML3DRotation();
+		dirRot.setRotation(initCamDirection, direction);
+		var quat = dirRot._data;
+
+		// convert rotation to euler angles ...
+		var eulerx = Math.atan((2*(quat[0]*quat[1] + quat[2]*quat[3]))/(1-2*(quat[1]*quat[1] + quat[2]*quat[2])));
+		var eulery = Math.asin(2*(quat[0]*quat[2] - quat[3]*quat[1]));
+
+		// ... and forward the actual rotation to the usual rotation methods
+		this.rotateCameraUpAndDown(eulerx);
+		this.rotateCameraLeftAndRight(-eulery);
+	};
+
+	/**
+	 * Get rotation to look from a point at another
+	 * @param {XML3DVec3} fromPoint
+	 * @param {XML3DVec3} atPoint
+	 * @return {XML3DVec3|void}
+	 */
+	cc.getRotationToLookFromPointAtPoint = function (fromPoint, atPoint) {
+		return this.getRotationFromDirection(atPoint.subtract(fromPoint));
+	};
+
+	/**
+	 * @private
+	 * @param {XML3DVec3} direction
+	 * @return {{XML3DVec3}|void}
+	 */
+	cc.getRotationFromDirection = function (direction) {
+		//xml3DVec3 fails with error if normalizing null vector
+		if (!direction) direction =  new window.XML3DVec3(0,0,-1);
+
+		if( !(direction.x == 0 && direction.y == 0 && direction.z == 0) ){
+			direction = direction.normalize();
+		}
+
+
+		var up = new XML3DVec3(0,1,0);
+		var tmpX = direction.cross(up);
+
+		if(tmpX.length() != 0) {
+			tmpX = this.transformable.transform.rotation.rotateVec3(new window.XML3DVec3(1,0,0));
+		}
+		var tmpY = tmpX.cross(direction);
+		var tmpZ = direction.negate();
+
+		var q = quat4.create();
+		quat4.setFromBasis(tmpX, up._data, tmpZ, q);
+		var lookAtVector = new XML3DRotation();
+		lookAtVector._setQuaternion(q);
+		return lookAtVector;
+	};
+
+	/**
+	 * Returns the normalized camera Direction in XML3D format
+	 * @private
+	 * @return {*}
+	 */
+	cc.cameraDirectionAsXML3D = function(){
+		var camOrientation = this.transformable.transform.rotation;
+		// as per spec: [getOrientation] is the orientation multiplied with the default direction (0, 0, -1)
+		return camOrientation.rotateVec3(new XML3DVec3(0,0,-1)).normalize();
 	};
 
 	/**
 	 * Resets the camera to the starting Position
-	 * @private 
+	 * @private
 	 */
 	cc.reset = function(){
-		this.moveable.setPosition(this.startingPoint.position);
-		this.moveable.setOrientation(this.startingPoint.orientation);
+		this.transformable.setPosition(this.startingPoint.position);
+		this.transformable.setOrientation(this.startingPoint.orientation);
 		this.angleUp = 0;
 	};
 
 	/**
 	 * Callback of the movement to a PoI
 	 * Needed to prevent movement while we move to a PoI
-	 * @private 
+	 * @private
 	 */
 	cc.moveToCallback = function(){
 		this.allowPoi = true;
 	};
-	
+
 	// ---------- event handler ----------
 
 	/**
 	 * Init Events
+	 */
+	cc.activate = function(){
+		this.toggleHandlers(true);
+	};
+
+	/**
+	 * Deregister from all events
+	 */
+	cc.deactivate = function(){
+		this.toggleHandlers(false);
+	};
+
+	/**
+	 * (de-)registers event handlers for the controller.
 	 * @private
 	 */
-	cc.initEvents = function(){
+	cc.toggleHandlers = function(switchOn){
+
+		var cb = XMOT.util.wrapCallback;
+
+		// select the callbacks
+		var winListener = window.addEventListener;
+		var xml3dListener = this.xml3dElement.addEventListener;
+
+		if(switchOn === false)
+		{
+			winListener = window.removeEventListener;
+			xml3dListener = this.xml3dElement.removeEventListener;
+		}
+
 		//registered on window, since registring on div did not work, events never triggered
-		var that = this;
-		window.addEventListener("keydown", function(e){that.keypressEventHandler(e);}, false);
-		window.addEventListener("keyup", function(e){that.keyUpEventHandler(e);}, false);
-		window.addEventListener("mousemove", function(e){that.mouseMovementHandler(e);}, false);
-		window.addEventListener("mousedown", function(e){that.mouseDownHandler(e);}, false);
-		window.addEventListener("mouseup", function(e){that.mouseUpHandler(e);}, false);
+		winListener.call(window, "keydown", cb(this, this.keyDownEventHandler), false);
+		winListener.call(window, "keyup", cb(this, this.keyUpEventHandler), false);
+		winListener.call(window, "mousemove", cb(this, this.mouseMovementHandler), false);
+		winListener.call(window, "mouseup", cb(this, this.mouseUpHandler), false);
+		xml3dListener.call(this.xml3dElement, "mousedown", cb(this, this.mouseDownHandler), false);
+
+		winListener.call(window, "GamepadButtonDown", cb(this, this.gamepadButtonDownHandler), false);
+		winListener.call(window, "GamepadButtonUp", cb(this, this.gamepadButtonUpHandler), false);
+		winListener.call(window, "GamepadAxis", cb(this, this.gamepadAxisHandler), false);
 	};
 
 	/**
@@ -376,7 +520,7 @@
 	 * @private
 	 * @param {Event} e event
 	 */
-	cc.keypressEventHandler = function(e){
+	cc.keyDownEventHandler = function(e){
 		if(!this.allowPoi) return;
 		e = window.event || e;
 		var kc = e.keyCode;
@@ -387,9 +531,10 @@
 				this.currentlyPressedKeys[kc] = true;
 			}
 			switch(kc){
-				case 69 : this.nextPoi(); break; // q
-				case 81 : this.beforePoi(); break; // e
-				case 82 : this.reset(); break; //r
+				case XMOT.KEY_Q : this.nextPoi(); break;
+				case XMOT.KEY_E : this.beforePoi(); break;
+				case XMOT.KEY_R : this.reset(); break;
+				case XMOT.KEY_T : this.seeTheCompleteScene(); break;
 				default : flag = false; break;
 			}
 			if(flag) this.stopDefaultEventAction(e);
@@ -398,7 +543,6 @@
 
 	/**
 	 * Removes key from the list of currently pressed keys
-	 * @param
 	 * @param {Event} e
 	 */
 	cc.keyUpEventHandler = function(e){
@@ -415,19 +559,39 @@
 	 */
 	cc.moveWithKey = function(keyCode){
 	    switch(keyCode){
-			case 83 : this.moveBackAndForward(this.moveSensivityKeyboard); break; // s
-			case 87 : this.moveBackAndForward(-this.moveSensivityKeyboard); break; // w
-			case 65 : this.moveLeftAndRight(-this.moveSensivityKeyboard); break; // a
-			case 68 : this.moveLeftAndRight(this.moveSensivityKeyboard); break; // d
-			case 33 : this.moveUpAndDown(this.moveSensivityKeyboard); break; //page up
-			case 34 : this.moveUpAndDown(-this.moveSensivityKeyboard); break; //page down
-			case 38 : this.rotateCameraUpAndDown(this.rotationSensivityMouse); break; // up Arrow
-			case 40 : this.rotateCameraUpAndDown(-this.rotationSensivityMouse); break; // down Arrow
-			case 37 : this.rotateCameraLeftAndRight(this.rotationSensivityMouse); break; // left Arrow
-			case 39 : this.rotateCameraLeftAndRight(-this.rotationSensivityMouse); break; // right Arrow
+			case XMOT.KEY_S : this.moveBackAndForward(this.moveSensivityKeyboard); break;
+			case XMOT.KEY_W : this.moveBackAndForward(-this.moveSensivityKeyboard); break;
+			case XMOT.KEY_A : this.moveLeftAndRight(-this.moveSensivityKeyboard); break;
+			case XMOT.KEY_D : this.moveLeftAndRight(this.moveSensivityKeyboard); break;
+			case XMOT.KEY_PGUP : this.moveUpAndDown(this.moveSensivityKeyboard); break;
+			case XMOT.KEY_PGDOWN : this.moveUpAndDown(-this.moveSensivityKeyboard); break;
+			case XMOT.KEY_UP : this.rotateUpAndDown(this.rotationSensivityMouse); break;
+			case XMOT.KEY_DOWN : this.rotateUpAndDown(-this.rotationSensivityMouse); break;
+			case XMOT.KEY_LEFT : this.rotateLeftAndRight(this.rotationSensivityMouse); break;
+			case XMOT.KEY_RIGHT : this.rotateLeftAndRight(-this.rotationSensivityMouse); break;
 	        default : return false; break;
 	    }
 	    return true;
+	};
+
+	cc.rotateLeftAndRight = function(angle)
+	{
+		if(angle === 0) return;
+		if(this.cameraModeInspect){
+			this.rotateCameraAroundPointLeftAndRight(angle);
+		}else if(this.cameraModeFreeflight){
+			this.rotateCameraLeftAndRight(angle);
+		}
+	};
+
+	cc.rotateUpAndDown = function(angle)
+	{
+		if(angle === 0) return;
+		if(this.cameraModeInspect){
+			this.rotateCameraAroundPointUpAndDown(angle);
+		}else if(this.cameraModeFreeflight){
+			this.rotateCameraUpAndDown(angle);
+		}
 	};
 
 	/**
@@ -454,9 +618,9 @@
 		this.oldMousePosition.x = currentX;
 		this.oldMousePosition.y = currentY;
 		if(x != 0)
-			this.rotateCameraLeftAndRight(-this.rotationSensivityMouse*x);
+			this.rotateLeftAndRight(-this.rotationSensivityMouse*x);
 		if(y != 0)
-			this.rotateCameraUpAndDown(-this.rotationSensivityMouse*y);
+			this.rotateUpAndDown(-this.rotationSensivityMouse*y);
 	};
 
 	/**
@@ -465,7 +629,7 @@
 	 * @param {Event} e event
 	 */
 	cc.mouseUpHandler = function(e){
-		if(e.button == 2){
+		if(e.button == this.mouseButton){
 			this.stopDefaultEventAction(e);
 			this.mouseButtonIsDown = false;
 		}
@@ -477,12 +641,55 @@
 	 * @param {Event} e event
 	 */
 	cc.mouseDownHandler = function(e){
-		if(e.button == 2){
+		if(e.button == this.mouseButton){
 			this.stopDefaultEventAction(e);
 			this.mouseButtonIsDown = true;
 			this.oldMousePosition.x = e.pageX;
 			this.oldMousePosition.y = e.pageY;
 		}
+	};
+
+	cc.updateGamepadMovement = function(){
+		for(var item in this.padData){
+			switch (item){
+				case "RT" : this.moveUpAndDown(this.padData[item]*this.moveSensivityPad); break;
+				case "LT" : this.moveUpAndDown(this.padData[item]*this.moveSensivityPad*-1); break;
+				case "Left" : if(this.padData[item]) this.moveLeftAndRight(this.moveSensivityPad*-1); break;
+				case "Right" : if(this.padData[item]) this.moveLeftAndRight(this.moveSensivityPad); break;
+				case "Up" : if(this.padData[item]) this.moveBackAndForward(this.moveSensivityPad*-1); break;
+				case "Down" : if(this.padData[item]) this.moveBackAndForward(this.moveSensivityPad); break;
+				case "LeftStickX" : this.moveLeftAndRight(this.padData[item] * this.moveSensivityPad); break;
+				case "LeftStickY" : this.moveBackAndForward(this.padData[item] * this.moveSensivityPad); break;
+				case "RightStickX" : this.rotateLeftAndRight(this.padData[item] * this.rotationSensivityPad*-1); break;
+				case "RightStickY" : this.rotateUpAndDown(this.padData[item] * this.rotationSensivityPad); break;
+				default: break;
+			}
+		}
+	};
+
+	cc.gamepadButtonDownHandler = function(e){
+		switch (e.detail.button) {
+			case "RB": this.nextPoi(); break;
+			case "LB": this.beforePoi(); break;
+			case "Start": this.reset(); break;
+			case "Back" : this.seeTheCompleteScene(); break;
+			default: this.padData[e.detail.button] = e.detail.value; break;
+		}
+	};
+
+	cc.gamepadButtonUpHandler = function(e){
+		this.padData[e.detail.button] = e.detail.value;
+	};
+
+	cc.gamepadAxisHandler = function(e){
+		this.padData[e.detail.axis] = this.handleAxisThreshold(e.detail.value);
+	};
+
+	cc.handleAxisThreshold = function(value){
+		if(value > 0.15 || value < -0.15)
+			return value;
+		else
+			return 0;
 	};
 
 	/**
@@ -497,6 +704,17 @@
 		} else if (window.event && window.event.returnValue){
 			window.eventReturnValue = false;
 		}
+	};
+
+	cc.seeTheCompleteScene = function(){
+		var sceneBBox = this.xml3dElement.getBoundingBox();
+		var center = sceneBBox.center();
+
+		var moveBy = sceneBBox.max;
+		this.transformable.setPosition(new XML3DVec3(moveBy.x, moveBy.y, moveBy.z));
+
+		this.angleUp = 0;
+		this.lookAtPoint(center);
 	};
 
 	XMOT.CameraController = CameraController;

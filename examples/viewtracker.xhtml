@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd" >
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:webgl="http://www.xml3d.org/2009/xml3d/webgl">
+<head>
+  <title>ViewTracker Test</title>
+  <link rel="stylesheet" type="text/css" media="all" href="style/default.css" />
+
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+  <script type="text/javascript" src="external/xml3d.js"></script>
+  <script type="text/javascript" src="../build/output/xml3d-motion.js"></script>
+  <script type="text/javascript" src="page.js" />
+
+  <script type="text/javascript" src="viewtracker.js" />
+</head>
+
+<body>
+<div id="overall">
+    <div id="content">
+  <h1>ViewTracker Test</h1>
+  <div style="padding: 16px" >
+    <div id="Xml3dWrapper" style="color: red" >
+      <xml3d id="MyXml3d"
+        xmlns="http://www.xml3d.org/2009/xml3d"
+        xmlns:xlink="http://www.w3.org/1999/xlink"
+        webgl:showLog="false"
+        activeView="#my_view"
+        style="background-color: #d6e3ff;"
+      >
+
+        <defs>
+          <data id="ground">
+            <int name="index">0 1 2 2 3 0</int>
+            <float3 name="position">-250.0 -4.0 250.0 250.0 -4.0 250.0 250.0 -4.0 -250.0 -250.0 -4.0 -250.0</float3>
+            <float3 name="normal">
+              0.0 1.0 0.0
+              0.0 1.0 0.0
+              0.0 1.0 0.0
+              0.0 1.0 0.0
+            </float3>
+            <float2 name="texcoord">
+              1.0 0.0
+              1.0 1.0
+              0.0 1.0
+              0.0 0.0
+            </float2>
+          </data>
+
+          <data id="mySimpleMesh">
+            <int name="index">0 1 2 1 2 3</int>
+            <float3 name="position">
+             -1.0 -1.0 -0.0
+              1.0 -1.0 -0.0
+             -1.0  1.0 -0.0
+              1.0  1.0 -0.0
+            </float3>
+            <float3 name="normal">
+              0.0 0.0 1.0
+              0.0 0.0 1.0
+              0.0 0.0 1.0
+              0.0 0.0 1.0
+            </float3>
+            <float2 name="texcoord">
+              0.0 1.0
+              1.0 1.0
+              0.0 0.0
+              1.0 0.0
+            </float2>
+          </data>
+
+          <shader id="groundShader" script="urn:xml3d:shader:phong">
+            <float3 name="diffuseColor">1 0.9 0.7</float3>
+            <float name="ambientIntensity">0.8</float>
+            <texture name="diffuseTexture">
+                <img src="img/diagonal_metal.png" />
+            </texture>
+          </shader>
+
+          <transform id="t_viewtrack" />
+          <transform id="t_mesh" scale="0.1 0.1 0.1" translation="0 -0.6 -2" />
+          <!-- <transform id="t_mesh" scale="10 10 10" translation="0 0 -5" /> -->
+
+          <transform id="t_view" translation="0 5 10" />
+        </defs>
+
+        <!-- accumulate a matrix: view position should be 0 10 20 -->
+        <group id="g_myview" transform="#t_view">
+          <view id="my_view" position="0 5 10" />
+        </group>
+
+        <group style="shader:url(#groundShader)" >
+          <mesh src="#ground" type="triangles"/>
+        </group>
+
+        <!-- The group that is tracked -->
+        <group id="viewtrack" transform="#t_viewtrack">
+          <group transform="#t_mesh">
+            <mesh src="#mySimpleMesh" type="triangles" />
+          </group>
+        </group>
+      </xml3d>
+    </div>
+  </div>
+
+  <!-- enable key handling of scene controller -->
+  <div id="useKeys" />
+
+  <div class="message">
+    <p>The jQuery-plugin .trackable() with the startup option <i>view: true</i>
+    tracks the active view of a given xml3d element for
+    transformation changes and applies that transformation to a given
+    transform node.</p>
+
+    <p>In this example a grey rectangle is parented under a group node
+    to which the view's transformation changes are applied. You should always see
+    the grey rectangle centered on the bottom of the view, no matter how
+    you rotate or translate the camera.</p>
+
+    <p>
+      Additionally .headlight() is invoked on the xml3d element, so
+      the light should always follow the camera.
+    </p>
+  </div>
+    </div>
+  </div>
+</body>
+</html>

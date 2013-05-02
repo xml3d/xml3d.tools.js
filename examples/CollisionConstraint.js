@@ -48,14 +48,14 @@
 	var c = CollisionConstraint.prototype;
 
 	/** @inheritDoc */
-    c.constrainRotation = function(newRotation, moveable){
+    c.constrainRotation = function(newRotation, opts){
 		return true;
     };
 
     /** @inheritDoc */
-    c.constrainTranslation = function(newPosition, moveable){
-		var checkAtX = newPosition[0] / this.sceneWidth * this.img.width;
-		var checkAtY = newPosition[2] / this.sceneDepth * this.img.height;
+    c.constrainTranslation = function(newPosition, opts){
+		var checkAtX = newPosition.x / this.sceneWidth * this.img.width;
+		var checkAtY = newPosition.z / this.sceneDepth * this.img.height;
 		if(!checkAtX) checkAtX = 0;
 		if(!checkAtY) checkAtY = 0;
 		var data = this.context.getImageData(checkAtX,checkAtY,1,1).data;

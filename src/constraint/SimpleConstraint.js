@@ -1,37 +1,50 @@
 (function(){
-	/**
-	 * SimpleConstraint
-	 * @constructor
-	 * @param {boolean} allowedToMove
-	 * @param {boolean} allowedToRotate
-	 * @implements {Constraint}
-	 */
-	var SimpleConstraint = function(allowedToMove, allowedToRotate){
-		/**
-		 * allowed to move
-		 * @private
-		 * @type {boolean}
-		 */
-		this.allowedToMove = allowedToMove;
-		/**
-		 * allowed to Rotate
-		 * @private
-		 * @type {boolean}
-		 */
-		this.allowedToRotate = allowedToRotate;
-	};
-	var s = SimpleConstraint.prototype;
 
-	/** @inheritDoc */
-    s.constrainRotation = function(newRotation, moveable){
-		return this.allowedToRotate;
-    };
+    /**
+     * SimpleConstraint
+     * @constructor
+     * @implements {Constraint}
+     */
+    XMOT.SimpleConstraint = new XMOT.Class({
 
-    /** @inheritDoc */
-    s.constrainTranslation = function(newPosition, moveable){
-		return this.allowedToMove;
-    };
+        /**
+         * @param {boolean} [allowedToMove]
+         * @param {boolean} [allowedToRotate]
+         * @param {boolean} [allowedToScale]
+         */
+        initialize: function(allowedToMove, allowedToRotate, allowedToScale){
+            /**
+             * allowed to move
+             * @private
+             * @type {boolean}
+             */
+            this.allowedToMove = (allowedToMove !== undefined) ? allowedToMove : true;
+            /**
+             * allowed to Rotate
+             * @private
+             * @type {boolean}
+             */
+            this.allowedToRotate = (allowedToRotate !== undefined) ? allowedToRotate : true;
+            /**
+             * allowed to scale
+             * @private
+             * @type {boolean}
+             */
+            this.allowedToScale = (allowedToScale !== undefined) ? allowedToScale: true;
+        },
 
-    //export
-    XMOT.SimpleConstraint = SimpleConstraint;
+        /** @inheritDoc */
+        constrainRotation: function(newRotation, opts){
+            return this.allowedToRotate;
+        },
+
+        /** @inheritDoc */
+        constrainTranslation: function(newPosition, opts){
+            return this.allowedToMove;
+        },
+
+        constrainScaling: function(newScale, opts){
+            return this.allowedToScale;
+        }
+    });
 }());

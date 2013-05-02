@@ -1,0 +1,48 @@
+var sensor = null;
+var xml3d = null;
+
+var active = false;
+var cameraCtrl = null;
+
+function initScene()
+{
+    cameraCtrl = new XMOT.MouseExamineController($("#controller_view")[0].parentNode);
+    cameraCtrl.attach();
+
+    xml3d = document.getElementById("MyXml3d");
+
+    $("#group1").append(XMOT.creation.box(xml3d));
+
+    toggle();
+}
+
+function attachSensor()
+{
+    var xfm = XMOT.ClientMotionFactory.createTransformable($("#group1")[0]);
+    sensor = new XMOT.interaction.widgets.UniformScaler("myscaler", xfm);
+    sensor.attach();
+}
+
+function detachSensor()
+{
+    sensor.detach();
+    sensor = null;
+}
+
+function toggle()
+{
+    if(active)
+    {
+        detachSensor();
+
+        document.getElementById("toggle").value = "Attach";
+        active = false;
+    }
+    else
+    {
+        attachSensor();
+
+        document.getElementById("toggle").value = "Detach";
+        active = true;
+    }
+}
