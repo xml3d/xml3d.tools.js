@@ -36,6 +36,13 @@
 
         /**
          *  @this {XMOT.MouseExamineController}
+         */
+        lookAt: function(newExamineOrigin) {
+            this._controller.lookAt(newExamineOrigin);
+        },
+
+        /**
+         *  @this {XMOT.MouseExamineController}
          *  @override
          */
         onDragStart: function(action) {
@@ -68,6 +75,16 @@
          */
         onDragEnd: function(action) {
             this._currentAction = this.NONE;
+        },
+
+        /**
+         *  @this {XMOT.MouseExamineController}
+         *  @override
+         */
+        onAttach: function() {
+            this.callSuper();
+
+            this._controller.lookAt(this._controller.getExamineOrigin());
         },
 
         /**

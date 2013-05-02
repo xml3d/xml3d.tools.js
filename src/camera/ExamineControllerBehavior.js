@@ -53,6 +53,24 @@
         /**
          *  @this {XMOT.ExamineControllerBehavior}
          */
+        lookAt: function(newExamineOrigin) {
+
+            var initCamDirection = new XML3DVec3(0, 0, -1);
+
+            var curDirection = this.target.getOrientation().rotateVec3(initCamDirection);
+            var newDirection = newExamineOrigin.subtract(this.target.getPosition());
+            newDirection = newDirection.normalize();
+
+            var rotationToNewOrigin = new XML3DRotation();
+            rotationToNewOrigin.setRotation(curDirection, newDirection);
+
+            this.target.rotate(rotationToNewOrigin);
+            this._examineOrigin.set(newExamineOrigin);
+        },
+
+        /**
+         *  @this {XMOT.ExamineControllerBehavior}
+         */
         dolly: function(deltaX, deltaY) {
 
             var coef = 0.2 * this._sceneRadius;
