@@ -24,8 +24,14 @@
             this._latitude = 0;
             this._longitude =  0;
             this._radius = this._getHemisphereRadius();
+        },
 
-            this.lookAt(this.getExamineOrigin());
+        /**
+         *  @this {XMOT.HemisphereControllerBehavior}
+         */
+        lookAt: function(targetPt) {
+            this._setViewDirection(targetPt.subtract(this.target.getPosition()));
+            this.rotate(0,0);
         },
 
         /**
@@ -76,17 +82,10 @@
             this.target.setOrientation(orientation);
         },
 
-        /**
-         *  @this {XMOT.HemisphereControllerBehavior}
-         */
-        lookAt: function(targetPt) {
-            this._setViewDirection(targetPt.subtract(this.target.getPosition()));
-            this.rotate(0,0);
-        },
-
         _getHemisphereRadius: function() {
 
-            return this.target.getPosition().length();
+            var tarToOrig = this.getExamineOrigin().subtract(this.target.getPosition());
+            return tarToOrig.length();
         },
 
         /**
@@ -94,6 +93,8 @@
          *  @private
          */
         _setViewDirection: function(dir) {
+
+            dir = dir.normalize();
             if (dir.length() < 1E-10)
                 return;
 
