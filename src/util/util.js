@@ -5,8 +5,7 @@
 
     "use strict";
 
-    if(!XMOT.util)
-        XMOT.util = {};
+    XMOT.namespace("XMOT.util");
 
     var u = XMOT.util;
 
