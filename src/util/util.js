@@ -113,62 +113,6 @@
     };
 
 
-    var fireBBoxCallbacks = [];
-
-    /** Calls the given callback as soon as the given node's bounding box is not
-     *  empty anymore. For that it waits for "framedrawn" events and checks if the
-     *  bounding box is not empty after every frame.
-     *
-     *   @param {Element} node
-     *   @param {function()} callback
-     *   @return {number} a unique ID to cancel the waiting process using cancelFireWhenBBoxNotEmpty()
-     */
-    u.fireWhenBBoxNotEmpty = function(node, callback)
-    {
-        var n = node;
-        var cb = callback;
-        var xml3d = XMOT.util.getXml3dRoot(node);
-
-        function onFrameDrawn()
-        {
-            if(n.getBoundingBox().isEmpty())
-                return;
-
-            xml3d.removeEventListener("framedrawn", onFrameDrawn, false);
-            cb();
-        }
-
-        fireBBoxCallbacks.push(onFrameDrawn);
-
-        xml3d.addEventListener("framedrawn", onFrameDrawn, false);
-        onFrameDrawn();
-
-        return fireBBoxCallbacks.length - 1;
-    };
-
-    /** Cancels the method XMOT.util.fireWhenBBoxNotEmpty() above. That is
-     *  it removes the listener for the "framedrawn" event.
-     *
-     *   @param {Element} node
-     *   @param {number} id
-     */
-    u.cancelFireWhenBBoxNotEmpty = function(node, id)
-    {
-        if(id >= fireBBoxCallbacks.length) {
-            return;
-        }
-
-        var onFrameDrawn = fireBBoxCallbacks[id];
-        if(!onFrameDrawn) {
-            return;
-        }
-
-        var xml3d = XMOT.util.getXml3dRoot(node);
-
-        fireBBoxCallbacks[id] = undefined;
-
-        xml3d.removeEventListener("framedrawn", onFrameDrawn, false);
-    };
 
 	function isFunction(object)
 	{

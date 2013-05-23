@@ -30,6 +30,7 @@
         <file name="util/xml3d_datatype_extensions.js" />
         <file name="util/attachable.js" />
         <file name="util/util.js" />
+        <file name="util/meshloading.js" />
         <file name="util/nodegetter.js" />
         <file name="util/creation.js" />
         <file name="util/input.js" />

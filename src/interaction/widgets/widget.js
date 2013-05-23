@@ -87,7 +87,7 @@
                 this.geometry.constructAndAttach();
                 this._createBehavior();
 
-                XMOT.util.fireWhenBBoxNotEmpty(this.target.object, this.callback("_updateDefsElements"));
+                XMOT.util.fireWhenMeshesLoaded(this.target.object, this.callback("_updateDefsElements"));
 
                 this._isAttached = true;
             }
