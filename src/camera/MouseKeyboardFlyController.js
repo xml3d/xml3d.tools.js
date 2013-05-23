@@ -130,7 +130,9 @@
          *  @private
          */
         _onDrag: function(action) {
-            this._behavior.rotate(action.delta.x, action.delta.y);
+            // we want mouse x-axis movement to map to y-axis rotation
+            // so we flip the delta values
+            this._behavior.rotate(action.delta.y, action.delta.x);
         },
 
         /**
