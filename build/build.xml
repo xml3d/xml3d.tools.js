@@ -44,6 +44,7 @@
         <file name="util/transformtracker.js" />
         <file name="util/viewtracker.js" />
         <file name="util/transformsensor.js" />
+        <file name="util/map.js" />
 
         <file name="animation/CombinedAnimation.js" />
 
