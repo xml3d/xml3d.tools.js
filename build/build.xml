@@ -32,6 +32,7 @@
         <file name="util/util.js" />
         <file name="util/meshloading.js" />
         <file name="util/nodegetter.js" />
+        <file name="util/transformablehelpers.js" />
         <file name="util/graphtraversal.js" />
         <file name="util/creation.js" />
         <file name="util/input.js" />
