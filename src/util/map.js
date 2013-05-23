@@ -198,6 +198,6 @@
             if(containerIdx < 0) return;
 
             this._containers.splice(containerIdx, 1);
-        },
+        }
     });
 }());
