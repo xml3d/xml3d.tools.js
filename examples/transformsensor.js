@@ -89,7 +89,7 @@ function initScene()
             [intGrp], intGrpXfm);
 
     // initialize transformsensor
-    XMOT.util.fireWhenBBoxNotEmpty(tarGrp, setupXfmSensor);
+    XMOT.util.fireWhenMeshesLoaded(tarGrp, setupXfmSensor);
 }
 
 function setupXfmSensor()
