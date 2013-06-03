@@ -38,6 +38,9 @@
             this._xml3dOverlay.appendChild(this._mirroredViewGrp);
             this._xml3dOverlay.activeView = "#v_" + this.ID;
 
+            this._mirroredViewGrpXfmable =
+                XMOT.ClientMotionFactory.createTransformable(this._mirroredViewGrp);
+
             this._viewTracker.attach();
         },
 
@@ -63,7 +66,6 @@
             this._xml3dOverlay.activeView = "#v_" + this.ID;
 
             this._mirroredViewGrp = viewGrp;
-            this._mirroredViewGrpXfmable = XMOT.ClientMotionFactory.createTransformable(viewGrp);
         },
 
         _targetViewXfmChanged: function(viewTracker)
