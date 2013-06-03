@@ -27,9 +27,6 @@
                 throw "TransformTracker: no target node specified.";
 
             this.xml3d = XMOT.util.getXml3dRoot(_targetNode);
-            if(!this.xml3d)
-                throw "TransformTracker: given node is not a child of an xml3d element.";
-
             this.targetNode = _targetNode;
 
             if(onXfmChanged)

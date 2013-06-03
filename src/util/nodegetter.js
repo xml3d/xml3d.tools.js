@@ -14,8 +14,12 @@
      */
     u.getXml3dRoot = function(el)
     {
-        if(!el)
-            return null;
+        if(!el) {
+            throw new Error("XMOT.util.getXml3dRoot(): given element is not defined.");
+        }
+        if(!el.parentNode) {
+            throw new Error("XMOT.util.getXml3dRoot(): given element has no parent node.");
+        }
 
         if(el.tagName == "xml3d")
             return el;
@@ -136,8 +140,6 @@
             return t;
 
         var xml3d = u.getXml3dRoot(targetGrp);
-        if(!xml3d)
-            throw "XMOT.util.getOrCreateTransform(): target group does have no xml3d root element!";
         var defs = u.getOrCreateDefs(xml3d);
 
         // create transform
