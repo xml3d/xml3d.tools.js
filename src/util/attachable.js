@@ -53,6 +53,14 @@
 
         /**
          *  @this {XMOT.interaction.behaviors.Attachable}
+         */
+        isAttached: function()
+        {
+            return this._isAttached;
+        },
+
+        /**
+         *  @this {XMOT.interaction.behaviors.Attachable}
          *  @protected
          */
         onAttach: function() {},
