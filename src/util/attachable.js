@@ -26,8 +26,8 @@
         {
             if(!this._isAttached)
             {
-                this.onAttach();
                 this._isAttached = true;
+                this.onAttach();
             }
         },
 
@@ -38,8 +38,8 @@
         {
             if(this._isAttached)
             {
-                this.onDetach();
                 this._isAttached = false;
+                this.onDetach();
             }
         },
 
