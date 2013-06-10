@@ -79,7 +79,7 @@
          * 	@param {Object=} value
          */
         remove: function(key, value) {
-            if(XMOT.isDefined(value)) {
+            if(XMOT.util.isDefined(value)) {
                 this._removeValue(key, value);
             }
             else {
