@@ -58,10 +58,12 @@
         <file name="camera/HemisphereControllerBehavior.js" />
         <file name="camera/MouseController.js" />
         <file name="camera/KeyboardController.js" />
+        <file name="camera/TouchController.js" />
         <file name="camera/MouseExamineController.js" />
         <file name="camera/MouseHemisphereController.js" />
         <file name="camera/FlyControllerBehavior.js" />
         <file name="camera/MouseKeyboardFlyController.js" />
+        <file name="camera/TouchFlyController.js" />
 
         <file name="gamepad/GamepadEventProvider.js" />
 
