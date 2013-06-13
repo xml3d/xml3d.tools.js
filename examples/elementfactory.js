@@ -32,8 +32,8 @@ function onLoad()
     // --- Cube ---
     // defs section
     var s_tar = ns.phongShader({
-        id:"s_target", diffCol: "0.9 0 0", 
-        specCol: "0 0 0", shin: "0"
+        id:"s_target", diffuseColor: "0.9 0 0",
+        specularColor: "0 0 0", shininess: "0"
     });
     var t_tar = XMOT.creation.element("transform", {
         id: "t_target",

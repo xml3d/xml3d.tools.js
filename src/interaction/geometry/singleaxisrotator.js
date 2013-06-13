@@ -41,8 +41,14 @@
         onCreateDefsElements: function()
         {
             // shaders
-            this.geo.addShaders("s_rot_root", {diffCol: this.color, ambInt: 0.8});
-            this.geo.addShaders("s_rot_root_highlight", {diffCol: this.highlightColor, ambInt: 0.8});
+            this.geo.addShaders("s_rot_root", {
+                diffuseColor: this.color,
+                ambientIntensity: 0.8
+            });
+            this.geo.addShaders("s_rot_root_highlight", {
+                diffuseColor: this.highlightColor,
+                ambientIntensity: 0.8
+            });
 
             // transforms
             this.geo.addTransforms("t_rot_1", {translation: "1 0 1"});

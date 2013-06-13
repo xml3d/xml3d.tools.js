@@ -13,10 +13,10 @@
         {
             // shaders
             this.geo.addShaders("s_transl", {
-                diffCol: "1 1 1", transp: "0.85"
+                diffuseColor: "1 1 1", transparency: "0.85"
             });
             this.geo.addShaders("s_transl_highlight", {
-                diffCol: "1 1 1", transp: "0.4"
+                diffuseColor: "1 1 1", transparency: "0.4"
             });
 
             // transforms
