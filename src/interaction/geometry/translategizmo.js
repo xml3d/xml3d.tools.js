@@ -39,9 +39,9 @@
         {
             this.callSuper();
 
-            this._createAxisDefsElements("xAxis", "1 0 0", "0 1 0 1.57", "0 1 0");
-            this._createAxisDefsElements("yAxis", "0 1 0", "1 0 0 -1.57", "1 0 0");
-            this._createAxisDefsElements("zAxis", "0 0 1", "0 0 1 0", "0 0 1");
+            this._createAxisDefsElements("xAxis", "1 0 0", "0 1 0 1.57", "0 0.8 0");
+            this._createAxisDefsElements("yAxis", "0 1 0", "1 0 0 -1.57", "0.8 0 0");
+            this._createAxisDefsElements("zAxis", "0 0 1", "0 0 1 0", "0 0 0.8");
         },
 
         /**
@@ -70,8 +70,9 @@
             });
 
             this.geo.addShaders("s_" + id, {
+                shaderType: "urn:xml3d:shader:eyelight",
                 diffuseColor: color,
-                ambientIntensity: "1"
+                ambientIntensity: "0.3"
             });
         },
 
