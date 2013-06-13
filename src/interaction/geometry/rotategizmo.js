@@ -85,7 +85,8 @@
 
             this.geo.addShaders("s_" + id, {
                 diffCol: color,
-                ambInt: "1"
+                ambInt: "1",
+                transp: "0.5"
             });
         },
 
