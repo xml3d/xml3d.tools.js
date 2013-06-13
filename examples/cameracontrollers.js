@@ -38,12 +38,17 @@ function onChangeCamType() {
 	case "fly":
 		CamType = XMOT.MouseKeyboardFlyController;
 		break;
+
+	case "touch":
+		options.behavior = {rotateSpeed: 0.2};
+		CamType = XMOT.TouchFlyController;
+		break;
 	}
 
 	if(!CamType)
 		return;
 
-	camCtrl = new CamType(camTransformable);
+	camCtrl = new CamType(camTransformable, options);
 	camCtrl.attach();
 };
 
