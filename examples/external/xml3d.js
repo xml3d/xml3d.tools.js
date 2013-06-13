@@ -21,13 +21,13 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-@version: DEVELOPMENT SNAPSHOT (03.06.2013 18:03:35 CEST)
+@version: DEVELOPMENT SNAPSHOT (13.06.2013 15:12:25 CEST)
 **/
 /** @namespace * */
 var XML3D = XML3D || {};
 
 /** @define {string} */
-XML3D.version = 'DEVELOPMENT SNAPSHOT (03.06.2013 18:03:35 CEST)';
+XML3D.version = 'DEVELOPMENT SNAPSHOT (13.06.2013 15:12:25 CEST)';
 /** @const */
 XML3D.xml3dNS = 'http://www.xml3d.org/2009/xml3d';
 /** @const */
@@ -73,7 +73,7 @@ XML3D.isSuperclassOf = function(ctor, subclassCtor) {
  * @param {Object} ctor Constructor
  * @param {Object} parent Parent class
  * @param {Object=} methods Methods to add to the class
- * @returns
+ * @return {Object!}
  */
 XML3D.createClass = function(ctor, parent, methods) {
     methods = methods || {};
@@ -149,6 +149,9 @@ XML3D.createClass = function(ctor, parent, methods) {
      */
     var curXML3DInitElements = [];
 
+    /**
+     * @param {Element} xml3dElement
+     */
     function initXML3DElement(xml3dElement) {
 
         if (XML3D._native)
@@ -189,6 +192,9 @@ XML3D.createClass = function(ctor, parent, methods) {
         curXML3DInitElements.splice(curXML3DInitElements.indexOf(xml3dElement), 1);
     };
 
+    /**
+     * @param {Element} xml3dElement
+     */
     function destroyXML3DElement(xml3dElement)
     {
         if(-1 < curXML3DInitElements.indexOf(xml3dElement))
@@ -212,6 +218,9 @@ XML3D.createClass = function(ctor, parent, methods) {
         grandParentNode.removeChild(canvas);
     };
 
+    /**
+     * @param {Event} evt
+     */
     function onNodeInserted(evt) {
 
         if(evt.target.tagName === "xml3d") {
@@ -219,6 +228,9 @@ XML3D.createClass = function(ctor, parent, methods) {
         }
     };
 
+    /**
+     * @param {Event} evt
+     */
     function onNodeRemoved(evt) {
 
         if(evt.target.tagName === "xml3d") {
@@ -233,11 +245,11 @@ XML3D.createClass = function(ctor, parent, methods) {
         var debug = XML3D.debug.setup();
         debug && XML3D.debug.logInfo("xml3d.js version: " + XML3D.version);
 
-        // Find all the XML3D tags in the document
+        /**
+         * Find all the XML3D tags in the document
+         * @type {NodeList}
+         */
         var xml3ds = document.querySelectorAll("xml3d");
-        xml3ds = Array.map(xml3ds, function(n) {
-            return n;
-        });
 
         debug && XML3D.debug.logInfo("Found " + xml3ds.length + " xml3d nodes...");
 
@@ -9463,14 +9475,6 @@ new (function() {
         return new window.XML3DMatrix();
     };
 
-    methods.dataGetOutputNames = function() {
-        var dataAdapter = XML3D.base.resourceManager.getAdapter(this, XML3D.data);
-        if(dataAdapter){
-            return dataAdapter.getOutputNames();
-        }
-        return null;
-    };
-
     methods.videoPlay = function() {
         XML3D.base.sendAdapterEvent(this, {play: []});
     };
@@ -9479,9 +9483,19 @@ new (function() {
         XML3D.base.sendAdapterEvent(this, {pause: []});
     };
 
-    methods.protoGetOutputNames = methods.dataGetOutputNames;
+    methods.XML3DNestedDataContainerTypeGetOutputNames =
+    methods.XML3DShaderProviderTypeGetOutputNames =
+    methods.meshGetOutputNames = function() {
+        var dataAdapter = XML3D.base.resourceManager.getAdapter(this, XML3D.data);
+        if(dataAdapter){
+            return dataAdapter.getOutputNames();
+        }
+        return null;
+    };
 
-    methods.dataGetResult = function(filter) {
+    methods.XML3DNestedDataContainerTypeGetResult =
+    methods.XML3DShaderProviderTypeGetResult =
+    methods.meshGetResult = function(filter) {
 
         var dataAdapter = XML3D.base.resourceManager.getAdapter(this, XML3D.data);
         if(dataAdapter){
@@ -9492,7 +9506,9 @@ new (function() {
         return null;
     };
 
-    methods.dataGetOutputChannelInfo = function(name){
+    methods.XML3DNestedDataContainerTypeGetOutputChannelInfo =
+    methods.XML3DShaderProviderTypeGetOutputChannelInfo =
+    methods.meshGetOutputChannelInfo = function(name){
         var dataAdapter = XML3D.base.resourceManager.getAdapter(this, XML3D.data);
         if(dataAdapter){
             var result = dataAdapter.getOutputChannelInfo(name);
@@ -9502,25 +9518,27 @@ new (function() {
         }
         return null;
     }
-    methods.protoGetOutputChannelInfo = methods.dataGetOutputChannelInfo;
 
-    methods.dataGetComputeInfo = function(){
+    methods.XML3DNestedDataContainerTypeGetComputeInfo =
+    methods.XML3DShaderProviderTypeGetComputeInfo =
+    methods.meshGetComputeInfo = function(){
         XML3D.debug.logError(this.nodeName + "::getComputeInfo is not implemeted yet.");
         return null;
     }
-    methods.protoGetComputeInfo = methods.dataGetComputeInfo;
 
-    methods.dataGetProtoInfo = function(){
+    methods.XML3DNestedDataContainerTypeGetProtoInfo =
+    methods.XML3DShaderProviderTypeGetProtoInfo =
+    methods.meshGetProtoInfo = function(){
         XML3D.debug.logError(this.nodeName + "::getProtoInfo is not implemeted yet.");
         return null;
     }
-    methods.protoGetProtoInfo = methods.dataGetProtoInfo;
 
-    methods.dataIsOutputConnected = function(){
+    methods.XML3DNestedDataContainerTypeIsOutputConnected =
+    methods.XML3DShaderProviderTypeIsOutputConnected =
+    methods.meshIsOutputConnected = function(){
         XML3D.debug.logError(this.nodeName + "::isOutputConnected is not implemeted yet.");
         return false;
     }
-    methods.protoIsOutputConnected = methods.dataIsOutputConnected;
 
 
     function createValues(result, names) {
@@ -9678,14 +9696,12 @@ XML3D.classInfo['data'] = {
     // TODO: Handle style for data
     compute : {a: XML3D.StringAttributeHandler},
     filter : {a: XML3D.StringAttributeHandler},
-    getOutputNames : {m: XML3D.methods.dataGetOutputNames},
-    getOutputChannelInfo : {m: XML3D.methods.dataGetOutputChannelInfo},
-    getComputeInfo : {m: XML3D.methods.dataGetComputeInfo},
-    getProtoInfo : {m: XML3D.methods.dataGetProtoInfo},
-    isOutputConnected : {m: XML3D.methods.dataIsOutputConnected},
-    getResult : {m: XML3D.methods.dataGetResult},
-    addOutputFieldListener : {m: XML3D.methods.dataAddOutputFieldListener},
-    getOutputNames : {m: XML3D.methods.dataGetOutputNames},
+    getOutputNames : {m: XML3D.methods.XML3DNestedDataContainerTypeGetOutputNames},
+    getOutputChannelInfo : {m: XML3D.methods.XML3DNestedDataContainerTypeGetOutputChannelInfo},
+    getComputeInfo : {m: XML3D.methods.XML3DNestedDataContainerTypeGetComputeInfo},
+    getProtoInfo : {m: XML3D.methods.XML3DNestedDataContainerTypeGetProtoInfo},
+    isOutputConnected : {m: XML3D.methods.XML3DNestedDataContainerTypeIsOutputConnected},
+    getResult : {m: XML3D.methods.XML3DNestedDataContainerTypeGetResult},
     src : {a: XML3D.ReferenceHandler},
     proto : {a: XML3D.ReferenceHandler},
     _term: undefined
@@ -9746,6 +9762,12 @@ XML3D.classInfo['mesh'] = {
     compute : {a: XML3D.StringAttributeHandler},
     getWorldMatrix : {m: XML3D.methods.XML3DGraphTypeGetWorldMatrix},
     getBoundingBox : {m: XML3D.methods.meshGetBoundingBox},
+    getOutputNames : {m: XML3D.methods.meshGetOutputNames},
+    getOutputChannelInfo : {m: XML3D.methods.meshGetOutputChannelInfo},
+    getComputeInfo : {m: XML3D.methods.meshGetComputeInfo},
+    getProtoInfo : {m: XML3D.methods.meshGetProtoInfo},
+    isOutputConnected : {m: XML3D.methods.meshIsOutputConnected},
+    getResult : {m: XML3D.methods.meshGetResult},
     src : {a: XML3D.ReferenceHandler},
     proto : {a: XML3D.ReferenceHandler},
     _term: undefined
@@ -9772,6 +9794,12 @@ XML3D.classInfo['shader'] = {
     className : {a: XML3D.StringAttributeHandler, id: 'class'},
     // TODO: Handle style for shader
     compute : {a: XML3D.StringAttributeHandler},
+    getOutputNames : {m: XML3D.methods.XML3DShaderProviderTypeGetOutputNames},
+    getOutputChannelInfo : {m: XML3D.methods.XML3DShaderProviderTypeGetOutputChannelInfo},
+    getComputeInfo : {m: XML3D.methods.XML3DShaderProviderTypeGetComputeInfo},
+    getProtoInfo : {m: XML3D.methods.XML3DShaderProviderTypeGetProtoInfo},
+    isOutputConnected : {m: XML3D.methods.XML3DShaderProviderTypeIsOutputConnected},
+    getResult : {m: XML3D.methods.XML3DShaderProviderTypeGetResult},
     script : {a: XML3D.ReferenceHandler},
     src : {a: XML3D.ReferenceHandler},
     proto : {a: XML3D.ReferenceHandler},
@@ -9809,6 +9837,12 @@ XML3D.classInfo['lightshader'] = {
     className : {a: XML3D.StringAttributeHandler, id: 'class'},
     // TODO: Handle style for lightshader
     compute : {a: XML3D.StringAttributeHandler},
+    getOutputNames : {m: XML3D.methods.XML3DShaderProviderTypeGetOutputNames},
+    getOutputChannelInfo : {m: XML3D.methods.XML3DShaderProviderTypeGetOutputChannelInfo},
+    getComputeInfo : {m: XML3D.methods.XML3DShaderProviderTypeGetComputeInfo},
+    getProtoInfo : {m: XML3D.methods.XML3DShaderProviderTypeGetProtoInfo},
+    isOutputConnected : {m: XML3D.methods.XML3DShaderProviderTypeIsOutputConnected},
+    getResult : {m: XML3D.methods.XML3DShaderProviderTypeGetResult},
     script : {a: XML3D.ReferenceHandler},
     src : {a: XML3D.ReferenceHandler},
     proto : {a: XML3D.ReferenceHandler},
@@ -9835,11 +9869,12 @@ XML3D.classInfo['proto'] = {
     // TODO: Handle style for proto
     compute : {a: XML3D.StringAttributeHandler},
     filter : {a: XML3D.StringAttributeHandler},
-    getOutputNames : {m: XML3D.methods.protoGetOutputNames},
-    getOutputChannelInfo : {m: XML3D.methods.protoGetOutputChannelInfo},
-    getComputeInfo : {m: XML3D.methods.protoGetComputeInfo},
-    getProtoInfo : {m: XML3D.methods.protoGetProtoInfo},
-    isOutputConnected : {m: XML3D.methods.protoIsOutputConnected},
+    getOutputNames : {m: XML3D.methods.XML3DNestedDataContainerTypeGetOutputNames},
+    getOutputChannelInfo : {m: XML3D.methods.XML3DNestedDataContainerTypeGetOutputChannelInfo},
+    getComputeInfo : {m: XML3D.methods.XML3DNestedDataContainerTypeGetComputeInfo},
+    getProtoInfo : {m: XML3D.methods.XML3DNestedDataContainerTypeGetProtoInfo},
+    isOutputConnected : {m: XML3D.methods.XML3DNestedDataContainerTypeIsOutputConnected},
+    getResult : {m: XML3D.methods.XML3DNestedDataContainerTypeGetResult},
     src : {a: XML3D.ReferenceHandler},
     proto : {a: XML3D.ReferenceHandler},
     _term: undefined
@@ -9986,9 +10021,9 @@ XML3D.classInfo['video'] = {
     className : {a: XML3D.StringAttributeHandler, id: 'class'},
     // TODO: Handle style for video
     src : {a: XML3D.StringAttributeHandler},
+    autoplay : {a: XML3D.BoolAttributeHandler, params: false},
     play : {m: XML3D.methods.videoPlay},
     pause : {m: XML3D.methods.videoPause},
-    autoplay : {a: XML3D.BoolAttributeHandler, params: false},
     _term: undefined
 };
 /**
@@ -10012,7 +10047,6 @@ XML3D.classInfo['view'] = {
     position : {a: XML3D.XML3DVec3AttributeHandler, params: [0, 0, 0]},
     orientation : {a: XML3D.XML3DRotationAttributeHandler, params: [0, 0, 1, 0]},
     fieldOfView : {a: XML3D.FloatAttributeHandler, params: 0.785398},
-    perspective : {a: XML3D.ReferenceHandler},
     getWorldMatrix : {m: XML3D.methods.XML3DGraphTypeGetWorldMatrix},
     setDirection : {m: XML3D.methods.viewSetDirection},
     setUpVector : {m: XML3D.methods.viewSetUpVector},
@@ -10020,6 +10054,7 @@ XML3D.classInfo['view'] = {
     getDirection : {m: XML3D.methods.viewGetDirection},
     getUpVector : {m: XML3D.methods.viewGetUpVector},
     getViewMatrix : {m: XML3D.methods.viewGetViewMatrix},
+    perspective : {a: XML3D.ReferenceHandler},
     _term: undefined
 };
 /* END GENERATED */
@@ -16053,7 +16088,10 @@ XML3D.webgl.MAXFPS = 30;
         }
     };
 
-
+    /**
+     *
+     * @param {Element|Array.<Element>} xml3ds
+     */
     XML3D.webgl.configure = function(xml3ds) {
 
         if(!(xml3ds instanceof Array))
@@ -16480,7 +16518,10 @@ XML3D.webgl.stopEvent = function(ev) {
                 metaKey:event.metaKey,
                 scale:event.scale,
                 rotation:event.rotation,
-                view:event.view
+                view:event.view,
+                touches:event.touches,
+                changedTouches:event.changedTouches,
+                targetTouches:event.targetTouches
             };
             return touchEventData;
         },
@@ -16496,9 +16537,19 @@ XML3D.webgl.stopEvent = function(ev) {
             }
 
             if (touchEvent && touchEvent.initTouchEvent) {
-                touchEvent.initTouchEvent(data.touches, data.targetTouches, data.changedTouches,
-                    data.type, data.view, data.screenX, data.screenY, data.clientX, data.clientY);
-                //console.log(touchEvent.type);
+                if (touchEvent.initTouchEvent.length == 0) { //chrome
+                    touchEvent.initTouchEvent(data.touches, data.targetTouches, data.changedTouches,
+                        data.type, data.view, data.screenX, data.screenY, data.clientX, data.clientY);
+                } else if ( touchEvent.initTouchEvent.length == 12 ) { //firefox
+                    touchEvent.initTouchEvent(data.type, data.bubbles, data.cancelable, data.view,
+                        data.detail, data.ctrlKey, data.altKey, data.shiftKey, data.metaKey, data.touches,
+                        data.targetTouches,	data.changedTouches);
+                } else { //iOS length = 18
+                    touchEvent.initTouchEvent(data.type, data.bubbles, data.cancelable, data.view,
+                        data.detail, data.screenX, data.screenY, data.pageX, data.pageY, data.ctrlKey,
+                        data.altKey, data.shiftKey, data.metaKey, data.touches, data.targetTouches,
+                        data.changedTouches, data.scale, data.rotation);
+                }
             }
             return touchEvent;
         },
@@ -16510,6 +16561,7 @@ XML3D.webgl.stopEvent = function(ev) {
         dispatchTouchEventOnPickedObject:function (evt, opt) {
             opt = opt || {};
             var touchEvent = this.copyTouchEvent(evt, opt);
+            touchEvent.preventDefault = function () { evt.preventDefault(); }
             this.xml3dElem.dispatchEvent(touchEvent);
         },
 
@@ -16522,6 +16574,10 @@ XML3D.webgl.stopEvent = function(ev) {
         },
 
         touchmove:function (evt) {
+            this.dispatchTouchEventOnPickedObject(evt);
+        },
+
+        touchcancel:function (evt) {
             this.dispatchTouchEventOnPickedObject(evt);
         }
 
