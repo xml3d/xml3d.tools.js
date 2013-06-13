@@ -31,17 +31,17 @@
             options.mouse = options.mouse || {};
             options.keyboard = options.keyboard || {};
 
-            this.target = XMOT.util.getOrCreateTransformable(targetViewGroup);
+            this._target = XMOT.util.getOrCreateTransformable(targetViewGroup);
 
-            this._behavior = new XMOT.FlyControllerBehavior(this.target, options.behavior);
+            this._behavior = new XMOT.FlyControllerBehavior(this._target, options.behavior);
 
             if(options.mouse.eventDispatcher === undefined)
                 options.mouse.eventDispatcher = this._createMouseEventDispatcher();
 
-            this._mouseCtrl = new XMOT.MouseController(this.target, options.mouse);
+            this._mouseCtrl = new XMOT.MouseController(this._target, options.mouse);
             this._mouseCtrl.onDrag = this.callback("_onDrag");
 
-            this._keyCtrl = new XMOT.KeyboardController(this.target, options.keyboard);
+            this._keyCtrl = new XMOT.KeyboardController(this._target, options.keyboard);
             this._keyCtrl.onKeyDown = this.callback("_onKeyDown");
         },
 
@@ -130,7 +130,9 @@
          *  @private
          */
         _onDrag: function(action) {
-            this._behavior.rotate(action.delta.x, action.delta.y);
+            // we want mouse x-axis movement to map to y-axis rotation
+            // so we flip the delta values
+            this._behavior.rotate(action.delta.y, action.delta.x);
         },
 
         /**

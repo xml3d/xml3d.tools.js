@@ -81,13 +81,14 @@
      * shader argument.
      *
      * Supported options:
-     *  o id: id attribute
-     *  o diffCol: diffuseColor, default "0.8 0 0"
-     *  o transp: transparency, default "0.0"
-     *  o ambInt: ambientIntensity, default "0.3"
-     *  o specCol: specularColor, default "0.55 0.55 0.55"
-     *  o shin: shininess, default "0.5"
-     *  o emCol: emissiveColor, default not set
+     *  o id
+     *  o shaderType: default "urn:xml3d:shader:phong"
+     *  o diffuseColor: diffuseColor, default "0.8 0.8 0.8"
+     *  o transparency: transparency, default "0.0"
+     *  o ambientIntensity: ambientIntensity, default "0.3"
+     *  o specularColor: specularColor, default "0.55 0.55 0.55"
+     *  o shininess: shininess, default "0.5"
+     *  o emissiveColor: emissiveColor, default not set
      *
      *  @return {Object} a shader element
      */
@@ -96,33 +97,34 @@
         if(!opts)
             opts = {};
 
-        // default options
-        if(!opts.diffCol)
-            opts.diffCol = "0.8 0 0";
-        if(!opts.transp)
-            opts.transp = "0.0";
-        if(!opts.ambInt)
-            opts.ambInt = "0.3";
-        if(!opts.specCol)
-            opts.specCol = "0.55 0.55 0.55";
-        if(!opts.shin)
-            opts.shin = "0.5";
+        if(!opts.shaderType)
+            opts.shaderType = "urn:xml3d:shader:phong";
+        if(!opts.diffuseColor)
+            opts.diffuseColor = "0.8 0.8 0.8";
+        if(!opts.transparency)
+            opts.transparency = "0.0";
+        if(!opts.ambientIntensity)
+            opts.ambientIntensity = "0.3";
+        if(!opts.specularColor)
+            opts.specularColor = "0.55 0.55 0.55";
+        if(!opts.shininess)
+            opts.shininess = "0.5";
 
         // create all elements
         var ds = XMOT.creation.dataSrc;
 
-        var sh = XMOT.creation.element("shader", {script:"urn:xml3d:shader:phong"});
+        var sh = XMOT.creation.element("shader", {script:opts.shaderType});
 
         if(opts.id)
             sh.setAttribute("id", opts.id);
 
-        sh.appendChild(ds("float3", {name:"diffuseColor", val:opts.diffCol}));
-        sh.appendChild(ds("float", {name:"ambientIntensity", val:opts.ambInt}));
-        sh.appendChild(ds("float", {name:"transparency", val:opts.transp}));
-        sh.appendChild(ds("float3", {name:"specularColor", val:opts.specCol}));
-        sh.appendChild(ds("float", {name:"shininess", val:opts.shin}));
-        if(opts.emCol)
-            sh.appendChild(ds("float3", {name:"emissiveColor", val:opts.emCol}));
+        sh.appendChild(ds("float3", {name:"diffuseColor", val:opts.diffuseColor}));
+        sh.appendChild(ds("float", {name:"ambientIntensity", val:opts.ambientIntensity}));
+        sh.appendChild(ds("float", {name:"transparency", val:opts.transparency}));
+        sh.appendChild(ds("float3", {name:"specularColor", val:opts.specularColor}));
+        sh.appendChild(ds("float", {name:"shininess", val:opts.shininess}));
+        if(opts.emissiveColor)
+            sh.appendChild(ds("float3", {name:"emissiveColor", val:opts.emissiveColor}));
 
         return sh;
     };

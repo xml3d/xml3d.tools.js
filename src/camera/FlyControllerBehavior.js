@@ -46,8 +46,8 @@
          */
         rotate: function(deltaX, deltaY) {
 
-            var deltaXAxis = -this._rotateSpeed * deltaY * 2.0 * Math.PI;
-            var deltaYAxis = -this._rotateSpeed * deltaX * 2.0 * Math.PI;
+            var deltaXAxis = -this._rotateSpeed * deltaX * 2.0 * Math.PI;
+            var deltaYAxis = -this._rotateSpeed * deltaY * 2.0 * Math.PI;
 
             this._xAxisAngle += deltaXAxis;
             this._yAxisAngle += deltaYAxis;

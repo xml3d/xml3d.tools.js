@@ -84,8 +84,9 @@
             });
 
             this.geo.addShaders("s_" + id, {
-                diffCol: color,
-                ambInt: "1"
+                diffuseColor: color,
+                ambientIntensity: "1",
+                transparency: "0.5"
             });
         },
 

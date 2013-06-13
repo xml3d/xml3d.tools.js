@@ -28,8 +28,13 @@
         <file name="base/ClientKeyframeAnimation.js" />
 
         <file name="util/xml3d_datatype_extensions.js" />
-        <file name="util/attachable.js" />
         <file name="util/util.js" />
+        <file name="util/meshloading.js" />
+        <file name="util/nodegetter.js" />
+        <file name="util/transformablehelpers.js" />
+        <file name="util/graphtraversal.js" />
+
+        <file name="util/attachable.js" />
         <file name="util/creation.js" />
         <file name="util/input.js" />
         <file name="util/geoobject.js" />
@@ -39,6 +44,7 @@
         <file name="util/transformtracker.js" />
         <file name="util/viewtracker.js" />
         <file name="util/transformsensor.js" />
+        <file name="util/map.js" />
 
         <file name="animation/CombinedAnimation.js" />
 
@@ -52,10 +58,12 @@
         <file name="camera/HemisphereControllerBehavior.js" />
         <file name="camera/MouseController.js" />
         <file name="camera/KeyboardController.js" />
+        <file name="camera/TouchController.js" />
         <file name="camera/MouseExamineController.js" />
         <file name="camera/MouseHemisphereController.js" />
         <file name="camera/FlyControllerBehavior.js" />
         <file name="camera/MouseKeyboardFlyController.js" />
+        <file name="camera/TouchFlyController.js" />
 
         <file name="gamepad/GamepadEventProvider.js" />
 

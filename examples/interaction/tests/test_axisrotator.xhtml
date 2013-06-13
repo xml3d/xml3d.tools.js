@@ -28,12 +28,10 @@
           pickableBackground="true"
           style="width:1000px; height:350px;"
         >
-          <group>
-            <view id="controller_view" position="0 0 10" />
-          </group>
           <light id="light1" intensity="10.8" global="false" />
 
           <defs>
+            <transform id="t_controllerview" translation="0 0 10" />
             <transform id="t_widgetgeo_root" rotation="0 0 1 1.57" />
 
             <transform id="trans1" translation="-5 0 0"/>
@@ -62,6 +60,9 @@
             <transform id="t_light5" translation="5 0 0" />
             <transform id="t_light6" translation="-5 0 0" />
           </defs>
+          <group transform="#t_controllerview">
+            <view id="controller_view" />
+          </group>
 
           <group transform="#t_light1">
             <light shader="#s_light"/>

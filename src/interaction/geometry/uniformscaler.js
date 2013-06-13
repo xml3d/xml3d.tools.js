@@ -11,8 +11,8 @@
          */
         onCreateDefsElements: function()
         {
-            this.geo.addShaders("s_scale", {diffCol: "0.9 0.9 0.9"});
-            this.geo.addShaders("s_scale_highlight", {diffCol: "0.9 0.9 0"});
+            this.geo.addShaders("s_scale", {diffuseColor: "0.9 0.9 0.9"});
+            this.geo.addShaders("s_scale_highlight", {diffuseColor: "0.9 0.9 0"});
 
             // cubes
             this.geo.addTransforms("t_scale");

@@ -28,12 +28,8 @@
           pickableBackground="true"
           style="width:350px; height:350px;"
         >
-          <group>
-            <view id="controller_view" position="0 0 10" />
-          </group>
-          <light id="light1" intensity="10.8" global="false" />
-
           <defs>
+            <transform id="t_controllerview" translation="0 0 10" />
             <transform id="trans1" />
             <transform id="trans2" translation="0 -2.5 0" />
             <transform id="transall" />
@@ -60,6 +56,10 @@
             <transform id="t_light5" translation="5 0 0" />
             <transform id="t_light6" translation="-5 0 0" />
           </defs>
+          <group transform="#t_controllerview">
+            <view id="controller_view" />
+          </group>
+          <light id="light1" intensity="10.8" global="false" />
 
           <group transform="#t_light1">
             <light shader="#s_light"/>
