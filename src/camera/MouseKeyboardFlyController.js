@@ -43,6 +43,12 @@
 
             this._keyCtrl = new XMOT.KeyboardController(this._target, options.keyboard);
             this._keyCtrl.onKeyDown = this.callback("_onKeyDown");
+            this._keyCtrl.onKeyUp = this.callback("_onKeyUp");
+
+            this._continuousInputProcessing = false;
+
+            /** map keyvalue => boolean */
+            this._currentlyPressedKeys = {};
         },
 
         lookAt: function(point) {
@@ -113,6 +119,7 @@
         onAttach: function() {
             this._mouseCtrl.attach();
             this._keyCtrl.attach();
+            this._startInputProcessingLoop();
         },
 
         /**
@@ -123,6 +130,7 @@
         onDetach: function() {
             this._mouseCtrl.detach();
             this._keyCtrl.detach();
+            this._stopInputProcessingLoop();
         },
 
         /**
@@ -141,20 +149,59 @@
          */
         _onKeyDown: function(evt) {
 
-            switch(evt.keyCode) {
-            case XMOT.KEY_W:
-                this._behavior.moveForward();
-                break;
-            case XMOT.KEY_S:
-                this._behavior.moveBackward();
-                break;
-            case XMOT.KEY_A:
-                this._behavior.stepLeft();
-                break;
-            case XMOT.KEY_D:
-                this._behavior.stepRight();
-                break;
+            this._currentlyPressedKeys[evt.keyCode] = true;
+        },
+
+        /**
+         *  @this {XMOT.MouseKeyboardFlyController}
+         *  @private
+         */
+        _onKeyUp: function(evt) {
+
+            this._currentlyPressedKeys[evt.keyCode] = false;
+        },
+
+        /**
+         *  @this {XMOT.MouseKeyboardFlyController}
+         *  @private
+         */
+        _startInputProcessingLoop: function() {
+            this._continuousInputProcessing = true;
+            this._inputProcessingLoop();
+        },
+
+        /**
+         *  @this {XMOT.MouseKeyboardFlyController}
+         *  @private
+         */
+        _stopInputProcessingLoop: function() {
+            this._continuousInputProcessing = false;
+        },
+
+        /**
+         *  @this {XMOT.MouseKeyboardFlyController}
+         *  @private
+         */
+        _inputProcessingLoop: function() {
+
+            if(!this._continuousInputProcessing) {
+                return;
             }
+
+            if(this._currentlyPressedKeys[XMOT.KEY_W] === true) {
+                this._behavior.moveForward();
+            }
+            if(this._currentlyPressedKeys[XMOT.KEY_S] === true) {
+                this._behavior.moveBackward();
+            }
+            if(this._currentlyPressedKeys[XMOT.KEY_A] === true) {
+                this._behavior.stepLeft();
+            }
+            if(this._currentlyPressedKeys[XMOT.KEY_D] === true) {
+                this._behavior.stepRight();
+            }
+
+            window.requestAnimationFrame(this.callback("_inputProcessingLoop"));
         },
 
         /**
