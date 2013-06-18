@@ -39,9 +39,9 @@
         {
             this.callSuper();
 
-            this._createAxisDefsElements("xAxis", "1 0 0", "0 1 0 1.57", "0 0.8 0");
-            this._createAxisDefsElements("yAxis", "0 1 0", "1 0 0 -1.57", "0.8 0 0");
-            this._createAxisDefsElements("zAxis", "0 0 1", "0 0 1 0", "0 0 0.8");
+            this._createAxisDefsElements("xAxis", "0 1 0 1.57", "0 0.8 0");
+            this._createAxisDefsElements("yAxis", "1 0 0 -1.57", "0.8 0 0");
+            this._createAxisDefsElements("zAxis", "0 0 1 0", "0 0 0.8");
         },
 
         /**
@@ -62,11 +62,11 @@
             ]);
         },
 
-        _createAxisDefsElements: function(id, translation, rotation, color)
+        _createAxisDefsElements: function(id, rotation, color)
         {
             this.geo.addTransforms("t_" + id, {
-                translation: translation,
-                rotation: rotation
+                rotation: rotation,
+                scale: "1 1 2"
             });
 
             this.geo.addShaders("s_" + id, {
