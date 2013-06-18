@@ -120,6 +120,7 @@
          *  @private
          */
         _onXML3DMouseDown: function(evt) {
+            evt.preventDefault();
 
             this._isDragging = true;
             this.onDragStart(this._constructAction(evt));
@@ -134,6 +135,10 @@
             if(!this._isDragging)
                 return;
 
+            if (evt.target.nodeName.toLowerCase() == "xml3d") {
+                evt.preventDefault();
+            }
+
             this.onDrag(this._constructAction(evt));
             this._rememberPosition(evt);
         },
@@ -145,6 +150,10 @@
         _onDocumentMouseUp: function(evt) {
             if(!this._isDragging)
                 return;
+
+            if (evt.target.nodeName.toLowerCase() == "xml3d") {
+                evt.preventDefault();
+            }
 
             this._isDragging = false;
             this.onDragEnd(this._constructAction(evt));
