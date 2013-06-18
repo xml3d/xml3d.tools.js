@@ -128,7 +128,7 @@
                 if (action.zoom < 1.0) { this._behavior.moveBackward(); }
             } else {
                 //invert delta to represent touch-"dragging" of a point
-                this._behavior.rotate(-action.deltas[0].x, -action.deltas[0].y);
+                this._behavior.rotate(-action.deltas[0].y, -action.deltas[0].x);
             }
         },
 
