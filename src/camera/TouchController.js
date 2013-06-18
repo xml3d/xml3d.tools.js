@@ -125,9 +125,7 @@
          *  @private
          */
         _onXML3DTouchStart: function(evt) {
-            if (evt.target.nodeName.toLowerCase() == "xml3d") {
-                evt.preventDefault();
-            }
+            evt.preventDefault();
 
             this._isDragging = true;
             this.onDragStart(this._constructAction(evt));
