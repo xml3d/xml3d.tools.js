@@ -125,7 +125,7 @@
          *  @private
          */
         _onXML3DTouchStart: function(evt) {
-            if (evt.target.className == "_xml3d") {
+            if (evt.target.nodeName.toLowerCase() == "xml3d") {
                 evt.preventDefault();
             }
 
@@ -139,7 +139,7 @@
          *  @private
          */
         _onXML3DTouchMove: function(evt) {
-            if (evt.target.className == "_xml3d") {
+            if (evt.target.nodeName.toLowerCase() == "xml3d") {
                 evt.preventDefault();
             }
 
@@ -156,7 +156,7 @@
          *  @private
          */
         _onXML3DTouchEnd: function(evt) {
-            if (evt.target.className == "_xml3d") {
+            if (evt.target.nodeName.toLowerCase() == "xml3d") {
                 evt.preventDefault();
             }
 
