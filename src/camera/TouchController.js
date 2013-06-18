@@ -113,9 +113,9 @@
             }
 
             regFn(this._targetXml3d, "touchstart", this.callback("_onXML3DTouchStart"));
-            regFn(document, "touchmove", this.callback("_onXML3DTouchMove"));
-            regFn(document, "touchend", this.callback("_onXML3DTouchEnd"));
-            regFn(document, "touchcancel", this.callback("_onXML3DTouchEnd"));
+            regFn(document, "touchmove", this.callback("_onDocumentTouchMove"));
+            regFn(document, "touchend", this.callback("_onDocumentTouchEnd"));
+            regFn(document, "touchcancel", this.callback("_onDocumentTouchEnd"));
         },
 
         // --- Callbacks ---
@@ -125,9 +125,7 @@
          *  @private
          */
         _onXML3DTouchStart: function(evt) {
-            if (evt.target.nodeName.toLowerCase() == "xml3d") {
-                evt.preventDefault();
-            }
+            evt.preventDefault();
 
             this._isDragging = true;
             this.onDragStart(this._constructAction(evt));
@@ -138,7 +136,7 @@
          *  @this {XMOT.TouchController}
          *  @private
          */
-        _onXML3DTouchMove: function(evt) {
+        _onDocumentTouchMove: function(evt) {
             if (evt.target.nodeName.toLowerCase() == "xml3d") {
                 evt.preventDefault();
             }
@@ -155,7 +153,7 @@
          *  @this {XMOT.TouchController}
          *  @private
          */
-        _onXML3DTouchEnd: function(evt) {
+        _onDocumentTouchEnd: function(evt) {
             if (evt.target.nodeName.toLowerCase() == "xml3d") {
                 evt.preventDefault();
             }

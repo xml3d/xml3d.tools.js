@@ -109,8 +109,8 @@
             }
 
             regFn(this._targetXml3d, "mousedown", this.callback("_onXML3DMouseDown"));
-            regFn(document.body, "mousemove", this.callback("_onBodyMouseMove"));
-            regFn(document.body, "mouseup", this.callback("_onBodyMouseUp"));
+            regFn(document, "mousemove", this.callback("_onDocumentMouseMove"));
+            regFn(document, "mouseup", this.callback("_onDocumentMouseUp"));
         },
 
         // --- Callbacks ---
@@ -120,6 +120,7 @@
          *  @private
          */
         _onXML3DMouseDown: function(evt) {
+            evt.preventDefault();
 
             this._isDragging = true;
             this.onDragStart(this._constructAction(evt));
@@ -130,10 +131,13 @@
          *  @this {XMOT.MouseController}
          *  @private
          */
-        _onBodyMouseMove: function(evt) {
-
+        _onDocumentMouseMove: function(evt) {
             if(!this._isDragging)
                 return;
+
+            if (evt.target.nodeName.toLowerCase() == "xml3d") {
+                evt.preventDefault();
+            }
 
             this.onDrag(this._constructAction(evt));
             this._rememberPosition(evt);
@@ -143,9 +147,13 @@
          *  @this {XMOT.MouseController}
          *  @private
          */
-        _onBodyMouseUp: function(evt) {
+        _onDocumentMouseUp: function(evt) {
             if(!this._isDragging)
                 return;
+
+            if (evt.target.nodeName.toLowerCase() == "xml3d") {
+                evt.preventDefault();
+            }
 
             this._isDragging = false;
             this.onDragEnd(this._constructAction(evt));
