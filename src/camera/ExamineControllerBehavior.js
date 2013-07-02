@@ -7,9 +7,7 @@
      *  This behavior does have no notion of the interaction device. All it needs
      *  are deltaX and deltaY values, from which it computes the camera pose.
      *
-     *  Usage:
-     *  o instantiate this class
-     *  o call dolly() and rotate()
+     *  Usage: call dolly() and rotate().
      *
      *  @constructor
      */
@@ -30,22 +28,24 @@
             this.target = XMOT.util.getOrCreateTransformable(targetViewGroup);
 
             /** @private */
-            this._scene = XMOT.util.getXml3dRoot(this.target.object);
+            this._targetScene = XMOT.util.getXml3dRoot(this.target.object);
 
             /** @private */
             this._rotateSpeed = 1;
-
             /** @private */
-            this._dollySpeed = 40;
-
-            /** @private */
-            this._currentAction = this.NONE;
-
-            /** @private */
-            this._sceneRadius = this._getSceneRadius();
+            this._dollySpeed = 1;
 
             /** @private */
             this._examineOrigin = this._getExamineOriginFromScene();
+
+            /** @private */
+            this._latitude = 0;
+            /** @private */
+            this._longitude =  0;
+            /** @private */
+            this._hemisphereRadius = this._getHemisphereRadius();
+            /** @private */
+            this._dollyCoefficient = this._calculateDollyCoefficient();
 
             this._parseOptions(options);
         },
@@ -53,54 +53,8 @@
         /**
          *  @this {XMOT.ExamineControllerBehavior}
          */
-        lookAt: function(newExamineOrigin) {
-
-            var initCamDirection = new XML3DVec3(0, 0, -1);
-
-            var curDirection = this.target.getOrientation().rotateVec3(initCamDirection);
-            var newDirection = newExamineOrigin.subtract(this.target.getPosition());
-            newDirection = newDirection.normalize();
-
-            var rotationToNewOrigin = new XML3DRotation();
-            rotationToNewOrigin.setRotation(curDirection, newDirection);
-
-            this.target.rotate(rotationToNewOrigin);
-            this._examineOrigin.set(newExamineOrigin);
-        },
-
-        /**
-         *  @this {XMOT.ExamineControllerBehavior}
-         */
-        dolly: function(deltaX, deltaY) {
-
-            var coef = 0.2 * this._sceneRadius;
-            var dy = coef * this._dollySpeed * deltaY;
-
-            var translVec = this._rotateVecToViewSpace(new window.XML3DVec3(0, 0, dy));
-            this.target.translate(translVec);
-        },
-
-        /**
-         *  @this {XMOT.ExamineControllerBehavior}
-         *  @param {number} deltaXAngle delta value for rotation around the x-axis
-         *  @param {number} deltaYAngle delta value for rotation around the y-axis
-         */
-        rotate: function(deltaXAngle, deltaYAngle) {
-            var dx = -this._rotateSpeed * deltaXAngle * 2.0 * Math.PI;
-            var dy = -this._rotateSpeed * deltaYAngle * 2.0 * Math.PI;
-
-            var mx = new window.XML3DRotation(new window.XML3DVec3(1, 0, 0), dx);
-            var my = new window.XML3DRotation(new window.XML3DVec3(0, 1, 0), dy);
-            var result = mx.multiply(my);
-
-            this._rotateAroundExamineOrigin(result);
-        },
-
-        /**
-         *  @this {XMOT.ExamineControllerBehavior}
-         */
-        _rotateVecToViewSpace: function(vec) {
-            return this.target.getOrientation().rotateVec3(vec);
+        getExamineOrigin: function() {
+            return new window.XML3DVec3(this._examineOrigin);
         },
 
         /**
@@ -120,15 +74,61 @@
         /**
          *  @this {XMOT.ExamineControllerBehavior}
          */
-        getSceneRadius: function() {
-            return this._sceneRadius;
+        lookAt: function(targetPt) {
+            this._setViewDirection(targetPt.subtract(this.target.getPosition()));
+            this.rotate(0,0);
         },
 
         /**
          *  @this {XMOT.ExamineControllerBehavior}
          */
-        getExamineOrigin: function() {
-            return new window.XML3DVec3(this._examineOrigin);
+        dolly: function(deltaX, deltaY) {
+
+            var dy = this._dollySpeed * this._dollyCoefficient * deltaY;
+
+            var translVec = new window.XML3DVec3(0, 0, dy);
+            translVec = this.target.getOrientation().rotateVec3(translVec);
+
+            this.target.translate(translVec);
+
+            this._hemisphereRadius = this._getHemisphereRadius();
+        },
+
+        /**
+         *  @this {XMOT.ExamineControllerBehavior}
+         */
+        rotate: function(deltaX, deltaY) {
+
+            this._longitude -= this._rotateSpeed * deltaY * Math.PI / 2.0;
+            this._latitude += this._rotateSpeed * deltaX * Math.PI / 2.0;
+            this._latitude = Math.max(-Math.PI / 2.0, Math.min(Math.PI / 2.0, this._latitude));
+
+            var cos_latitude = Math.cos(this._latitude);
+            var cos_longitude = Math.cos(this._longitude);
+            var sin_longitude = Math.sin(this._longitude);
+
+            // Position
+            var position = new window.XML3DVec3(cos_latitude * sin_longitude, Math.sin(this._latitude),
+                    cos_latitude * cos_longitude);
+            position = position.normalize();
+            position = position.scale(this._hemisphereRadius);
+
+            // Right
+            var right = new window.XML3DVec3(cos_longitude,0,-sin_longitude);
+            right = right.normalize();
+
+            // direction
+            var direction = (new window.XML3DVec3(0,0,0)).subtract(position);
+            direction = direction.normalize();
+
+            // up
+            var up = right.cross(direction);
+
+            var orientation = new window.XML3DRotation();
+            orientation.setFromBasis(right, up, direction.negate());
+
+            this.target.setPosition(position);
+            this.target.setOrientation(orientation);
         },
 
         /**
@@ -150,21 +150,18 @@
          *  @this {XMOT.ExamineControllerBehavior}
          *  @private
          */
-        _rotateAroundExamineOrigin: function(rot) {
-            this.target.rotate(rot);
-            var q = new XML3DRotation(this._rotateVecToViewSpace(rot.axis), rot.angle);
-            var trans = q.rotateVec3(this.target.getPosition().subtract(this._examineOrigin));
-            var newPos = this._examineOrigin.add(trans);
-            this.target.setPosition(newPos);
+        _getHemisphereRadius: function() {
+
+            var tarToOrig = this._examineOrigin.subtract(this.target.getPosition());
+            return tarToOrig.length();
         },
 
         /**
          *  @this {XMOT.ExamineControllerBehavior}
          *  @private
          */
-        _getSceneRadius: function() {
-            var length = this._scene.getBoundingBox().size().length();
-            return length * 0.5;
+        _calculateDollyCoefficient: function() {
+            return this._targetScene.getBoundingBox().size().length() * 0.5;
         },
 
         /**
@@ -173,14 +170,38 @@
          */
         _getExamineOriginFromScene: function() {
 
-            var orig = new window.XML3DVec3();
+            var orig = new window.XML3DVec3(0,0,0);
 
-            var bb = this._scene.getBoundingBox();
+            var bb = this._targetScene.getBoundingBox();
             if (!bb.isEmpty()) {
                 orig.set(bb.center());
             }
 
             return orig;
+        },
+
+        /**
+         *  @this {XMOT.ExamineControllerBehavior}
+         *  @private
+         */
+        _setViewDirection: function(dir) {
+
+            dir = dir.normalize();
+            if (dir.length() < 1E-10)
+                return;
+
+            var yAxis = this.target.getOrientation().rotateVec3(new window.XML3DVec3(0,1,0));
+
+            var xAxis = dir.cross(yAxis);
+            if (xAxis.length() < 1E-10)
+            {
+                xAxis = this.target.getOrientation().rotateVec3(new window.XML3DVec3(1,0,0));
+            }
+
+            var orientation = new window.XML3DRotation();
+            orientation.setFromBasis(xAxis, xAxis.cross(dir), dir.negate());
+
+            this.target.setOrientation(orientation);
         }
     });
 }());
