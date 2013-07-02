@@ -93,7 +93,7 @@
             var my = new window.XML3DRotation(new window.XML3DVec3(0, 1, 0), dy);
             var result = mx.multiply(my);
 
-            this._rotateAroundPoint(result, this._examineOrigin);
+            this._rotateAroundExamineOrigin(result);
         },
 
         /**
@@ -150,11 +150,11 @@
          *  @this {XMOT.ExamineControllerBehavior}
          *  @private
          */
-        _rotateAroundPoint: function(rot, point) {
+        _rotateAroundExamineOrigin: function(rot) {
             this.target.rotate(rot);
             var q = new XML3DRotation(this._rotateVecToViewSpace(rot.axis), rot.angle);
-            var trans = q.rotateVec3(this.target.getPosition().subtract(point));
-            var newPos = point.add(trans);
+            var trans = q.rotateVec3(this.target.getPosition().subtract(this._examineOrigin));
+            var newPos = this._examineOrigin.add(trans);
             this.target.setPosition(newPos);
         },
 
