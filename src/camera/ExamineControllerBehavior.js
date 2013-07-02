@@ -106,9 +106,9 @@
          */
         rotate: function(deltaXAxis, deltaYAxis) {
 
-            this._longitude -= this._rotateSpeed * deltaYAxis * Math.PI / 2.0;
-            this._latitude += this._rotateSpeed * deltaXAxis * Math.PI / 2.0;
-            this._latitude = Math.max(-Math.PI / 2.0, Math.min(Math.PI / 2.0, this._latitude));
+            this._longitude -= this._rotateSpeed * deltaYAxis;
+            var xAxisAngle = this._latitude + this._rotateSpeed * deltaXAxis;
+            this._latitude = this._constrainXAxisAngle(xAxisAngle);
 
             var cos_latitude = Math.cos(this._latitude);
             var cos_longitude = Math.cos(this._longitude);
@@ -213,6 +213,18 @@
             orientation.setFromBasis(xAxis, xAxis.cross(dir), dir.negate());
 
             this.target.setOrientation(orientation);
+        },
+
+        /** Constrain the given angle to lie within [-90,90] degree interval to
+         *  avoid gimbal lock.
+         *
+         *  @private
+         *  @param angle
+         *  @return {number}
+         */
+        _constrainXAxisAngle: function(angle)
+        {
+            return Math.max(-Math.PI / 2.0, Math.min(Math.PI / 2.0, angle));
         }
     });
 }());
