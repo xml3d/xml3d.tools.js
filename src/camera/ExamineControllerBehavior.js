@@ -52,6 +52,7 @@
 
         /**
          *  @this {XMOT.ExamineControllerBehavior}
+         *  @return {window.XML3DVec3}
          */
         getExamineOrigin: function() {
             return new window.XML3DVec3(this._examineOrigin);
@@ -59,6 +60,7 @@
 
         /**
          *  @this {XMOT.ExamineControllerBehavior}
+         *  @return {number}
          */
         getRotateSpeed: function() {
             return this._rotateSpeed;
@@ -66,6 +68,7 @@
 
         /**
          *  @this {XMOT.ExamineControllerBehavior}
+         *  @return {number}
          */
         getDollySpeed: function() {
             return this._dollySpeed;
@@ -73,6 +76,7 @@
 
         /**
          *  @this {XMOT.ExamineControllerBehavior}
+         *  @param {window.XML3DVec3} targetPt
          */
         lookAt: function(targetPt) {
             this._setViewDirection(targetPt.subtract(this.target.getPosition()));
@@ -81,12 +85,13 @@
 
         /**
          *  @this {XMOT.ExamineControllerBehavior}
+         *  @param {number} delta the value of how much to dolly from the current pose
          */
-        dolly: function(deltaX, deltaY) {
+        dolly: function(delta) {
 
-            var dy = this._dollySpeed * this._dollyCoefficient * deltaY;
+            var scaledDelta = this._dollySpeed * this._dollyCoefficient * delta;
 
-            var translVec = new window.XML3DVec3(0, 0, dy);
+            var translVec = new window.XML3DVec3(0, 0, scaledDelta);
             translVec = this.target.getOrientation().rotateVec3(translVec);
 
             this.target.translate(translVec);
@@ -96,11 +101,13 @@
 
         /**
          *  @this {XMOT.ExamineControllerBehavior}
+         *  @param {number} deltaXAxis the value on how much to scale on the x-axis
+         *  @param {number} deltaYAxis the value on how much to scale on the y-axis
          */
-        rotate: function(deltaX, deltaY) {
+        rotate: function(deltaXAxis, deltaYAxis) {
 
-            this._longitude -= this._rotateSpeed * deltaY * Math.PI / 2.0;
-            this._latitude += this._rotateSpeed * deltaX * Math.PI / 2.0;
+            this._longitude -= this._rotateSpeed * deltaYAxis * Math.PI / 2.0;
+            this._latitude += this._rotateSpeed * deltaXAxis * Math.PI / 2.0;
             this._latitude = Math.max(-Math.PI / 2.0, Math.min(Math.PI / 2.0, this._latitude));
 
             var cos_latitude = Math.cos(this._latitude);
@@ -134,6 +141,7 @@
         /**
          *  @this {XMOT.ExamineControllerBehavior}
          *  @private
+         *  @param {Object} options
          */
         _parseOptions: function(options) {
 
@@ -149,6 +157,7 @@
         /**
          *  @this {XMOT.ExamineControllerBehavior}
          *  @private
+         *  @return {number}
          */
         _getHemisphereRadius: function() {
 
@@ -159,6 +168,7 @@
         /**
          *  @this {XMOT.ExamineControllerBehavior}
          *  @private
+         *  @return {number}
          */
         _calculateDollyCoefficient: function() {
             return this._targetScene.getBoundingBox().size().length() * 0.5;
@@ -167,6 +177,7 @@
         /**
          *  @this {XMOT.ExamineControllerBehavior}
          *  @private
+         *  @return {window.XML3DVec3}
          */
         _getExamineOriginFromScene: function() {
 
