@@ -206,4 +206,36 @@
         return xfmMat;
     };
 
+    /** Convert a given XML3DRotation to euler angles.
+     *  Only returns the angles around the x- and y-axis, since
+     *  it's specifically for camera rotations.
+     *
+     *  @param {window.XML3DRotation} rot
+     *  @return {{x: number, y: number}}
+     */
+    m.rotationToEulerXY = function(rot)
+    {
+        // from: http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/
+        //  - disregard for qxy + qzw case, since we never change z
+        // and https://truesculpt.googlecode.com/hg-history/38000e9dfece971460473d5788c235fbbe82f31b/Doc/rotation_matrix_to_euler.pdf
+        //  - disregard for two-fold solution of y, works up to now
+
+        var q = rot.getQuaternion();
+
+        var qxx = q[0]*q[0];
+        var qxz = q[0]*q[2];
+        var qxw = q[0]*q[3];
+        var qyy = q[1]*q[1];
+        var qyz = q[1]*q[2];
+        var qyw = q[1]*q[3];
+        var qzz = q[2]*q[2];
+
+        var y = Math.atan2(2*(qyw + qxz), 1 - 2*(qyy + qzz));
+        var x = Math.atan2(2*(qxw + qyz), 1 - 2*(qxx + qzz));
+        if(Math.cos(y) < -0.01)
+            x = -x;
+
+        return {x: x, y: y};
+    };
+
 }());

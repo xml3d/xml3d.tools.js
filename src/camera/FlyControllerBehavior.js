@@ -221,7 +221,7 @@
          */
         _setInitialRotation: function(rot) {
 
-            var euler = this._toEuler(rot);
+            var euler = XMOT.math.rotationToEulerXY(rot);
 
             this._xAxisAngle = euler.x;
             this._yAxisAngle = euler.y;
@@ -229,35 +229,6 @@
 
             // align the target's orientation to compensate for precision errors
             this.rotate(0, 0);
-        },
-
-        /**
-         *  @this {XMOT.FlyControllerBehavior}
-         *  @private
-         */
-        _toEuler: function(rot) {
-
-            // from: http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/
-            //  - disregard for qxy + qzw case, since we never change z
-            // and https://truesculpt.googlecode.com/hg-history/38000e9dfece971460473d5788c235fbbe82f31b/Doc/rotation_matrix_to_euler.pdf
-            //  - disregard for two-fold solution of y, works up to now
-
-            var q = rot.getQuaternion();
-
-            var qxx = q[0]*q[0];
-            var qxz = q[0]*q[2];
-            var qxw = q[0]*q[3];
-            var qyy = q[1]*q[1];
-            var qyz = q[1]*q[2];
-            var qyw = q[1]*q[3];
-            var qzz = q[2]*q[2];
-
-            var y = Math.atan2(2*(qyw + qxz), 1 - 2*(qyy + qzz));
-            var x = Math.atan2(2*(qxw + qyz), 1 - 2*(qxx + qzz));
-            if(Math.cos(y) < -0.01)
-                x = -x;
-
-            return {x: x, y: y};
         }
     });
 }());

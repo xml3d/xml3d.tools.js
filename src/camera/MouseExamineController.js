@@ -69,11 +69,11 @@
 
             switch (this._currentAction) {
             case this.DOLLY:
-                this._controller.dolly(action.delta.x, action.delta.y);
+                this._controller.dolly(action.delta.y);
                 break;
 
             case this.ROTATE:
-                this._controller.rotate(action.delta.x, action.delta.y);
+                this._controller.rotate(action.delta.y, action.delta.x);
                 break;
             }
         },
