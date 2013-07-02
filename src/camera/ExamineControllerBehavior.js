@@ -208,6 +208,7 @@
             {
                 xAxis = this.target.getOrientation().rotateVec3(new window.XML3DVec3(1,0,0));
             }
+            xAxis = xAxis.normalize();
 
             var orientation = new window.XML3DRotation();
             orientation.setFromBasis(xAxis, xAxis.cross(dir), dir.negate());
