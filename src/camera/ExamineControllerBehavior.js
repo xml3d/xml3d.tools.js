@@ -76,7 +76,7 @@
             var coef = 0.2 * this._sceneRadius;
             var dy = coef * this._dollySpeed * deltaY;
 
-            var translVec = this.rotateVecToViewSpace(new window.XML3DVec3(0, 0, dy));
+            var translVec = this._rotateVecToViewSpace(new window.XML3DVec3(0, 0, dy));
             this.target.translate(translVec);
         },
 
@@ -97,7 +97,7 @@
         /**
          *  @this {XMOT.ExamineControllerBehavior}
          */
-        rotateVecToViewSpace: function(vec) {
+        _rotateVecToViewSpace: function(vec) {
             return this.target.getOrientation().rotateVec3(vec);
         },
 
@@ -150,7 +150,7 @@
          */
         _rotateAroundPoint: function(rot, point) {
             this.target.rotate(rot);
-            var q = new XML3DRotation(this.rotateVecToViewSpace(rot.axis), rot.angle);
+            var q = new XML3DRotation(this._rotateVecToViewSpace(rot.axis), rot.angle);
             var trans = q.rotateVec3(this.target.getPosition().subtract(point));
             var newPos = point.add(trans);
             this.target.setPosition(newPos);
