@@ -69,7 +69,7 @@
 
             switch (this._currentAction) {
             case this.DOLLY:
-                this._controller.dolly(action.delta.y, action.delta.x);
+                this._controller.dolly(action.delta.y);
                 break;
 
             case this.ROTATE:
