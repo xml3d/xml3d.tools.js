@@ -146,8 +146,8 @@
             newEntry.endOrientation = orientation;
             //default start values, are the current values
             //those are overwritten if a tween ends before us, see the onComplete callback
-            newEntry.startPosition = this.getPosition();
-            newEntry.startOrientation = this.getOrientation();
+            newEntry.startPosition = new XML3DVec3( this.getPosition() );
+            newEntry.startOrientation = new XML3DRotation( this.getOrientation() );
 
             //push tween to the end of the queue and start if queue was empty
             this.motionQueue.push(newEntry);
