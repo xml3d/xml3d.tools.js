@@ -79,8 +79,23 @@
          *  @param {window.XML3DVec3} targetPt
          */
         lookAt: function(targetPt) {
-            this._setViewDirection(targetPt.subtract(this.target.getPosition()));
+            this._examineOrigin.set(targetPt);
+            /*
+            TODO: rewrite the lookat-thing
+            right now always assume looking down the negative z-axis and simply reset
+            position.
+            However, if there's an initial camera orientation, this should be the
+            orientation, and thus that function becomes interesting again.
+
+            this._lookAtExamineOrigin();
             this.rotate(0,0);
+
+            TODO: incorporate constraint on angles.
+            want: never look below the y=0 plane
+            */
+
+            this._latitude = this._longitude = 0;
+            this.target.setPosition(this._calculateCurrentPosition());
         },
 
         /**
@@ -110,22 +125,20 @@
             var xAxisAngle = this._latitude + this._rotateSpeed * deltaXAxis;
             this._latitude = this._constrainXAxisAngle(xAxisAngle);
 
-            var cos_latitude = Math.cos(this._latitude);
+            // Position
+            var position = this._calculateCurrentPosition();
+
+            this.target.setPosition(position);
+
+            // Right
             var cos_longitude = Math.cos(this._longitude);
             var sin_longitude = Math.sin(this._longitude);
 
-            // Position
-            var position = new window.XML3DVec3(cos_latitude * sin_longitude, Math.sin(this._latitude),
-                    cos_latitude * cos_longitude);
-            position = position.normalize();
-            position = position.scale(this._hemisphereRadius);
-
-            // Right
             var right = new window.XML3DVec3(cos_longitude,0,-sin_longitude);
             right = right.normalize();
 
             // direction
-            var direction = (new window.XML3DVec3(0,0,0)).subtract(position);
+            var direction = this._examineOrigin.subtract(position);
             direction = direction.normalize();
 
             // up
@@ -133,8 +146,6 @@
 
             var orientation = new window.XML3DRotation();
             orientation.setFromBasis(right, up, direction.negate());
-
-            this.target.setPosition(position);
             this.target.setOrientation(orientation);
         },
 
@@ -195,30 +206,62 @@
          *  @this {XMOT.ExamineControllerBehavior}
          *  @private
          */
-        _setViewDirection: function(dir) {
+        _lookAtExamineOrigin: function() {
 
-            dir = dir.normalize();
-            if (dir.length() < 1E-10)
+            var lookDir = this._examineOrigin.subtract(this.target.getPosition());
+
+            lookDir = lookDir.normalize();
+            if (lookDir.length() < 1E-10)
                 return;
 
             var yAxis = this.target.getOrientation().rotateVec3(new window.XML3DVec3(0,1,0));
 
-            var xAxis = dir.cross(yAxis);
+            var xAxis = lookDir.cross(yAxis);
             if (xAxis.length() < 1E-10)
             {
                 xAxis = this.target.getOrientation().rotateVec3(new window.XML3DVec3(1,0,0));
             }
             xAxis = xAxis.normalize();
 
+            var yAxis = xAxis.cross(lookDir);
+
             var orientation = new window.XML3DRotation();
-            orientation.setFromBasis(xAxis, xAxis.cross(dir), dir.negate());
+            orientation.setFromBasis(xAxis, yAxis, lookDir.negate());
 
             this.target.setOrientation(orientation);
+
+            var eulerAngles = XMOT.math.rotationToEulerXY(orientation);
+            this._latitude = eulerAngles.x;
+            this._longitude = eulerAngles.y;
+        },
+
+        /**
+         *  @this {XMOT.ExamineControllerBehavior}
+         *  @private
+         *
+         *  @return {window.XML3DVec3}
+         */
+        _calculateCurrentPosition: function()
+        {
+            var cos_latitude = Math.cos(this._latitude);
+            var cos_longitude = Math.cos(this._longitude);
+            var sin_longitude = Math.sin(this._longitude);
+
+            var position = new window.XML3DVec3(
+                cos_latitude * sin_longitude,
+                Math.sin(this._latitude),
+                cos_latitude * cos_longitude);
+            position = position.normalize();
+
+            position = position.scale(this._hemisphereRadius);
+
+            return position.add(this._examineOrigin);
         },
 
         /** Constrain the given angle to lie within [-90,90] degree interval to
          *  avoid gimbal lock.
          *
+         *  @this {XMOT.ExamineControllerBehavior}
          *  @private
          *  @param angle
          *  @return {number}
