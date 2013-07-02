@@ -82,13 +82,15 @@
 
         /**
          *  @this {XMOT.ExamineControllerBehavior}
+         *  @param {number} deltaXAngle delta value for rotation around the x-axis
+         *  @param {number} deltaYAngle delta value for rotation around the y-axis
          */
-        rotate: function(deltaX, deltaY) {
-            var dx = -this._rotateSpeed * deltaX * 2.0 * Math.PI;
-            var dy = -this._rotateSpeed * deltaY * 2.0 * Math.PI;
+        rotate: function(deltaXAngle, deltaYAngle) {
+            var dx = -this._rotateSpeed * deltaXAngle * 2.0 * Math.PI;
+            var dy = -this._rotateSpeed * deltaYAngle * 2.0 * Math.PI;
 
-            var mx = new window.XML3DRotation(new window.XML3DVec3(0, 1, 0), dx);
-            var my = new window.XML3DRotation(new window.XML3DVec3(1, 0, 0), dy);
+            var mx = new window.XML3DRotation(new window.XML3DVec3(1, 0, 0), dx);
+            var my = new window.XML3DRotation(new window.XML3DVec3(0, 1, 0), dy);
             var result = mx.multiply(my);
 
             this._rotateAroundPoint(result, this._examineOrigin);
