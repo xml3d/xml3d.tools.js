@@ -211,7 +211,7 @@
      *  it's specifically for camera rotations.
      *
      *  @param {window.XML3DRotation} rot
-     *  @returns {{x: number, y: number}}
+     *  @return {{x: number, y: number}}
      */
     m.rotationToEulerXY = function(rot)
     {
