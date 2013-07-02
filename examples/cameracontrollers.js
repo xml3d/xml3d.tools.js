@@ -29,10 +29,7 @@ function onChangeCamType() {
     case "examine":
         CamType = XMOT.MouseExamineController;
         options.examineOrigin = $("#shape_d1e22")[0].getBoundingBox().center();
-        break;
-
-    case "hemisphere":
-        CamType = XMOT.MouseHemisphereController;
+        options.dollySpeed = 5;
         break;
 
     case "fly":
