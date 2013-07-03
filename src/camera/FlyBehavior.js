@@ -13,10 +13,10 @@
      *
      *  @constructor
      */
-    XMOT.FlyControllerBehavior = new XMOT.Class({
+    XMOT.FlyBehavior = new XMOT.Class({
 
         /**
-         *  @this {XMOT.FlyControllerBehavior}
+         *  @this {XMOT.FlyBehavior}
          *  @param {Element|Transformable} targetViewGroup
          *  @param {Object} options
          *
@@ -42,7 +42,7 @@
         },
 
         /**
-         *  @this {XMOT.FlyControllerBehavior}
+         *  @this {XMOT.FlyBehavior}
          */
         rotate: function(deltaX, deltaY) {
 
@@ -67,35 +67,35 @@
         },
 
         /**
-         *  @this {XMOT.FlyControllerBehavior}
+         *  @this {XMOT.FlyBehavior}
          */
         moveForward: function() {
             this._moveInCamDirection();
         },
 
         /**
-         *  @this {XMOT.FlyControllerBehavior}
+         *  @this {XMOT.FlyBehavior}
          */
         moveBackward: function() {
             this._moveInCamDirection(true);
         },
 
         /**
-         *  @this {XMOT.FlyControllerBehavior}
+         *  @this {XMOT.FlyBehavior}
          */
         stepRight: function() {
             this._stepRight();
         },
 
         /**
-         *  @this {XMOT.FlyControllerBehavior}
+         *  @this {XMOT.FlyBehavior}
          */
         stepLeft: function() {
             this._stepRight(true);
         },
 
         /**
-         *  @this {XMOT.FlyControllerBehavior}
+         *  @this {XMOT.FlyBehavior}
          */
         lookAt: function(point) {
 
@@ -114,28 +114,28 @@
         },
 
         /**
-         *  @this {XMOT.FlyControllerBehavior}
+         *  @this {XMOT.FlyBehavior}
          */
         setPosition: function(position) {
             this.target.setPosition(position);
         },
 
         /**
-         *  @this {XMOT.FlyControllerBehavior}
+         *  @this {XMOT.FlyBehavior}
          */
         setOrientation: function(orientation) {
             this._setInitialRotation(orientation);
         },
 
         /**
-         *  @this {XMOT.FlyControllerBehavior}
+         *  @this {XMOT.FlyBehavior}
          */
         getPosition: function() {
             return this.target.getPosition();
         },
 
         /**
-         *  @this {XMOT.FlyControllerBehavior}
+         *  @this {XMOT.FlyBehavior}
          */
         getOrientation: function() {
             return this.target.getOrientation();
@@ -158,7 +158,7 @@
         },
 
         /**
-         *  @this {XMOT.FlyControllerBehavior}
+         *  @this {XMOT.FlyBehavior}
          *  @private
          */
         _moveInCamDirection: function(doInvertDirection) {
@@ -173,7 +173,7 @@
         },
 
         /**
-         *  @this {XMOT.FlyControllerBehavior}
+         *  @this {XMOT.FlyBehavior}
          *  @private
          */
         _stepRight: function(doInvertDirection) {
@@ -190,7 +190,7 @@
         },
 
         /**
-         *  @this {XMOT.FlyControllerBehavior}
+         *  @this {XMOT.FlyBehavior}
          *  @private
          */
         _getLookDirection: function() {
@@ -204,7 +204,7 @@
         },
 
         /**
-         *  @this {XMOT.FlyControllerBehavior}
+         *  @this {XMOT.FlyBehavior}
          *  @private
          */
         _translateCamera: function(direction) {
@@ -216,7 +216,7 @@
         },
 
         /**
-         *  @this {XMOT.FlyControllerBehavior}
+         *  @this {XMOT.FlyBehavior}
          *  @private
          */
         _setInitialRotation: function(rot) {

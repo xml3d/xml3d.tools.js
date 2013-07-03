@@ -2,7 +2,7 @@
 
     "use strict";
 
-    /** This controller brings together the touch control and XMOT.FlyControllerBehavior
+    /** This controller brings together the touch control and XMOT.FlyBehavior
      *  to provide fly mode navigation using touch.
      *
      *  @constructor
@@ -15,7 +15,7 @@
          *  @param {Object} options
          *
          *  options:
-         *  o behavior: options to be passed to XMOT.FlyControllerBehavior
+         *  o behavior: options to be passed to XMOT.FlyBehavior
          *  o touch: options to be passed to XMOT.TouchController
          *
          *  By default, the view can be rotated using the movement of a single finger,
@@ -31,7 +31,7 @@
 
             this.target = XMOT.util.getOrCreateTransformable(targetViewGroup);
 
-            this._behavior = new XMOT.FlyControllerBehavior(this.target, options.behavior);
+            this._behavior = new XMOT.FlyBehavior(this.target, options.behavior);
 
             if(options.touch.eventDispatcher === undefined)
                 options.touch.eventDispatcher = this._createTouchEventDispatcher();
