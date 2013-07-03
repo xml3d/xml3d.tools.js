@@ -43,11 +43,14 @@
             /** @private */
             this._angleYAxis =  0;
             /** @private */
-            this._distanceExamineOriginTarget = this._getDistanceExamineOriginTarget();
+            this._distanceExamineOriginTarget = 0;
             /** @private */
             this._dollyCoefficient = this._calculateDollyCoefficient();
 
             this._parseOptions(options);
+
+            this._updateDistanceExamineOriginTarget();
+            this.lookAt(this._examineOrigin);
         },
 
         /**
@@ -74,28 +77,45 @@
             return this._dollySpeed;
         },
 
+        // TODO: have method setExamineOrigin()
+        // o doesn't change camera pose at all
+        // o only changes examine origin and thus axis around which to rotate
+
         /**
          *  @this {XMOT.ExamineControllerBehavior}
          *  @param {window.XML3DVec3} targetPt
          */
         lookAt: function(targetPt) {
+
             this._examineOrigin.set(targetPt);
-            /*
-            TODO: rewrite the lookat-thing
-            right now always assume looking down the negative z-axis and simply reset
-            position.
-            However, if there's an initial camera orientation, this should be the
-            orientation, and thus that function becomes interesting again.
+            this._updateDistanceExamineOriginTarget();
 
-            this._lookAtExamineOrigin();
+            var forward = this._examineOrigin.subtract(this.target.getPosition());
+            forward = forward.normalize();
+
+            var temporaryUp = this._rotateInTargetSpace(new window.XML3DVec3(0,1,0));
+
+            var right = forward.cross(temporaryUp);
+            if (right.length() < XMOT.math.EPSILON)
+            {
+                right = this._rotateInTargetSpace(new window.XML3DVec3(1,0,0));
+            }
+            right = right.normalize();
+
+            var up = right.cross(forward);
+
+            var orientation = new window.XML3DRotation();
+            orientation.setFromBasis(right, up, forward.negate());
+
+            this.target.setOrientation(orientation);
+
+            var eulerAngles = XMOT.math.rotationToEulerXY(orientation);
+            this._angleXAxis = eulerAngles.x;
+            this._angleYAxis = eulerAngles.y;
+
+            // compensate for precision errors for euler angle calculation
+            // by rotating by no delta
             this.rotate(0,0);
-
-            TODO: incorporate constraint on angles.
-            want: never look below the y=0 plane
-            */
-
-            this._angleXAxis = this._angleYAxis = 0;
-            this.target.setPosition(this._calculateCurrentPosition());
         },
 
         /**
@@ -111,7 +131,7 @@
 
             this.target.translate(translVec);
 
-            this._distanceExamineOriginTarget = this._getDistanceExamineOriginTarget();
+            this._updateDistanceExamineOriginTarget();
         },
 
         /**
@@ -168,12 +188,14 @@
         /**
          *  @this {XMOT.ExamineControllerBehavior}
          *  @private
-         *  @return {number}
          */
-        _getDistanceExamineOriginTarget: function() {
+        _updateDistanceExamineOriginTarget: function() {
 
             var tarToOrig = this._examineOrigin.subtract(this.target.getPosition());
-            return tarToOrig.length();
+            if(tarToOrig.length() < XMOT.math.EPSILON) {
+                throw new Error("Examine origin and camera position coincide!");
+            }
+            this._distanceExamineOriginTarget = tarToOrig.length();
         },
 
         /**
@@ -200,39 +222,6 @@
             }
 
             return orig;
-        },
-
-        /**
-         *  @this {XMOT.ExamineControllerBehavior}
-         *  @private
-         */
-        _lookAtExamineOrigin: function() {
-
-            var lookDir = this._examineOrigin.subtract(this.target.getPosition());
-
-            lookDir = lookDir.normalize();
-            if (lookDir.length() < 1E-10)
-                return;
-
-            var yAxis = this.target.getOrientation().rotateVec3(new window.XML3DVec3(0,1,0));
-
-            var xAxis = lookDir.cross(yAxis);
-            if (xAxis.length() < 1E-10)
-            {
-                xAxis = this.target.getOrientation().rotateVec3(new window.XML3DVec3(1,0,0));
-            }
-            xAxis = xAxis.normalize();
-
-            var yAxis = xAxis.cross(lookDir);
-
-            var orientation = new window.XML3DRotation();
-            orientation.setFromBasis(xAxis, yAxis, lookDir.negate());
-
-            this.target.setOrientation(orientation);
-
-            var eulerAngles = XMOT.math.rotationToEulerXY(orientation);
-            this._angleXAxis = eulerAngles.x;
-            this._angleYAxis = eulerAngles.y;
         },
 
         /**
@@ -267,6 +256,16 @@
          */
         _constrainXAxisAngle: function(angle) {
             return Math.max(-Math.PI / 2.0, Math.min(Math.PI / 2.0, angle));
+        },
+
+        /**
+         *  @this {XMOT.ExamineControllerBehavior}
+         *  @private
+         *
+         *  @return {window.XML3DVec3}
+         */
+        _rotateInTargetSpace: function(vec) {
+            return this.target.getOrientation().rotateVec3(vec);
         }
     });
 }());
