@@ -183,7 +183,7 @@
             c.values.splice(idx, 1);
 
             if(c.values.length < 1)
-                this.removeKey(key);
+                this._removeKey(key);
         },
 
         /** Removes the key and all of it's values from the map.
