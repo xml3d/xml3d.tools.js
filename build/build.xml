@@ -63,6 +63,7 @@
         <file name="camera/FlyBehavior.js" />
         <file name="camera/MouseKeyboardFlyController.js" />
         <file name="camera/TouchFlyController.js" />
+        <file name="camera/CameraAnimationController.js" />
 
         <file name="gamepad/GamepadEventProvider.js" />
 
