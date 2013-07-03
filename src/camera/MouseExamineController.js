@@ -62,6 +62,14 @@
 
         /**
          *  @this {XMOT.MouseExamineController}
+         *  @param {window.XML3DRotation} orientation
+         */
+        rotate: function(orientation) {
+            this._controller.rotate(orientation);
+        },
+
+        /**
+         *  @this {XMOT.MouseExamineController}
          *  @override
          */
         onAttach: function() {
@@ -92,7 +100,7 @@
                 break;
 
             case this.ROTATE:
-                this._controller.rotate(action.delta.y, action.delta.x);
+                this._controller.rotateByAngles(action.delta.y, action.delta.x);
                 break;
             }
         },
