@@ -11,10 +11,10 @@
      *
      *  @constructor
      */
-    XMOT.ExamineControllerBehavior = new XMOT.Class({
+    XMOT.ExamineBehavior = new XMOT.Class({
 
         /**
-         *  @this {XMOT.ExamineControllerBehavior}
+         *  @this {XMOT.ExamineBehavior}
          *  @param {Element|Transformable} targetViewGroup
          *  @param {Object} options
          *
@@ -60,7 +60,7 @@
         },
 
         /**
-         *  @this {XMOT.ExamineControllerBehavior}
+         *  @this {XMOT.ExamineBehavior}
          *  @return {window.XML3DVec3}
          */
         getExamineOrigin: function() {
@@ -68,7 +68,7 @@
         },
 
         /**
-         *  @this {XMOT.ExamineControllerBehavior}
+         *  @this {XMOT.ExamineBehavior}
          *  @return {number}
          */
         getRotateSpeed: function() {
@@ -76,7 +76,7 @@
         },
 
         /**
-         *  @this {XMOT.ExamineControllerBehavior}
+         *  @this {XMOT.ExamineBehavior}
          *  @return {number}
          */
         getDollySpeed: function() {
@@ -85,7 +85,7 @@
 
         /** Resets the camera pose to look at the whole scene.
          *
-         *  @this {XMOT.ExamineControllerBehavior}
+         *  @this {XMOT.ExamineBehavior}
          *  @param {number=} distance to the scene center, default: scene's aabb diagonal
          */
         lookAtScene: function(distanceToSceneCenter) {
@@ -114,7 +114,7 @@
         },
 
         /**
-         *  @this {XMOT.ExamineControllerBehavior}
+         *  @this {XMOT.ExamineBehavior}
          *  @param {window.XML3DVec3} targetPt
          */
         lookAt: function(targetPt) {
@@ -143,7 +143,7 @@
         },
 
         /**
-         *  @this {XMOT.ExamineControllerBehavior}
+         *  @this {XMOT.ExamineBehavior}
          *  @param {window.XML3DVec3} newExamineOrigin
          *  @param {number} distanceToExamineOrigin
          */
@@ -160,7 +160,7 @@
         },
 
         /**
-         *  @this {XMOT.ExamineControllerBehavior}
+         *  @this {XMOT.ExamineBehavior}
          *  @param {number} delta the value of how much to dolly from the current pose
          */
         dolly: function(delta) {
@@ -176,7 +176,7 @@
         },
 
         /**
-         *  @this {XMOT.ExamineControllerBehavior}
+         *  @this {XMOT.ExamineBehavior}
          *  @param {window.XML3DRotation} orientation
          */
         rotate: function(orientation) {
@@ -186,7 +186,7 @@
         },
 
         /**
-         *  @this {XMOT.ExamineControllerBehavior}
+         *  @this {XMOT.ExamineBehavior}
          *  @param {number} deltaXAxis the value on how much to scale on the x-axis
          *  @param {number} deltaYAxis the value on how much to scale on the y-axis
          */
@@ -221,7 +221,7 @@
         },
 
         /**
-         *  @this {XMOT.ExamineControllerBehavior}
+         *  @this {XMOT.ExamineBehavior}
          *  @private
          *  @param {Object} options
          */
@@ -237,7 +237,7 @@
         },
 
         /**
-         *  @this {XMOT.ExamineControllerBehavior}
+         *  @this {XMOT.ExamineBehavior}
          *  @private
          */
         _updateDistanceExamineOriginTarget: function() {
@@ -250,7 +250,7 @@
         },
 
         /**
-         *  @this {XMOT.ExamineControllerBehavior}
+         *  @this {XMOT.ExamineBehavior}
          *  @private
          *  @return {number}
          */
@@ -259,7 +259,7 @@
         },
 
         /**
-         *  @this {XMOT.ExamineControllerBehavior}
+         *  @this {XMOT.ExamineBehavior}
          *  @private
          *
          *  @return {window.XML3DVec3}
@@ -283,7 +283,7 @@
         /** Constrain the given angle to lie within [-90,90] degree interval to
          *  avoid gimbal lock.
          *
-         *  @this {XMOT.ExamineControllerBehavior}
+         *  @this {XMOT.ExamineBehavior}
          *  @private
          *  @param angle
          *  @return {number}
@@ -293,7 +293,7 @@
         },
 
         /**
-         *  @this {XMOT.ExamineControllerBehavior}
+         *  @this {XMOT.ExamineBehavior}
          *  @private
          *
          *  @return {window.XML3DVec3}

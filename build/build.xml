@@ -54,12 +54,12 @@
         <file name="constraint/BoxedTranslationConstraint.js" />
 
         <file name="camera/CameraController.js" />
-        <file name="camera/ExamineControllerBehavior.js" />
+        <file name="camera/ExamineBehavior.js" />
         <file name="camera/MouseController.js" />
         <file name="camera/KeyboardController.js" />
         <file name="camera/TouchController.js" />
         <file name="camera/MouseExamineController.js" />
-        <file name="camera/FlyControllerBehavior.js" />
+        <file name="camera/FlyBehavior.js" />
         <file name="camera/MouseKeyboardFlyController.js" />
         <file name="camera/TouchFlyController.js" />
 

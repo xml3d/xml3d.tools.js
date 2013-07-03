@@ -2,8 +2,8 @@
 
     "use strict";
 
-    /** This controller brings together the mouse control and XMOT.ExamineControllerBehavior
-     *  to provide examine mode navigation using the mouse.
+    /** This controller brings together the mouse control and XMOT.FlyBehavior
+     *  to provide fly mode navigation using the mouse and keyboard.
      *
      *  @constructor
      */
@@ -15,7 +15,7 @@
          *  @param {Object} options
          *
          *  options:
-         *  o behavior: options to be passed to XMOT.FlyControllerBehavior
+         *  o behavior: options to be passed to XMOT.FlyBehavior
          *  o mouse: options to be passed to XMOT.MouseController
          *  o keyboard: options to be passed to XMOT.KeyboardController
          *
@@ -33,7 +33,7 @@
 
             this._target = XMOT.util.getOrCreateTransformable(targetViewGroup);
 
-            this._behavior = new XMOT.FlyControllerBehavior(this._target, options.behavior);
+            this._behavior = new XMOT.FlyBehavior(this._target, options.behavior);
 
             if(options.mouse.eventDispatcher === undefined)
                 options.mouse.eventDispatcher = this._createMouseEventDispatcher();
