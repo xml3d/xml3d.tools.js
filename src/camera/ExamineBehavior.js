@@ -22,6 +22,9 @@
          *  o rotateSpeed, default 1
          *  o dollySpeed, default 40
          *  o examineOrigin, default: scene's bounding box center on which lookAtScene() is called
+         *  o examineOriginResetDistance: default 1. When the target's transformation changes
+         *      the internal state needs to be updated. The examination origin is set by offsetting
+         *      it by a factor into the camera's forward direction. That factor is this option.
          */
         initialize: function(targetViewGroup, options) {
 
@@ -46,6 +49,16 @@
             this._distanceExamineOriginTarget = 0;
             /** @private */
             this._dollyCoefficient = this._calculateDollyCoefficient();
+            /** @private */
+            this._examineOriginResetDistance = 1;
+
+            /** Helper to keep track when we are changing our own transformation.
+             *  Since we will update internal values when the transformation changes
+             *  from outside we have to know when not to do this.
+             *
+             *  @private
+             */
+            this._doOwnTransformChange = false;
 
             this._parseOptions(options);
 
@@ -57,6 +70,9 @@
                 this.lookAt(this._examineOrigin);
             }
 
+            this._targetTracker = new XMOT.TransformTracker(this.target.object);
+            this._targetTracker.xfmChanged = this.callback("_onTargetXfmChanged");
+            this._targetTracker.attach();
         },
 
         /**
@@ -155,7 +171,7 @@
             var positionOffset = new window.XML3DVec3(0, 0, this._distanceExamineOriginTarget);
             var targetPosition = this._examineOrigin.add(positionOffset);
 
-            this.target.setPosition(targetPosition);
+            this._setTargetPosition(targetPosition);
             this._angleXAxis = this._angleYAxis = 0;
         },
 
@@ -170,7 +186,7 @@
             var translVec = new window.XML3DVec3(0, 0, scaledDelta);
             translVec = this.target.getOrientation().rotateVec3(translVec);
 
-            this.target.translate(translVec);
+            this._translateTarget(translVec);
 
             this._updateDistanceExamineOriginTarget();
         },
@@ -199,7 +215,7 @@
             // Position
             var position = this._calculateCurrentPosition();
 
-            this.target.setPosition(position);
+            this._setTargetPosition(position);
 
             // Right
             var cosAngleYAxis = Math.cos(this._angleYAxis);
@@ -217,7 +233,7 @@
 
             var orientation = new window.XML3DRotation();
             orientation.setFromBasis(right, up, direction.negate());
-            this.target.setOrientation(orientation);
+            this._setTargetOrientation(orientation);
         },
 
         /**
@@ -234,6 +250,8 @@
                 this._dollySpeed = options.dollySpeed;
             if(options.examineOrigin !== undefined)
                 this._examineOrigin = options.examineOrigin;
+            if(options.examineOriginResetDistance)
+                this._examineOriginResetDistance = options.examineOriginResetDistance;
         },
 
         /**
@@ -300,6 +318,62 @@
          */
         _rotateInTargetSpace: function(vec) {
             return this.target.getOrientation().rotateVec3(vec);
+        },
+
+        /**
+         *  @this {XMOT.ExamineBehavior}
+         *  @private
+         */
+        _onTargetXfmChanged: function() {
+            if(this._doOwnTransformChange)
+                return;
+
+            var position = this.target.getPosition();
+            var orientation = this.target.getOrientation();
+
+            // update orientation
+            var eulerAngles = XMOT.math.rotationToEulerXY(orientation);
+            this._angleXAxis = -eulerAngles.x;
+            this._angleYAxis = eulerAngles.y;
+
+            // update pose
+            this._distanceExamineOriginTarget = this._examineOriginResetDistance;
+            var forward = this._rotateInTargetSpace(new window.XML3DVec3(0,0,-1));
+            forward = forward.scale(this._examineOriginResetDistance);
+            this._examineOrigin.set(position.add(forward));
+        },
+
+        /**
+         *  @this {XMOT.ExamineBehavior}
+         *  @private
+         *  @param {window.XML3DVec3} position
+         */
+        _setTargetPosition: function(position) {
+            this._doOwnTransformChange = true;
+            this.target.setPosition(position);
+            this._doOwnTransformChange = false;
+        },
+
+        /**
+         *  @this {XMOT.ExamineBehavior}
+         *  @private
+         *  @param {window.XML3DRotation} orientation
+         */
+        _setTargetOrientation: function(orientation) {
+            this._doOwnTransformChange = true;
+            this.target.setOrientation(orientation);
+            this._doOwnTransformChange = false;
+        },
+
+        /**
+         *  @this {XMOT.ExamineBehavior}
+         *  @private
+         *  @param {window.XML3DVec3} position
+         */
+        _translateTarget: function(translation) {
+            this._doOwnTransformChange = true;
+            this.target.translate(translation);
+            this._doOwnTransformChange = false;
         }
     });
 }());

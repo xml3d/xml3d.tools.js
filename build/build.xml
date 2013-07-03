@@ -45,6 +45,7 @@
         <file name="util/viewtracker.js" />
         <file name="util/transformsensor.js" />
         <file name="util/map.js" />
+        <file name="util/idgenerator.js" />
 
         <file name="animation/CombinedAnimation.js" />
 
@@ -62,6 +63,7 @@
         <file name="camera/FlyBehavior.js" />
         <file name="camera/MouseKeyboardFlyController.js" />
         <file name="camera/TouchFlyController.js" />
+        <file name="camera/CameraAnimationController.js" />
 
         <file name="gamepad/GamepadEventProvider.js" />
 
