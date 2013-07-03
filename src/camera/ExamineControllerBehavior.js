@@ -21,7 +21,7 @@
          *  options:
          *  o rotateSpeed, default 1
          *  o dollySpeed, default 40
-         *  o examineOrigin, default scene's bounding box center
+         *  o examineOrigin, default: scene's bounding box center on which lookAtScene() is called
          */
         initialize: function(targetViewGroup, options) {
 
@@ -36,7 +36,7 @@
             this._dollySpeed = 1;
 
             /** @private */
-            this._examineOrigin = this._getExamineOriginFromScene();
+            this._examineOrigin = new window.XML3DVec3();
 
             /** @private */
             this._angleXAxis = 0;
@@ -49,8 +49,14 @@
 
             this._parseOptions(options);
 
-            this._updateDistanceExamineOriginTarget();
-            this.lookAt(this._examineOrigin);
+            // no custom origin: look at the whole scene
+            if(this._examineOrigin.equals(new window.XML3DVec3())) {
+                this.lookAtScene();
+            }
+            else {
+                this.lookAt(this._examineOrigin);
+            }
+
         },
 
         /**
@@ -77,9 +83,42 @@
             return this._dollySpeed;
         },
 
-        // TODO: have method setExamineOrigin()
-        // o doesn't change camera pose at all
-        // o only changes examine origin and thus axis around which to rotate
+        /** Resets the camera pose to look at the whole scene.
+         *
+         *  @this {XMOT.ExamineControllerBehavior}
+         *  @param {number=} distance to the scene center, default: scene's aabb diagonal
+         */
+        lookAtScene: function(distanceToSceneCenter) {
+
+            var defaultDistance = 1;
+            if(distanceToSceneCenter === undefined) {
+                distanceToSceneCenter = defaultDistance;
+            }
+
+            var sceneCenter = new window.XML3DVec3(0,0,0);
+
+            var bb = this._targetScene.getBoundingBox();
+            if (!bb.isEmpty()) {
+                sceneCenter.set(bb.center());
+
+                if(distanceToSceneCenter === defaultDistance) {
+
+                    var bbDiagonal = bb.size().length();
+                    if(bbDiagonal > distanceToSceneCenter) {
+                        distanceToSceneCenter = bbDiagonal;
+                    }
+                }
+            }
+
+            this._examineOrigin.set(sceneCenter);
+            this._distanceExamineOriginTarget = distanceToSceneCenter;
+
+            var positionOffset = new window.XML3DVec3(0, 0, this._distanceExamineOriginTarget);
+            var targetPosition = this._examineOrigin.add(positionOffset);
+
+            this.target.setPosition(targetPosition);
+            this._angleXAxis = this._angleYAxis = 0;
+        },
 
         /**
          *  @this {XMOT.ExamineControllerBehavior}
@@ -205,23 +244,6 @@
          */
         _calculateDollyCoefficient: function() {
             return this._targetScene.getBoundingBox().size().length() * 0.5;
-        },
-
-        /**
-         *  @this {XMOT.ExamineControllerBehavior}
-         *  @private
-         *  @return {window.XML3DVec3}
-         */
-        _getExamineOriginFromScene: function() {
-
-            var orig = new window.XML3DVec3(0,0,0);
-
-            var bb = this._targetScene.getBoundingBox();
-            if (!bb.isEmpty()) {
-                orig.set(bb.center());
-            }
-
-            return orig;
         },
 
         /**
