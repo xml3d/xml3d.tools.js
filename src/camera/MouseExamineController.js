@@ -44,11 +44,20 @@
 
         /** Resets the camera pose to look at the whole scene.
          *
-         *  @this {XMOT.ExamineControllerBehavior}
+         *  @this {XMOT.MouseExamineController}
          *  @param {number=} distance to the scene center, default: scene's aabb diagonal
          */
         lookAtScene: function(distanceToSceneCenter) {
             this._controller.lookAtScene(distanceToSceneCenter);
+        },
+
+        /**
+         *  @this {XMOT.MouseExamineController}
+         *  @param {window.XML3DVec3} newExamineOrigin
+         *  @param {number} distanceToExamineOrigin
+         */
+        resetTargetPose: function(newExamineOrigin, distanceToExamineOrigin) {
+            this._controller.resetTargetPose(newExamineOrigin, distanceToExamineOrigin);
         },
 
         /**

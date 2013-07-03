@@ -110,14 +110,7 @@
                 }
             }
 
-            this._examineOrigin.set(sceneCenter);
-            this._distanceExamineOriginTarget = distanceToSceneCenter;
-
-            var positionOffset = new window.XML3DVec3(0, 0, this._distanceExamineOriginTarget);
-            var targetPosition = this._examineOrigin.add(positionOffset);
-
-            this.target.setPosition(targetPosition);
-            this._angleXAxis = this._angleYAxis = 0;
+            this.resetTargetPose(sceneCenter, distanceToSceneCenter);
         },
 
         /**
@@ -155,6 +148,23 @@
             // compensate for precision errors for euler angle calculation
             // by rotating by no delta
             this.rotate(0,0);
+        },
+
+        /**
+         *  @this {XMOT.ExamineControllerBehavior}
+         *  @param {window.XML3DVec3} newExamineOrigin
+         *  @param {number} distanceToExamineOrigin
+         */
+        resetTargetPose: function(newExamineOrigin, distanceToExamineOrigin) {
+
+            this._examineOrigin.set(newExamineOrigin);
+            this._distanceExamineOriginTarget = distanceToExamineOrigin;
+
+            var positionOffset = new window.XML3DVec3(0, 0, this._distanceExamineOriginTarget);
+            var targetPosition = this._examineOrigin.add(positionOffset);
+
+            this.target.setPosition(targetPosition);
+            this._angleXAxis = this._angleYAxis = 0;
         },
 
         /**
