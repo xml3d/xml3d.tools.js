@@ -21,13 +21,13 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-@version: DEVELOPMENT SNAPSHOT (13.06.2013 15:12:25 CEST)
+@version: DEVELOPMENT SNAPSHOT (01.07.2013 14:10:25 CEST)
 **/
 /** @namespace * */
 var XML3D = XML3D || {};
 
 /** @define {string} */
-XML3D.version = 'DEVELOPMENT SNAPSHOT (13.06.2013 15:12:25 CEST)';
+XML3D.version = 'DEVELOPMENT SNAPSHOT (01.07.2013 14:10:25 CEST)';
 /** @const */
 XML3D.xml3dNS = 'http://www.xml3d.org/2009/xml3d';
 /** @const */
@@ -258,6 +258,8 @@ XML3D.createClass = function(ctor, parent, methods) {
             return;
         }
 
+        XML3D.xhtml = (document.xmlEncoding != null);
+
         for(var i = 0; i < xml3ds.length; i++) {
             initXML3DElement(xml3ds[i]);
         }
@@ -308,12 +310,12 @@ window.requestAnimFrame = (function(){
   })();
 
 (function() {
-    
-    if(!XML3D.util) 
+
+    if(!XML3D.util)
         XML3D.util = {};
-    
-    var u = XML3D.util; 
-    
+
+    var u = XML3D.util;
+
     /**
      * Dispatch HTML event
      *
@@ -349,7 +351,7 @@ window.requestAnimFrame = (function(){
         event.initCustomEvent(eventType, canBubble, cancelable, detail);
         target.dispatchEvent(event);
     };
-    
+
     u.getStyle = function(oElm, strCssRule) {
         var strValue = "";
         if (document.defaultView && document.defaultView.getComputedStyle) {
@@ -365,59 +367,66 @@ window.requestAnimFrame = (function(){
         return strValue;
     };
 
-    /** Evaluates the given XPath expression in the given xml3d element on 
-     *  xml3d elements and returns the result. 
-     *  
-     * @param {!Object} xml3d the xml3d element on which to evaluate the expression 
-     * @param {!Object} xpathExpr the XPath expression to be evaluated 
-     * 
+    /** Evaluates the given XPath expression in the given xml3d element on
+     *  xml3d elements and returns the result.
+     *
+     * @param {!Object} xml3d the xml3d element on which to evaluate the expression
+     * @param {!Object} xpathExpr the XPath expression to be evaluated
+     *
      * @return {XPathResult} the result of the evaluation
      */
     u.evaluateXPathExpr = function(xml3d, xpathExpr)
     {
         return document.evaluate(
-            xpathExpr, xml3d, 
-            function() {return XML3D.xml3dNS;}, 
-            XPathResult.FIRST_ORDERED_NODE_TYPE, null);         
-    }; 
-    
-    var __autoCreatedViewId = 0; 
-    /** 
-     * Returns the active view element corresponding to the given xml3d element. 
-     * 
+            xpathExpr, xml3d,
+            function() {return XML3D.xml3dNS;},
+            XPathResult.FIRST_ORDERED_NODE_TYPE, null);
+    };
+
+    var __autoCreatedViewId = 0;
+    /**
+     * Returns the active view element corresponding to the given xml3d element.
+     *
      * @param {!Object} xml3d
      * @return {Object} the active view element
-     */ 
+     */
     u.getOrCreateActiveView = function(xml3d)
     {
         // try to resolve reference
-        var ref = xml3d.activeView; 
+        var ref = xml3d.activeView;
         if(ref)
-        {       
-            var v = XML3D.URIResolver.resolveLocal(ref);      
+        {
+            var v = XML3D.URIResolver.resolveLocal(ref);
             if(!v)
-                throw "XML3D Error: xml3d references view that is not defined: '" + ref + "'."; 
-            
-            return v; 
+                throw "XML3D Error: xml3d references view that is not defined: '" + ref + "'.";
+
+            return v;
         }
-        
-        // didn't succeed, so now try to just take the first view 
-        var firstView = XML3D.util.evaluateXPathExpr(
+
+        // didn't succeed, so now try to just take the first view
+        var firstView;
+        if(XML3D.xhtml){
+            firstView = XML3D.util.evaluateXPathExpr(
                 xml3d, './/xml3d:view[1]').singleNodeValue;
-        
+        }
+        else{
+            firstView = xml3d.getElementsByTagName("view")[0];
+        }
+
+
         if(firstView)
         {
-            // if it has an id, set it as active 
+            // if it has an id, set it as active
             if(firstView.id && firstView.id.length > 0)
-                xml3d.activeView = "#" + firstView.id; 
-            
-            return firstView; 
+                xml3d.activeView = "#" + firstView.id;
+
+            return firstView;
         }
-        
+
         // didn't find any: create new one
         XML3D.debug.logWarning("xml3d element has no view defined: creating one.");
-        
-        var vid = "xml3d.autocreatedview_" + __autoCreatedViewId++; 
+
+        var vid = "xml3d.autocreatedview_" + __autoCreatedViewId++;
         var v = XML3D.createElement("view");
         v.setAttribute("id", vid);
 
@@ -819,7 +828,7 @@ XML3D.css.getCSSMatrix = function(node){
         result = new XML3D.css.CSSMatrix(style);
     }
     catch(e){
-        XML3D.debug.logException(e, "Error parsing transform property: " + style);
+        XML3D.debug.logError("Error parsing transform property: " + style);
     }
     return result;
 
@@ -1875,7 +1884,7 @@ var GLU = {};
  * @fileoverview gl-matrix - High performance matrix and vector operations
  * @author Brandon Jones
  * @author Colin MacKenzie IV
- * @version 2.0.1
+ * @version 2.2.0
  */
 
 /* Copyright (c) 2013, Brandon Jones, Colin MacKenzie IV. All rights reserved.
@@ -1886,12 +1895,12 @@ are permitted provided that the following conditions are met:
   * Redistributions of source code must retain the above copyright notice, this
     list of conditions and the following disclaimer.
   * Redistributions in binary form must reproduce the above copyright notice,
-    this list of conditions and the following disclaimer in the documentation 
+    this list of conditions and the following disclaimer in the documentation
     and/or other materials provided with the distribution.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
@@ -1901,7 +1910,7 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 
 
-(function() {
+(function(_global) {
   "use strict";
 
   var shim = {};
@@ -1913,8 +1922,8 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
       });
     } else {
       // gl-matrix lives in a browser, define its namespaces in global
-      shim.exports = window;
-    }    
+      shim.exports = typeof(window) !== 'undefined' ? window : _global;
+    }
   }
   else {
     // gl-matrix lives in commonjs, define its namespaces in exports
@@ -1930,12 +1939,12 @@ are permitted provided that the following conditions are met:
   * Redistributions of source code must retain the above copyright notice, this
     list of conditions and the following disclaimer.
   * Redistributions in binary form must reproduce the above copyright notice,
-    this list of conditions and the following disclaimer in the documentation 
+    this list of conditions and the following disclaimer in the documentation
     and/or other materials provided with the distribution.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
@@ -1951,6 +1960,10 @@ if(!GLMAT_EPSILON) {
 
 if(!GLMAT_ARRAY_TYPE) {
     var GLMAT_ARRAY_TYPE = (typeof Float32Array !== 'undefined') ? Float32Array : Array;
+}
+
+if(!GLMAT_RANDOM) {
+    var GLMAT_RANDOM = Math.random;
 }
 
 /**
@@ -1980,12 +1993,12 @@ are permitted provided that the following conditions are met:
   * Redistributions of source code must retain the above copyright notice, this
     list of conditions and the following disclaimer.
   * Redistributions in binary form must reproduce the above copyright notice,
-    this list of conditions and the following disclaimer in the documentation 
+    this list of conditions and the following disclaimer in the documentation
     and/or other materials provided with the distribution.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
@@ -2082,7 +2095,7 @@ vec2.add = function(out, a, b) {
 };
 
 /**
- * Subtracts two vec2's
+ * Subtracts vector b from vector a
  *
  * @param {vec2} out the receiving vector
  * @param {vec2} a the first operand
@@ -2180,6 +2193,21 @@ vec2.max = function(out, a, b) {
 vec2.scale = function(out, a, b) {
     out[0] = a[0] * b;
     out[1] = a[1] * b;
+    return out;
+};
+
+/**
+ * Adds two vec2's after scaling the second operand by a scalar value
+ *
+ * @param {vec2} out the receiving vector
+ * @param {vec2} a the first operand
+ * @param {vec2} b the second operand
+ * @param {Number} scale the amount to scale b by before adding
+ * @returns {vec2} out
+ */
+vec2.scaleAndAdd = function(out, a, b, scale) {
+    out[0] = a[0] + (b[0] * scale);
+    out[1] = a[1] + (b[1] * scale);
     return out;
 };
 
@@ -2335,6 +2363,21 @@ vec2.lerp = function (out, a, b, t) {
 };
 
 /**
+ * Generates a random vector with the given scale
+ *
+ * @param {vec2} out the receiving vector
+ * @param {Number} [scale] Length of the resulting vector. If ommitted, a unit vector will be returned
+ * @returns {vec2} out
+ */
+vec2.random = function (out, scale) {
+    scale = scale || 1.0;
+    var r = GLMAT_RANDOM() * 2.0 * Math.PI;
+    out[0] = Math.cos(r) * scale;
+    out[1] = Math.sin(r) * scale;
+    return out;
+};
+
+/**
  * Transforms the vec2 with a mat2
  *
  * @param {vec2} out the receiving vector
@@ -2345,8 +2388,59 @@ vec2.lerp = function (out, a, b, t) {
 vec2.transformMat2 = function(out, a, m) {
     var x = a[0],
         y = a[1];
-    out[0] = x * m[0] + y * m[1];
-    out[1] = x * m[2] + y * m[3];
+    out[0] = m[0] * x + m[2] * y;
+    out[1] = m[1] * x + m[3] * y;
+    return out;
+};
+
+/**
+ * Transforms the vec2 with a mat2d
+ *
+ * @param {vec2} out the receiving vector
+ * @param {vec2} a the vector to transform
+ * @param {mat2d} m matrix to transform with
+ * @returns {vec2} out
+ */
+vec2.transformMat2d = function(out, a, m) {
+    var x = a[0],
+        y = a[1];
+    out[0] = m[0] * x + m[2] * y + m[4];
+    out[1] = m[1] * x + m[3] * y + m[5];
+    return out;
+};
+
+/**
+ * Transforms the vec2 with a mat3
+ * 3rd vector component is implicitly '1'
+ *
+ * @param {vec2} out the receiving vector
+ * @param {vec2} a the vector to transform
+ * @param {mat3} m matrix to transform with
+ * @returns {vec2} out
+ */
+vec2.transformMat3 = function(out, a, m) {
+    var x = a[0],
+        y = a[1];
+    out[0] = m[0] * x + m[3] * y + m[6];
+    out[1] = m[1] * x + m[4] * y + m[7];
+    return out;
+};
+
+/**
+ * Transforms the vec2 with a mat4
+ * 3rd vector component is implicitly '0'
+ * 4th vector component is implicitly '1'
+ *
+ * @param {vec2} out the receiving vector
+ * @param {vec2} a the vector to transform
+ * @param {mat4} m matrix to transform with
+ * @returns {vec2} out
+ */
+vec2.transformMat4 = function(out, a, m) {
+    var x = a[0],
+        y = a[1];
+    out[0] = m[0] * x + m[4] * y + m[12];
+    out[1] = m[1] * x + m[5] * y + m[13];
     return out;
 };
 
@@ -2374,7 +2468,7 @@ vec2.forEach = (function() {
         if(!offset) {
             offset = 0;
         }
-        
+
         if(count) {
             l = Math.min((count * stride) + offset, a.length);
         } else {
@@ -2386,7 +2480,7 @@ vec2.forEach = (function() {
             fn(vec, vec, arg);
             a[i] = vec[0]; a[i+1] = vec[1];
         }
-        
+
         return a;
     };
 })();
@@ -2413,12 +2507,12 @@ are permitted provided that the following conditions are met:
   * Redistributions of source code must retain the above copyright notice, this
     list of conditions and the following disclaimer.
   * Redistributions in binary form must reproduce the above copyright notice,
-    this list of conditions and the following disclaimer in the documentation 
+    this list of conditions and the following disclaimer in the documentation
     and/or other materials provided with the distribution.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
@@ -2523,7 +2617,7 @@ vec3.add = function(out, a, b) {
 };
 
 /**
- * Subtracts two vec3's
+ * Subtracts vector b from vector a
  *
  * @param {vec3} out the receiving vector
  * @param {vec3} a the first operand
@@ -2627,6 +2721,22 @@ vec3.scale = function(out, a, b) {
     out[0] = a[0] * b;
     out[1] = a[1] * b;
     out[2] = a[2] * b;
+    return out;
+};
+
+/**
+ * Adds two vec3's after scaling the second operand by a scalar value
+ *
+ * @param {vec3} out the receiving vector
+ * @param {vec3} a the first operand
+ * @param {vec3} b the second operand
+ * @param {Number} scale the amount to scale b by before adding
+ * @returns {vec3} out
+ */
+vec3.scaleAndAdd = function(out, a, b, scale) {
+    out[0] = a[0] + (b[0] * scale);
+    out[1] = a[1] + (b[1] * scale);
+    out[2] = a[2] + (b[2] * scale);
     return out;
 };
 
@@ -2793,6 +2903,26 @@ vec3.lerp = function (out, a, b, t) {
 };
 
 /**
+ * Generates a random vector with the given scale
+ *
+ * @param {vec3} out the receiving vector
+ * @param {Number} [scale] Length of the resulting vector. If ommitted, a unit vector will be returned
+ * @returns {vec3} out
+ */
+vec3.random = function (out, scale) {
+    scale = scale || 1.0;
+
+    var r = GLMAT_RANDOM() * 2.0 * Math.PI;
+    var z = (GLMAT_RANDOM() * 2.0) - 1.0;
+    var zScale = Math.sqrt(1.0-z*z) * scale;
+
+    out[0] = Math.cos(r) * zScale;
+    out[1] = Math.sin(r) * zScale;
+    out[2] = z * scale;
+    return out;
+};
+
+/**
  * Transforms the vec3 with a mat4.
  * 4th vector component is implicitly '1'
  *
@@ -2810,6 +2940,22 @@ vec3.transformMat4 = function(out, a, m) {
 };
 
 /**
+ * Transforms the vec3 with a mat3.
+ *
+ * @param {vec3} out the receiving vector
+ * @param {vec3} a the vector to transform
+ * @param {mat4} m the 3x3 matrix to transform with
+ * @returns {vec3} out
+ */
+vec3.transformMat3 = function(out, a, m) {
+    var x = a[0], y = a[1], z = a[2];
+    out[0] = x * m[0] + y * m[3] + z * m[6];
+    out[1] = x * m[1] + y * m[4] + z * m[7];
+    out[2] = x * m[2] + y * m[5] + z * m[8];
+    return out;
+};
+
+/**
  * Transforms the vec3 with a quat
  *
  * @param {vec3} out the receiving vector
@@ -2818,6 +2964,8 @@ vec3.transformMat4 = function(out, a, m) {
  * @returns {vec3} out
  */
 vec3.transformQuat = function(out, a, q) {
+    // benchmarks: http://jsperf.com/quaternion-transform-vec3-implementations
+
     var x = a[0], y = a[1], z = a[2],
         qx = q[0], qy = q[1], qz = q[2], qw = q[3],
 
@@ -2858,7 +3006,7 @@ vec3.forEach = (function() {
         if(!offset) {
             offset = 0;
         }
-        
+
         if(count) {
             l = Math.min((count * stride) + offset, a.length);
         } else {
@@ -2870,7 +3018,7 @@ vec3.forEach = (function() {
             fn(vec, vec, arg);
             a[i] = vec[0]; a[i+1] = vec[1]; a[i+2] = vec[2];
         }
-        
+
         return a;
     };
 })();
@@ -2897,12 +3045,12 @@ are permitted provided that the following conditions are met:
   * Redistributions of source code must retain the above copyright notice, this
     list of conditions and the following disclaimer.
   * Redistributions in binary form must reproduce the above copyright notice,
-    this list of conditions and the following disclaimer in the documentation 
+    this list of conditions and the following disclaimer in the documentation
     and/or other materials provided with the distribution.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
@@ -3015,7 +3163,7 @@ vec4.add = function(out, a, b) {
 };
 
 /**
- * Subtracts two vec4's
+ * Subtracts vector b from vector a
  *
  * @param {vec4} out the receiving vector
  * @param {vec4} a the first operand
@@ -3125,6 +3273,23 @@ vec4.scale = function(out, a, b) {
     out[1] = a[1] * b;
     out[2] = a[2] * b;
     out[3] = a[3] * b;
+    return out;
+};
+
+/**
+ * Adds two vec4's after scaling the second operand by a scalar value
+ *
+ * @param {vec4} out the receiving vector
+ * @param {vec4} a the first operand
+ * @param {vec4} b the second operand
+ * @param {Number} scale the amount to scale b by before adding
+ * @returns {vec4} out
+ */
+vec4.scaleAndAdd = function(out, a, b, scale) {
+    out[0] = a[0] + (b[0] * scale);
+    out[1] = a[1] + (b[1] * scale);
+    out[2] = a[2] + (b[2] * scale);
+    out[3] = a[3] + (b[3] * scale);
     return out;
 };
 
@@ -3281,6 +3446,26 @@ vec4.lerp = function (out, a, b, t) {
 };
 
 /**
+ * Generates a random vector with the given scale
+ *
+ * @param {vec4} out the receiving vector
+ * @param {Number} [scale] Length of the resulting vector. If ommitted, a unit vector will be returned
+ * @returns {vec4} out
+ */
+vec4.random = function (out, scale) {
+    scale = scale || 1.0;
+
+    //TODO: This is a pretty awful way of doing this. Find something better.
+    out[0] = GLMAT_RANDOM();
+    out[1] = GLMAT_RANDOM();
+    out[2] = GLMAT_RANDOM();
+    out[3] = GLMAT_RANDOM();
+    vec4.normalize(out, out);
+    vec4.scale(out, out, scale);
+    return out;
+};
+
+/**
  * Transforms the vec4 with a mat4.
  *
  * @param {vec4} out the receiving vector
@@ -3346,7 +3531,7 @@ vec4.forEach = (function() {
         if(!offset) {
             offset = 0;
         }
-        
+
         if(count) {
             l = Math.min((count * stride) + offset, a.length);
         } else {
@@ -3358,7 +3543,7 @@ vec4.forEach = (function() {
             fn(vec, vec, arg);
             a[i] = vec[0]; a[i+1] = vec[1]; a[i+2] = vec[2]; a[i+3] = vec[3];
         }
-        
+
         return a;
     };
 })();
@@ -3385,12 +3570,12 @@ are permitted provided that the following conditions are met:
   * Redistributions of source code must retain the above copyright notice, this
     list of conditions and the following disclaimer.
   * Redistributions in binary form must reproduce the above copyright notice,
-    this list of conditions and the following disclaimer in the documentation 
+    this list of conditions and the following disclaimer in the documentation
     and/or other materials provided with the distribution.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
@@ -3405,11 +3590,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
  */
 
 var mat2 = {};
-
-var mat2Identity = new Float32Array([
-    1, 0,
-    0, 1
-]);
 
 /**
  * Creates a new identity mat2
@@ -3488,7 +3668,7 @@ mat2.transpose = function(out, a) {
         out[2] = a[1];
         out[3] = a[3];
     }
-    
+
     return out;
 };
 
@@ -3509,7 +3689,7 @@ mat2.invert = function(out, a) {
         return null;
     }
     det = 1.0 / det;
-    
+
     out[0] =  a3 * det;
     out[1] = -a1 * det;
     out[2] = -a2 * det;
@@ -3594,7 +3774,7 @@ mat2.rotate = function (out, a, rad) {
  *
  * @param {mat2} out the receiving matrix
  * @param {mat2} a the matrix to rotate
- * @param {mat2} v the vec2 to scale the matrix by
+ * @param {vec2} v the vec2 to scale the matrix by
  * @returns {mat2} out
  **/
 mat2.scale = function(out, a, v) {
@@ -3629,12 +3809,267 @@ are permitted provided that the following conditions are met:
   * Redistributions of source code must retain the above copyright notice, this
     list of conditions and the following disclaimer.
   * Redistributions in binary form must reproduce the above copyright notice,
-    this list of conditions and the following disclaimer in the documentation 
+    this list of conditions and the following disclaimer in the documentation
     and/or other materials provided with the distribution.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
+
+/**
+ * @class 2x3 Matrix
+ * @name mat2d
+ *
+ * @description
+ * A mat2d contains six elements defined as:
+ * <pre>
+ * [a, b,
+ *  c, d,
+ *  tx,ty]
+ * </pre>
+ * This is a short form for the 3x3 matrix:
+ * <pre>
+ * [a, b, 0
+ *  c, d, 0
+ *  tx,ty,1]
+ * </pre>
+ * The last column is ignored so the array is shorter and operations are faster.
+ */
+
+var mat2d = {};
+
+/**
+ * Creates a new identity mat2d
+ *
+ * @returns {mat2d} a new 2x3 matrix
+ */
+mat2d.create = function() {
+    var out = new GLMAT_ARRAY_TYPE(6);
+    out[0] = 1;
+    out[1] = 0;
+    out[2] = 0;
+    out[3] = 1;
+    out[4] = 0;
+    out[5] = 0;
+    return out;
+};
+
+/**
+ * Creates a new mat2d initialized with values from an existing matrix
+ *
+ * @param {mat2d} a matrix to clone
+ * @returns {mat2d} a new 2x3 matrix
+ */
+mat2d.clone = function(a) {
+    var out = new GLMAT_ARRAY_TYPE(6);
+    out[0] = a[0];
+    out[1] = a[1];
+    out[2] = a[2];
+    out[3] = a[3];
+    out[4] = a[4];
+    out[5] = a[5];
+    return out;
+};
+
+/**
+ * Copy the values from one mat2d to another
+ *
+ * @param {mat2d} out the receiving matrix
+ * @param {mat2d} a the source matrix
+ * @returns {mat2d} out
+ */
+mat2d.copy = function(out, a) {
+    out[0] = a[0];
+    out[1] = a[1];
+    out[2] = a[2];
+    out[3] = a[3];
+    out[4] = a[4];
+    out[5] = a[5];
+    return out;
+};
+
+/**
+ * Set a mat2d to the identity matrix
+ *
+ * @param {mat2d} out the receiving matrix
+ * @returns {mat2d} out
+ */
+mat2d.identity = function(out) {
+    out[0] = 1;
+    out[1] = 0;
+    out[2] = 0;
+    out[3] = 1;
+    out[4] = 0;
+    out[5] = 0;
+    return out;
+};
+
+/**
+ * Inverts a mat2d
+ *
+ * @param {mat2d} out the receiving matrix
+ * @param {mat2d} a the source matrix
+ * @returns {mat2d} out
+ */
+mat2d.invert = function(out, a) {
+    var aa = a[0], ab = a[1], ac = a[2], ad = a[3],
+        atx = a[4], aty = a[5];
+
+    var det = aa * ad - ab * ac;
+    if(!det){
+        return null;
+    }
+    det = 1.0 / det;
+
+    out[0] = ad * det;
+    out[1] = -ab * det;
+    out[2] = -ac * det;
+    out[3] = aa * det;
+    out[4] = (ac * aty - ad * atx) * det;
+    out[5] = (ab * atx - aa * aty) * det;
+    return out;
+};
+
+/**
+ * Calculates the determinant of a mat2d
+ *
+ * @param {mat2d} a the source matrix
+ * @returns {Number} determinant of a
+ */
+mat2d.determinant = function (a) {
+    return a[0] * a[3] - a[1] * a[2];
+};
+
+/**
+ * Multiplies two mat2d's
+ *
+ * @param {mat2d} out the receiving matrix
+ * @param {mat2d} a the first operand
+ * @param {mat2d} b the second operand
+ * @returns {mat2d} out
+ */
+mat2d.multiply = function (out, a, b) {
+    var aa = a[0], ab = a[1], ac = a[2], ad = a[3],
+        atx = a[4], aty = a[5],
+        ba = b[0], bb = b[1], bc = b[2], bd = b[3],
+        btx = b[4], bty = b[5];
+
+    out[0] = aa*ba + ab*bc;
+    out[1] = aa*bb + ab*bd;
+    out[2] = ac*ba + ad*bc;
+    out[3] = ac*bb + ad*bd;
+    out[4] = ba*atx + bc*aty + btx;
+    out[5] = bb*atx + bd*aty + bty;
+    return out;
+};
+
+/**
+ * Alias for {@link mat2d.multiply}
+ * @function
+ */
+mat2d.mul = mat2d.multiply;
+
+
+/**
+ * Rotates a mat2d by the given angle
+ *
+ * @param {mat2d} out the receiving matrix
+ * @param {mat2d} a the matrix to rotate
+ * @param {Number} rad the angle to rotate the matrix by
+ * @returns {mat2d} out
+ */
+mat2d.rotate = function (out, a, rad) {
+    var aa = a[0],
+        ab = a[1],
+        ac = a[2],
+        ad = a[3],
+        atx = a[4],
+        aty = a[5],
+        st = Math.sin(rad),
+        ct = Math.cos(rad);
+
+    out[0] = aa*ct + ab*st;
+    out[1] = -aa*st + ab*ct;
+    out[2] = ac*ct + ad*st;
+    out[3] = -ac*st + ct*ad;
+    out[4] = ct*atx + st*aty;
+    out[5] = ct*aty - st*atx;
+    return out;
+};
+
+/**
+ * Scales the mat2d by the dimensions in the given vec2
+ *
+ * @param {mat2d} out the receiving matrix
+ * @param {mat2d} a the matrix to translate
+ * @param {vec2} v the vec2 to scale the matrix by
+ * @returns {mat2d} out
+ **/
+mat2d.scale = function(out, a, v) {
+    var vx = v[0], vy = v[1];
+    out[0] = a[0] * vx;
+    out[1] = a[1] * vy;
+    out[2] = a[2] * vx;
+    out[3] = a[3] * vy;
+    out[4] = a[4] * vx;
+    out[5] = a[5] * vy;
+    return out;
+};
+
+/**
+ * Translates the mat2d by the dimensions in the given vec2
+ *
+ * @param {mat2d} out the receiving matrix
+ * @param {mat2d} a the matrix to translate
+ * @param {vec2} v the vec2 to translate the matrix by
+ * @returns {mat2d} out
+ **/
+mat2d.translate = function(out, a, v) {
+    out[0] = a[0];
+    out[1] = a[1];
+    out[2] = a[2];
+    out[3] = a[3];
+    out[4] = a[4] + v[0];
+    out[5] = a[5] + v[1];
+    return out;
+};
+
+/**
+ * Returns a string representation of a mat2d
+ *
+ * @param {mat2d} a matrix to represent as a string
+ * @returns {String} string representation of the matrix
+ */
+mat2d.str = function (a) {
+    return 'mat2d(' + a[0] + ', ' + a[1] + ', ' + a[2] + ', ' +
+                    a[3] + ', ' + a[4] + ', ' + a[5] + ')';
+};
+
+if(typeof(exports) !== 'undefined') {
+    exports.mat2d = mat2d;
+}
+;
+/* Copyright (c) 2013, Brandon Jones, Colin MacKenzie IV. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
+
+  * Redistributions of source code must retain the above copyright notice, this
+    list of conditions and the following disclaimer.
+  * Redistributions in binary form must reproduce the above copyright notice,
+    this list of conditions and the following disclaimer in the documentation
+    and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
@@ -3649,12 +4084,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
  */
 
 var mat3 = {};
-
-var mat3Identity = new Float32Array([
-    1, 0, 0,
-    0, 1, 0,
-    0, 0, 1
-]);
 
 /**
  * Creates a new identity mat3
@@ -3672,6 +4101,26 @@ mat3.create = function() {
     out[6] = 0;
     out[7] = 0;
     out[8] = 1;
+    return out;
+};
+
+/**
+ * Copies the upper-left 3x3 values into the given mat3.
+ *
+ * @param {mat3} out the receiving 3x3 matrix
+ * @param {mat4} a   the source 4x4 matrix
+ * @returns {mat3} out
+ */
+mat3.fromMat4 = function(out, a) {
+    out[0] = a[0];
+    out[1] = a[1];
+    out[2] = a[2];
+    out[3] = a[4];
+    out[4] = a[5];
+    out[5] = a[6];
+    out[6] = a[8];
+    out[7] = a[9];
+    out[8] = a[10];
     return out;
 };
 
@@ -3762,7 +4211,7 @@ mat3.transpose = function(out, a) {
         out[7] = a[5];
         out[8] = a[8];
     }
-    
+
     return out;
 };
 
@@ -3785,8 +4234,8 @@ mat3.invert = function(out, a) {
         // Calculate the determinant
         det = a00 * b01 + a01 * b11 + a02 * b21;
 
-    if (!det) { 
-        return null; 
+    if (!det) {
+        return null;
     }
     det = 1.0 / det;
 
@@ -3878,14 +4327,208 @@ mat3.multiply = function (out, a, b) {
 mat3.mul = mat3.multiply;
 
 /**
+ * Translate a mat3 by the given vector
+ *
+ * @param {mat3} out the receiving matrix
+ * @param {mat3} a the matrix to translate
+ * @param {vec2} v vector to translate by
+ * @returns {mat3} out
+ */
+mat3.translate = function(out, a, v) {
+    var a00 = a[0], a01 = a[1], a02 = a[2],
+        a10 = a[3], a11 = a[4], a12 = a[5],
+        a20 = a[6], a21 = a[7], a22 = a[8],
+        x = v[0], y = v[1];
+
+    out[0] = a00;
+    out[1] = a01;
+    out[2] = a02;
+
+    out[3] = a10;
+    out[4] = a11;
+    out[5] = a12;
+
+    out[6] = x * a00 + y * a10 + a20;
+    out[7] = x * a01 + y * a11 + a21;
+    out[8] = x * a02 + y * a12 + a22;
+    return out;
+};
+
+/**
+ * Rotates a mat3 by the given angle
+ *
+ * @param {mat3} out the receiving matrix
+ * @param {mat3} a the matrix to rotate
+ * @param {Number} rad the angle to rotate the matrix by
+ * @returns {mat3} out
+ */
+mat3.rotate = function (out, a, rad) {
+    var a00 = a[0], a01 = a[1], a02 = a[2],
+        a10 = a[3], a11 = a[4], a12 = a[5],
+        a20 = a[6], a21 = a[7], a22 = a[8],
+
+        s = Math.sin(rad),
+        c = Math.cos(rad);
+
+    out[0] = c * a00 + s * a10;
+    out[1] = c * a01 + s * a11;
+    out[2] = c * a02 + s * a12;
+
+    out[3] = c * a10 - s * a00;
+    out[4] = c * a11 - s * a01;
+    out[5] = c * a12 - s * a02;
+
+    out[6] = a20;
+    out[7] = a21;
+    out[8] = a22;
+    return out;
+};
+
+/**
+ * Scales the mat3 by the dimensions in the given vec2
+ *
+ * @param {mat3} out the receiving matrix
+ * @param {mat3} a the matrix to rotate
+ * @param {vec2} v the vec2 to scale the matrix by
+ * @returns {mat3} out
+ **/
+mat3.scale = function(out, a, v) {
+    var x = v[0], y = v[1];
+
+    out[0] = x * a[0];
+    out[1] = x * a[1];
+    out[2] = x * a[2];
+
+    out[3] = y * a[3];
+    out[4] = y * a[4];
+    out[5] = y * a[5];
+
+    out[6] = a[6];
+    out[7] = a[7];
+    out[8] = a[8];
+    return out;
+};
+
+/**
+ * Copies the values from a mat2d into a mat3
+ *
+ * @param {mat3} out the receiving matrix
+ * @param {mat2d} a the matrix to copy
+ * @returns {mat3} out
+ **/
+mat3.fromMat2d = function(out, a) {
+    out[0] = a[0];
+    out[1] = a[1];
+    out[2] = 0;
+
+    out[3] = a[2];
+    out[4] = a[3];
+    out[5] = 0;
+
+    out[6] = a[4];
+    out[7] = a[5];
+    out[8] = 1;
+    return out;
+};
+
+/**
+* Calculates a 3x3 matrix from the given quaternion
+*
+* @param {mat3} out mat3 receiving operation result
+* @param {quat} q Quaternion to create matrix from
+*
+* @returns {mat3} out
+*/
+mat3.fromQuat = function (out, q) {
+    var x = q[0], y = q[1], z = q[2], w = q[3],
+        x2 = x + x,
+        y2 = y + y,
+        z2 = z + z,
+
+        xx = x * x2,
+        xy = x * y2,
+        xz = x * z2,
+        yy = y * y2,
+        yz = y * z2,
+        zz = z * z2,
+        wx = w * x2,
+        wy = w * y2,
+        wz = w * z2;
+
+    out[0] = 1 - (yy + zz);
+    out[3] = xy + wz;
+    out[6] = xz - wy;
+
+    out[1] = xy - wz;
+    out[4] = 1 - (xx + zz);
+    out[7] = yz + wx;
+
+    out[2] = xz + wy;
+    out[5] = yz - wx;
+    out[8] = 1 - (xx + yy);
+
+    return out;
+};
+
+/**
+* Calculates a 3x3 normal matrix (transpose inverse) from the 4x4 matrix
+*
+* @param {mat3} out mat3 receiving operation result
+* @param {mat4} a Mat4 to derive the normal matrix from
+*
+* @returns {mat3} out
+*/
+mat3.normalFromMat4 = function (out, a) {
+    var a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3],
+        a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7],
+        a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11],
+        a30 = a[12], a31 = a[13], a32 = a[14], a33 = a[15],
+
+        b00 = a00 * a11 - a01 * a10,
+        b01 = a00 * a12 - a02 * a10,
+        b02 = a00 * a13 - a03 * a10,
+        b03 = a01 * a12 - a02 * a11,
+        b04 = a01 * a13 - a03 * a11,
+        b05 = a02 * a13 - a03 * a12,
+        b06 = a20 * a31 - a21 * a30,
+        b07 = a20 * a32 - a22 * a30,
+        b08 = a20 * a33 - a23 * a30,
+        b09 = a21 * a32 - a22 * a31,
+        b10 = a21 * a33 - a23 * a31,
+        b11 = a22 * a33 - a23 * a32,
+
+        // Calculate the determinant
+        det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
+
+    if (!det) {
+        return null;
+    }
+    det = 1.0 / det;
+
+    out[0] = (a11 * b11 - a12 * b10 + a13 * b09) * det;
+    out[1] = (a12 * b08 - a10 * b11 - a13 * b07) * det;
+    out[2] = (a10 * b10 - a11 * b08 + a13 * b06) * det;
+
+    out[3] = (a02 * b10 - a01 * b11 - a03 * b09) * det;
+    out[4] = (a00 * b11 - a02 * b08 + a03 * b07) * det;
+    out[5] = (a01 * b08 - a00 * b10 - a03 * b06) * det;
+
+    out[6] = (a31 * b05 - a32 * b04 + a33 * b03) * det;
+    out[7] = (a32 * b02 - a30 * b05 - a33 * b01) * det;
+    out[8] = (a30 * b04 - a31 * b02 + a33 * b00) * det;
+
+    return out;
+};
+
+/**
  * Returns a string representation of a mat3
  *
  * @param {mat3} mat matrix to represent as a string
  * @returns {String} string representation of the matrix
  */
 mat3.str = function (a) {
-    return 'mat3(' + a[0] + ', ' + a[1] + ', ' + a[2] + ', ' + 
-                    a[3] + ', ' + a[4] + ', ' + a[5] + ', ' + 
+    return 'mat3(' + a[0] + ', ' + a[1] + ', ' + a[2] + ', ' +
+                    a[3] + ', ' + a[4] + ', ' + a[5] + ', ' +
                     a[6] + ', ' + a[7] + ', ' + a[8] + ')';
 };
 
@@ -3901,12 +4544,12 @@ are permitted provided that the following conditions are met:
   * Redistributions of source code must retain the above copyright notice, this
     list of conditions and the following disclaimer.
   * Redistributions in binary form must reproduce the above copyright notice,
-    this list of conditions and the following disclaimer in the documentation 
+    this list of conditions and the following disclaimer in the documentation
     and/or other materials provided with the distribution.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
@@ -3921,13 +4564,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
  */
 
 var mat4 = {};
-
-var mat4Identity = new Float32Array([
-    1, 0, 0, 0,
-    0, 1, 0, 0,
-    0, 0, 1, 0,
-    0, 0, 0, 1
-]);
 
 /**
  * Creates a new identity mat4
@@ -4079,7 +4715,7 @@ mat4.transpose = function(out, a) {
         out[14] = a[11];
         out[15] = a[15];
     }
-    
+
     return out;
 };
 
@@ -4112,8 +4748,8 @@ mat4.invert = function(out, a) {
         // Calculate the determinant
         det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
 
-    if (!det) { 
-        return null; 
+    if (!det) {
+        return null;
     }
     det = 1.0 / det;
 
@@ -4213,7 +4849,7 @@ mat4.multiply = function (out, a, b) {
         a30 = a[12], a31 = a[13], a32 = a[14], a33 = a[15];
 
     // Cache only the current line of the second matrix
-    var b0  = b[0], b1 = b[1], b2 = b[2], b3 = b[3];  
+    var b0  = b[0], b1 = b[1], b2 = b[2], b3 = b[3];
     out[0] = b0*a00 + b1*a10 + b2*a20 + b3*a30;
     out[1] = b0*a01 + b1*a11 + b2*a21 + b3*a31;
     out[2] = b0*a02 + b1*a12 + b2*a22 + b3*a32;
@@ -4333,7 +4969,7 @@ mat4.rotate = function (out, a, rad, axis) {
         b20, b21, b22;
 
     if (Math.abs(len) < GLMAT_EPSILON) { return null; }
-    
+
     len = 1 / len;
     x *= len;
     y *= len;
@@ -4552,7 +5188,54 @@ mat4.fromRotationTranslation = function (out, q, v) {
     out[13] = v[1];
     out[14] = v[2];
     out[15] = 1;
-    
+
+    return out;
+};
+
+/**
+* Calculates a 4x4 matrix from the given quaternion
+*
+* @param {mat4} out mat4 receiving operation result
+* @param {quat} q Quaternion to create matrix from
+*
+* @returns {mat4} out
+*/
+mat4.fromQuat = function (out, q) {
+    var x = q[0], y = q[1], z = q[2], w = q[3],
+        x2 = x + x,
+        y2 = y + y,
+        z2 = z + z,
+
+        xx = x * x2,
+        xy = x * y2,
+        xz = x * z2,
+        yy = y * y2,
+        yz = y * z2,
+        zz = z * z2,
+        wx = w * x2,
+        wy = w * y2,
+        wz = w * z2;
+
+    out[0] = 1 - (yy + zz);
+    out[1] = xy + wz;
+    out[2] = xz - wy;
+    out[3] = 0;
+
+    out[4] = xy - wz;
+    out[5] = 1 - (xx + zz);
+    out[6] = yz + wx;
+    out[7] = 0;
+
+    out[8] = xz + wy;
+    out[9] = yz - wx;
+    out[10] = 1 - (xx + yy);
+    out[11] = 0;
+
+    out[12] = 0;
+    out[13] = 0;
+    out[14] = 0;
+    out[15] = 1;
+
     return out;
 };
 
@@ -4754,7 +5437,7 @@ mat4.lookAt = function (out, eye, center, up) {
 mat4.str = function (a) {
     return 'mat4(' + a[0] + ', ' + a[1] + ', ' + a[2] + ', ' + a[3] + ', ' +
                     a[4] + ', ' + a[5] + ', ' + a[6] + ', ' + a[7] + ', ' +
-                    a[8] + ', ' + a[9] + ', ' + a[10] + ', ' + a[11] + ', ' + 
+                    a[8] + ', ' + a[9] + ', ' + a[10] + ', ' + a[11] + ', ' +
                     a[12] + ', ' + a[13] + ', ' + a[14] + ', ' + a[15] + ')';
 };
 
@@ -4770,12 +5453,12 @@ are permitted provided that the following conditions are met:
   * Redistributions of source code must retain the above copyright notice, this
     list of conditions and the following disclaimer.
   * Redistributions in binary form must reproduce the above copyright notice,
-    this list of conditions and the following disclaimer in the documentation 
+    this list of conditions and the following disclaimer in the documentation
     and/or other materials provided with the distribution.
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
 ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
@@ -4791,8 +5474,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 
 var quat = {};
 
-var quatIdentity = new Float32Array([0, 0, 0, 1]);
-
 /**
  * Creates a new identity quat
  *
@@ -4806,6 +5487,78 @@ quat.create = function() {
     out[3] = 1;
     return out;
 };
+
+/**
+ * Sets a quaternion to represent the shortest rotation from one
+ * vector to another.
+ *
+ * Both vectors are assumed to be unit length.
+ *
+ * @param {quat} out the receiving quaternion.
+ * @param {vec3} a the initial vector
+ * @param {vec3} b the destination vector
+ * @returns {quat} out
+ */
+quat.rotationTo = (function() {
+    var tmpvec3 = vec3.create();
+    var xUnitVec3 = vec3.fromValues(1,0,0);
+    var yUnitVec3 = vec3.fromValues(0,1,0);
+
+    return function(out, a, b) {
+        var dot = vec3.dot(a, b);
+        if (dot < -0.999999) {
+            vec3.cross(tmpvec3, xUnitVec3, a);
+            if (vec3.length(tmpvec3) < 0.000001)
+                vec3.cross(tmpvec3, yUnitVec3, a);
+            vec3.normalize(tmpvec3, tmpvec3);
+            quat.setAxisAngle(out, tmpvec3, Math.PI);
+            return out;
+        } else if (dot > 0.999999) {
+            out[0] = 0;
+            out[1] = 0;
+            out[2] = 0;
+            out[3] = 1;
+            return out;
+        } else {
+            vec3.cross(tmpvec3, a, b);
+            out[0] = tmpvec3[0];
+            out[1] = tmpvec3[1];
+            out[2] = tmpvec3[2];
+            out[3] = 1 + dot;
+            return quat.normalize(out, out);
+        }
+    };
+})();
+
+/**
+ * Sets the specified quaternion with values corresponding to the given
+ * axes. Each axis is a vec3 and is expected to be unit length and
+ * perpendicular to all other specified axes.
+ *
+ * @param {vec3} view  the vector representing the viewing direction
+ * @param {vec3} right the vector representing the local "right" direction
+ * @param {vec3} up    the vector representing the local "up" direction
+ * @returns {quat} out
+ */
+quat.setAxes = (function() {
+    var matr = mat3.create();
+
+    return function(out, view, right, up) {
+        matr[0] = right[0];
+        matr[3] = right[1];
+        matr[6] = right[2];
+
+        matr[1] = up[0];
+        matr[4] = up[1];
+        matr[7] = up[2];
+
+        matr[2] = view[0];
+        matr[5] = view[1];
+        matr[8] = view[2];
+
+        return quat.normalize(out, quat.fromMat3(out, matr));
+    };
+})();
 
 /**
  * Creates a new quat initialized with values from an existing quaternion
@@ -4932,7 +5685,7 @@ quat.mul = quat.multiply;
 quat.scale = vec4.scale;
 
 /**
- * Rotates a quaternion by the given angle around the X axis
+ * Rotates a quaternion by the given angle about the X axis
  *
  * @param {quat} out quat receiving operation result
  * @param {quat} a quat to rotate
@@ -4940,7 +5693,7 @@ quat.scale = vec4.scale;
  * @returns {quat} out
  */
 quat.rotateX = function (out, a, rad) {
-    rad *= 0.5; 
+    rad *= 0.5;
 
     var ax = a[0], ay = a[1], az = a[2], aw = a[3],
         bx = Math.sin(rad), bw = Math.cos(rad);
@@ -4953,7 +5706,7 @@ quat.rotateX = function (out, a, rad) {
 };
 
 /**
- * Rotates a quaternion by the given angle around the Y axis
+ * Rotates a quaternion by the given angle about the Y axis
  *
  * @param {quat} out quat receiving operation result
  * @param {quat} a quat to rotate
@@ -4961,7 +5714,7 @@ quat.rotateX = function (out, a, rad) {
  * @returns {quat} out
  */
 quat.rotateY = function (out, a, rad) {
-    rad *= 0.5; 
+    rad *= 0.5;
 
     var ax = a[0], ay = a[1], az = a[2], aw = a[3],
         by = Math.sin(rad), bw = Math.cos(rad);
@@ -4974,7 +5727,7 @@ quat.rotateY = function (out, a, rad) {
 };
 
 /**
- * Rotates a quaternion by the given angle around the Z axis
+ * Rotates a quaternion by the given angle about the Z axis
  *
  * @param {quat} out quat receiving operation result
  * @param {quat} a quat to rotate
@@ -4982,7 +5735,7 @@ quat.rotateY = function (out, a, rad) {
  * @returns {quat} out
  */
 quat.rotateZ = function (out, a, rad) {
-    rad *= 0.5; 
+    rad *= 0.5;
 
     var ax = a[0], ay = a[1], az = a[2], aw = a[3],
         bz = Math.sin(rad), bw = Math.cos(rad);
@@ -5045,43 +5798,42 @@ quat.lerp = vec4.lerp;
  * @returns {quat} out
  */
 quat.slerp = function (out, a, b, t) {
+    // benchmarks:
+    //    http://jsperf.com/quaternion-slerp-implementations
+
     var ax = a[0], ay = a[1], az = a[2], aw = a[3],
         bx = b[0], by = b[1], bz = b[2], bw = b[3];
 
-    var cosHalfTheta = ax * bx + ay * by + az * bz + aw * bw,
-        halfTheta,
-        sinHalfTheta,
-        ratioA,
-        ratioB;
+    var        omega, cosom, sinom, scale0, scale1;
 
-    if (Math.abs(cosHalfTheta) >= 1.0) {
-        if (out !== a) {
-            out[0] = ax;
-            out[1] = ay;
-            out[2] = az;
-            out[3] = aw;
-        }
-        return out;
+    // calc cosine
+    cosom = ax * bx + ay * by + az * bz + aw * bw;
+    // adjust signs (if necessary)
+    if ( cosom < 0.0 ) {
+        cosom = -cosom;
+        bx = - bx;
+        by = - by;
+        bz = - bz;
+        bw = - bw;
     }
-
-    halfTheta = Math.acos(cosHalfTheta);
-    sinHalfTheta = Math.sqrt(1.0 - cosHalfTheta * cosHalfTheta);
-
-    if (Math.abs(sinHalfTheta) < 0.001) {
-        out[0] = (ax * 0.5 + bx * 0.5);
-        out[1] = (ay * 0.5 + by * 0.5);
-        out[2] = (az * 0.5 + bz * 0.5);
-        out[3] = (aw * 0.5 + bw * 0.5);
-        return out;
+    // calculate coefficients
+    if ( (1.0 - cosom) > 0.000001 ) {
+        // standard case (slerp)
+        omega  = Math.acos(cosom);
+        sinom  = Math.sin(omega);
+        scale0 = Math.sin((1.0 - t) * omega) / sinom;
+        scale1 = Math.sin(t * omega) / sinom;
+    } else {
+        // "from" and "to" quaternions are very close
+        //  ... so we can do a linear interpolation
+        scale0 = 1.0 - t;
+        scale1 = t;
     }
-
-    ratioA = Math.sin((1 - t) * halfTheta) / sinHalfTheta;
-    ratioB = Math.sin(t * halfTheta) / sinHalfTheta;
-
-    out[0] = (ax * ratioA + bx * ratioB);
-    out[1] = (ay * ratioA + by * ratioB);
-    out[2] = (az * ratioA + bz * ratioB);
-    out[3] = (aw * ratioA + bw * ratioB);
+    // calculate final values
+    out[0] = scale0 * ax + scale1 * bx;
+    out[1] = scale0 * ay + scale1 * by;
+    out[2] = scale0 * az + scale1 * bz;
+    out[3] = scale0 * aw + scale1 * bw;
 
     return out;
 };
@@ -5097,7 +5849,7 @@ quat.invert = function(out, a) {
     var a0 = a[0], a1 = a[1], a2 = a[2], a3 = a[3],
         dot = a0*a0 + a1*a1 + a2*a2 + a3*a3,
         invDot = dot ? 1.0/dot : 0;
-    
+
     // TODO: Would be faster to return [0,0,0,0] immediately if dot == 0
 
     out[0] = -a0*invDot;
@@ -5164,6 +5916,60 @@ quat.sqrLen = quat.squaredLength;
 quat.normalize = vec4.normalize;
 
 /**
+ * Creates a quaternion from the given 3x3 rotation matrix.
+ *
+ * NOTE: The resultant quaternion is not normalized, so you should be sure
+ * to renormalize the quaternion yourself where necessary.
+ *
+ * @param {quat} out the receiving quaternion
+ * @param {mat3} m rotation matrix
+ * @returns {quat} out
+ * @function
+ */
+quat.fromMat3 = (function() {
+    // benchmarks:
+    //    http://jsperf.com/typed-array-access-speed
+    //    http://jsperf.com/conversion-of-3x3-matrix-to-quaternion
+
+    var s_iNext = (typeof(Int8Array) !== 'undefined' ? new Int8Array([1,2,0]) : [1,2,0]);
+
+    return function(out, m) {
+        // Algorithm in Ken Shoemake's article in 1987 SIGGRAPH course notes
+        // article "Quaternion Calculus and Fast Animation".
+        var fTrace = m[0] + m[4] + m[8];
+        var fRoot;
+
+        if ( fTrace > 0.0 ) {
+            // |w| > 1/2, may as well choose w > 1/2
+            fRoot = Math.sqrt(fTrace + 1.0);  // 2w
+            out[3] = 0.5 * fRoot;
+            fRoot = 0.5/fRoot;  // 1/(4w)
+            out[0] = (m[7]-m[5])*fRoot;
+            out[1] = (m[2]-m[6])*fRoot;
+            out[2] = (m[3]-m[1])*fRoot;
+        } else {
+            // |w| <= 1/2
+            var i = 0;
+            if ( m[4] > m[0] )
+              i = 1;
+            if ( m[8] > m[i*3+i] )
+              i = 2;
+            var j = s_iNext[i];
+            var k = s_iNext[j];
+
+            fRoot = Math.sqrt(m[i*3+i]-m[j*3+j]-m[k*3+k] + 1.0);
+            out[i] = 0.5 * fRoot;
+            fRoot = 0.5 / fRoot;
+            out[3] = (m[k*3+j] - m[j*3+k]) * fRoot;
+            out[j] = (m[j*3+i] + m[i*3+j]) * fRoot;
+            out[k] = (m[k*3+i] + m[i*3+k]) * fRoot;
+        }
+
+        return out;
+    };
+})();
+
+/**
  * Returns a string representation of a quatenion
  *
  * @param {quat} vec vector to represent as a string
@@ -5180,18 +5986,8 @@ if(typeof(exports) !== 'undefined') {
 
 
 
-
-
-
-
-
-
-
-
-
   })(shim.exports);
-})();
-// Domain Public by Eric Wendelin http://eriwen.com/ (2008)
+})(this);// Domain Public by Eric Wendelin http://eriwen.com/ (2008)
 //                  Luke Smith http://lucassmith.name/ (2008)
 //                  Loic Dachary <loic@dachary.org> (2008)
 //                  Johan Euphrosine <proppy@aminche.com> (2008)
@@ -7228,307 +8024,305 @@ SimplexNoise.prototype.noise3d = function(xin, yin, zin) {
 
 
 }(XML3D._native));
-(function() {
-
-
 //-----------------------------------------------------------------------------
 // Adapter and Adapter factory
 //-----------------------------------------------------------------------------
-XML3D.base = {
-    toString : function() {
-        return "base";
-    }
-};
+(function(XML3D) {
 
-/**
- * A normal adapter that doesn't need to be connected to a DOM node
- * @constructor
- * @param {XML3D.base.AdapterFactory} factory - the factory this adapter was created from
- */
-XML3D.base.Adapter = function(factory) {
-    this.factory = factory;
-};
+    XML3D.base = {
+        toString: function() {
+            return "base";
+        }
+    };
 
-/**
- * Connect an adapterHandle to a certain key.
- * This will enable the ConnectedAdapterNotifcations for notifyChanged.
- * @param {string} key - the key that will also be provided in connectAdapterChanged callback
- * @param {XML3D.base.AdapterHandle} adapterHandle handle of adapter to be added
- */
-XML3D.base.Adapter.prototype.connectAdapterHandle = function(key, adapterHandle){
-    if(!this.connectedAdapterHandles){
+    /**
+     * A normal adapter that doesn't need to be connected to a DOM node
+     * @constructor
+     * @param {XML3D.base.AdapterFactory} factory - the factory this adapter was created from
+     */
+    XML3D.base.Adapter = function(factory) {
+        this.factory = factory;
+    };
+
+    /**
+     * Connect an adapterHandle to a certain key.
+     * This will enable the ConnectedAdapterNotifcations for notifyChanged.
+     * @param {string} key - the key that will also be provided in connectAdapterChanged callback
+     * @param {XML3D.base.AdapterHandle} adapterHandle handle of adapter to be added
+     */
+    XML3D.base.Adapter.prototype.connectAdapterHandle = function(key, adapterHandle) {
+        if (!this.connectedAdapterHandles) {
+            this.connectedAdapterHandles = {};
+            this._bindedAdapterHandleCallback = adapterHandleCallback.bind(this);
+        }
+
+        this.disconnectAdapterHandle(key);
+
+        if (adapterHandle) {
+            this.connectedAdapterHandles[key] = adapterHandle;
+            this.connectedAdapterHandles[key].addListener(this._bindedAdapterHandleCallback);
+        }
+        else
+            delete this.connectedAdapterHandles[key];
+
+    };
+
+    /**
+     * Disconnects the adapter handle from the given key.
+     * @param {string} key - the key that was provided when this adapter handle was connected
+     */
+    XML3D.base.Adapter.prototype.disconnectAdapterHandle = function(key) {
+        if (this.connectedAdapterHandles && this.connectedAdapterHandles[key]) {
+            this.connectedAdapterHandles[key].removeListener(this._bindedAdapterHandleCallback);
+            delete this.connectedAdapterHandles[key];
+        }
+    };
+
+    /**
+     * Disconnects all adapter handles.
+     */
+    XML3D.base.Adapter.prototype.clearAdapterHandles = function() {
+        for (var i in this.connectedAdapterHandles) {
+            this.connectedAdapterHandles[i].removeListener(this._bindedAdapterHandleCallback);
+        }
+
         this.connectedAdapterHandles = {};
-        this._bindedAdapterHandleCallback = adapterHandleCallback.bind(this);
+    };
+
+    /**
+     * Get the connected AdapterHandle of a certain key.
+     * This will only return AdapterHandles previously added via connectAdapterHandle
+     * @param {string} key
+     * @return {?XML3D.base.AdapterHandle} the adapter of that key, or null if not available
+     */
+    XML3D.base.Adapter.prototype.getConnectedAdapterHandle = function(key) {
+        return this.connectedAdapterHandles && this.connectedAdapterHandles[key];
+    };
+
+    /**
+     * Get the connected adapter of a certain key.
+     * This will only return adapters of AdapterHandles previously added via connectAdapter
+     * @param {string} key
+     * @return {?XML3D.base.Adapter} the adapter of that key, or null if not available
+     */
+    XML3D.base.Adapter.prototype.getConnectedAdapter = function(key) {
+        var handle = this.getConnectedAdapterHandle(key);
+        return handle && handle.getAdapter();
+    };
+
+    /**
+     * This function is called, when the adapater is detached from the node.
+     * At this point, the adapater should disconnect from any other adapter and prepare to be properly garbage collected
+     */
+    XML3D.base.Adapter.prototype.onDispose = function() {
+        this.clearAdapterHandles();
     }
 
-    this.disconnectAdapterHandle(key);
 
-    if(adapterHandle) {
-        this.connectedAdapterHandles[key] = adapterHandle;
-        this.connectedAdapterHandles[key].addListener(this._bindedAdapterHandleCallback);
-    }
-    else
-        delete this.connectedAdapterHandles[key];
-
-};
-
-/**
- * Disconnects the adapter handle from the given key.
- * @param {string} key - the key that was provided when this adapter handle was connected
- */
-XML3D.base.Adapter.prototype.disconnectAdapterHandle = function(key){
-    if (this.connectedAdapterHandles && this.connectedAdapterHandles[key]) {
-        this.connectedAdapterHandles[key].removeListener(this._bindedAdapterHandleCallback);
-        delete this.connectedAdapterHandles[key];
-    }
-};
-
-/**
- * Disconnects all adapter handles.
- */
-XML3D.base.Adapter.prototype.clearAdapterHandles = function(){
-    for(var i in this.connectedAdapterHandles){
-        this.connectedAdapterHandles[i].removeListener(this._bindedAdapterHandleCallback);
-    }
-
-    this.connectedAdapterHandles = {};
-};
-
-/**
-* Get the connected AdapterHandle of a certain key.
-* This will only return AdapterHandles previously added via connectAdapterHandle
-* @param {string} key
-* @return {XML3D.base.AdapterHandle=} the adapter of that key, or null if not available
-*/
-XML3D.base.Adapter.prototype.getConnectedAdapterHandle = function(key){
-    return this.connectedAdapterHandles && this.connectedAdapterHandles[key];
-};
-
-/**
- * Get the connected adapter of a certain key.
- * This will only return adapters of AdapterHandles previously added via connectAdapter
- * @param {string} key
- * @return {XML3D.base.Adapter=} the adapter of that key, or null if not available
- */
-XML3D.base.Adapter.prototype.getConnectedAdapter = function(key){
-    var handle = this.getConnectedAdapterHandle(key);
-    return handle && handle.getAdapter();
-};
-
-/**
- * This function is called, when the adapater is detached from the node.
- * At this point, the adapater should disconnect from any other adapter and prepare to be properly garbage collected
- */
-XML3D.base.Adapter.prototype.onDispose = function(){
-    this.clearAdapterHandles();
-}
-
-
-/**
- * Internal function that converts an AdapterHandleNotification to a ConnectedAdapterNotification
- * @private
- * @param {XML3D.events.AdapterHandleNotification} evt
- */
-function adapterHandleCallback(evt){
-    for(var key in this.connectedAdapterHandles){
-        if(this.connectedAdapterHandles[key] == evt.adapterHandle){
-            var subEvent = new XML3D.events.ConnectedAdapterNotification(evt, key)
-            this.notifyChanged(subEvent);
+    /**
+     * Internal function that converts an AdapterHandleNotification to a ConnectedAdapterNotification
+     * @private
+     * @param {XML3D.events.AdapterHandleNotification} evt
+     */
+    function adapterHandleCallback(evt) {
+        for (var key in this.connectedAdapterHandles) {
+            if (this.connectedAdapterHandles[key] == evt.adapterHandle) {
+                var subEvent = new XML3D.events.ConnectedAdapterNotification(evt, key)
+                this.notifyChanged(subEvent);
+            }
         }
-    }
-};
+    };
 
 
+    /**
+     * An Adapter connected to a DOMNode (possibly of an external document)
+     * @constructor
+     * @param {XML3D.base.AdapterFactory} factory the AdapterFactory this adapter was created from
+     * @param {Object} node - DOM node of this Adapter
+     */
+    XML3D.base.NodeAdapter = function(factory, node) {
+        XML3D.base.Adapter.call(this, factory)
+        this.node = node;
+    };
+    XML3D.createClass(XML3D.base.NodeAdapter, XML3D.base.Adapter);
 
-/**
- * An Adapter connected to a DOMNode (possibly of an external document)
- * @constructor
- * @param {XML3D.base.AdapterFactory} factory the AdapterFactory this adapter was created from
- * @param {Object} node - DOM node of this Adapter
- */
-XML3D.base.NodeAdapter = function(factory, node) {
-    XML3D.base.Adapter.call(this, factory)
-    this.node = node;
-};
-XML3D.createClass(XML3D.base.NodeAdapter, XML3D.base.Adapter);
+    /**
+     * called by the factory after adding the adapter to the node
+     */
+    XML3D.base.NodeAdapter.prototype.init = function() {
+    };
 
-/**
- * called by the factory after adding the adapter to the node
- */
-XML3D.base.NodeAdapter.prototype.init = function() {
-};
+    /**
+     * Notifiction due to a change in DOM, related adapters and so on.
+     * @param {XML3D.events.Notification} e
+     */
+    XML3D.base.NodeAdapter.prototype.notifyChanged = function(e) {
 
-/**
- * Notifiction due to a change in DOM, related adapters and so on.
- * @param {XML3D.events.Notification} e
- */
-XML3D.base.NodeAdapter.prototype.notifyChanged = function(e) {
+    };
 
-};
-
-/**
- * @param {string,XML3D.URI} uri Uri to referred adapterHandle
- * @returns an AdapterHandle to the referred Adapter of the same aspect and canvasId
- */
-XML3D.base.NodeAdapter.prototype.getAdapterHandle = function(uri){
-    return XML3D.base.resourceManager.getAdapterHandle(this.node.ownerDocument, uri,
-        this.factory.aspect, this.factory.canvasId);
-};
-/**
- * notifies all adapter that refer to this adapter through AdapterHandles.
- * @param {number,string} hint with type of change
- */
-XML3D.base.NodeAdapter.prototype.notifyOppositeAdapters = function(type){
-    type = type || XML3D.events.ADAPTER_HANDLE_CHANGED;
-    return XML3D.base.resourceManager.notifyNodeAdapterChange(this.node,
-        this.factory.aspect, this.factory.canvasId, type);
-};
-
-
-/**
- * @interface
- */
-XML3D.base.IFactory = function() {};
-
-/** @type {string} */
-XML3D.base.IFactory.prototype.aspect;
-XML3D.base.IFactory.prototype.canvasId;
+    /**
+     * @param {string|XML3D.URI} uri Uri to referred adapterHandle
+     * @returns an AdapterHandle to the referred Adapter of the same aspect and canvasId
+     */
+    XML3D.base.NodeAdapter.prototype.getAdapterHandle = function(uri) {
+        return XML3D.base.resourceManager.getAdapterHandle(this.node.ownerDocument, uri,
+            this.factory.aspect, this.factory.canvasId);
+    };
+    /**
+     * notifies all adapter that refer to this adapter through AdapterHandles.
+     * @param {number} type The type of change
+     */
+    XML3D.base.NodeAdapter.prototype.notifyOppositeAdapters = function(type) {
+        type = type || XML3D.events.ADAPTER_HANDLE_CHANGED;
+        return XML3D.base.resourceManager.notifyNodeAdapterChange(this.node,
+            this.factory.aspect, this.factory.canvasId, type);
+    };
 
 
-/**
- * An adapter factory is responsible for creating adapter from a certain data source.
- * Note that any AdapterFactory is registered with XML3D.base.resourceManager
- * @constructor
- * @implements {XML3D.base.IFactory}
- * @param {Object} aspect The aspect this factory serves (e.g. XML3D.data or XML3D.webgl)
- * @param {string} mimetype The mimetype this factory is compatible to
- * @param {number} canvasId The id of the corresponding canvas handler. 0, if not dependent on any CanvasHandler
- */
-XML3D.base.AdapterFactory = function(aspect, mimetypes, canvasId) {
-    this.aspect = aspect;
-    this.canvasId = canvasId || 0;
-    this.mimetypes = typeof mimetypes == "string" ? [ mimetypes] : mimetypes;
+    /**
+     * @interface
+     */
+    XML3D.base.IFactory = function() {
+    };
 
-    XML3D.base.registerFactory(this);
-};
+    /** @type {string} */
+    XML3D.base.IFactory.prototype.aspect;
 
-/**
- * Implemented by subclass
- * Create adapter from an object (node in case of an xml, and object in case of json)
- * @param {object} obj
- * @returns {XML3D.base.Adapter=} created adapter or null if no adapter can be created
- */
-XML3D.base.AdapterFactory.prototype.createAdapter = function(obj) {
-    return null;
-};
 
-/**
- * Checks if the adapter factory supports specified mimetype. Can be overridden by subclass.
- * @param {String} mimetype
- * @return {Boolean} true if the adapter factory supports specified mimetype
- */
-XML3D.base.AdapterFactory.prototype.supportsMimetype = function(mimetype) {
-    return this.mimetypes.indexOf(mimetype) != -1;
-};
+    /**
+     * An adapter factory is responsible for creating adapter from a certain data source.
+     * Note that any AdapterFactory is registered with XML3D.base.resourceManager
+     * @constructor
+     * @implements {XML3D.base.IFactory}
+     * @param {Object} aspect The aspect this factory serves (e.g. XML3D.data or XML3D.webgl)
+     * @param {string|Array.<string>} mimetypes The mimetype this factory is compatible to
+     * @param {number} canvasId The id of the corresponding canvas handler. 0, if not dependent on any CanvasHandler
+     */
+    XML3D.base.AdapterFactory = function(aspect, mimetypes, canvasId) {
+        this.aspect = aspect;
+        this.canvasId = canvasId || 0;
+        this.mimetypes = typeof mimetypes == "string" ? [ mimetypes] : mimetypes;
 
-/**
- * A NodeAdaperFactory is a AdapterFactory, that works specifically for DOM nodes / elements.
- * @constructor
- * @implements {XML3D.base.AdapterFactory}
- * @param {Object} aspect The aspect this factory serves (e.g. XML3D.data or XML3D.webgl)
- * @param {number} canvasId The id of the corresponding canvas handler. 0, if not dependent on any CanvasHandler
- */
-XML3D.base.NodeAdapterFactory = function(aspect, canvasId) {
-    XML3D.base.AdapterFactory.call(this, aspect, ["text/xml","application/xml"], canvasId);
-};
-XML3D.createClass(XML3D.base.NodeAdapterFactory, XML3D.base.AdapterFactory);
+        XML3D.base.registerFactory(this);
+    };
 
-/**
- * This function first checks, if an adapter has been already created for the corresponding node
- * If yes, this adapter is returned, otherwise, a new adapter is created and returned.
- * @param {Object} node
- * @returns {XML3D.base.Adapter} The adapter of the node
- */
-XML3D.base.NodeAdapterFactory.prototype.getAdapter = function(node) {
-    if (!node || node._configured === undefined)
+    /**
+     * Implemented by subclass
+     * Create adapter from an object (node in case of an xml, and object in case of json)
+     * @param {object} obj
+     * @returns {?XML3D.base.Adapter} created adapter or null if no adapter can be created
+     */
+    XML3D.base.AdapterFactory.prototype.createAdapter = function(obj) {
         return null;
-    var elemHandler = node._configured;
-    var key = this.aspect + "_" + this.canvasId;
-    var adapter = elemHandler.adapters[key];
-    if (adapter !== undefined)
+    };
+
+    /**
+     * Checks if the adapter factory supports specified mimetype. Can be overridden by subclass.
+     * @param {String} mimetype
+     * @return {Boolean} true if the adapter factory supports specified mimetype
+     */
+    XML3D.base.AdapterFactory.prototype.supportsMimetype = function(mimetype) {
+        return this.mimetypes.indexOf(mimetype) != -1;
+    };
+
+    /**
+     * A NodeAdaperFactory is a AdapterFactory, that works specifically for DOM nodes / elements.
+     * @constructor
+     * @implements {XML3D.base.AdapterFactory}
+     * @param {Object} aspect The aspect this factory serves (e.g. XML3D.data or XML3D.webgl)
+     * @param {number} canvasId The id of the corresponding canvas handler. 0, if not dependent on any CanvasHandler
+     */
+    XML3D.base.NodeAdapterFactory = function(aspect, canvasId) {
+        XML3D.base.AdapterFactory.call(this, aspect, ["text/xml", "application/xml"], canvasId);
+    };
+    XML3D.createClass(XML3D.base.NodeAdapterFactory, XML3D.base.AdapterFactory);
+
+    /**
+     * This function first checks, if an adapter has been already created for the corresponding node
+     * If yes, this adapter is returned, otherwise, a new adapter is created and returned.
+     * @param {Object} node
+     * @returns {XML3D.base.Adapter} The adapter of the node
+     */
+    XML3D.base.NodeAdapterFactory.prototype.getAdapter = function(node) {
+        if (!node || node._configured === undefined)
+            return null;
+        var elemHandler = node._configured;
+        var key = this.aspect + "_" + this.canvasId;
+        var adapter = elemHandler.adapters[key];
+        if (adapter !== undefined)
+            return adapter;
+
+        // No adapter found, try to create one
+        adapter = this.createAdapter(node);
+        if (adapter) {
+            elemHandler.adapters[key] = adapter;
+            adapter.init();
+        }
         return adapter;
+    };
 
-    // No adapter found, try to create one
-    adapter = this.createAdapter(node);
-    if (adapter) {
-        elemHandler.adapters[key] = adapter;
-        adapter.init();
-    }
-    return adapter;
-};
-
-/**
-* This function sends single or multiple adapter functions by calling functions
-* specified in funcs parameter for each adapter associated with the node.
-*
-* funcs parameter is used as a dictionary where each key is used as name of a
-* adapter function to call, and corresponding value is a list of arguments
-* (i.e. must be an array). For example sendAdapterEvent(node, {method : [1,2,3]})
-* will call function 'method' with arguments 1,2,3 for each adapter of the node.
-*
-* @param {Object} node
-* @param {Object} funcs
-* @return {Array} array of all returned values
-*/
-XML3D.base.callAdapterFunc = function(node, funcs) {
-    var result = [];
-    if (!node || node._configured === undefined)
+    /**
+     * This function sends single or multiple adapter functions by calling functions
+     * specified in funcs parameter for each adapter associated with the node.
+     *
+     * funcs parameter is used as a dictionary where each key is used as name of a
+     * adapter function to call, and corresponding value is a list of arguments
+     * (i.e. must be an array). For example sendAdapterEvent(node, {method : [1,2,3]})
+     * will call function 'method' with arguments 1,2,3 for each adapter of the node.
+     *
+     * @param {Object} node
+     * @param {Object} funcs
+     * @return {Array} array of all returned values
+     */
+    XML3D.base.callAdapterFunc = function(node, funcs) {
+        var result = [];
+        if (!node || node._configured === undefined)
             return result;
-    var adapters = node._configured.adapters;
-    for (var adapter in adapters) {
-        for (var func in funcs) {
-            var adapterObject = adapters[adapter];
-            var eventHandler = adapterObject[func];
-            if (eventHandler) {
-                result.push(eventHandler.apply(adapterObject, funcs[func]));
+        var adapters = node._configured.adapters;
+        for (var adapter in adapters) {
+            for (var func in funcs) {
+                var adapterObject = adapters[adapter];
+                var eventHandler = adapterObject[func];
+                if (eventHandler) {
+                    result.push(eventHandler.apply(adapterObject, funcs[func]));
+                }
             }
         }
-    }
-    return result;
-};
+        return result;
+    };
 
-/**
- * This function sends single or multiple adapter events by calling functions
- * specified in events parameter for each adapter associated with the node.
- *
- * events parameter is used as a dictionary where each key is used as name of a
- * adapter function to call, and corresponding value is a list of arguments
- * (i.e. must be an array). For example sendAdapterEvent(node, {method : [1,2,3]})
- * will call function 'method' with arguments 1,2,3 for each adapter of the node.
- *
- * @param {Object} node
- * @param {Object} events
- * @return {Boolean} false if node is not configured.
- */
-XML3D.base.sendAdapterEvent = function(node, events) {
-    if (!node || node._configured === undefined)
-        return false;
-    var adapters = node._configured.adapters;
-    for (var adapter in adapters) {
-        for (var event in events) {
-            var eventHandler = adapters[adapter][event];
-            if (eventHandler) {
-                eventHandler.apply(adapters[adapter], events[event]);
+    /**
+     * This function sends single or multiple adapter events by calling functions
+     * specified in events parameter for each adapter associated with the node.
+     *
+     * events parameter is used as a dictionary where each key is used as name of a
+     * adapter function to call, and corresponding value is a list of arguments
+     * (i.e. must be an array). For example sendAdapterEvent(node, {method : [1,2,3]})
+     * will call function 'method' with arguments 1,2,3 for each adapter of the node.
+     *
+     * @param {Object} node
+     * @param {Object} events
+     * @return {Boolean} false if node is not configured.
+     */
+    XML3D.base.sendAdapterEvent = function(node, events) {
+        if (!node || node._configured === undefined)
+            return false;
+        var adapters = node._configured.adapters;
+        for (var adapter in adapters) {
+            for (var event in events) {
+                var eventHandler = adapters[adapter][event];
+                if (eventHandler) {
+                    eventHandler.apply(adapters[adapter], events[event]);
+                }
             }
         }
-    }
-    return true;
-};
+        return true;
+    };
 
+}(window.XML3D));
+(function(XML3D) {
 
-
-}());
-(function() {
+    "use strict";
 
     /**
      * An adapter handle is a connection piece for an adapter that is referred through a uri (e.g. id reference)
@@ -7542,6 +8336,10 @@ XML3D.base.sendAdapterEvent = function(node, events) {
         this.status = 0; // STATUS.LOADING
     };
 
+    /**
+     * Enumaeration of states for the adapter handle
+     * @enum {number}
+     */
     AdapterHandle.STATUS = {
         LOADING: 0,
         NOT_FOUND: 1,
@@ -7556,7 +8354,7 @@ XML3D.base.sendAdapterEvent = function(node, events) {
     };
 
     /**
-     * @returns {XML3D.base.Adapter=} the adapter connected to the handle. Can be null
+     * @returns {?XML3D.base.Adapter} the adapter connected to the handle. Can be null
      */
     AdapterHandle.prototype.getAdapter = function() {
         return this.adapter;
@@ -7565,7 +8363,7 @@ XML3D.base.sendAdapterEvent = function(node, events) {
     /**
      * Note: this function should only be called by XML3D.base.resourceManager
      * @param {XML3D.base.Adapter} adapter The adapter connected to the AdapterHandler
-     * @param {number,XML3D.base.AdapterHandle.STATUS}
+     * @param {AdapterHandle.STATUS} status
      */
     AdapterHandle.prototype.setAdapter = function(adapter, status) {
         this.adapter = adapter;
@@ -7577,7 +8375,7 @@ XML3D.base.sendAdapterEvent = function(node, events) {
      * This function is called to notify all listeners of this AdapterHandle about some change.
      * @param {number} type A type number with the type of change (usually XML3D.events.ADAPTER_HANDLE_CHANGED)
      */
-    AdapterHandle.prototype.notifyListeners = function(type){
+    AdapterHandle.prototype.notifyListeners = function(type) {
         var event = new XML3D.events.AdapterHandleNotification(this, type);
         var i = this.listeners.length;
         while (i--) {
@@ -7609,7 +8407,7 @@ XML3D.base.sendAdapterEvent = function(node, events) {
     // Export
     XML3D.base.AdapterHandle = AdapterHandle;
 
-}());(function() {
+}(window.XML3D));(function() {
     "use strict";
 
     var c_cachedDocuments = {};
@@ -7618,13 +8416,16 @@ XML3D.base.sendAdapterEvent = function(node, events) {
     var c_canvasIdCounters = {};
     var c_formatHandlers = [];
 
+    var c_binaryContentTypes = ["application/octet-stream", "text/plain; charset=x-user-defined"];
+    var c_binaryExtensions = [".bin", ".bson"];
+
     /**
      * Register a factory with the resource manager
      * @param {XML3D.base.AdapterFactory} factory - the factory to be registered
      */
     XML3D.base.registerFactory = function(factory) {
         var canvasId = factory.canvasId;
-        if(!c_factories[canvasId])
+        if (!c_factories[canvasId])
             c_factories[canvasId] = [];
         c_factories[canvasId].push(factory);
     };
@@ -7647,10 +8448,7 @@ XML3D.base.sendAdapterEvent = function(node, events) {
     /**
      * @constructor
      */
-    var ResourceManager = function() {};
-
-    ResourceManager.prototype.getCanvasIdCounters = function () {
-        return c_canvasIdCounters;
+    var ResourceManager = function() {
     };
 
     function getCounterObject(canvasId) {
@@ -7660,7 +8458,7 @@ XML3D.base.sendAdapterEvent = function(node, events) {
     function getOrCreateCounterObject(canvasId) {
         var counterObject = c_canvasIdCounters[canvasId];
         if (!counterObject) {
-            counterObject = {counter: 0, listeners : new Array()};
+            counterObject = {counter: 0, listeners: new Array()};
             c_canvasIdCounters[canvasId] = counterObject;
         }
         return counterObject;
@@ -7718,27 +8516,25 @@ XML3D.base.sendAdapterEvent = function(node, events) {
         }
     };
 
-    var binaryContentTypes = ["application/octet-stream", "text/plain; charset=x-user-defined"];
-    var binaryExtensions = [".bin", ".bson"];
 
-    function endsWith(str, suffix) {
+    function stringEndsWithSuffix(str, suffix) {
         return str.indexOf(suffix, str.length - suffix.length) !== -1;
     }
 
-    ResourceManager.prototype.addBinaryContentType = function (type) {
-        if (binaryContentTypes.indexOf(type) == -1)
-            binaryContentTypes.push(type);
+    ResourceManager.prototype.addBinaryContentType = function(type) {
+        if (c_binaryContentTypes.indexOf(type) == -1)
+            c_binaryContentTypes.push(type);
     };
 
-    ResourceManager.prototype.removeBinaryContentType = function (type) {
-        var idx = binaryContentTypes.indexOf(type);
+    ResourceManager.prototype.removeBinaryContentType = function(type) {
+        var idx = c_binaryContentTypes.indexOf(type);
         if (idx != -1)
-            binaryContentTypes.splice(idx, 1);
+            c_binaryContentTypes.splice(idx, 1);
     };
 
     function isBinaryContentType(contentType) {
-        for (var i in binaryContentTypes) {
-            if (contentType == binaryContentTypes[i]) {
+        for (var i in c_binaryContentTypes) {
+            if (contentType == c_binaryContentTypes[i]) {
                 return true;
             }
         }
@@ -7746,19 +8542,19 @@ XML3D.base.sendAdapterEvent = function(node, events) {
     }
 
     ResourceManager.prototype.addBinaryExtension = function(extension) {
-        if (binaryExtensions.indexOf(extension) == -1)
-            binaryExtensions.push(extension);
+        if (c_binaryExtensions.indexOf(extension) == -1)
+            c_binaryExtensions.push(extension);
     };
 
     ResourceManager.prototype.removeBinaryExtension = function(extension) {
-        var idx = binaryExtensions.indexOf(extension);
+        var idx = c_binaryExtensions.indexOf(extension);
         if (idx != -1)
-            binaryExtensions.splice(idx, 1);
+            c_binaryExtensions.splice(idx, 1);
     };
 
     function isBinaryExtension(url) {
-        for (var i in binaryExtensions) {
-            if (endsWith(url, binaryExtensions[i]))
+        for (var i in c_binaryExtensions) {
+            if (stringEndsWithSuffix(url, c_binaryExtensions[i]))
                 return true;
         }
         return false;
@@ -7789,7 +8585,7 @@ XML3D.base.sendAdapterEvent = function(node, events) {
                 // check compatibility between content and request mode
                 if (!xmlHttp._contentChecked &&
                     // 2 - HEADERS_RECEIVED, 3 - LOADING, 4 - DONE
-                    ((xmlHttp.readyState == 2 || xmlHttp.readyState == 3 ||xmlHttp.readyState == 4) &&
+                    ((xmlHttp.readyState == 2 || xmlHttp.readyState == 3 || xmlHttp.readyState == 4) &&
                         xmlHttp.status == 200)) {
                     xmlHttp._contentChecked = true; // we check only once
                     // check if we need to change request mode
@@ -7826,13 +8622,16 @@ XML3D.base.sendAdapterEvent = function(node, events) {
                 }
                 // Request mode and content type are compatible here (both binary or both text)
                 if (xmlHttp.readyState == 4) {
-                    if(xmlHttp.status == 200){
+                    if (xmlHttp.status == 200) {
                         XML3D.debug.logDebug("Loaded: " + xmlHttp._url);
                         XML3D.xmlHttpCallback && XML3D.xmlHttpCallback(xmlHttp);
                         processResponse(xmlHttp);
                     }
-                    else
-                        showError(xmlHttp);
+                    else {
+                        XML3D.debug.logError("Could not load external document '" + xmlHttp._url +
+                            "': " + xmlHttp.status + " - " + xmlHttp.statusText);
+                        invalidateDocumentHandles(xmlHttp._url);
+                    }
                 }
             };
             xmlHttp.send(null);
@@ -7842,32 +8641,22 @@ XML3D.base.sendAdapterEvent = function(node, events) {
     /**
      * Process response of ajax request from loadDocument()
      * @private
-     * @param {XMLHttpRequest} req
+     * @param {XMLHttpRequest} httpRequest
      */
-    function processResponse(req) {
-        var mimetype = req.getResponseHeader("content-type");
-        setDocumentData(req, req._url, mimetype);
-        updateDocumentHandles(req._url);
-    };
-
-    /**
-     * Show errors of ajax request from loadDocument()
-     * @param {XMLHttpRequest} req
-     */
-    function showError(req) {
-        XML3D.debug.logError("Could not load external document '" + req._url +
-            "': " + req.status + " - " + req.statusText);
-        invalidateDocumentHandles(req._url);
+    function processResponse(httpRequest) {
+        var mimetype = httpRequest.getResponseHeader("content-type");
+        setDocumentData(httpRequest, httpRequest._url, mimetype);
+        updateDocumentHandles(httpRequest._url);
     };
 
     /**
      * Initialize data of a received document
      * @private
-     * @param {XMLHttpRequest} req The XMLHttpRequest of the loaded document
+     * @param {XMLHttpRequest} httpRequest The XMLHttpRequest of the loaded document
      * @param {string} url URL of the loaded document
      * @param {string} mimetype The mimetype of the loaded document
      */
-    function setDocumentData(req, url, mimetype) {
+    function setDocumentData(httpRequest, url, mimetype) {
         var docCache = c_cachedDocuments[url];
         docCache.mimetype = mimetype;
 
@@ -7877,43 +8666,43 @@ XML3D.base.sendAdapterEvent = function(node, events) {
             cleanedMimetype = mimetype.substr(0, mimetype.indexOf(';'));
 
         var response = null;
-        if (req.responseType == "arraybuffer") {
-            response = req.response;
+        if (httpRequest.responseType == "arraybuffer") {
+            response = httpRequest.response;
         } else if (cleanedMimetype == "application/json") {
-            response = JSON.parse(req.responseText);
+            response = JSON.parse(httpRequest.responseText);
         } else if (cleanedMimetype == "application/xml" || cleanedMimetype == "text/xml") {
-            response = req.responseXML;
+            response = httpRequest.responseXML;
             if (!response) {
-                XML3D.debug.logError("Invalid external XML document '" + req._url +
+                XML3D.debug.logError("Invalid external XML document '" + httpRequest._url +
                     "': XML Syntax error");
                 return;
             }
         } else if (cleanedMimetype == "application/octet-stream" || mimetype == "text/plain; charset=x-user-defined") {
-            XML3D.debug.logError("Possibly wrong loading of resource "+url+". Mimetype is "+mimetype+" but response is not an ArrayBuffer");
-            response = req.response;
+            XML3D.debug.logError("Possibly wrong loading of resource " + url + ". Mimetype is " + mimetype + " but response is not an ArrayBuffer");
+            response = httpRequest.response;
         } else {
-            XML3D.debug.logError("Unidentified response type (response = '"+req.response+"', responseType = '"+req.responseType+"')");
-            response = req.response;
+            XML3D.debug.logError("Unidentified response type (response = '" + httpRequest.response + "', responseType = '" + httpRequest.responseType + "')");
+            response = httpRequest.response;
         }
 
-        var formatHandler = XML3D.base.findFormat(response, req.responseType, cleanedMimetype);
+        var formatHandler = XML3D.base.findFormat(response, httpRequest.responseType, cleanedMimetype);
         if (!formatHandler) {
-            XML3D.debug.logError("No format handler for resource (response = '"+response+"', responseType = '"+req.responseType+"')");
+            XML3D.debug.logError("No format handler for resource (response = '" + response + "', responseType = '" + httpRequest.responseType + "')");
             return;
         }
         docCache.format = formatHandler;
-        docCache.response = formatHandler.getFormatData(response, req.responseType, cleanedMimetype);
+        docCache.response = formatHandler.getFormatData(response, httpRequest.responseType, cleanedMimetype);
     }
 
     /**
      * Update all existing handles of a received document
      * @param {string} url The URL of the document
      */
-    function updateDocumentHandles(url){
+    function updateDocumentHandles(url) {
         var docCache = c_cachedDocuments[url];
         var fragments = docCache.fragments;
         docCache.fragments = [];
-        for ( var i = 0; i < fragments.length; ++i) {
+        for (var i = 0; i < fragments.length; ++i) {
             updateExternalHandles(url, fragments[i]);
         }
     }
@@ -7922,11 +8711,11 @@ XML3D.base.sendAdapterEvent = function(node, events) {
      * Invalidate all handles of a document, that could not be loaded.
      * @param {string} url The URL of the document
      */
-    function invalidateDocumentHandles(url){
+    function invalidateDocumentHandles(url) {
         var docCache = c_cachedDocuments[url];
         var fragments = docCache.fragments;
         docCache.fragments = [];
-        for ( var i = 0; i < fragments.length; ++i) {
+        for (var i = 0; i < fragments.length; ++i) {
             var fullUrl = url + (fragments[i] ? "#" + fragments[i] : "");
             invalidateHandles(fullUrl);
         }
@@ -7956,7 +8745,7 @@ XML3D.base.sendAdapterEvent = function(node, events) {
         if (data) {
             updateMissingHandles(fullUrl, format, data);
         }
-        else{
+        else {
             invalidateHandles(fullUrl);
         }
     }
@@ -7965,15 +8754,15 @@ XML3D.base.sendAdapterEvent = function(node, events) {
     /**
      * Update all AdapterHandles without adapters of a certain url
      * @param {string} url The complete url + fragment
-     * @param {FormatHandler} format Format handler
+     * @param {FormatHandler} formatHandler Format handler
      * @param {Object} data Data of the document corresponding to the url. Possibily a DOM element
      */
-    function updateMissingHandles(url, format, data){
-        for ( var adapterType in c_cachedAdapterHandles[url]) {
-            for ( var canvasId in c_cachedAdapterHandles[url][adapterType]) {
+    function updateMissingHandles(url, formatHandler, data) {
+        for (var adapterType in c_cachedAdapterHandles[url]) {
+            for (var canvasId in c_cachedAdapterHandles[url][adapterType]) {
                 var handle = c_cachedAdapterHandles[url][adapterType][canvasId];
                 if (!handle.hasAdapter()) {
-                    updateHandle(handle, adapterType, canvasId, format, data);
+                    updateHandle(handle, adapterType, canvasId, formatHandler, data);
                     loadComplete(canvasId, url);
                 }
             }
@@ -7984,9 +8773,9 @@ XML3D.base.sendAdapterEvent = function(node, events) {
      * Invalidate all AdapterHandles without adapters of a certain url
      * @param {string} url The complete url + fragment
      */
-    function invalidateHandles(url){
-        for ( var adapterType in c_cachedAdapterHandles[url]) {
-            for ( var canvasId in c_cachedAdapterHandles[url][adapterType]) {
+    function invalidateHandles(url) {
+        for (var adapterType in c_cachedAdapterHandles[url]) {
+            for (var canvasId in c_cachedAdapterHandles[url][adapterType]) {
                 var handle = c_cachedAdapterHandles[url][adapterType][canvasId];
                 handle.setAdapter(null, XML3D.base.AdapterHandle.STATUS.NOT_FOUND);
                 loadComplete(canvasId, url);
@@ -8004,9 +8793,14 @@ XML3D.base.sendAdapterEvent = function(node, events) {
      * @param {FormatHandler} format Format handler of the corresponding document
      * @param {Object} data Data for this handle. Possibily a DOM element
      */
-    function updateHandle(handle, adapterType, canvasId, format, data){
+    function updateHandle(handle, adapterType, canvasId, format, data) {
 
         var factory = format.getFactory(adapterType, canvasId);
+
+        if(!factory) {
+            XML3D.debug.logError("Format does not support adapterType " + adapterType);
+            return;
+        }
 
         var adapter = factory.getAdapter ? factory.getAdapter(data) : factory.createAdapter(data);
         if (adapter) {
@@ -8021,9 +8815,9 @@ XML3D.base.sendAdapterEvent = function(node, events) {
      * This is called e.g. when a node is remove from the document, or an id changes
      * @param {string} url The URL of all AdapterHandles to be cleared.
      */
-    function clearHandles(url){
-        for ( var adapterType in c_cachedAdapterHandles[url]) {
-            for ( var canvasId in c_cachedAdapterHandles[url][adapterType]) {
+    function clearHandles(url) {
+        for (var adapterType in c_cachedAdapterHandles[url]) {
+            for (var canvasId in c_cachedAdapterHandles[url][adapterType]) {
                 var handle = c_cachedAdapterHandles[url][adapterType][canvasId];
                 if (handle.hasAdapter()) {
                     handle.setAdapter(null, XML3D.base.AdapterHandle.STATUS.NOT_FOUND);
@@ -8037,27 +8831,27 @@ XML3D.base.sendAdapterEvent = function(node, events) {
      * This function will trigger the loading of documents, if required.
      * An AdapterHandle will be always be returned, expect when an invalid (empty) uri is passed.
      *
-     * @param {Document} doc - the document from which to look up the reference
+     * @param {Document} baseDocument - the document from which to look up the reference
      * @param {XML3D.URI} uri - The URI used to find the referred AdapterHandle. Can be relative
      * @param {Object} adapterType The type of adapter required (e.g. XML3D.data or XML3D.webgl)
      * @param {number} canvasId Id of canvashandle this adapter depends on, 0 if not depending on any canvashandler
-     * @returns {XML3D.base.AdapterHandle=} The requested AdapterHandler. Note: might not contain any adapter.
+     * @returns {?XML3D.base.AdapterHandle} The requested AdapterHandler. Note: might be null
      */
-    ResourceManager.prototype.getAdapterHandle = function(doc, uri, adapterType, canvasId) {
-        if(!uri)
+    ResourceManager.prototype.getAdapterHandle = function(baseDocument, uri, adapterType, canvasId) {
+        if (!uri)
             return null;
 
-        if(typeof uri == "string") uri = new XML3D.URI(uri);
+        if (typeof uri == "string") uri = new XML3D.URI(uri);
 
         canvasId = canvasId || 0;
-        if(document != doc || !uri.isLocal()){
-            uri = uri.getAbsoluteURI(doc.documentURI);
+        if (baseDocument != document || !uri.isLocal()) {
+            uri = uri.getAbsoluteURI(baseDocument.documentURI);
         }
 
         if (!c_cachedAdapterHandles[uri])
             c_cachedAdapterHandles[uri] = {};
 
-        if(!c_cachedAdapterHandles[uri][adapterType]){
+        if (!c_cachedAdapterHandles[uri][adapterType]) {
             c_cachedAdapterHandles[uri][adapterType] = {};
         }
 
@@ -8068,9 +8862,9 @@ XML3D.base.sendAdapterEvent = function(node, events) {
         var handle = new XML3D.base.AdapterHandle(uri);
         c_cachedAdapterHandles[uri][adapterType][canvasId] = handle;
 
-        if(uri.isLocal()){
+        if (uri.isLocal()) {
             var node = XML3D.URIResolver.resolveLocal(uri);
-            if(node)
+            if (node)
                 updateHandle(handle, adapterType, canvasId, XML3D.base.xml3dFormatHandler, node);
             else
                 handle.setAdapter(null, XML3D.base.AdapterHandle.STATUS.NOT_FOUND);
@@ -8087,7 +8881,7 @@ XML3D.base.sendAdapterEvent = function(node, events) {
                 if (!docData) {
                     loadDocument(docURI);
                     c_cachedDocuments[docURI] = docData = {
-                        fragments : []
+                        fragments: []
                     };
                 }
                 docData.fragments.push(uri.fragment);
@@ -8095,12 +8889,18 @@ XML3D.base.sendAdapterEvent = function(node, events) {
         }
         return handle;
     };
+
     /**
      * Get any adapter, internal or external.
+     *
+     * @param node
+     * @param adapterType
+     * @param canvasId
+     * @return {XML3D.base.Adapter?}
      */
-    ResourceManager.prototype.getAdapter = function(node, adapterType, canvasId){
+    ResourceManager.prototype.getAdapter = function(node, adapterType, canvasId) {
         var factory = XML3D.base.xml3dFormatHandler.getFactory(adapterType, canvasId);
-        if(factory){
+        if (factory) {
             return factory.getAdapter(node);
         }
         return null;
@@ -8113,17 +8913,17 @@ XML3D.base.sendAdapterEvent = function(node, events) {
      * @param {string} previousId Previous id of element
      * @param {string} newId New id of element
      */
-    ResourceManager.prototype.notifyNodeIdChange = function(node, previousId, newId){
+    ResourceManager.prototype.notifyNodeIdChange = function(node, previousId, newId) {
         var parent = node;
-        while(parent.parentNode) parent = parent.parentNode;
-        if(parent != window.document)
+        while (parent.parentNode) parent = parent.parentNode;
+        if (parent != window.document)
             return;
 
         // clear cached adapters of previous id"
-        if(previousId){
+        if (previousId) {
             clearHandles("#" + previousId);
         }
-        if(newId){
+        if (newId) {
             updateMissingHandles("#" + newId, XML3D.base.xml3dFormatHandler, node);
         }
     }
@@ -8131,16 +8931,16 @@ XML3D.base.sendAdapterEvent = function(node, events) {
     /**
      * This function is called to notify an AdapterHandler about a change (can be triggered through adapters)
      * Note that this function only works with nodes inside window.document
-     * @param {Element} node Node of AdapterHandler. Must be from window.document
+     * @param {Element} element Element of AdapterHandler. Must be from window.document
      * @param {Object} adapterType Type/Aspect of AdapterHandler (e.g. XML3D.data or XML3D.webgl)
      * @param {number} canvasId CanvasHandler id of AdapterHandler, 0 if not depending on CanvasHandler
      * @param {number} type Type of Notification. Usually XML3D.events.ADAPTER_HANDLE_CHANGED
      */
-    ResourceManager.prototype.notifyNodeAdapterChange = function(node, adapterType, canvasId, type){
+    ResourceManager.prototype.notifyNodeAdapterChange = function(element, adapterType, canvasId, type) {
         canvasId = canvasId || 0;
-        var uri = "#" + node.id;
-        if( c_cachedAdapterHandles[uri] && c_cachedAdapterHandles[uri][adapterType] &&
-            c_cachedAdapterHandles[uri][adapterType][canvasId] ){
+        var uri = "#" + element.id;
+        if (c_cachedAdapterHandles[uri] && c_cachedAdapterHandles[uri][adapterType] &&
+            c_cachedAdapterHandles[uri][adapterType][canvasId]) {
             c_cachedAdapterHandles[uri][adapterType][canvasId].notifyListeners(type);
         }
     }
@@ -8150,6 +8950,8 @@ XML3D.base.sendAdapterEvent = function(node, events) {
      * Load data via XMLHttpRequest
      * @private
      * @param {string} url URL of the document
+     * @param {function(object)} loadListener Gets the response of the XHR
+     * @param {function(XMLHttpRequest)} errorListener Get the XHR object for further analyzis
      */
     ResourceManager.prototype.loadData = function(url, loadListener, errorListener) {
         var xmlHttp = null;
@@ -8171,7 +8973,7 @@ XML3D.base.sendAdapterEvent = function(node, events) {
                 // check compatibility between content and request mode
                 if (!xmlHttp._contentChecked &&
                     // 2 - HEADERS_RECEIVED, 3 - LOADING, 4 - DONE
-                    ((xmlHttp.readyState == 2 || xmlHttp.readyState == 3 ||xmlHttp.readyState == 4) &&
+                    ((xmlHttp.readyState == 2 || xmlHttp.readyState == 3 || xmlHttp.readyState == 4) &&
                         xmlHttp.status == 200)) {
                     xmlHttp._contentChecked = true; // we check only once
                     // check if we need to change request mode
@@ -8208,7 +9010,7 @@ XML3D.base.sendAdapterEvent = function(node, events) {
                 }
                 // Request mode and content type are compatible here (both binary or both text)
                 if (xmlHttp.readyState == 4) {
-                    if(xmlHttp.status == 200) {
+                    if (xmlHttp.status == 200) {
                         XML3D.debug.logDebug("Loaded: " + xmlHttp._url);
 
                         var mimetype = xmlHttp.getResponseHeader("content-type");
@@ -8221,7 +9023,7 @@ XML3D.base.sendAdapterEvent = function(node, events) {
                         } else if (mimetype == "application/xml" || mimetype == "text/xml") {
                             response = xmlHttp.responseXML;
                         } else if (mimetype == "application/octet-stream" || mimetype == "text/plain; charset=x-user-defined") {
-                            XML3D.debug.logError("Possibly wrong loading of resource "+url+". Mimetype is "+mimetype+" but response is not an ArrayBuffer");
+                            XML3D.debug.logError("Possibly wrong loading of resource " + url + ". Mimetype is " + mimetype + " but response is not an ArrayBuffer");
                             response = xmlHttp.responseText; // FIXME is this correct ?
                         }
                         if (loadListener)
@@ -8243,11 +9045,11 @@ XML3D.base.sendAdapterEvent = function(node, events) {
      * This function is called to load an Image.
      *
      * @param {string} uri Image URI
-     * @param {function} loadListener Function called when image was successfully loaded.
+     * @param {function(Event, HTMLImageElement)} loadListener Function called when image was successfully loaded.
      *                                It will be called with event as the first and image as the second parameter.
-     * @param {function} errorListener Function called when image could not be loaded.
+     * @param {function(Event, HTMLImageElement)} errorListener Function called when image could not be loaded.
      *                                 It will be called with event as the first and image as the second parameter.
-     * @return {Image}
+     * @return {HTMLImageElement}
      */
     ResourceManager.prototype.getImage = function(uri, loadListener, errorListener) {
         // we use canvasId 0 to represent images loaded in a document
@@ -8276,7 +9078,7 @@ XML3D.base.sendAdapterEvent = function(node, events) {
      * @param {boolean} autoplay
      * @param {Object} listeners  Dictionary of all listeners to register with video element.
      *                            Listeners will be called with event as the first and video as the second parameter.
-     * @return {Image}
+     * @return {HTMLVideoElement}
      */
     ResourceManager.prototype.getVideo = function(uri, autoplay, listeners) {
         // we use canvasId 0 to represent videos loaded in a document
@@ -8335,7 +9137,7 @@ XML3D.base.sendAdapterEvent = function(node, events) {
 
     FormatHandler.prototype.getFactory = function(aspect, canvasId) {
         canvasId = canvasId || 0;
-        var key = aspect+"_"+canvasId;
+        var key = aspect + "_" + canvasId;
         var factory = this.factoryCache[key];
         if (!factory) {
             var factoryClass = this.getFactoryClassByAspect(aspect);
@@ -8391,12 +9193,10 @@ XML3D.base.sendAdapterEvent = function(node, events) {
         return null;
     }
 
-    // Export
-    XML3D.base.FormatHandler = FormatHandler;
-
     /**
      * XMLFormatHandler supports all XML and HTML-based documents.
      * @constructor
+     * @extends FormatHandler
      */
     var XMLFormatHandler = function() {
         FormatHandler.call(this);
@@ -8412,14 +9212,15 @@ XML3D.base.sendAdapterEvent = function(node, events) {
     }
 
     XMLFormatHandler.prototype.getFragmentData = function(documentData, fragment) {
-        return documentData.querySelectorAll("*[id="+fragment+"]")[0];
+        return documentData.querySelectorAll("*[id=" + fragment + "]")[0];
     }
 
 
-
-    // Export
-    XML3D.base.XMLFormatHandler = XMLFormatHandler;
-
+    /**
+     *
+     * @constructor
+     * @extends FormatHandler
+     */
     var XML3DFormatHandler = function() {
         XMLFormatHandler.call(this);
     }
@@ -8434,18 +9235,17 @@ XML3D.base.sendAdapterEvent = function(node, events) {
     XML3DFormatHandler.prototype.getFormatData = function(response, responseType) {
         // Configure all xml3d elements:
         var xml3dElements = response.querySelectorAll("xml3d");
-        for(var i = 0; i < xml3dElements.length; ++i) {
+        for (var i = 0; i < xml3dElements.length; ++i) {
             XML3D.config.element(xml3dElements[i]);
         }
 
         return response;
     }
 
-    // Export
-    XML3D.base.XML3DFormatHandler = XML3DFormatHandler;
-    XML3D.base.xml3dFormatHandler = new XML3DFormatHandler();
-    XML3D.base.registerFormat(XML3D.base.xml3dFormatHandler);
-
+    /**
+     * @constructor
+     * @extends FormatHandler
+     */
     var JSONFormatHandler = function() {
         FormatHandler.call(this);
     }
@@ -8459,20 +9259,32 @@ XML3D.base.sendAdapterEvent = function(node, events) {
         return response;
     }
 
-    // Export
-    XML3D.base.JSONFormatHandler = JSONFormatHandler;
-
+    /**
+     * @constructor
+     * @extends FormatHandler
+     */
     var BinaryFormatHandler = function() {
         FormatHandler.call(this);
     }
     XML3D.createClass(BinaryFormatHandler, FormatHandler);
 
-    // Export
+    // Exports
+    XML3D.base.JSONFormatHandler = JSONFormatHandler;
     XML3D.base.BinaryFormatHandler = BinaryFormatHandler;
+    XML3D.base.XMLFormatHandler = XMLFormatHandler;
+    XML3D.base.XML3DFormatHandler = XML3DFormatHandler;
+    XML3D.base.xml3dFormatHandler = new XML3DFormatHandler();
+    XML3D.base.FormatHandler = FormatHandler;
+
+    XML3D.base.registerFormat(XML3D.base.xml3dFormatHandler);
 
 }());
 (function() {
 
+    /**
+     * Types of change events
+     * @enum {number}
+     */
   var events = {
           NODE_INSERTED: 0,
           VALUE_MODIFIED:  1,
@@ -8610,11 +9422,20 @@ XML3D.config.configure = function(element, selfmonitoring) {
     var nativeCreateElementNS = document.createElementNS;
     doc.createElementNS = function(ns, name) {
         var r = nativeCreateElementNS.call(this, ns, name);
-        if (ns == XML3D.xml3dNS) {
+        if (ns == XML3D.xml3dNS || XML3D.classInfo[name.toLowerCase()]) {
             XML3D.config.element(r, true);
         }
         return r;
     };
+    var nativeCreateElement = document.createElement;
+    doc.createElement = function(name) {
+        var r = nativeCreateElement.call(this, name);
+        if (XML3D.classInfo[name.toLowerCase()] ) {
+            XML3D.config.element(r, true);
+        }
+        return r;
+    };
+
     XML3D.extend(window.document, doc);
 
 }(XML3D._native));
@@ -9584,6 +10405,26 @@ new (function() {
         return true;
     };
 
+    XML3D.scriptValueLabel = "[value set by script]";
+
+
+    methods.XML3DDataSourceTypeSetScriptValue = function(data){
+        var configData = this._configured;
+
+        if(!configData)
+            return;
+
+        if(this.textContent != XML3D.scriptValueLabel)
+            this.textContent = XML3D.scriptValueLabel;
+        configData.scriptValue = data;
+
+        var dataAdapter = XML3D.base.resourceManager.getAdapter(this, XML3D.data);
+        if(dataAdapter)
+            dataAdapter.setScriptValue(data);
+
+
+    };
+
     // Export to xml3d namespace
     XML3D.extend(XML3D.methods, methods);
 });
@@ -9598,6 +10439,8 @@ XML3D.MeshTypes["lines"] = 2;
 XML3D.MeshTypes[2] = "lines";
 XML3D.MeshTypes["linestrips"] = 3;
 XML3D.MeshTypes[3] = "linestrips";
+XML3D.MeshTypes["points"] = 4;
+XML3D.MeshTypes[4] = "points";
 // TextureTypes
 XML3D.TextureTypes = {};
 XML3D.TextureTypes["2d"] = 0;
@@ -9890,6 +10733,7 @@ XML3D.classInfo['float'] = {
     param : {a: XML3D.BoolAttributeHandler, params: false},
     key : {a: XML3D.FloatAttributeHandler, params: 0.0},
     value : {a: XML3D.FloatArrayValueHandler},
+    setScriptValue : {m: XML3D.methods.XML3DDataSourceTypeSetScriptValue},
     _term: undefined
 };
 /**
@@ -9903,6 +10747,7 @@ XML3D.classInfo['float2'] = {
     param : {a: XML3D.BoolAttributeHandler, params: false},
     key : {a: XML3D.FloatAttributeHandler, params: 0.0},
     value : {a: XML3D.Float2ArrayValueHandler},
+    setScriptValue : {m: XML3D.methods.XML3DDataSourceTypeSetScriptValue},
     _term: undefined
 };
 /**
@@ -9916,6 +10761,7 @@ XML3D.classInfo['float3'] = {
     param : {a: XML3D.BoolAttributeHandler, params: false},
     key : {a: XML3D.FloatAttributeHandler, params: 0.0},
     value : {a: XML3D.Float3ArrayValueHandler},
+    setScriptValue : {m: XML3D.methods.XML3DDataSourceTypeSetScriptValue},
     _term: undefined
 };
 /**
@@ -9929,6 +10775,7 @@ XML3D.classInfo['float4'] = {
     param : {a: XML3D.BoolAttributeHandler, params: false},
     key : {a: XML3D.FloatAttributeHandler, params: 0.0},
     value : {a: XML3D.Float4ArrayValueHandler},
+    setScriptValue : {m: XML3D.methods.XML3DDataSourceTypeSetScriptValue},
     _term: undefined
 };
 /**
@@ -9942,6 +10789,7 @@ XML3D.classInfo['float4x4'] = {
     param : {a: XML3D.BoolAttributeHandler, params: false},
     key : {a: XML3D.FloatAttributeHandler, params: 0.0},
     value : {a: XML3D.Float4x4ArrayValueHandler},
+    setScriptValue : {m: XML3D.methods.XML3DDataSourceTypeSetScriptValue},
     _term: undefined
 };
 /**
@@ -9955,6 +10803,7 @@ XML3D.classInfo['int'] = {
     param : {a: XML3D.BoolAttributeHandler, params: false},
     key : {a: XML3D.FloatAttributeHandler, params: 0.0},
     value : {a: XML3D.IntArrayValueHandler},
+    setScriptValue : {m: XML3D.methods.XML3DDataSourceTypeSetScriptValue},
     _term: undefined
 };
 /**
@@ -9968,6 +10817,7 @@ XML3D.classInfo['int4'] = {
     param : {a: XML3D.BoolAttributeHandler, params: false},
     key : {a: XML3D.FloatAttributeHandler, params: 0.0},
     value : {a: XML3D.IntArrayValueHandler},
+    setScriptValue : {m: XML3D.methods.XML3DDataSourceTypeSetScriptValue},
     _term: undefined
 };
 /**
@@ -9981,6 +10831,7 @@ XML3D.classInfo['bool'] = {
     param : {a: XML3D.BoolAttributeHandler, params: false},
     key : {a: XML3D.FloatAttributeHandler, params: 0.0},
     value : {a: XML3D.BoolArrayValueHandler},
+    setScriptValue : {m: XML3D.methods.XML3DDataSourceTypeSetScriptValue},
     _term: undefined
 };
 /**
@@ -10001,6 +10852,7 @@ XML3D.classInfo['texture'] = {
     wrapT : {a: XML3D.EnumAttributeHandler, params: {e: XML3D.WrapTypes, d: 0}},
     wrapU : {a: XML3D.EnumAttributeHandler, params: {e: XML3D.WrapTypes, d: 0}},
     borderColor : {a: XML3D.StringAttributeHandler},
+    setScriptValue : {m: XML3D.methods.XML3DDataSourceTypeSetScriptValue},
     _term: undefined
 };
 /**
@@ -11279,7 +12131,7 @@ DataNode.prototype._getComputeResult = function(filter){
 
 
 function getForwardNode(dataNode){
-    if(!dataNode._filterMapping.isEmpty()  || dataNode._computeOperator)
+    if(!dataNode._filterMapping.isEmpty()  || dataNode._computeOperator || dataNode._protoNode)
         return null;
     if(dataNode._sourceNode && dataNode._children.length == 0)
         return dataNode._sourceNode;
@@ -15094,7 +15946,94 @@ Xflow.registerOperator("xflow.selectBool", {
         }
     }
 });
-XML3D.data = {
+(function(){
+
+var c_CubePositions =  [
+    [-1,-1,-1], [1,-1,-1], [-1,1,-1], [1,1,-1], // front
+    [-1,-1,-1], [-1,-1,1], [-1,1,-1], [-1,1,1], // left
+    [-1,-1,-1], [1,-1,-1], [-1,-1,1], [1,-1,1], // top
+    [1,-1,-1], [1,1,-1], [1,-1,1], [1,1,1],     // right
+    [-1,1,-1], [1,1,-1], [-1,1,1], [1,1,1],     // bottom
+    [-1,-1,1], [1,-1,1], [-1,1,1], [1,1,1]      // back
+];
+var c_CubeNormals =  [
+    [0,0,-1], [0,0,-1], [0,0,-1], [0,0,-1], // front
+    [-1,0,0], [-1,0,0], [-1,0,0], [-1,0,0], // left
+    [0,-1,0], [0,-1,0], [0,-1,0], [0,-1,0], // top
+    [1,0,0], [1,0,0], [1,0,0], [1,0,0],     // right
+    [0,1,0], [0,1,0], [0,1,0], [0,1,0],     // bottom
+    [0,0,1], [0,0,1], [0,0,1], [0,0,1]      // back
+];
+var c_CubeIndex = [
+    [0,1,2,1,2,3],
+    [4,5,6,5,6,7],
+    [8,9,10,9,10,11],
+    [12,13,14,13,14,15],
+    [16,17,18,17,18,19],
+    [20,21,22,21,22,23]
+]
+
+/**
+ * Grid Generation
+ */
+Xflow.registerOperator("xflow.debug.createSkinCubes", {
+    outputs: [	{type: 'int', name: 'index', customAlloc: true},
+                {type: 'float3', name: 'position', customAlloc: true},
+				{type: 'float3', name: 'normal', customAlloc: true},
+				{type: 'int4', name: 'boneIndices', customAlloc: true},
+				{type: 'float4', name: 'boneWeights', customAlloc: true}],
+    params:  [{type: 'float4x4', source: 'bindTransforms', array: true},
+              {type: 'float', source: 'size', array: true, optional: true}],
+    alloc: function(sizes, bindTransforms)
+    {
+        var s = bindTransforms.length / 16;
+        sizes['position'] = s * 4 * 6;
+        sizes['normal'] = s * 4 * 6;
+        sizes['boneIndices'] = s * 4 * 6;
+        sizes['boneWeights'] = s * 4 * 6;
+        sizes['index'] = s * 6 * 6;
+    },
+    evaluate: function(index, position, normal, boneIdx, boneWeight, bindTransforms, size) {
+		var cubeCount = bindTransforms.length / 16;
+		var size = (size && size[0] || 1) / 2;
+
+        var tmpPosition = XML3D.math.vec3.create(),
+            tmpNormal = XML3D.math.vec3.create();
+
+		for(var i = 0; i < cubeCount; ++i){
+            for(var j = 0; j < 6; ++j){
+                for(var k = 0; k < 4; k++){
+                    var localIdx = j*4+ k, globalIdx = i*6*4 + localIdx;
+
+                    XML3D.math.vec3.copy(tmpPosition, c_CubePositions[localIdx]);
+                    XML3D.math.vec3.scale(tmpPosition, tmpPosition, size);
+                    XML3D.math.mat4.multiplyOffsetVec3(bindTransforms, i*16, tmpPosition, 0);
+                    XML3D.math.vec3.copy(tmpNormal, c_CubeNormals[localIdx]);
+                    XML3D.math.mat4.multiplyOffsetDirection(bindTransforms, i*16, tmpNormal, 0);
+
+                    position[globalIdx*3+0] = tmpPosition[0];
+                    position[globalIdx*3+1] = tmpPosition[1];
+                    position[globalIdx*3+2] = tmpPosition[2];
+                    normal[globalIdx*3+0] = tmpNormal[0];
+                    normal[globalIdx*3+1] = tmpNormal[1];
+                    normal[globalIdx*3+2] = tmpNormal[2];
+                    boneIdx[globalIdx*4+0] = i;
+                    boneIdx[globalIdx*4+1] = boneIdx[globalIdx*4+2] = boneIdx[globalIdx*4+3]= 0;
+                    boneWeight[globalIdx*4+0] = 1;
+                    boneWeight[globalIdx*4+1] = boneWeight[globalIdx*4+2] = boneWeight[globalIdx*4+3]= 0;
+                }
+                var globalIndexIdx = i*6*6 + j*6;
+                for(var k = 0; k < 6; ++k){
+                    index[globalIndexIdx+k] = i*6*4 + c_CubeIndex[j][k];
+                }
+            }
+		}
+		// We are done!
+		position = position;
+	}
+});
+
+}());XML3D.data = {
     toString : function() {
         return "data";
     }
@@ -15315,8 +16254,17 @@ XML3D.data.DataAdapter.prototype.toString = function() {
 
     ValueDataAdapter.prototype.init = function()
     {
+        var config = this.node._configured, value;
+        if(this.node.textContent == XML3D.scriptValueLabel){
+            value = config.scriptValue;
+        }
+        else{
+            delete config.scriptValue;
+            value = this.node.value;
+        }
+
         var type = BUFFER_TYPE_TABLE[this.node.localName];
-        var buffer = new Xflow.BufferEntry(type, this.node.value);
+        var buffer = new Xflow.BufferEntry(type, value);
 
         this.xflowInputNode = XML3D.data.xflowGraph.createInputNode();
         this.xflowInputNode.name = this.node.name;
@@ -15337,6 +16285,7 @@ XML3D.data.DataAdapter.prototype.toString = function() {
         if(evt.type == XML3D.events.VALUE_MODIFIED){
             var attr = evt.wrapped.attrName;
             if(!attr){
+                delete this.node._configured.scriptValue;
                 this.xflowInputNode.data.setValue(this.node.value);
             }
             else if(attr == "name"){
@@ -15350,6 +16299,11 @@ XML3D.data.DataAdapter.prototype.toString = function() {
             }
         }
     };
+
+    ValueDataAdapter.prototype.setScriptValue = function(value){
+        // TODO: Add Type check
+        this.xflowInputNode.data.setValue(value);
+    }
 
     /**
      * Returns String representation of this DataAdapter
@@ -15415,8 +16369,14 @@ XML3D.data.DataAdapter.prototype.toString = function() {
     TextureDataAdapter.prototype.createXflowNode = function() {
         var xnode = XML3D.data.xflowGraph.createInputNode();
         xnode.name = this.node.name;
+        xnode.param = this.node.param;
+        xnode.key = this.node.key;
         return xnode;
     };
+
+    TextureDataAdapter.prototype.setScriptValue = function(value){
+        XML3D.debug.logError("Texture currently does not support setScriptValue()");
+    }
 
     TextureDataAdapter.prototype.getOutputs = function() {
         var result = {};
@@ -15426,6 +16386,22 @@ XML3D.data.DataAdapter.prototype.toString = function() {
 
     TextureDataAdapter.prototype.getValue = function() {
         return this.value;
+    };
+
+    TextureDataAdapter.prototype.notifyChanged = function(evt)
+    {
+        if(evt.type == XML3D.events.VALUE_MODIFIED){
+            var attr = evt.wrapped.attrName;
+            if(attr == "name"){
+                this.xflowInputNode.name = this.node.name;
+            }
+            else if(attr == "key"){
+                this.xflowInputNode.key = this.node.key;
+            }
+            else if(attr == "param"){
+                this.xflowInputNode.param = this.node.param;
+            }
+        }
     };
 
     /**
@@ -16628,6 +17604,10 @@ XML3D.webgl.stopEvent = function(ev) {
                 event.relatedTarget);
             if (event.dataTransfer)
                 evt.data = {url:event.dataTransfer.getData("URL"), text:event.dataTransfer.getData("Text")};
+            // override preventDefault to actually prevent the default of the original event
+            evt.preventDefault = function(){
+                event.preventDefault();
+            };
             return evt;
         },
 
@@ -17259,7 +18239,7 @@ XML3D.webgl.stopEvent = function(ev) {
         return {x: pageX - off.left, y: pageY - off.top};
     };
 })();
-(function() {
+﻿(function() {
 
     /***************************************************************************
      * Class XML3D.webgl.XML3DShaderManager
@@ -17335,6 +18315,19 @@ XML3D.webgl.stopEvent = function(ev) {
         this.shaders = {};
 
         this.createDefaultShaders();
+    };
+
+    XML3DShaderManager.FRAGMENT_HEADER = [
+        "#ifdef GL_FRAGMENT_PRECISION_HIGH",
+        "precision highp float;",
+        "#else",
+        "precision mediump float;",
+        "#endif // GL_FRAGMENT_PRECISION_HIGH",
+        "\n"
+    ].join("\n");
+
+    XML3DShaderManager.addFragmentShaderHeader = function(fragmentShaderSource) {
+        return XML3DShaderManager.FRAGMENT_HEADER + fragmentShaderSource;
     };
 
     /**
@@ -17452,6 +18445,8 @@ XML3D.webgl.stopEvent = function(ev) {
             sources = {};
             XML3D.debug.logError("Unknown shader: " + name + ". Using flat shader instead.");
         }
+
+        sources.fragment = XML3DShaderManager.addFragmentShaderHeader(sources.fragment);
 
         var shaderProgram = this.createProgramFromSources(sources);
 
@@ -18106,6 +19101,8 @@ XML3D.webgl.stopEvent = function(ev) {
 
         var directives = [],
             sources = {};
+
+        this.fragment = XML3D.webgl.XML3DShaderManager.addFragmentShaderHeader(this.fragment);
         this.addDirectives(directives, lights || {}, data ? data.getOutputMap() : {});
         sources.fragment = Material.addDirectivesToSource(directives, this.fragment);
         sources.vertex = Material.addDirectivesToSource(directives, this.vertex);
@@ -18653,7 +19650,7 @@ Renderer.prototype.recursiveBuildScene = function(currentNode, renderObjectArray
     parent = parent || new TraversalState();
     var downstream = new TraversalState(parent);
 
-    switch(currentNode.nodeName) {
+    switch(currentNode.nodeName.toLowerCase()) {
     case "group":
         adapter.parentVisible = parent.visible;
         adapter.parentTransform = XML3D.math.mat4.copy(XML3D.math.mat4.create(), parent.transform);
@@ -18791,7 +19788,7 @@ Renderer.prototype.sceneTreeAddition = function(evt) {
 
     var parentNode = target.parentElement;
     var parentTransform = XML3D.math.mat4.identity(XML3D.math.mat4.create());
-    if(parentNode && parentNode.nodeName == "group")
+    if(parentNode && parentNode.nodeName.toLowerCase() == "group")
     {
         var parentAdapter = this.getAdapter(parentNode);
         parentTransform = parentAdapter.applyTransformMatrix(parentTransform);
@@ -18981,6 +19978,8 @@ Renderer.prototype.drawObjects = function(objectArray, shaderId, xform, lights, 
         parameters["modelMatrix"] = xform.model;
         parameters["modelViewMatrix"] = xform.modelView;
         parameters["modelViewProjectionMatrix"] = XML3D.math.mat4.multiply(tmpModelViewProjection, this.camera.projMatrix, xform.modelView);
+        parameters["projectionMatrix"] = this.camera.projMatrix;
+        parameters["screenWidth"] = this.width;
         var normalMatrix = XML3D.math.mat4.invert(XML3D.math.mat4.create(), xform.modelView);
         normalMatrix = normalMatrix ? XML3D.math.mat4.transpose(normalMatrix, normalMatrix) : identMat4;
         parameters["normalMatrix"] = XML3D.math.mat3.copy(XML3D.math.mat3.create(),
@@ -19059,10 +20058,10 @@ Renderer.prototype.drawObject = function(shader, meshInfo) {
                 offset += sd[j] * 2; //GL size for UNSIGNED_SHORT is 2 bytes
             }
         } else {
-            gl.drawElements(meshInfo.glType, meshInfo.getVertexCount(), gl.UNSIGNED_SHORT, 0);
+            gl.drawElements(meshInfo.glType, meshInfo.getElementCount(), gl.UNSIGNED_SHORT, 0);
         }
 
-        triCount = meshInfo.getVertexCount() / 3;
+        triCount = meshInfo.getElementCount() / 3;
     } else {
         if (meshInfo.size) {
             var offset = 0;
@@ -19072,7 +20071,7 @@ Renderer.prototype.drawObject = function(shader, meshInfo) {
                 offset += sd[j] * 2; //GL size for UNSIGNED_SHORT is 2 bytes
             }
         } else {
-                //console.log("drawArrays: " + meshInfo.getVertexCount());
+                // console.log("drawArrays: " + meshInfo.getVertexCount());
                 gl.drawArrays(meshInfo.glType, 0, meshInfo.getVertexCount());
         }
         triCount = vbos.position ? vbos.position[i].length / 3 : 0;
@@ -20004,7 +21003,7 @@ Renderer.prototype.notifyDataChanged = function() {
             return;
         } else if (evt.type == XML3D.events.THIS_REMOVED) {
             var target = evt.wrapped.target;
-            if (target && target.nodeName == "texture") {
+            if (target && target.nodeName.toLowerCase() == "texture") {
                 // A texture was removed completely, so this shader has to be
                 // recompiled
                 this.renderer.recompileShader(this);
@@ -20108,9 +21107,16 @@ XML3D.webgl.MAX_MESH_INDEX_COUNT = 65535;
         this.glType = getGLTypeFromString(type);
         this.bbox = new window.XML3DBox();
 
+        this.getElementCount = function() {
+            try {
+                return this.vbos.index[0].length;
+            } catch(e) {
+                return 0;
+            }
+        }
         this.getVertexCount = function() {
             try {
-                return this.isIndexed ? this.vbos.index[0].length : (this.vertexCount !== undefined ? this.vertexCount[0] : this.vbos.position[0].length);
+                return (this.vertexCount !== undefined ? this.vertexCount[0] : this.vbos.position[0].length / 3);
             } catch(e) {
                 return 0;
             }
@@ -21120,9 +22126,6 @@ XML3D.shaders.register("matte", {
     ].join("\n"),
 
     fragment: [
-        "#ifdef GL_ES",
-          "precision highp float;",
-        "#endif",
         "uniform vec3 diffuseColor;",
         "uniform bool useVertexColor;",
 
@@ -21175,10 +22178,6 @@ XML3D.shaders.register("flat", XML3D.shaders.getScript("matte"));XML3D.shaders.r
     ].join("\n"),
 
     fragment : [
-        "#ifdef GL_ES",
-          "precision highp float;",
-        "#endif",
-
         "uniform float ambientIntensity;",
         "uniform vec3 diffuseColor;",
         "uniform vec3 emissiveColor;",
@@ -21344,10 +22343,6 @@ XML3D.shaders.register("flat", XML3D.shaders.getScript("matte"));XML3D.shaders.r
     ].join("\n"),
 
     fragment : [
-        "#ifdef GL_ES",
-          "precision highp float;",
-        "#endif",
-
         "uniform float ambientIntensity;",
         "uniform vec3 diffuseColor;",
         "uniform vec3 emissiveColor;",
@@ -21499,6 +22494,91 @@ XML3D.shaders.register("flat", XML3D.shaders.getScript("matte"));XML3D.shaders.r
         emissiveTexture : null,
         specularTexture : null
     }
+});XML3D.shaders.register("point", {
+
+    vertex : [
+        "attribute vec3 position;",
+        "attribute vec3 color;",
+        "attribute vec2 texcoord;",
+
+        "varying vec3 fragNormal;",
+        "varying vec3 fragVertexPosition;",
+        "varying vec3 fragEyeVector;",
+        "varying vec2 fragTexCoord;",
+        "varying vec3 fragVertexColor;",
+
+        "uniform mat4 modelViewProjectionMatrix;",
+        "uniform mat4 modelViewMatrix;",
+        "uniform mat4 projectionMatrix;",
+        "uniform mat3 normalMatrix;",
+        "uniform vec3 eyePosition;",
+        "uniform float screenWidth;",
+        "uniform float pointSize;",
+
+        "void main(void) {",
+        "    vec3 pos = position;",
+
+        "    gl_Position = modelViewProjectionMatrix * vec4(pos, 1.0);",
+        "    fragVertexPosition = (modelViewMatrix * vec4(pos, 1.0)).xyz;",
+        "    fragEyeVector = normalize(fragVertexPosition);",
+        "    fragTexCoord = texcoord;",
+        "    fragVertexColor = color;",
+        "    vec4 pos2 = vec4(fragVertexPosition, 1.0); pos2.x += pointSize;",
+        "    gl_PointSize = distance( gl_Position.xy, (projectionMatrix * pos2).xy ) * screenWidth / gl_Position.w;",
+        "}"
+    ].join("\n"),
+
+    fragment : [
+        "uniform vec3 diffuseColor;",
+        "uniform float transparency;",
+        "uniform mat4 viewMatrix;",
+        "uniform bool useVertexColor;",
+        "uniform vec2 texCoordOffset;",
+        "uniform vec2 texCoordSize;",
+
+        "#if HAS_DIFFUSETEXTURE",
+        "uniform sampler2D diffuseTexture;",
+        "#endif",
+
+        "varying vec3 fragNormal;",
+        "varying vec3 fragVertexPosition;",
+        "varying vec3 fragEyeVector;",
+        "varying vec2 fragTexCoord;",
+        "varying vec3 fragVertexColor;",
+
+        "void main(void) {",
+        "  float alpha =  max(0.0, 1.0 - transparency);",
+        "  vec3 objDiffuse = diffuseColor;",
+        "  if(useVertexColor)",
+        "    objDiffuse *= fragVertexColor;",
+        "  #if HAS_DIFFUSETEXTURE",
+        "    vec2 texCoord = fragTexCoord + texCoordOffset + gl_PointCoord*texCoordSize;",
+        "    texCoord.y = 1.0 - texCoord.y;",
+        "    vec4 texDiffuse = texture2D(diffuseTexture, texCoord);",
+        "    alpha *= texDiffuse.a;",
+        "    objDiffuse *= texDiffuse.rgb;",
+        "  #endif",
+        "  if (alpha < 0.05) discard;",
+        "  gl_FragColor = vec4(objDiffuse, alpha);",
+        "}"
+    ].join("\n"),
+    addDirectives: function(directives, lights, params) {
+        directives.push("HAS_DIFFUSETEXTURE " + ('diffuseTexture' in params ? "1" : "0"));
+    },
+    hasTransparency: function(params) {
+        return params.transparency && params.transparency.getValue()[0] > 0.001;
+    },
+    uniforms: {
+        diffuseColor    : [1.0, 1.0, 1.0],
+        texCoordOffset     : [0,0],
+        texCoordSize    : [1,1],
+        transparency    : 0.0,
+        useVertexColor  : false,
+        pointSize       : 1.0
+},
+samplers: {
+    diffuseTexture : null
+}
 });XML3D.shaders.register("pickobjectid", {
     vertex : [
         "attribute vec3 position;",
@@ -21510,9 +22590,6 @@ XML3D.shaders.register("flat", XML3D.shaders.getScript("matte"));XML3D.shaders.r
     ].join("\n"),
 
     fragment : [
-        "#ifdef GL_ES",
-          "precision highp float;",
-        "#endif",
         "uniform vec3 id;",
 
         "void main(void) {",
@@ -21543,10 +22620,6 @@ XML3D.shaders.register("pickedposition", {
     ].join("\n"),
 
     fragment : [
-        "#ifdef GL_ES",
-          "precision highp float;",
-        "#endif",
-
         "varying vec3 worldCoord;",
 
         "void main(void) {",
@@ -21575,10 +22648,6 @@ XML3D.shaders.register("pickedNormals", {
     ].join("\n"),
 
     fragment : [
-        "#ifdef GL_ES",
-          "precision highp float;",
-        "#endif",
-
         "varying vec3 fragNormal;",
 
         "void main(void) {",

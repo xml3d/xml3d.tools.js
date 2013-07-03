@@ -21,7 +21,7 @@
          *  options:
          *  o rotateSpeed, default 1
          *  o dollySpeed, default 40
-         *  o examineOrigin, default scene's bounding box center
+         *  o examineOrigin, default: scene's bounding box center on which lookAtScene() is called
          */
         initialize: function(targetViewGroup, options) {
 
@@ -36,18 +36,27 @@
             this._dollySpeed = 1;
 
             /** @private */
-            this._examineOrigin = this._getExamineOriginFromScene();
+            this._examineOrigin = new window.XML3DVec3();
 
             /** @private */
-            this._latitude = 0;
+            this._angleXAxis = 0;
             /** @private */
-            this._longitude =  0;
+            this._angleYAxis =  0;
             /** @private */
-            this._hemisphereRadius = this._getHemisphereRadius();
+            this._distanceExamineOriginTarget = 0;
             /** @private */
             this._dollyCoefficient = this._calculateDollyCoefficient();
 
             this._parseOptions(options);
+
+            // no custom origin: look at the whole scene
+            if(this._examineOrigin.equals(new window.XML3DVec3())) {
+                this.lookAtScene();
+            }
+            else {
+                this.lookAt(this._examineOrigin);
+            }
+
         },
 
         /**
@@ -74,13 +83,88 @@
             return this._dollySpeed;
         },
 
+        /** Resets the camera pose to look at the whole scene.
+         *
+         *  @this {XMOT.ExamineControllerBehavior}
+         *  @param {number=} distance to the scene center, default: scene's aabb diagonal
+         */
+        lookAtScene: function(distanceToSceneCenter) {
+
+            var defaultDistance = 1;
+            if(distanceToSceneCenter === undefined) {
+                distanceToSceneCenter = defaultDistance;
+            }
+
+            var sceneCenter = new window.XML3DVec3(0,0,0);
+
+            var bb = this._targetScene.getBoundingBox();
+            if (!bb.isEmpty()) {
+                sceneCenter.set(bb.center());
+
+                if(distanceToSceneCenter === defaultDistance) {
+
+                    var bbDiagonal = bb.size().length();
+                    if(bbDiagonal > distanceToSceneCenter) {
+                        distanceToSceneCenter = bbDiagonal;
+                    }
+                }
+            }
+
+            this.resetTargetPose(sceneCenter, distanceToSceneCenter);
+        },
+
         /**
          *  @this {XMOT.ExamineControllerBehavior}
          *  @param {window.XML3DVec3} targetPt
          */
         lookAt: function(targetPt) {
-            this._setViewDirection(targetPt.subtract(this.target.getPosition()));
+
+            this._examineOrigin.set(targetPt);
+            this._updateDistanceExamineOriginTarget();
+
+            var forward = this._examineOrigin.subtract(this.target.getPosition());
+            forward = forward.normalize();
+
+            var temporaryUp = this._rotateInTargetSpace(new window.XML3DVec3(0,1,0));
+
+            var right = forward.cross(temporaryUp);
+            if (right.length() < XMOT.math.EPSILON)
+            {
+                right = this._rotateInTargetSpace(new window.XML3DVec3(1,0,0));
+            }
+            right = right.normalize();
+
+            var up = right.cross(forward);
+
+            var orientation = new window.XML3DRotation();
+            orientation.setFromBasis(right, up, forward.negate());
+
+            this.target.setOrientation(orientation);
+
+            var eulerAngles = XMOT.math.rotationToEulerXY(orientation);
+            this._angleXAxis = eulerAngles.x;
+            this._angleYAxis = eulerAngles.y;
+
+            // compensate for precision errors for euler angle calculation
+            // by rotating by no delta
             this.rotate(0,0);
+        },
+
+        /**
+         *  @this {XMOT.ExamineControllerBehavior}
+         *  @param {window.XML3DVec3} newExamineOrigin
+         *  @param {number} distanceToExamineOrigin
+         */
+        resetTargetPose: function(newExamineOrigin, distanceToExamineOrigin) {
+
+            this._examineOrigin.set(newExamineOrigin);
+            this._distanceExamineOriginTarget = distanceToExamineOrigin;
+
+            var positionOffset = new window.XML3DVec3(0, 0, this._distanceExamineOriginTarget);
+            var targetPosition = this._examineOrigin.add(positionOffset);
+
+            this.target.setPosition(targetPosition);
+            this._angleXAxis = this._angleYAxis = 0;
         },
 
         /**
@@ -96,7 +180,7 @@
 
             this.target.translate(translVec);
 
-            this._hemisphereRadius = this._getHemisphereRadius();
+            this._updateDistanceExamineOriginTarget();
         },
 
         /**
@@ -106,26 +190,24 @@
          */
         rotate: function(deltaXAxis, deltaYAxis) {
 
-            this._longitude -= this._rotateSpeed * deltaYAxis * Math.PI / 2.0;
-            this._latitude += this._rotateSpeed * deltaXAxis * Math.PI / 2.0;
-            this._latitude = Math.max(-Math.PI / 2.0, Math.min(Math.PI / 2.0, this._latitude));
-
-            var cos_latitude = Math.cos(this._latitude);
-            var cos_longitude = Math.cos(this._longitude);
-            var sin_longitude = Math.sin(this._longitude);
+            this._angleYAxis -= this._rotateSpeed * deltaYAxis;
+            var xAxisAngle = this._angleXAxis + this._rotateSpeed * deltaXAxis;
+            this._angleXAxis = this._constrainXAxisAngle(xAxisAngle);
 
             // Position
-            var position = new window.XML3DVec3(cos_latitude * sin_longitude, Math.sin(this._latitude),
-                    cos_latitude * cos_longitude);
-            position = position.normalize();
-            position = position.scale(this._hemisphereRadius);
+            var position = this._calculateCurrentPosition();
+
+            this.target.setPosition(position);
 
             // Right
-            var right = new window.XML3DVec3(cos_longitude,0,-sin_longitude);
+            var cosAngleYAxis = Math.cos(this._angleYAxis);
+            var sinAngleYAxis = Math.sin(this._angleYAxis);
+
+            var right = new window.XML3DVec3(cosAngleYAxis,0,-sinAngleYAxis);
             right = right.normalize();
 
             // direction
-            var direction = (new window.XML3DVec3(0,0,0)).subtract(position);
+            var direction = this._examineOrigin.subtract(position);
             direction = direction.normalize();
 
             // up
@@ -133,8 +215,6 @@
 
             var orientation = new window.XML3DRotation();
             orientation.setFromBasis(right, up, direction.negate());
-
-            this.target.setPosition(position);
             this.target.setOrientation(orientation);
         },
 
@@ -157,12 +237,14 @@
         /**
          *  @this {XMOT.ExamineControllerBehavior}
          *  @private
-         *  @return {number}
          */
-        _getHemisphereRadius: function() {
+        _updateDistanceExamineOriginTarget: function() {
 
             var tarToOrig = this._examineOrigin.subtract(this.target.getPosition());
-            return tarToOrig.length();
+            if(tarToOrig.length() < XMOT.math.EPSILON) {
+                throw new Error("Examine origin and camera position coincide!");
+            }
+            this._distanceExamineOriginTarget = tarToOrig.length();
         },
 
         /**
@@ -177,42 +259,45 @@
         /**
          *  @this {XMOT.ExamineControllerBehavior}
          *  @private
+         *
          *  @return {window.XML3DVec3}
          */
-        _getExamineOriginFromScene: function() {
+        _calculateCurrentPosition: function() {
+            var cosAngleXAxis = Math.cos(this._angleXAxis);
+            var cosAngleYAxis = Math.cos(this._angleYAxis);
+            var sinAngleYAxis = Math.sin(this._angleYAxis);
 
-            var orig = new window.XML3DVec3(0,0,0);
+            var position = new window.XML3DVec3(
+                cosAngleXAxis * sinAngleYAxis,
+                Math.sin(this._angleXAxis),
+                cosAngleXAxis * cosAngleYAxis);
+            position = position.normalize();
 
-            var bb = this._targetScene.getBoundingBox();
-            if (!bb.isEmpty()) {
-                orig.set(bb.center());
-            }
+            position = position.scale(this._distanceExamineOriginTarget);
 
-            return orig;
+            return position.add(this._examineOrigin);
+        },
+
+        /** Constrain the given angle to lie within [-90,90] degree interval to
+         *  avoid gimbal lock.
+         *
+         *  @this {XMOT.ExamineControllerBehavior}
+         *  @private
+         *  @param angle
+         *  @return {number}
+         */
+        _constrainXAxisAngle: function(angle) {
+            return Math.max(-Math.PI / 2.0, Math.min(Math.PI / 2.0, angle));
         },
 
         /**
          *  @this {XMOT.ExamineControllerBehavior}
          *  @private
+         *
+         *  @return {window.XML3DVec3}
          */
-        _setViewDirection: function(dir) {
-
-            dir = dir.normalize();
-            if (dir.length() < 1E-10)
-                return;
-
-            var yAxis = this.target.getOrientation().rotateVec3(new window.XML3DVec3(0,1,0));
-
-            var xAxis = dir.cross(yAxis);
-            if (xAxis.length() < 1E-10)
-            {
-                xAxis = this.target.getOrientation().rotateVec3(new window.XML3DVec3(1,0,0));
-            }
-
-            var orientation = new window.XML3DRotation();
-            orientation.setFromBasis(xAxis, xAxis.cross(dir), dir.negate());
-
-            this.target.setOrientation(orientation);
+        _rotateInTargetSpace: function(vec) {
+            return this.target.getOrientation().rotateVec3(vec);
         }
     });
 }());
