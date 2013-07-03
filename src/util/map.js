@@ -95,7 +95,7 @@
          */
         set: function(key, values) {
 
-            this.removeKey(key);
+            this._removeKey(key);
             this.add(key, values);
         },
 
