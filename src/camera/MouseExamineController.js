@@ -2,7 +2,7 @@
 
     "use strict";
 
-    /** This controller brings together the mouse control and XMOT.ExamineControllerBehavior
+    /** This controller brings together the mouse control and XMOT.ExamineBehavior
      *  to provide examine mode navigation using the mouse.
      *
      *  @constructor
@@ -26,7 +26,7 @@
 
             this.callSuper(targetViewGroup, options);
 
-            this.behavior = new XMOT.ExamineControllerBehavior(this.target, options);
+            this.behavior = new XMOT.ExamineBehavior(this.target, options);
             this._currentAction = this.NONE;
         },
 
