@@ -139,15 +139,7 @@
             var orientation = new window.XML3DRotation();
             orientation.setFromBasis(right, up, forward.negate());
 
-            this.target.setOrientation(orientation);
-
-            var eulerAngles = XMOT.math.rotationToEulerXY(orientation);
-            this._angleXAxis = eulerAngles.x;
-            this._angleYAxis = eulerAngles.y;
-
-            // compensate for precision errors for euler angle calculation
-            // by rotating by no delta
-            this.rotate(0,0);
+            this.rotate(orientation);
         },
 
         /**
@@ -185,10 +177,20 @@
 
         /**
          *  @this {XMOT.ExamineControllerBehavior}
+         *  @param {window.XML3DRotation} orientation
+         */
+        rotate: function(orientation) {
+
+            var eulerAngles = XMOT.math.rotationToEulerXY(orientation);
+            this.rotateByAngles(-eulerAngles.x, -eulerAngles.y);
+        },
+
+        /**
+         *  @this {XMOT.ExamineControllerBehavior}
          *  @param {number} deltaXAxis the value on how much to scale on the x-axis
          *  @param {number} deltaYAxis the value on how much to scale on the y-axis
          */
-        rotate: function(deltaXAxis, deltaYAxis) {
+        rotateByAngles: function(deltaXAxis, deltaYAxis) {
 
             this._angleYAxis -= this._rotateSpeed * deltaYAxis;
             var xAxisAngle = this._angleXAxis + this._rotateSpeed * deltaXAxis;
