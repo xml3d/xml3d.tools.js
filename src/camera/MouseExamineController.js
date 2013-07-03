@@ -17,9 +17,6 @@
         /**
          *  @this {XMOT.MouseExamineController}
          *  @inheritDoc
-         *
-         *  options:
-         *  o behaviorType: the behavior to be instantiated. Default: XMOT.ExamineControllerBehavior
          */
         initialize: function(targetViewGroup, options) {
 
@@ -29,43 +26,8 @@
 
             this.callSuper(targetViewGroup, options);
 
-            var BehaviorType = options.behaviorType || XMOT.ExamineControllerBehavior;
-            this._controller = new BehaviorType(this.target, options);
+            this.behavior = new XMOT.ExamineControllerBehavior(this.target, options);
             this._currentAction = this.NONE;
-        },
-
-        /**
-         *  @this {XMOT.MouseExamineController}
-         *  @param {window.XML3DVec3} targetPt
-         */
-        lookAt: function(newExamineOrigin) {
-            this._controller.lookAt(newExamineOrigin);
-        },
-
-        /** Resets the camera pose to look at the whole scene.
-         *
-         *  @this {XMOT.MouseExamineController}
-         *  @param {number=} distance to the scene center, default: scene's aabb diagonal
-         */
-        lookAtScene: function(distanceToSceneCenter) {
-            this._controller.lookAtScene(distanceToSceneCenter);
-        },
-
-        /**
-         *  @this {XMOT.MouseExamineController}
-         *  @param {window.XML3DVec3} newExamineOrigin
-         *  @param {number} distanceToExamineOrigin
-         */
-        resetTargetPose: function(newExamineOrigin, distanceToExamineOrigin) {
-            this._controller.resetTargetPose(newExamineOrigin, distanceToExamineOrigin);
-        },
-
-        /**
-         *  @this {XMOT.MouseExamineController}
-         *  @param {window.XML3DRotation} orientation
-         */
-        rotate: function(orientation) {
-            this._controller.rotate(orientation);
         },
 
         /**
@@ -74,7 +36,7 @@
          */
         onAttach: function() {
             this.callSuper();
-            this._controller.lookAt(this._controller.getExamineOrigin());
+            this.behavior.lookAt(this.behavior.getExamineOrigin());
         },
 
         /**
@@ -96,11 +58,11 @@
 
             switch (this._currentAction) {
             case this.DOLLY:
-                this._controller.dolly(action.delta.y);
+                this.behavior.dolly(action.delta.y);
                 break;
 
             case this.ROTATE:
-                this._controller.rotateByAngles(action.delta.y, action.delta.x);
+                this.behavior.rotateByAngles(action.delta.y, action.delta.x);
                 break;
             }
         },
