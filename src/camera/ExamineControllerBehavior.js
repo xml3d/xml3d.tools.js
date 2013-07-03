@@ -39,11 +39,11 @@
             this._examineOrigin = this._getExamineOriginFromScene();
 
             /** @private */
-            this._latitude = 0;
+            this._angleXAxis = 0;
             /** @private */
-            this._longitude =  0;
+            this._angleYAxis =  0;
             /** @private */
-            this._hemisphereRadius = this._getHemisphereRadius();
+            this._distanceExamineOriginTarget = this._getDistanceExamineOriginTarget();
             /** @private */
             this._dollyCoefficient = this._calculateDollyCoefficient();
 
@@ -94,7 +94,7 @@
             want: never look below the y=0 plane
             */
 
-            this._latitude = this._longitude = 0;
+            this._angleXAxis = this._angleYAxis = 0;
             this.target.setPosition(this._calculateCurrentPosition());
         },
 
@@ -111,7 +111,7 @@
 
             this.target.translate(translVec);
 
-            this._hemisphereRadius = this._getHemisphereRadius();
+            this._distanceExamineOriginTarget = this._getDistanceExamineOriginTarget();
         },
 
         /**
@@ -121,9 +121,9 @@
          */
         rotate: function(deltaXAxis, deltaYAxis) {
 
-            this._longitude -= this._rotateSpeed * deltaYAxis;
-            var xAxisAngle = this._latitude + this._rotateSpeed * deltaXAxis;
-            this._latitude = this._constrainXAxisAngle(xAxisAngle);
+            this._angleYAxis -= this._rotateSpeed * deltaYAxis;
+            var xAxisAngle = this._angleXAxis + this._rotateSpeed * deltaXAxis;
+            this._angleXAxis = this._constrainXAxisAngle(xAxisAngle);
 
             // Position
             var position = this._calculateCurrentPosition();
@@ -131,10 +131,10 @@
             this.target.setPosition(position);
 
             // Right
-            var cos_longitude = Math.cos(this._longitude);
-            var sin_longitude = Math.sin(this._longitude);
+            var cosAngleYAxis = Math.cos(this._angleYAxis);
+            var sinAngleYAxis = Math.sin(this._angleYAxis);
 
-            var right = new window.XML3DVec3(cos_longitude,0,-sin_longitude);
+            var right = new window.XML3DVec3(cosAngleYAxis,0,-sinAngleYAxis);
             right = right.normalize();
 
             // direction
@@ -170,7 +170,7 @@
          *  @private
          *  @return {number}
          */
-        _getHemisphereRadius: function() {
+        _getDistanceExamineOriginTarget: function() {
 
             var tarToOrig = this._examineOrigin.subtract(this.target.getPosition());
             return tarToOrig.length();
@@ -231,8 +231,8 @@
             this.target.setOrientation(orientation);
 
             var eulerAngles = XMOT.math.rotationToEulerXY(orientation);
-            this._latitude = eulerAngles.x;
-            this._longitude = eulerAngles.y;
+            this._angleXAxis = eulerAngles.x;
+            this._angleYAxis = eulerAngles.y;
         },
 
         /**
@@ -241,19 +241,18 @@
          *
          *  @return {window.XML3DVec3}
          */
-        _calculateCurrentPosition: function()
-        {
-            var cos_latitude = Math.cos(this._latitude);
-            var cos_longitude = Math.cos(this._longitude);
-            var sin_longitude = Math.sin(this._longitude);
+        _calculateCurrentPosition: function() {
+            var cosAngleXAxis = Math.cos(this._angleXAxis);
+            var cosAngleYAxis = Math.cos(this._angleYAxis);
+            var sinAngleYAxis = Math.sin(this._angleYAxis);
 
             var position = new window.XML3DVec3(
-                cos_latitude * sin_longitude,
-                Math.sin(this._latitude),
-                cos_latitude * cos_longitude);
+                cosAngleXAxis * sinAngleYAxis,
+                Math.sin(this._angleXAxis),
+                cosAngleXAxis * cosAngleYAxis);
             position = position.normalize();
 
-            position = position.scale(this._hemisphereRadius);
+            position = position.scale(this._distanceExamineOriginTarget);
 
             return position.add(this._examineOrigin);
         },
@@ -266,8 +265,7 @@
          *  @param angle
          *  @return {number}
          */
-        _constrainXAxisAngle: function(angle)
-        {
+        _constrainXAxisAngle: function(angle) {
             return Math.max(-Math.PI / 2.0, Math.min(Math.PI / 2.0, angle));
         }
     });
