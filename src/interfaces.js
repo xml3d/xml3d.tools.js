@@ -59,20 +59,21 @@ XMOT.version = '%VERSION%';
     /**
      * Sets the absolute position of the Transformable in local space.
      * @param {XML3DVec3} position position as 3d vector in local space
-     * @return {Transformable} the Transformable
+     * @return {boolean} true if a setting was permitted by the constraint
      */
     p.setPosition = function(position){};
 
     /**
      * Sets the absolute orientation of the Movebale in local space.
      * @param {XML3DRotation>} orientation orientation as quaternion in local space
-     * @return {Transformable} the Transformable
+     * @return {boolean} true if a setting was permitted by the constraint
      */
     p.setOrientation = function(orientation){};
 
     /**
      * Sets a new scale factor
      * @param {XML3DVec3} scale scale factor
+     * @return {boolean} true if a setting was permitted by the constraint
      */
     p.setScale = function(scale){};
 
@@ -97,21 +98,21 @@ XMOT.version = '%VERSION%';
     /**
      * Translate the Transformable by a given Vector.
      * @param {XML3DVec3} translation 3d Vector
-     * @return {Transformable} the Transformable
+     * @return {boolean} true if a setting was permitted by the constraint
      */
     p.translate = function(translation){};
 
     /**
      * Rotates the Transformable by a given Quaternion.
      * @param {XML3DRotation} rotation Quaternion
-     * @return {Transformable} the Transformable
+     * @return {boolean} true if a setting was permitted by the constraint
      */
     p.rotate = function(rotation){};
 
     /**
      * Scales the transformable by a given vector
      * @param {XML3DVec3} factor scale factor
-     * @return {Transformable} the Transformable
+     * @return {boolean} true if a setting was permitted by the constraint
      */
     p.scale = function(factor){};
 
