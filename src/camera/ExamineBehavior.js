@@ -223,18 +223,16 @@
         rotateByAngles: function(deltaXAxis, deltaYAxis) {
 
             var yAxisAngle = this._angleYAxis - this._rotateSpeed * deltaYAxis;
-            this._angleYAxis = this._constrainYAxisAngle(yAxisAngle);
+            yAxisAngle = this._constrainYAxisAngle(yAxisAngle);
             var xAxisAngle = this._angleXAxis + this._rotateSpeed * deltaXAxis;
-            this._angleXAxis = this._constrainXAxisAngle(xAxisAngle);
+            xAxisAngle = this._constrainXAxisAngle(xAxisAngle);
 
             // Position
-            var position = this._calculateCurrentPosition();
-
-            this._setTargetPosition(position);
+            var position = this._calculatePosition(xAxisAngle, yAxisAngle);
 
             // Right
-            var cosAngleYAxis = Math.cos(this._angleYAxis);
-            var sinAngleYAxis = Math.sin(this._angleYAxis);
+            var cosAngleYAxis = Math.cos(yAxisAngle);
+            var sinAngleYAxis = Math.sin(yAxisAngle);
 
             var right = new window.XML3DVec3(cosAngleYAxis,0,-sinAngleYAxis);
             right = right.normalize();
@@ -248,7 +246,20 @@
 
             var orientation = new window.XML3DRotation();
             orientation.setFromBasis(right, up, direction.negate());
-            this._setTargetOrientation(orientation);
+
+            // set values
+            var oldPosition = this.target.getPosition();
+            if(!this._setTargetPosition(position))
+                return;
+
+            if(!this._setTargetOrientation(orientation))
+            {
+                this._setTargetPosition(oldPosition);
+                return;
+            }
+
+            this._angleXAxis = xAxisAngle;
+            this._angleYAxis = yAxisAngle;
         },
 
         /** Constrain the given angle to lie within [_minAngleYAxis, maxAngleYAxis].
@@ -327,14 +338,15 @@
          *
          *  @return {window.XML3DVec3}
          */
-        _calculateCurrentPosition: function() {
-            var cosAngleXAxis = Math.cos(this._angleXAxis);
-            var cosAngleYAxis = Math.cos(this._angleYAxis);
-            var sinAngleYAxis = Math.sin(this._angleYAxis);
+        _calculatePosition: function(xAxisAngle, yAxisAngle) {
+
+            var cosAngleXAxis = Math.cos(xAxisAngle);
+            var cosAngleYAxis = Math.cos(yAxisAngle);
+            var sinAngleYAxis = Math.sin(yAxisAngle);
 
             var position = new window.XML3DVec3(
                 cosAngleXAxis * sinAngleYAxis,
-                Math.sin(this._angleXAxis),
+                Math.sin(xAxisAngle),
                 cosAngleXAxis * cosAngleYAxis);
             position = position.normalize();
 
@@ -380,22 +392,26 @@
          *  @this {XMOT.ExamineBehavior}
          *  @private
          *  @param {window.XML3DVec3} position
+         *  @return {boolean} whether to use the position or not
          */
         _setTargetPosition: function(position) {
             this._doOwnTransformChange = true;
-            this.target.setPosition(position);
+            var usePosition = this.target.setPosition(position);
             this._doOwnTransformChange = false;
+            return usePosition;
         },
 
         /**
          *  @this {XMOT.ExamineBehavior}
          *  @private
          *  @param {window.XML3DRotation} orientation
+         *  @return {boolean} whether to use the orientation
          */
         _setTargetOrientation: function(orientation) {
             this._doOwnTransformChange = true;
-            this.target.setOrientation(orientation);
+            var useOrientation = this.target.setOrientation(orientation);
             this._doOwnTransformChange = false;
+            return useOrientation;
         },
 
         /**
