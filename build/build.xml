@@ -49,6 +49,7 @@
 
         <file name="animation/CombinedAnimation.js" />
 
+        <file name="constraint/DefaultConstraint.js" />
         <file name="constraint/ConstraintCollection.js" />
         <file name="constraint/SimpleConstraint.js" />
         <file name="constraint/ProhibitAxisMovementConstraint.js" />
