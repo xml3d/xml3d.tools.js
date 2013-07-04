@@ -25,6 +25,14 @@
          *  o examineOriginResetDistance: default 1. When the target's transformation changes
          *      the internal state needs to be updated. The examination origin is set by offsetting
          *      it by a factor into the camera's forward direction. That factor is this option.
+         *
+         *  o {min,max}AngleXAxis: constraints for the rotation around the x-axis. Default is
+         *      {-Math.PI/2, Math.PI/2} to avoid gimbal lock.
+         *  o {min,max}AngleYAxis: constraints for the rotation around the y-axis. Default is
+         *      {-Number.MAX_VALUE, Number.MAX_VALUE}.
+         *
+         *  The min and max values specify values that are NOT to be reached. They are modified
+         *  with a bias of 0.01 (i.e. min is actually min + 0.01 and max is max - 0.01)
          */
         initialize: function(targetViewGroup, options) {
 
@@ -51,6 +59,12 @@
             this._dollyCoefficient = this._calculateDollyCoefficient();
             /** @private */
             this._examineOriginResetDistance = 1;
+
+            /** @private */
+            this._minAngleXAxis = -Math.PI / 2.0;
+            this._maxAngleXAxis = Math.PI / 2.0;
+            this._minAngleYAxis = -Number.MAX_VALUE;
+            this._maxAngleYAxis = Number.MAX_VALUE;
 
             /** Helper to keep track when we are changing our own transformation.
              *  Since we will update internal values when the transformation changes
@@ -208,7 +222,8 @@
          */
         rotateByAngles: function(deltaXAxis, deltaYAxis) {
 
-            this._angleYAxis -= this._rotateSpeed * deltaYAxis;
+            var yAxisAngle = this._angleYAxis - this._rotateSpeed * deltaYAxis;
+            this._angleYAxis = this._constrainYAxisAngle(yAxisAngle);
             var xAxisAngle = this._angleXAxis + this._rotateSpeed * deltaXAxis;
             this._angleXAxis = this._constrainXAxisAngle(xAxisAngle);
 
@@ -236,6 +251,28 @@
             this._setTargetOrientation(orientation);
         },
 
+        /** Constrain the given angle to lie within [_minAngleYAxis, maxAngleYAxis].
+         *
+         *  @this {XMOT.ExamineBehavior}
+         *  @private
+         *  @param angle
+         *  @return {number}
+         */
+        _constrainYAxisAngle: function(angle) {
+            return Math.max(this._minAngleYAxis+0.01, Math.min(this._maxAngleYAxis-0.01, angle));
+        },
+
+        /** Constrain the given angle to lie within [_minAngleXAxis, maxAngleXAxis].
+         *
+         *  @this {XMOT.ExamineBehavior}
+         *  @private
+         *  @param angle
+         *  @return {number}
+         */
+        _constrainXAxisAngle: function(angle) {
+            return Math.max(this._minAngleXAxis+0.01, Math.min(this._maxAngleXAxis-0.01, angle));
+        },
+
         /**
          *  @this {XMOT.ExamineBehavior}
          *  @private
@@ -250,8 +287,16 @@
                 this._dollySpeed = options.dollySpeed;
             if(options.examineOrigin !== undefined)
                 this._examineOrigin = options.examineOrigin;
-            if(options.examineOriginResetDistance)
+            if(options.examineOriginResetDistance !== undefined)
                 this._examineOriginResetDistance = options.examineOriginResetDistance;
+            if(options.minAngleXAxis !== undefined)
+                this._minAngleXAxis = options.minAngleXAxis;
+            if(options.maxAngleXAxis !== undefined)
+                this._maxAngleXAxis = options.maxAngleXAxis;
+            if(options.minAngleYAxis !== undefined)
+                this._minAngleYAxis = options.minAngleYAxis;
+            if(options.maxAngleYAxis !== undefined)
+                this._maxAngleYAxis = options.maxAngleYAxis;
         },
 
         /**
@@ -296,18 +341,6 @@
             position = position.scale(this._distanceExamineOriginTarget);
 
             return position.add(this._examineOrigin);
-        },
-
-        /** Constrain the given angle to lie within [-90,90] degree interval to
-         *  avoid gimbal lock.
-         *
-         *  @this {XMOT.ExamineBehavior}
-         *  @private
-         *  @param angle
-         *  @return {number}
-         */
-        _constrainXAxisAngle: function(angle) {
-            return Math.max(-Math.PI / 2.0, Math.min(Math.PI / 2.0, angle));
         },
 
         /**
