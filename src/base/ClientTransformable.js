@@ -12,7 +12,6 @@
         initialize: function(object, transform, constraint) {
             /**
              * Object which shall be transformable
-             * @protected
              * @type {Object}
              */
             this.object = object;
@@ -37,29 +36,37 @@
              * @private
              * @type {Array.<{tween: tween, startPosition:Array.<number>, endPosition:Array.<number>, startOrientation:Array.<number>, endOrientation:Array.<number>}>}
              */
-            this.motionQueue = [];
+            this._motionQueue = [];
         },
 
         /** @inheritDoc */
         setPosition: function(position){
-            if(this.constraint.constrainTranslation(position, {transformable: this}))
+            if(this.constraint.constrainTranslation(position, {transformable: this})) {
                 this.transform.translation.set(position);
-            return this;
+                return true;
+            }
+
+            return false;
         },
 
         /** @inheritDoc */
         setOrientation: function(orientation){
             if(this.constraint.constrainRotation(orientation, {transformable: this})){
                 this.transform.rotation.set(orientation);
+                return true;
             }
-            return this;
+
+            return false;
         },
 
         /** @inheritDoc */
         setScale: function(scale){
             if(this.constraint.constrainScaling(scale, {transformable: this})){
                 this.transform.scale.set(scale);
+                return true;
             }
+
+            return false;
         },
 
         /** @inheritDoc */
@@ -86,17 +93,24 @@
         rotate: function(orientation){
             var destination = new XML3DRotation(this.transform.rotation, undefined, undefined);
             destination = destination.multiply( orientation );
-            if(this.constraint.constrainRotation(orientation, {transformable: this}))
+
+            if(this.constraint.constrainRotation(orientation, {transformable: this})) {
                 this.transform.rotation.set(destination);
-            return this;
+                return true;
+            }
+
+            return false;
         },
 
         /** @inheritDoc */
         scale: function(factor){
             var newScale = this.transform.scale.multiply(factor);
-            if(this.constraint.constrainScaling(newScale, {transformable: this}))
+            if(this.constraint.constrainScaling(newScale, {transformable: this})) {
                 this.transform.scale.set(newScale);
-            return this;
+                return true;
+            }
+
+            return false;
         },
 
         /** @inheritDoc */
@@ -106,7 +120,7 @@
             var queueingAllowed = opt.queueing || true;
             if( (position == undefined && orientation == undefined) || //nowhere to moveto
                 (!queueingAllowed && this.movementInProgress()) || //queuing forbiden, but something in progress
-                (this.checkIfNoNeedToMove(position, orientation)) ){
+                (this._checkIfNoNeedToMove(position, orientation)) ){
                 if(opt.callback) opt.callback();
                 return this;
             }
@@ -120,23 +134,23 @@
             //update callback
             tween.onUpdate( function() {
                 //this is the data interpolated by the tween
-                that.movement(this.t, 0, time, easing);
+                that._movement(this.t, 0, time, easing);
             } );
             //callback on complete
             tween.onComplete( function(){
                 //this is the data interpolated by the tween
 
                 //start next tween (beginning of the queue), if there is any in the queue
-                if(that.motionQueue.length > 1){ //we did not remove the finished one yet
+                if(that._motionQueue.length > 1){ //we did not remove the finished one yet
                     //set startpos / ori of the following moveTo, instead of setting at definition
-                    var followingMovement = that.motionQueue[1];
-                    var endedMovement = that.motionQueue[0];
+                    var followingMovement = that._motionQueue[1];
+                    var endedMovement = that._motionQueue[0];
                     followingMovement.startPosition = endedMovement.endPosition || that.getPosition();
                     followingMovement.startOrientation = endedMovement.endOrientation || that.getOrientation();
                     followingMovement.tween.start();
                 }
                 //remove finished tween from the beginning of the queue
-                that.motionQueue.shift();
+                that._motionQueue.shift();
                 //callback after the movement finished
                 if(opt.callback && typeof(opt.callback) === "function")
                     opt.callback();
@@ -150,8 +164,8 @@
             newEntry.startOrientation = new XML3DRotation( this.getOrientation() );
 
             //push tween to the end of the queue and start if queue was empty
-            this.motionQueue.push(newEntry);
-            if( this.motionQueue.length-1 == 0){
+            this._motionQueue.push(newEntry);
+            if( this._motionQueue.length-1 == 0){
                 newEntry.tween.start();
                 if(!XMOT.animating) {
                     XMOT.animate();
@@ -161,6 +175,24 @@
             return this;
         },
 
+        /** @inheritDoc */
+        movementInProgress: function(){
+            return this._motionQueue.length > 0;
+        },
+
+        /**@inheritDoc */
+        stop: function(){
+            var motion = this._motionQueue.shift();
+            if(motion) motion.tween.stop();
+            this._motionQueue = [];
+            return this;
+        },
+
+        /** @inheritDoc */
+        setConstraint: function(constraint){
+            this.constraint = constraint;
+        },
+
         /**
          * Checks if we need to move to a poi or if we are already there
          * @private
@@ -168,11 +200,11 @@
          * @param {Array.<number>} orientation
          * @return {boolean}
          */
-        checkIfNoNeedToMove: function(position, orientation){
+        _checkIfNoNeedToMove: function(position, orientation){
             if(!position && !orientation) return true;
-            if(!position && orientation) return this.checkPosition(orientation);
-            if(position && !orientation) return this.checkPosition(position);
-            return this.checkPosition(position) && this.checkPosition(orientation);
+            if(!position && orientation) return this._checkPosition(orientation);
+            if(position && !orientation) return this._checkPosition(position);
+            return this._checkPosition(position) && this._checkPosition(orientation);
         },
 
         /**
@@ -181,7 +213,7 @@
          * @param {Array.<number>} position
          * @return {boolean}
          */
-        checkPosition: function(position){
+        _checkPosition: function(position){
             var curPos = this.transform.translation;
             return (curPos.x == position.x && curPos.y == position.y && curPos.z == position.z);
         },
@@ -192,7 +224,7 @@
          * @param {Array.<number>} orientation
          * @return {boolean}
          */
-        checkOrientation: function(orientation){
+        _checkOrientation: function(orientation){
             var curOri = this.transform.orientation;
             return (curOri.x === orientation.x && curOri.y === orientation.y && curOri.z === orientation.z && curOri.w === orientation.w);
         },
@@ -205,12 +237,12 @@
          * @param {number} endTime
          * @param {Function} easing
          */
-        movement: function(currentTime, startTime, endTime, easing){
+        _movement: function(currentTime, startTime, endTime, easing){
             var t = (currentTime - startTime) / (endTime - startTime);
             if(easing && typeof(easing) === "function") t = easing(t); //otherwise its linear
-            var pos = this.interpolatePosition(t);
-            var ori = this.interpolateOrientation(t);
-            this.setValue(pos, ori);
+            var pos = this._interpolatePosition(t);
+            var ori = this._interpolateOrientation(t);
+            this._setValue(pos, ori);
         },
 
         /**
@@ -219,10 +251,10 @@
          * @param {number} t interpolation parameter
          * @return {Array.<number>|undefined} position
          */
-        interpolatePosition: function(t){
-            var end = this.motionQueue[0].endPosition;
+        _interpolatePosition: function(t){
+            var end = this._motionQueue[0].endPosition;
             if(end == undefined) return undefined;
-            var start = this.motionQueue[0].startPosition;
+            var start = this._motionQueue[0].startPosition;
             var interpolatedX = start.x + ( end.x - start.x ) * t;
             var interpolatedY = start.y + ( end.y - start.y ) * t;
             var interpolatedZ = start.z + ( end.z - start.z ) * t;
@@ -235,42 +267,32 @@
          * @param {number} t interpolation paramater
          * @return {Array.<number>|undefined} orientation
          */
-        interpolateOrientation: function(t){
-            var end = this.motionQueue[0].endOrientation;
+        _interpolateOrientation: function(t){
+            var end = this._motionQueue[0].endOrientation;
             if(end == undefined) return undefined;
-            var start = this.motionQueue[0].startOrientation;
+            var start = this._motionQueue[0].startOrientation;
             return XMOT.math.slerp(start, end, t);
         },
 
         /**
-         * Set position and animation of the transformable
+         * Set position and orientation of the transformable. A setting of orientation
+         * will be perfomed independent of the outcome of setPosition().
          * @private
          * @param {Array.<number>|undefined} position
          * @param {Array.<number>|undefined} orientation
+         * @return {boolean} true if the setting was permitted by the constraint
          */
-        setValue: function(position, orientation){
-            if(position != undefined)
-                this.setPosition(position);
-            if(orientation != undefined)
-                this.setOrientation(orientation);
-        },
+        _setValue: function(position, orientation){
+            var settingSuccessful = true;
 
-        /** @inheritDoc */
-        movementInProgress: function(){
-            return this.motionQueue.length > 0;
-        },
+            if(position !== undefined)
+                settingSuccessful = this.setPosition(position);
+            if(orientation !== undefined) {
+                var didSet = this.setOrientation(orientation);
+                settingSuccessful = settingSuccessful && didSet;
+            }
 
-        /**@inheritDoc */
-        stop: function(){
-            var motion = this.motionQueue.shift();
-            if(motion) motion.tween.stop();
-            this.motionQueue = [];
-            return this;
-        },
-
-        /** @inheritDoc */
-        setConstraint: function(constraint){
-            this.constraint = constraint;
+            return settingSuccessful;
         }
     });
 

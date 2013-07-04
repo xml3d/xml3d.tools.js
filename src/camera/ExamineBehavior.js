@@ -117,6 +117,7 @@
          *
          *  @this {XMOT.ExamineBehavior}
          *  @param {number=} distance to the scene center, default: scene's aabb diagonal
+         *  @return {boolean} true if the transformation was actually performed
          */
         lookAtScene: function(distanceToSceneCenter) {
 
@@ -140,17 +141,15 @@
                 }
             }
 
-            this.resetTargetPose(sceneCenter, distanceToSceneCenter);
+            return this.resetTargetPose(sceneCenter, distanceToSceneCenter);
         },
 
         /**
          *  @this {XMOT.ExamineBehavior}
          *  @param {window.XML3DVec3} targetPt
+         *  @return {boolean} whether the transformation has been actually applied
          */
         lookAt: function(targetPt) {
-
-            this._examineOrigin.set(targetPt);
-            this._updateDistanceExamineOriginTarget();
 
             var forward = this._examineOrigin.subtract(this.target.getPosition());
             forward = forward.normalize();
@@ -169,29 +168,47 @@
             var orientation = new window.XML3DRotation();
             orientation.setFromBasis(right, up, forward.negate());
 
-            this.rotate(orientation);
+            // perform actual setting
+            var oldExamineOrigin = new XML3DVec3(this._examineOrigin);
+            var oldDistance = this._distanceExamineOriginTarget;
+
+            this._examineOrigin.set(targetPt);
+            this._updateDistanceExamineOriginTarget();
+
+            if(!this.rotate(orientation)) {
+                this._examineOrigin.set(oldExamineOrigin);
+                this._distanceExamineOriginTarget = oldDistance;
+                return false;
+            }
+
+            return true;
         },
 
         /**
          *  @this {XMOT.ExamineBehavior}
          *  @param {window.XML3DVec3} newExamineOrigin
          *  @param {number} distanceToExamineOrigin
+         *  @return {boolean} true if the reset was successful
          */
         resetTargetPose: function(newExamineOrigin, distanceToExamineOrigin) {
 
+            var positionOffset = new window.XML3DVec3(0, 0, distanceToExamineOrigin);
+            var targetPosition = newExamineOrigin.add(positionOffset);
+
+            if(!this._setTargetPosition(targetPosition))
+                return false;
+
             this._examineOrigin.set(newExamineOrigin);
             this._distanceExamineOriginTarget = distanceToExamineOrigin;
-
-            var positionOffset = new window.XML3DVec3(0, 0, this._distanceExamineOriginTarget);
-            var targetPosition = this._examineOrigin.add(positionOffset);
-
-            this._setTargetPosition(targetPosition);
             this._angleXAxis = this._angleYAxis = 0;
+
+            return true;
         },
 
         /**
          *  @this {XMOT.ExamineBehavior}
          *  @param {number} delta the value of how much to dolly from the current pose
+         *  @return {boolean} true if the dolly action was actually performed
          */
         dolly: function(delta) {
 
@@ -200,25 +217,30 @@
             var translVec = new window.XML3DVec3(0, 0, scaledDelta);
             translVec = this.target.getOrientation().rotateVec3(translVec);
 
-            this._translateTarget(translVec);
+            if(!this._translateTarget(translVec))
+                return false;
 
             this._updateDistanceExamineOriginTarget();
+
+            return true;
         },
 
         /**
          *  @this {XMOT.ExamineBehavior}
          *  @param {window.XML3DRotation} orientation
+         *  @return {boolean} true if the rotate action was actually performed
          */
         rotate: function(orientation) {
 
             var eulerAngles = XMOT.math.rotationToEulerXY(orientation);
-            this.rotateByAngles(-eulerAngles.x, -eulerAngles.y);
+            return this.rotateByAngles(-eulerAngles.x, -eulerAngles.y);
         },
 
         /**
          *  @this {XMOT.ExamineBehavior}
          *  @param {number} deltaXAxis the value on how much to scale on the x-axis
          *  @param {number} deltaYAxis the value on how much to scale on the y-axis
+         *  @return {boolean} true if the rotate action was actually performed
          */
         rotateByAngles: function(deltaXAxis, deltaYAxis) {
 
@@ -250,16 +272,18 @@
             // set values
             var oldPosition = this.target.getPosition();
             if(!this._setTargetPosition(position))
-                return;
+                return false;
 
             if(!this._setTargetOrientation(orientation))
             {
                 this._setTargetPosition(oldPosition);
-                return;
+                return false;
             }
 
             this._angleXAxis = xAxisAngle;
             this._angleYAxis = yAxisAngle;
+
+            return true;
         },
 
         /** Constrain the given angle to lie within [_minAngleYAxis, maxAngleYAxis].
@@ -392,7 +416,7 @@
          *  @this {XMOT.ExamineBehavior}
          *  @private
          *  @param {window.XML3DVec3} position
-         *  @return {boolean} whether to use the position or not
+         *  @return {boolean} whether setting was successful
          */
         _setTargetPosition: function(position) {
             this._doOwnTransformChange = true;
@@ -405,7 +429,7 @@
          *  @this {XMOT.ExamineBehavior}
          *  @private
          *  @param {window.XML3DRotation} orientation
-         *  @return {boolean} whether to use the orientation
+         *  @return {boolean} whether setting was successful
          */
         _setTargetOrientation: function(orientation) {
             this._doOwnTransformChange = true;
@@ -418,11 +442,13 @@
          *  @this {XMOT.ExamineBehavior}
          *  @private
          *  @param {window.XML3DVec3} position
+         *  @return {boolean} whether setting was successful
          */
         _translateTarget: function(translation) {
             this._doOwnTransformChange = true;
-            this.target.translate(translation);
+            var useTranslate = this.target.translate(translation);
             this._doOwnTransformChange = false;
+            return useTranslate;
         }
     });
 }());
