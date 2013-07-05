@@ -26,12 +26,15 @@
          *      the internal state needs to be updated. The examination origin is set by offsetting
          *      it by a factor into the camera's forward direction. That factor is this option.
          *
+         *  o {min,max}DistanceToExamineOrigin: default {Number.MIN_VALUE, Number.MAX_VALUE},
+         *      minimum and maximum distance to the examination origin
+         *
          *  o {min,max}AngleXAxis: constraints for the rotation around the x-axis. Default is
          *      {-Math.PI/2, Math.PI/2} to avoid gimbal lock.
          *  o {min,max}AngleYAxis: constraints for the rotation around the y-axis. Default is
          *      {-Number.MAX_VALUE, Number.MAX_VALUE}.
          *
-         *  The min and max values specify values that are NOT to be reached. They are modified
+         *  The min and max angle values specify values that are NOT to be reached. They are modified
          *  with a bias of 0.01 (i.e. min is actually min + 0.01 and max is max - 0.01)
          */
         initialize: function(targetViewGroup, options) {
@@ -54,11 +57,7 @@
             /** @private */
             this._angleYAxis =  0;
             /** @private */
-            this._distanceExamineOriginTarget = 0;
-            /** @private */
             this._dollyCoefficient = this._calculateDollyCoefficient();
-            /** @private */
-            this._examineOriginResetDistance = 1;
 
             /** @private */
             this._minAngleXAxis = -Math.PI / 2.0;
@@ -68,6 +67,16 @@
             this._minAngleYAxis = -Number.MAX_VALUE;
             /** @private */
             this._maxAngleYAxis = Number.MAX_VALUE;
+
+            /** @private */
+            this._minDistanceToExamineOrigin = Number.MIN_VALUE;
+            /** @private */
+            this._maxDistanceToExamineOrigin = Number.MAX_VALUE;
+
+            /** @private */
+            this._examineOriginResetDistance = 1;
+            /** @private */
+            this._distanceToExamineOrigin = 0;
 
             /** Helper to keep track when we are changing our own transformation.
              *  Since we will update internal values when the transformation changes
@@ -174,14 +183,14 @@
 
             // perform actual setting
             var oldExamineOrigin = new XML3DVec3(this._examineOrigin);
-            var oldDistance = this._distanceExamineOriginTarget;
+            var oldDistance = this._distanceToExamineOrigin;
 
             this._examineOrigin.set(targetPt);
-            this._updateDistanceExamineOriginTarget();
+            this._updateDistanceToExamineOrigin();
 
             if(!this.rotate(orientation)) {
                 this._examineOrigin.set(oldExamineOrigin);
-                this._distanceExamineOriginTarget = oldDistance;
+                this._setDistanceToExamineOrigin(oldDistance);
                 return false;
             }
 
@@ -203,7 +212,7 @@
                 return false;
 
             this._examineOrigin.set(newExamineOrigin);
-            this._distanceExamineOriginTarget = distanceToExamineOrigin;
+            this._setDistanceToExamineOrigin(distanceToExamineOrigin);
             this._angleXAxis = this._angleYAxis = 0;
 
             return true;
@@ -217,14 +226,17 @@
         dolly: function(delta) {
 
             var scaledDelta = this._dollySpeed * this._dollyCoefficient * delta;
+            var currentScale = this._getDistanceToExamineOrigin();
+            var totalScale = this._clampDistanceToExamineOrigin(scaledDelta + currentScale);
 
-            var translVec = new window.XML3DVec3(0, 0, scaledDelta);
+            var translVec = new window.XML3DVec3(0, 0, totalScale);
             translVec = this.target.getOrientation().rotateVec3(translVec);
+            var newPosition = this._examineOrigin.add(translVec);
 
-            if(!this._translateTarget(translVec))
+            if(!this._setTargetPosition(newPosition))
                 return false;
 
-            this._updateDistanceExamineOriginTarget();
+            this._updateDistanceToExamineOrigin();
 
             return true;
         },
@@ -298,7 +310,7 @@
          *  @return {number}
          */
         _constrainYAxisAngle: function(angle) {
-            return Math.max(this._minAngleYAxis+0.01, Math.min(this._maxAngleYAxis-0.01, angle));
+            return XMOT.util.clamp(angle, this._minAngleYAxis+0.01, this._maxAngleYAxis-0.01);
         },
 
         /** Constrain the given angle to lie within [_minAngleXAxis, maxAngleXAxis].
@@ -309,7 +321,7 @@
          *  @return {number}
          */
         _constrainXAxisAngle: function(angle) {
-            return Math.max(this._minAngleXAxis+0.01, Math.min(this._maxAngleXAxis-0.01, angle));
+            return XMOT.util.clamp(angle, this._minAngleXAxis+0.01, this._maxAngleXAxis-0.01);
         },
 
         /**
@@ -326,8 +338,7 @@
                 this._dollySpeed = options.dollySpeed;
             if(options.examineOrigin !== undefined)
                 this._examineOrigin = options.examineOrigin;
-            if(options.examineOriginResetDistance !== undefined)
-                this._examineOriginResetDistance = options.examineOriginResetDistance;
+
             if(options.minAngleXAxis !== undefined)
                 this._minAngleXAxis = options.minAngleXAxis;
             if(options.maxAngleXAxis !== undefined)
@@ -336,19 +347,56 @@
                 this._minAngleYAxis = options.minAngleYAxis;
             if(options.maxAngleYAxis !== undefined)
                 this._maxAngleYAxis = options.maxAngleYAxis;
+
+            if(options.examineOriginResetDistance !== undefined)
+                this._examineOriginResetDistance = options.examineOriginResetDistance;
+            if(options.minDistanceToExamineOrigin !== undefined)
+                this._minDistanceToExamineOrigin = options.minDistanceToExamineOrigin;
+            if(options.maxDistanceToExamineOrigin !== undefined)
+                this._maxDistanceToExamineOrigin = options.maxDistanceToExamineOrigin;
+
+            this._examineOriginResetDistance = this._clampDistanceToExamineOrigin(this._examineOriginResetDistance);
         },
 
         /**
          *  @this {XMOT.ExamineBehavior}
          *  @private
          */
-        _updateDistanceExamineOriginTarget: function() {
+        _updateDistanceToExamineOrigin: function() {
+            this._setDistanceToExamineOrigin(this._getDistanceToExamineOrigin());
+        },
 
-            var tarToOrig = this._examineOrigin.subtract(this.target.getPosition());
-            if(tarToOrig.length() < XMOT.math.EPSILON) {
-                throw new Error("Examine origin and camera position coincide!");
-            }
-            this._distanceExamineOriginTarget = tarToOrig.length();
+        /**
+         *  Set the internal variable _distanceToExamineOrigin to the given distance
+         *  and clamping against the bounds.
+         *
+         *  @this {XMOT.ExamineBehavior}
+         *  @private
+         *  @param {number} distance
+         */
+        _setDistanceToExamineOrigin: function(distance) {
+
+            this._distanceToExamineOrigin = this._clampDistanceToExamineOrigin(distance);
+        },
+
+        /**
+         *  @this {XMOT.ExamineBehavior}
+         *  @private
+         *  @param {number} distance
+         *  @return {number} distance clamped by _{min,max}DistanceToExamineOrigin
+         */
+        _clampDistanceToExamineOrigin: function(distance) {
+            return XMOT.util.clamp(distance, this._minDistanceToExamineOrigin,
+                this._maxDistanceToExamineOrigin);
+        },
+
+        /**
+         *  @this {XMOT.ExamineBehavior}
+         *  @private
+         *  @return {number} the current distance between the target and the origin
+         */
+        _getDistanceToExamineOrigin: function() {
+            return this._examineOrigin.subtract(this.target.getPosition()).length();
         },
 
         /**
@@ -378,7 +426,7 @@
                 cosAngleXAxis * cosAngleYAxis);
             position = position.normalize();
 
-            position = position.scale(this._distanceExamineOriginTarget);
+            position = position.scale(this._distanceToExamineOrigin);
 
             return position.add(this._examineOrigin);
         },
@@ -410,7 +458,7 @@
             this._angleYAxis = eulerAngles.y;
 
             // update pose
-            this._distanceExamineOriginTarget = this._examineOriginResetDistance;
+            this._setDistanceToExamineOrigin(this._examineOriginResetDistance);
             var forward = this._rotateInTargetSpace(new window.XML3DVec3(0,0,-1));
             forward = forward.scale(this._examineOriginResetDistance);
             this._examineOrigin.set(position.add(forward));
@@ -440,19 +488,6 @@
             var useOrientation = this.target.setOrientation(orientation);
             this._doOwnTransformChange = false;
             return useOrientation;
-        },
-
-        /**
-         *  @this {XMOT.ExamineBehavior}
-         *  @private
-         *  @param {window.XML3DVec3} position
-         *  @return {boolean} whether setting was successful
-         */
-        _translateTarget: function(translation) {
-            this._doOwnTransformChange = true;
-            var useTranslate = this.target.translate(translation);
-            this._doOwnTransformChange = false;
-            return useTranslate;
         }
     });
 }());
