@@ -126,6 +126,22 @@
             return this._dollySpeed;
         },
 
+        /**
+         *  @this {XMOT.ExamineBehavior}
+         *  @return {number}
+         */
+        getExamineOriginResetDistance: function() {
+            return this._examineOriginResetDistance;
+        },
+
+        /**
+         *  @this {XMOT.ExamineBehavior}
+         *  @param {number} newDistance
+         */
+        setExamineOriginResetDistance: function(newDistance) {
+            this._examineOriginResetDistance = newDistance;
+        },
+
         /** Resets the camera pose to look at the whole scene.
          *
          *  @this {XMOT.ExamineBehavior}
