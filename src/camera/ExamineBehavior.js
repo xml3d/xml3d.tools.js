@@ -62,8 +62,11 @@
 
             /** @private */
             this._minAngleXAxis = -Math.PI / 2.0;
+            /** @private */
             this._maxAngleXAxis = Math.PI / 2.0;
+            /** @private */
             this._minAngleYAxis = -Number.MAX_VALUE;
+            /** @private */
             this._maxAngleYAxis = Number.MAX_VALUE;
 
             /** Helper to keep track when we are changing our own transformation.
@@ -84,6 +87,7 @@
                 this.lookAt(this._examineOrigin);
             }
 
+            /** @private */
             this._targetTracker = new XMOT.TransformTracker(this.target.object);
             this._targetTracker.xfmChanged = this.callback("_onTargetXfmChanged");
             this._targetTracker.attach();
