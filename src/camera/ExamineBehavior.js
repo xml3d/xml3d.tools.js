@@ -69,12 +69,12 @@
             this._maxAngleYAxis = Number.MAX_VALUE;
 
             /** @private */
-            this._minDistanceToExamineOrigin = Number.MIN_VALUE;
+            this._minDistanceToExamineOrigin = 0.1;
             /** @private */
             this._maxDistanceToExamineOrigin = Number.MAX_VALUE;
 
             /** @private */
-            this._examineOriginResetDistance = 1;
+            this._examineOriginResetDistance = 10;
             /** @private */
             this._distanceToExamineOrigin = 0;
 
