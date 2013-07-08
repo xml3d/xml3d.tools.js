@@ -130,7 +130,7 @@
          *  @this {XMOT.ExamineBehavior}
          *  @return {number}
          */
-        getExamineOriginResetDistance: function() {
+        getResetDistanceToExamineOrigin: function() {
             return this._examineOriginResetDistance;
         },
 
@@ -138,9 +138,87 @@
          *  @this {XMOT.ExamineBehavior}
          *  @param {number} newDistance
          */
-        setExamineOriginResetDistance: function(newDistance) {
+        setResetDistanceToExamineOrigin: function(newDistance) {
             this._examineOriginResetDistance = newDistance;
         },
+
+        /**
+         *  @this {XMOT.ExamineBehavior}
+         *  @param {number} newMinDistance
+         */
+        setMinDistanceToExamineOrigin: function(newMinDistance) {
+            this._minDistanceToExamineOrigin = newMinDistance;
+        },
+
+        /**
+         *  @this {XMOT.ExamineBehavior}
+         *  @param {number} newMaxDistance
+         */
+        setMaxDistanceToExamineOrigin: function(newMaxDistance) {
+            this._maxDistanceToExamineOrigin = newMaxDistance;
+        },
+
+        /**
+         *  @this {XMOT.ExamineBehavior}
+         */
+        getMinDistanceToExamineOrigin: function() {
+            return this._minDistanceToExamineOrigin;
+        },
+
+        /**
+         *  @this {XMOT.ExamineBehavior}
+         */
+        getMaxDistanceToExamineOrigin: function() {
+            return this._maxDistanceToExamineOrigin;
+        },
+
+        /**
+         *  @this {XMOT.ExamineBehavior}
+         *  @param {number} newAngle
+         */
+        setMinAngleXAxis: function(newAngle) { this._minAngleXAxis = newAngle; },
+
+        /**
+         *  @this {XMOT.ExamineBehavior}
+         *  @return {number}
+         */
+        getMinAngleXAxis: function() { return this._minAngleXAxis; },
+
+        /**
+         *  @this {XMOT.ExamineBehavior}
+         *  @param {number} newAngle
+         */
+        setMaxAngleXAxis: function(newAngle) { this._maxAngleXAxis = newAngle; },
+
+        /**
+         *  @this {XMOT.ExamineBehavior}
+         *  @return {number}
+         */
+        getMaxAngleXAxis: function() { return this._maxAngleXAxis; },
+
+        /**
+         *  @this {XMOT.ExamineBehavior}
+         *  @param {number} newAngle
+         */
+        setMinAngleYAxis: function(newAngle) { this._minAngleYAxis = newAngle; },
+
+        /**
+         *  @this {XMOT.ExamineBehavior}
+         *  @return {number}
+         */
+        getMinAngleYAxis: function() { return this._minAngleYAxis; },
+
+        /**
+         *  @this {XMOT.ExamineBehavior}
+         *  @param {number} newAngle
+         */
+        setMaxAngleYAxis: function(newAngle) { this._maxAngleYAxis = newAngle; },
+
+        /**
+         *  @this {XMOT.ExamineBehavior}
+         *  @return {number}
+         */
+        getMaxAngleYAxis: function() { return this._maxAngleYAxis; },
 
         /** Resets the camera pose to look at the whole scene.
          *
