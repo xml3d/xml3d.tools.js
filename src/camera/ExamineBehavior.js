@@ -11,7 +11,7 @@
      *
      *  @constructor
      */
-    XMOT.ExamineBehavior = new XMOT.Class({
+    XMOT.ExamineBehavior = new XMOT.Class(XMOT.util.Attachable, {
 
         /**
          *  @this {XMOT.ExamineBehavior}
@@ -38,6 +38,8 @@
          *  with a bias of 0.01 (i.e. min is actually min + 0.01 and max is max - 0.01)
          */
         initialize: function(targetViewGroup, options) {
+
+            this.callSuper();
 
             this.target = XMOT.util.getOrCreateTransformable(targetViewGroup);
 
@@ -86,20 +88,28 @@
              */
             this._doOwnTransformChange = false;
 
-            this._parseOptions(options);
-
-            // no custom origin: look at the whole scene
-            if(this._examineOrigin.equals(new window.XML3DVec3())) {
-                this.lookAtScene();
-            }
-            else {
-                this.lookAt(this._examineOrigin);
-            }
-
             /** @private */
             this._targetTracker = new XMOT.TransformTracker(this.target.object);
             this._targetTracker.xfmChanged = this.callback("_onTargetXfmChanged");
+
+            this._parseOptions(options);
+        },
+
+        /**
+         *  @this {XMOT.ExamineBehavior}
+         *  @inheritDoc
+         */
+        onAttach: function() {
             this._targetTracker.attach();
+            this._onTargetXfmChanged();
+        },
+
+        /**
+         *  @this {XMOT.ExamineBehavior}
+         *  @inheritDoc
+         */
+        onDetach: function() {
+            this._targetTracker.detach();
         },
 
         /**

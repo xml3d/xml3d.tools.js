@@ -32,11 +32,19 @@
 
         /**
          *  @this {XMOT.MouseExamineController}
-         *  @override
+         *  @inheritDoc
          */
         onAttach: function() {
             this.callSuper();
-            this.behavior.lookAt(this.behavior.getExamineOrigin());
+            this.behavior.attach();
+        },
+
+        /**
+         *  @this {XMOT.MouseExamineController}
+         *  @inheritDoc
+         */
+        onDetach: function() {
+            this.behavior.detach();
         },
 
         /**
