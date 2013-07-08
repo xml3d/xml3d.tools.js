@@ -353,7 +353,7 @@
             if(options.dollySpeed !== undefined)
                 this._dollySpeed = options.dollySpeed;
             if(options.examineOrigin !== undefined)
-                this._examineOrigin = options.examineOrigin;
+                this._examineOrigin.set(options.examineOrigin);
 
             if(options.minAngleXAxis !== undefined)
                 this._minAngleXAxis = options.minAngleXAxis;
