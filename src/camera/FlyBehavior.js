@@ -45,6 +45,8 @@
              *  @private
              */
             this._doOwnTransformChange = false;
+            /** @private */
+            this._ignoreRotationAnimations = false;
 
             /** @private */
             this._targetTracker = new XMOT.TransformTracker(this.target.object);
@@ -175,6 +177,13 @@
 
         /**
          *  @this {XMOT.FlyBehavior}
+         */
+        ignoreRotationAnimations: function(doIgnore) {
+            this._ignoreRotationAnimations = doIgnore;
+        },
+
+        /**
+         *  @this {XMOT.FlyBehavior}
          *  @protected
          *  @override
          */
@@ -258,7 +267,8 @@
             if(this._doOwnTransformChange)
                 return;
 
-            this._setInitialRotation(this.target.getOrientation());
+            if(!this._ignoreRotationAnimations)
+                this._setInitialRotation(this.target.getOrientation());
         },
 
         /**

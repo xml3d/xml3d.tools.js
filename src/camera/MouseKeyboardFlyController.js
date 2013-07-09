@@ -122,6 +122,13 @@
 
         /**
          *  @this {XMOT.MouseKeyboardFlyController}
+         */
+        ignoreRotationAnimations: function(doIgnore) {
+            this._behavior.ignoreRotationAnimations(doIgnore);
+        },
+
+        /**
+         *  @this {XMOT.MouseKeyboardFlyController}
          *  @protected
          *  @override
          */
