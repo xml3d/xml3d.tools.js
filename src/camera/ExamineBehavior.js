@@ -103,7 +103,6 @@
             XMOT.util.fireWhenMeshesLoaded(this.target.object, this.callback("_updateDollyCoefficient"));
 
             this._targetTracker.attach();
-            this._onTargetXfmChanged();
         },
 
         /**
