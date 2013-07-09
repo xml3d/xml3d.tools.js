@@ -13,7 +13,7 @@
      *
      *  @constructor
      */
-    XMOT.FlyBehavior = new XMOT.Class({
+    XMOT.FlyBehavior = new XMOT.Class(XMOT.util.Attachable, {
 
         /**
          *  @this {XMOT.FlyBehavior}
@@ -37,6 +37,18 @@
             this._yAxisAngle = 0;
             this._xAxisAngle = 0;
             this._maxXAxisAngle = Math.PI/2 - 0.2;
+
+            /** Helper to keep track when we are changing our own transformation.
+             *  Since we will update internal values when the transformation changes
+             *  from outside we have to know when not to do this.
+             *
+             *  @private
+             */
+            this._doOwnTransformChange = false;
+
+            /** @private */
+            this._targetTracker = new XMOT.TransformTracker(this.target.object);
+            this._targetTracker.xfmChanged = this.callback("_onTargetXfmChanged");
 
             this._setInitialRotation(this.target.getOrientation());
         },
@@ -63,7 +75,9 @@
 
             var newRot = rot.multiply(this._initialRotation);
 
+            this._doOwnTransformChange = true;
             this.target.setOrientation(newRot);
+            this._doOwnTransformChange = false;
         },
 
         /**
@@ -117,7 +131,9 @@
          *  @this {XMOT.FlyBehavior}
          */
         setPosition: function(position) {
+            this._doOwnTransformChange = true;
             this.target.setPosition(position);
+            this._doOwnTransformChange = false;
         },
 
         /**
@@ -155,6 +171,24 @@
 
         setRotationSpeed: function(speed) {
             this._rotateSpeed = speed;
+        },
+
+        /**
+         *  @this {XMOT.FlyBehavior}
+         *  @protected
+         *  @override
+         */
+        onAttach: function() {
+            this._targetTracker.attach();
+        },
+
+        /**
+         *  @this {XMOT.FlyBehavior}
+         *  @protected
+         *  @override
+         */
+        onDetach: function() {
+            this._targetTracker.detach();
         },
 
         /**
@@ -212,7 +246,19 @@
             var transl = direction.scale(this._moveSpeed);
 
             var newPos = this.target.getPosition().add(transl);
-            this.target.setPosition(newPos);
+
+            this.setPosition(newPos);
+        },
+
+        /**
+         *  @this {XMOT.FlyBehavior}
+         *  @private
+         */
+        _onTargetXfmChanged: function() {
+            if(this._doOwnTransformChange)
+                return;
+
+            this._setInitialRotation(this.target.getOrientation());
         },
 
         /**
@@ -226,9 +272,6 @@
             this._xAxisAngle = euler.x;
             this._yAxisAngle = euler.y;
             this._initialRotation.set(new XML3DRotation());
-
-            // align the target's orientation to compensate for precision errors
-            this.rotate(0, 0);
         }
     });
 }());

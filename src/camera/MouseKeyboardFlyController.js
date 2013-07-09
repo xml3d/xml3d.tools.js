@@ -119,6 +119,7 @@
         onAttach: function() {
             this._mouseCtrl.attach();
             this._keyCtrl.attach();
+            this._behavior.attach();
             this._startInputProcessingLoop();
         },
 
@@ -130,6 +131,7 @@
         onDetach: function() {
             this._mouseCtrl.detach();
             this._keyCtrl.detach();
+            this._behavior.detach();
             this._stopInputProcessingLoop();
         },
 
