@@ -59,7 +59,7 @@
             /** @private */
             this._angleYAxis =  0;
             /** @private */
-            this._dollyCoefficient = this._calculateDollyCoefficient();
+            this._dollyCoefficient = 1;
 
             /** @private */
             this._minAngleXAxis = -Math.PI / 2.0;
@@ -100,6 +100,8 @@
          *  @inheritDoc
          */
         onAttach: function() {
+            XMOT.util.fireWhenMeshesLoaded(this.target.object, this.callback("_updateDollyCoefficient"));
+
             this._targetTracker.attach();
             this._onTargetXfmChanged();
         },
@@ -506,10 +508,9 @@
         /**
          *  @this {XMOT.ExamineBehavior}
          *  @private
-         *  @return {number}
          */
-        _calculateDollyCoefficient: function() {
-            return this._targetScene.getBoundingBox().size().length() * 0.5;
+        _updateDollyCoefficient: function() {
+            this._dollyCoefficient = this._targetScene.getBoundingBox().size().length() * 0.5;
         },
 
         /**
