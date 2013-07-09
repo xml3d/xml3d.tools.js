@@ -102,28 +102,31 @@
 
         /**
          *  @this {XMOT.CameraAnimationController}
+         *  @param {function()=} moveToFinishedCallback
          */
-        moveToNextPOI: function() {
+        moveToNextPOI: function(moveToFinishedCallback) {
 
             var nextPOI = this._pointOfInterests.getNext(this._currentPointOfInterestID)[0].id;
-            this.moveToPOI(nextPOI);
+            this.moveToPOI(nextPOI, moveToFinishedCallback);
         },
 
         /**
          *  @this {XMOT.CameraAnimationController}
+         *  @param {function()=} moveToFinishedCallback
          */
-        moveToPreviousPOI: function() {
+        moveToPreviousPOI: function(moveToFinishedCallback) {
 
             var previousPOI = this._pointOfInterests.getPrevious(this._currentPointOfInterestID)[0].id;
-            this.moveToPOI(previousPOI);
+            this.moveToPOI(previousPOI, moveToFinishedCallback);
         },
 
         /**
          *  @this {XMOT.CameraAnimationController}
          *  @param {string} id of the point of interest to move to
+         *  @param {function()=} moveToFinishedCallback
          *  @return {boolean} true if movement has actually been started
          */
-        moveToPOI: function(id) {
+        moveToPOI: function(id, moveToFinishedCallback) {
 
             if(this._pointOfInterests.size() < 1 ||
                this._movementInProgress || this.target.movementInProgress()) {
@@ -135,9 +138,14 @@
 
             var nextPOI = this._pointOfInterests.get(id)[0];
 
+            var movementFinishedCallback = function() {
+                this._moveToFinished();
+                moveToFinishedCallback();
+            }.bind(this);
+
             this.target.moveTo(nextPOI.position, nextPOI.orientation, nextPOI.moveToTime, {
                 queueing: false,
-                callback: this.callback("_moveToFinished")
+                callback: movementFinishedCallback
             });
 
             return true;
@@ -152,8 +160,15 @@
             this._moveToFinished();
         },
 
-        _moveToFinished: function() {
+        /**
+         *  @this {XMOT.CameraAnimationController}
+         *  @private
+         *  @param {function()=} moveToFinishedCallback
+         */
+        _moveToFinished: function(moveToFinishedCallback) {
             this._movementInProgress = false;
+            if(moveToFinishedCallback !== undefined)
+                moveToFinishedCallback();
         }
     });
 }());
