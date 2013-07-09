@@ -138,14 +138,13 @@
 
             var nextPOI = this._pointOfInterests.get(id)[0];
 
-            var movementFinishedCallback = function() {
-                this._moveToFinished();
-                moveToFinishedCallback();
+            var internalFinishedCallback = function() {
+                this._moveToFinished(moveToFinishedCallback);
             }.bind(this);
 
             this.target.moveTo(nextPOI.position, nextPOI.orientation, nextPOI.moveToTime, {
                 queueing: false,
-                callback: movementFinishedCallback
+                callback: internalFinishedCallback
             });
 
             return true;
