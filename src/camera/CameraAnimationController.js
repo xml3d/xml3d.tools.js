@@ -47,6 +47,14 @@
 
         /**
          *  @this {XMOT.CameraAnimationController}
+         *  @return {boolean}
+         */
+        movementInProgress: function() {
+            return this._movementInProgress;
+        },
+
+        /**
+         *  @this {XMOT.CameraAnimationController}
          *  @param {window.XML3DVec3} position
          *  @param {window.XML3DRotation} orientation
          *  @param {number=} moveToTime. Default: class instance's moveToTime
