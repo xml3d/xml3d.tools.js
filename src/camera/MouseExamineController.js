@@ -101,6 +101,7 @@
          *  @inheritDoc
          */
         onDetach: function() {
+            this.callSuper();
             this.behavior.detach();
         },
 
