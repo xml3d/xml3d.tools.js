@@ -49,15 +49,20 @@
          *  @this {XMOT.CameraAnimationController}
          *  @param {window.XML3DVec3} position
          *  @param {window.XML3DRotation} orientation
+         *  @param {number=} moveToTime. Default: class instance's moveToTime
          *  @return {string} id of the newly added point of interest
          */
-        addPOI: function(position, orientation) {
+        addPOI: function(position, orientation, moveToTime) {
 
             var id = this._idGenerator.newID();
+            if(moveToTime === undefined)
+                moveToTime = this._moveToTime;
+
             var poi = {
                 id: id,
                 position: position,
-                orientation: orientation
+                orientation: orientation,
+                moveToTime: moveToTime
             };
             this._pointOfInterests.add(id, poi);
 
@@ -122,7 +127,7 @@
 
             var nextPOI = this._pointOfInterests.get(id)[0];
 
-            this.target.moveTo(nextPOI.position, nextPOI.orientation, this._moveToTime, {
+            this.target.moveTo(nextPOI.position, nextPOI.orientation, nextPOI.moveToTime, {
                 queueing: false,
                 callback: this.callback("_moveToFinished")
             });
