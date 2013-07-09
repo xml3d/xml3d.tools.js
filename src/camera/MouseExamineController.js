@@ -30,6 +30,63 @@
             this._currentAction = this.NONE;
         },
 
+        /** Resets the camera pose to look at the whole scene.
+         *
+         *  @this {XMOT.MouseExamineController}
+         *  @param {number=} distance to the scene center, default: scene's aabb diagonal
+         *  @return {boolean} true if the transformation was actually performed
+         */
+        lookAtScene: function(distanceToSceneCenter) {
+            return this.behavior.lookAtScene(distanceToSceneCenter);
+        },
+
+        /**
+         *  @this {XMOT.MouseExamineController}
+         *  @param {window.XML3DVec3} targetPt
+         *  @return {boolean} whether the transformation has been actually applied
+         */
+        lookAt: function(targetPt) {
+            return this.behavior.lookAt(targetPt);
+        },
+
+        /**
+         *  @this {XMOT.MouseExamineController}
+         *  @param {window.XML3DVec3} newExamineOrigin
+         *  @param {number} distanceToExamineOrigin
+         *  @return {boolean} true if the reset was successful
+         */
+        resetTargetPose: function(newExamineOrigin, distanceToExamineOrigin) {
+            return this.behavior.resetTargetPose(newExamineOrigin, distanceToExamineOrigin);
+        },
+
+        /**
+         *  @this {XMOT.MouseExamineController}
+         *  @param {number} delta the value of how much to dolly from the current pose
+         *  @return {boolean} true if the dolly action was actually performed
+         */
+        dolly: function(delta) {
+            return this.behavior.dolly(delta);
+        },
+
+        /**
+         *  @this {XMOT.MouseExamineController}
+         *  @param {window.XML3DRotation} orientation
+         *  @return {boolean} true if the rotate action was actually performed
+         */
+        rotate: function(orientation) {
+            return this.behavior.rotate(orientation);
+        },
+
+        /**
+         *  @this {XMOT.MouseExamineController}
+         *  @param {number} deltaXAxis the value on how much to scale on the x-axis
+         *  @param {number} deltaYAxis the value on how much to scale on the y-axis
+         *  @return {boolean} true if the rotate action was actually performed
+         */
+        rotateByAngles: function(deltaXAxis, deltaYAxis) {
+            return this.behavior.rotateByAngles(deltaXAxis, deltaYAxis);
+        },
+
         /**
          *  @this {XMOT.MouseExamineController}
          *  @inheritDoc
