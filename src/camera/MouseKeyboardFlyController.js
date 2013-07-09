@@ -31,17 +31,17 @@
             options.mouse = options.mouse || {};
             options.keyboard = options.keyboard || {};
 
-            this._target = XMOT.util.getOrCreateTransformable(targetViewGroup);
+            this.target = XMOT.util.getOrCreateTransformable(targetViewGroup);
 
-            this._behavior = new XMOT.FlyBehavior(this._target, options.behavior);
+            this._behavior = new XMOT.FlyBehavior(this.target, options.behavior);
 
             if(options.mouse.eventDispatcher === undefined)
                 options.mouse.eventDispatcher = this._createMouseEventDispatcher();
 
-            this._mouseCtrl = new XMOT.MouseController(this._target, options.mouse);
+            this._mouseCtrl = new XMOT.MouseController(this.target, options.mouse);
             this._mouseCtrl.onDrag = this.callback("_onDrag");
 
-            this._keyCtrl = new XMOT.KeyboardController(this._target, options.keyboard);
+            this._keyCtrl = new XMOT.KeyboardController(this.target, options.keyboard);
             this._keyCtrl.onKeyDown = this.callback("_onKeyDown");
             this._keyCtrl.onKeyUp = this.callback("_onKeyUp");
 
