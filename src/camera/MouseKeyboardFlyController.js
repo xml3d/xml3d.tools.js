@@ -18,6 +18,8 @@
          *  o behavior: options to be passed to XMOT.FlyBehavior
          *  o mouse: options to be passed to XMOT.MouseController
          *  o keyboard: options to be passed to XMOT.KeyboardController
+         *  o disableMovement: if true, no movement will be possible
+         *  o disableRotation: if true, no looking around is possible
          *
          *  By default, the view can be rotated using the left mouse button,
          *  and movement can be done using W,A,S,D keys.
@@ -49,6 +51,13 @@
 
             /** map keyvalue => boolean */
             this._currentlyPressedKeys = {};
+
+            this._disableMovement = false;
+            if(options.disableMovement === true)
+                this._disableMovement = true;
+            this._disableRotation = false;
+            if(options.disableRotation === true)
+                this._disableRotation = true;
         },
 
         lookAt: function(point) {
@@ -117,8 +126,10 @@
          *  @override
          */
         onAttach: function() {
-            this._mouseCtrl.attach();
-            this._keyCtrl.attach();
+            if(!this._disableRotation)
+                this._mouseCtrl.attach();
+            if(!this._disableMovement)
+                this._keyCtrl.attach();
             this._behavior.attach();
             this._startInputProcessingLoop();
         },
