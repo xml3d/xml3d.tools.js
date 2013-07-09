@@ -62,9 +62,9 @@
             this._dollyCoefficient = 1;
 
             /** @private */
-            this._minAngleXAxis = -Math.PI / 2.0;
+            this._maxAngleXAxis = Math.PI / 2.0 - 0.2;
             /** @private */
-            this._maxAngleXAxis = Math.PI / 2.0;
+            this._minAngleXAxis = -this._maxAngleXAxis;
             /** @private */
             this._minAngleYAxis = -Number.MAX_VALUE;
             /** @private */
