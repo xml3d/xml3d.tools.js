@@ -15,11 +15,12 @@
          *  @param {Object} options
          *
          *  options:
-         *  o behavior: options to be passed to XMOT.FlyBehavior
          *  o mouse: options to be passed to XMOT.MouseController
          *  o keyboard: options to be passed to XMOT.KeyboardController
          *  o disableMovement: if true, no movement will be possible
          *  o disableRotation: if true, no looking around is possible
+         *
+         *  For other options see FlyBehavior.
          *
          *  By default, the view can be rotated using the left mouse button,
          *  and movement can be done using W,A,S,D keys.
@@ -29,13 +30,12 @@
             this.callSuper();
 
             var options = options || {};
-            options.behavior = options.behavior || {};
             options.mouse = options.mouse || {};
             options.keyboard = options.keyboard || {};
 
             this.target = XMOT.util.getOrCreateTransformable(targetViewGroup);
 
-            this._behavior = new XMOT.FlyBehavior(this.target, options.behavior);
+            this._behavior = new XMOT.FlyBehavior(this.target, options);
 
             if(options.mouse.eventDispatcher === undefined)
                 options.mouse.eventDispatcher = this._createMouseEventDispatcher();
