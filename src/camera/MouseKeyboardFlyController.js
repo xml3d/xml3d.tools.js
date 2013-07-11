@@ -35,7 +35,7 @@
 
             this.target = XMOT.util.getOrCreateTransformable(targetViewGroup);
 
-            this._behavior = new XMOT.FlyBehavior(this.target, options);
+            this.behavior = new XMOT.FlyBehavior(this.target, options);
 
             if(options.mouse.eventDispatcher === undefined)
                 options.mouse.eventDispatcher = this._createMouseEventDispatcher();
@@ -61,70 +61,35 @@
         },
 
         lookAt: function(point) {
-            this._behavior.lookAt(point);
-        },
-
-        /**
-         *  @this {XMOT.MouseKeyboardFlyController}
-         */
-        setPosition: function(position) {
-            this._behavior.setPosition(position);
-        },
-
-        /**
-         *  @this {XMOT.MouseKeyboardFlyController}
-         */
-        setOrientation: function(orientation) {
-            this._behavior.setOrientation(orientation);
-        },
-
-        /**
-         *  @this {XMOT.MouseKeyboardFlyController}
-         */
-        getPosition: function() {
-            return this._behavior.getPosition();
-        },
-
-        /**
-         *  @this {XMOT.MouseKeyboardFlyController}
-         */
-        getOrientation: function() {
-            return this._behavior.getOrientation();
+            this.behavior.lookAt(point);
         },
 
         /**
          *  @this {XMOT.MouseKeyboardFlyController}
          */
         getMoveSpeed: function() {
-            return this._behavior.getMoveSpeed();
+            return this.behavior.getMoveSpeed();
         },
 
         /**
          *  @this {XMOT.MouseKeyboardFlyController}
          */
         setMoveSpeed: function(speed) {
-            this._behavior.setMoveSpeed(speed);
+            this.behavior.setMoveSpeed(speed);
         },
 
         /**
          *  @this {XMOT.MouseKeyboardFlyController}
          */
         getRotationSpeed: function() {
-            return this._behavior.getRotationSpeed();
+            return this.behavior.getRotationSpeed();
         },
 
         /**
          *  @this {XMOT.MouseKeyboardFlyController}
          */
         setRotationSpeed: function(speed) {
-            this._behavior.setRotationSpeed(speed);
-        },
-
-        /**
-         *  @this {XMOT.MouseKeyboardFlyController}
-         */
-        ignoreRotationAnimations: function(doIgnore) {
-            this._behavior.ignoreRotationAnimations(doIgnore);
+            this.behavior.setRotationSpeed(speed);
         },
 
         /**
@@ -137,7 +102,6 @@
                 this._mouseCtrl.attach();
             if(!this._disableMovement)
                 this._keyCtrl.attach();
-            this._behavior.attach();
             this._startInputProcessingLoop();
         },
 
@@ -149,7 +113,6 @@
         onDetach: function() {
             this._mouseCtrl.detach();
             this._keyCtrl.detach();
-            this._behavior.detach();
             this._stopInputProcessingLoop();
         },
 
@@ -160,7 +123,7 @@
         _onDrag: function(action) {
             // we want mouse x-axis movement to map to y-axis rotation
             // so we flip the delta values
-            this._behavior.rotate(action.delta.y, action.delta.x);
+            this.behavior.rotate(action.delta.y, action.delta.x);
         },
 
         /**
@@ -209,16 +172,16 @@
             }
 
             if(this._currentlyPressedKeys[XMOT.KEY_W] === true) {
-                this._behavior.moveForward();
+                this.behavior.moveForward();
             }
             if(this._currentlyPressedKeys[XMOT.KEY_S] === true) {
-                this._behavior.moveBackward();
+                this.behavior.moveBackward();
             }
             if(this._currentlyPressedKeys[XMOT.KEY_A] === true) {
-                this._behavior.stepLeft();
+                this.behavior.stepLeft();
             }
             if(this._currentlyPressedKeys[XMOT.KEY_D] === true) {
-                this._behavior.stepRight();
+                this.behavior.stepRight();
             }
 
             window.requestAnimationFrame(this.callback("_inputProcessingLoop"));
