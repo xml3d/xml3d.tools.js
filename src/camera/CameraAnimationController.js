@@ -123,26 +123,37 @@
         /**
          *  @this {XMOT.CameraAnimationController}
          *  @param {string} id of the point of interest to move to
-         *  @param {function()=} moveToFinishedCallback
+         *  @param {Object=} options
          *  @return {boolean} true if movement has actually been started
+         *
+         *  available options:
+         *  o moveToFinishedCallback: invoked when the animation is finished
+         *  o moveToTime: default: the moved-to POI's moveToTime
          */
-        moveToPOI: function(id, moveToFinishedCallback) {
+        moveToPOI: function(id, options) {
 
             if(this._pointOfInterests.size() < 1 ||
-               this._movementInProgress || this.target.movementInProgress()) {
+                this._movementInProgress || this.target.movementInProgress()) {
                 return false;
             }
+
+            var nextPOI = this._pointOfInterests.get(id)[0];
+
+            if(!options)
+                options = {};
+            if(!options.moveToFinishedCallback)
+                options.moveToFinishedCallback = function() {};
+            if(!options.moveToTime)
+                options.moveToTime = nextPOI.moveToTime;
 
             this._currentPointOfInterestID = id;
             this._movementInProgress = true;
 
-            var nextPOI = this._pointOfInterests.get(id)[0];
-
             var internalFinishedCallback = function() {
-                this._moveToFinished(moveToFinishedCallback);
+                this._moveToFinished(options.moveToFinishedCallback);
             }.bind(this);
 
-            this.target.moveTo(nextPOI.position, nextPOI.orientation, nextPOI.moveToTime, {
+            this.target.moveTo(nextPOI.position, nextPOI.orientation, options.moveToTime, {
                 queueing: false,
                 callback: internalFinishedCallback
             });
