@@ -239,10 +239,17 @@
          */
         lookAtScene: function(distanceToSceneCenter) {
 
-            var defaultDistance = 1;
-            if(distanceToSceneCenter === undefined) {
+            var callback = this.callback("_onSceneMeshesLoaded").bind(distanceToSceneCenter);
+            XMOT.util.fireWhenMeshesLoaded(this._targetScene, callback);
+
+            return true;
+        },
+
+        _onSceneMeshesLoaded: function(distanceToSceneCenter) {
+
+            var defaultDistance = this._examineOriginResetDistance;
+            if(distanceToSceneCenter === undefined)
                 distanceToSceneCenter = defaultDistance;
-            }
 
             var sceneCenter = new window.XML3DVec3(0,0,0);
 
@@ -259,7 +266,7 @@
                 }
             }
 
-            return this.resetTargetPose(sceneCenter, distanceToSceneCenter);
+            this.resetTargetPose(sceneCenter, distanceToSceneCenter);
         },
 
         /**
