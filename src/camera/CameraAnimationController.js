@@ -122,41 +122,74 @@
 
         /**
          *  @this {XMOT.CameraAnimationController}
-         *  @param {string} id of the point of interest to move to
-         *  @param {Object=} options
+         *  @param {Object} poi
          *  @return {boolean} true if movement has actually been started
          *
-         *  available options:
+         *  Attributes of poi:
+         *  o id: id of the point of interest to move to
          *  o moveToFinishedCallback: invoked when the animation is finished
          *  o moveToTime: default: the moved-to POI's moveToTime
          */
-        moveToPOI: function(id, options) {
+        moveToPOI: function(poi) {
+
+            var nextPOI = this._pointOfInterests.get(poi.id)[0];
+
+            this._currentPointOfInterestID = poi.id;
+            this._movementInProgress = true;
+
+            var internalFinishedCallback = function() {
+                this._moveToFinished(poi.moveToFinishedCallback);
+            }.bind(this);
+
+            this.target.moveTo(nextPOI.position, nextPOI.orientation, nextPOI.moveToTime, {
+                queueing: false,
+                callback: internalFinishedCallback
+            });
+        },
+
+        /** Sequentially move to the given POIs, starting with the one at index 0 and
+         *  continuing until the end of the array. If the whole action is finished
+         *  invokes the optional callback.
+         *
+         *  @this {XMOT.CameraAnimationController}
+         *  @param {Array.<{id:string,moveToTime:number}>} POIs, moveToTime is optional
+         *  @param {function()=} moveToFinishedCallback
+         *  @return {boolean} true if movement has actually been started
+         */
+        moveAlongPOIPath: function(POIs, moveToFinishedCallback) {
 
             if(this._pointOfInterests.size() < 1 ||
                 this._movementInProgress || this.target.movementInProgress()) {
                 return false;
             }
 
-            var nextPOI = this._pointOfInterests.get(id)[0];
+            var numPOIs = POIs.length;
 
-            if(!options)
-                options = {};
-            if(!options.moveToFinishedCallback)
-                options.moveToFinishedCallback = function() {};
-            if(!options.moveToTime)
-                options.moveToTime = nextPOI.moveToTime;
+            // Moving to a POI is asynchronous and will invoke a callback when the movement
+            // is done. Thus, we construct a callback chain, that will trigger the movement
+            // to the next POI. The last invokation of the callback will trigger the given
+            // moveToFinishedCallback.
+            var lastCallback = moveToFinishedCallback;
+            var fn = function() {};
+            var that = this;
 
-            this._currentPointOfInterestID = id;
-            this._movementInProgress = true;
+            for(var i = numPOIs-1; i >= 0; i--) {
 
-            var internalFinishedCallback = function() {
-                this._moveToFinished(options.moveToFinishedCallback);
-            }.bind(this);
+                (function(){
+                    var opts = {};
+                    opts.id = POIs[i].id;
+                    if(POIs[i].moveToTime !== undefined)
+                        opts.moveToTime = POIs[i].moveToTime;
+                    if(lastCallback !== undefined)
+                        opts.moveToFinishedCallback = lastCallback;
 
-            this.target.moveTo(nextPOI.position, nextPOI.orientation, options.moveToTime, {
-                queueing: false,
-                callback: internalFinishedCallback
-            });
+                    fn = function() {that.moveToPOI(opts);}
+
+                    lastCallback = fn;
+                }());
+            }
+
+            fn();
 
             return true;
         },
