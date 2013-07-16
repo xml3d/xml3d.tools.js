@@ -379,6 +379,9 @@
 
             // Position
             var position = this._calculatePosition(xAxisAngle, yAxisAngle);
+            var oldPosition = this.target.getPosition();
+            if(!this._setTargetPosition(position))
+                return false;
 
             // Right
             var cosAngleYAxis = Math.cos(yAxisAngle);
@@ -396,11 +399,6 @@
 
             var orientation = new window.XML3DRotation();
             orientation.setFromBasis(right, up, direction.negate());
-
-            // set values
-            var oldPosition = this.target.getPosition();
-            if(!this._setTargetPosition(position))
-                return false;
 
             if(!this._setTargetOrientation(orientation))
             {
