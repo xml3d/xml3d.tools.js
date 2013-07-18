@@ -42,10 +42,8 @@
             var deltaXAxis = -this._rotateSpeed * deltaX * 2.0 * Math.PI;
             var deltaYAxis = -this._rotateSpeed * deltaY * 2.0 * Math.PI;
 
-            var mx = new window.XML3DRotation();
-            mx.setAxisAngle(new window.XML3DVec3(1, 0, 0), deltaXAxis);
-            var my = new window.XML3DRotation();
-            my.setAxisAngle(new window.XML3DVec3(0, 1, 0), deltaYAxis);
+            var mx = new window.XML3DRotation(new window.XML3DVec3(1, 0, 0), deltaXAxis);
+            var my = new window.XML3DRotation(new window.XML3DVec3(0, 1, 0), deltaYAxis);
 
             var currentOrient = this.target.getOrientation();
             var newRot = my.multiply(currentOrient.multiply(mx));
