@@ -127,10 +127,9 @@
          *
          *  Attributes of poi:
          *  o id: id of the point of interest to move to
-         *  o moveToFinishedCallback: invoked when the animation is finished
          *  o moveToTime: default: the moved-to POI's moveToTime
          */
-        moveToPOI: function(poi) {
+        moveToPOI: function(poi, moveToFinishedCallback) {
 
             var nextPOI = this._pointOfInterests.get(poi.id)[0];
 
@@ -138,7 +137,7 @@
             this._movementInProgress = true;
 
             var internalFinishedCallback = function() {
-                this._moveToFinished(poi.moveToFinishedCallback);
+                this._moveToFinished(moveToFinishedCallback);
             }.bind(this);
 
             this.target.moveTo(nextPOI.position, nextPOI.orientation, nextPOI.moveToTime, {
@@ -180,10 +179,10 @@
                     opts.id = POIs[i].id;
                     if(POIs[i].moveToTime !== undefined)
                         opts.moveToTime = POIs[i].moveToTime;
-                    if(lastCallback !== undefined)
-                        opts.moveToFinishedCallback = lastCallback;
 
-                    fn = function() {that.moveToPOI(opts);}
+                    var finishedCallback = lastCallback;
+
+                    fn = function() {that.moveToPOI(opts, finishedCallback);}
 
                     lastCallback = fn;
                 }());
