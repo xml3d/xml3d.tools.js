@@ -239,7 +239,9 @@
          */
         lookAtScene: function(distanceToSceneCenter) {
 
-            var callback = this.callback("_onSceneMeshesLoaded").bind(distanceToSceneCenter);
+            var callback = function() {
+                this._onSceneMeshesLoaded(distanceToSceneCenter);
+            }.bind(this);
             XMOT.util.fireWhenMeshesLoaded(this._targetScene, callback);
 
             return true;
