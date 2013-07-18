@@ -71,17 +71,17 @@
 
         /** @inheritDoc */
         getPosition: function(){
-            return this.transform.translation;
+            return new XML3DVec3(this.transform.translation);
         },
 
         /** @inheritDoc */
         getOrientation: function(){
-            return this.transform.rotation;
+            return new XML3DRotation(this.transform.rotation);
         },
 
         /** @inheritDoc */
         getScale: function(){
-            return this.transform.scale;
+            return XML3DVec3(this.transform.scale);
         },
 
         /** @inheritDoc */
