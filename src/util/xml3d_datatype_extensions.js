@@ -64,6 +64,20 @@
 
     /**
      * @this {XML3DBox}
+     * @param {!XML3DVec3} point to test intersection with
+     * @return {boolean} true if this and the other bbox intersect
+     */
+    p.contains = function(point) {
+        if(this.min.x > point.x || this.min.y > point.y || this.min.z > point.z)
+            return false;
+        if(this.max.x < point.x || this.max.y < point.y || this.max.z < point.z)
+            return false;
+
+        return true;
+    };
+
+    /**
+     * @this {XML3DBox}
      * @return {string} string representation of the bounding box
      */
     p.str = function() {
