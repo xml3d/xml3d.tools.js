@@ -55,20 +55,7 @@
             this._examineOrigin = new window.XML3DVec3();
 
             /** @private */
-            this._angleXAxis = 0;
-            /** @private */
-            this._angleYAxis =  0;
-            /** @private */
             this._dollyCoefficient = 1;
-
-            /** @private */
-            this._maxAngleXAxis = Math.PI / 2.0 - 0.2;
-            /** @private */
-            this._minAngleXAxis = -this._maxAngleXAxis;
-            /** @private */
-            this._minAngleYAxis = -Number.MAX_VALUE;
-            /** @private */
-            this._maxAngleYAxis = Number.MAX_VALUE;
 
             /** @private */
             this._minDistanceToExamineOrigin = 0.1;
@@ -183,54 +170,6 @@
             return this._maxDistanceToExamineOrigin;
         },
 
-        /**
-         *  @this {XMOT.ExamineBehavior}
-         *  @param {number} newAngle
-         */
-        setMinAngleXAxis: function(newAngle) { this._minAngleXAxis = newAngle; },
-
-        /**
-         *  @this {XMOT.ExamineBehavior}
-         *  @return {number}
-         */
-        getMinAngleXAxis: function() { return this._minAngleXAxis; },
-
-        /**
-         *  @this {XMOT.ExamineBehavior}
-         *  @param {number} newAngle
-         */
-        setMaxAngleXAxis: function(newAngle) { this._maxAngleXAxis = newAngle; },
-
-        /**
-         *  @this {XMOT.ExamineBehavior}
-         *  @return {number}
-         */
-        getMaxAngleXAxis: function() { return this._maxAngleXAxis; },
-
-        /**
-         *  @this {XMOT.ExamineBehavior}
-         *  @param {number} newAngle
-         */
-        setMinAngleYAxis: function(newAngle) { this._minAngleYAxis = newAngle; },
-
-        /**
-         *  @this {XMOT.ExamineBehavior}
-         *  @return {number}
-         */
-        getMinAngleYAxis: function() { return this._minAngleYAxis; },
-
-        /**
-         *  @this {XMOT.ExamineBehavior}
-         *  @param {number} newAngle
-         */
-        setMaxAngleYAxis: function(newAngle) { this._maxAngleYAxis = newAngle; },
-
-        /**
-         *  @this {XMOT.ExamineBehavior}
-         *  @return {number}
-         */
-        getMaxAngleYAxis: function() { return this._maxAngleYAxis; },
-
         /** Resets the camera pose to look at the whole scene.
          *
          *  @this {XMOT.ExamineBehavior}
@@ -327,7 +266,6 @@
 
             this._examineOrigin.set(newExamineOrigin);
             this._setDistanceToExamineOrigin(distanceToExamineOrigin);
-            this._angleXAxis = this._angleYAxis = 0;
 
             return true;
         },
@@ -362,7 +300,7 @@
          */
         rotate: function(orientation) {
 
-            var eulerAngles = XMOT.math.rotationToEulerXY(orientation);
+            var eulerAngles = XMOT.math.rotationToEuler(orientation);
             return this.rotateByAngles(-eulerAngles.x, -eulerAngles.y);
         },
 
@@ -396,28 +334,6 @@
             return true;
         },
 
-        /** Constrain the given angle to lie within [_minAngleYAxis, maxAngleYAxis].
-         *
-         *  @this {XMOT.ExamineBehavior}
-         *  @private
-         *  @param angle
-         *  @return {number}
-         */
-        _constrainYAxisAngle: function(angle) {
-            return XMOT.util.clamp(angle, this._minAngleYAxis+0.01, this._maxAngleYAxis-0.01);
-        },
-
-        /** Constrain the given angle to lie within [_minAngleXAxis, maxAngleXAxis].
-         *
-         *  @this {XMOT.ExamineBehavior}
-         *  @private
-         *  @param angle
-         *  @return {number}
-         */
-        _constrainXAxisAngle: function(angle) {
-            return XMOT.util.clamp(angle, this._minAngleXAxis+0.01, this._maxAngleXAxis-0.01);
-        },
-
         /**
          *  @this {XMOT.ExamineBehavior}
          *  @private
@@ -432,15 +348,6 @@
                 this._dollySpeed = options.dollySpeed;
             if(options.examineOrigin !== undefined)
                 this._examineOrigin.set(options.examineOrigin);
-
-            if(options.minAngleXAxis !== undefined)
-                this._minAngleXAxis = options.minAngleXAxis;
-            if(options.maxAngleXAxis !== undefined)
-                this._maxAngleXAxis = options.maxAngleXAxis;
-            if(options.minAngleYAxis !== undefined)
-                this._minAngleYAxis = options.minAngleYAxis;
-            if(options.maxAngleYAxis !== undefined)
-                this._maxAngleYAxis = options.maxAngleYAxis;
 
             if(options.examineOriginResetDistance !== undefined)
                 this._examineOriginResetDistance = options.examineOriginResetDistance;
@@ -504,24 +411,18 @@
         /**
          *  @this {XMOT.ExamineBehavior}
          *  @private
-         *
-         *  @return {window.XML3DVec3}
          */
-        _calculatePosition: function(xAxisAngle, yAxisAngle) {
+        _onTargetXfmChanged: function() {
+            if(this._doOwnTransformChange)
+                return;
 
-            var cosAngleXAxis = Math.cos(xAxisAngle);
-            var cosAngleYAxis = Math.cos(yAxisAngle);
-            var sinAngleYAxis = Math.sin(yAxisAngle);
+            var position = this.target.getPosition();
 
-            var position = new window.XML3DVec3(
-                cosAngleXAxis * sinAngleYAxis,
-                Math.sin(xAxisAngle),
-                cosAngleXAxis * cosAngleYAxis);
-            position = position.normalize();
-
-            position = position.scale(this._distanceToExamineOrigin);
-
-            return position.add(this._examineOrigin);
+            // update pose
+            this._setDistanceToExamineOrigin(this._examineOriginResetDistance);
+            var forward = this._rotateInTargetSpace(new window.XML3DVec3(0,0,-1));
+            forward = forward.scale(this._examineOriginResetDistance);
+            this._examineOrigin.set(position.add(forward));
         },
 
         /**
@@ -532,29 +433,6 @@
          */
         _rotateInTargetSpace: function(vec) {
             return this.target.getOrientation().rotateVec3(vec);
-        },
-
-        /**
-         *  @this {XMOT.ExamineBehavior}
-         *  @private
-         */
-        _onTargetXfmChanged: function() {
-            if(this._doOwnTransformChange)
-                return;
-
-            var position = this.target.getPosition();
-            var orientation = this.target.getOrientation();
-
-            // update orientation
-            var eulerAngles = XMOT.math.rotationToEulerXY(orientation);
-            this._angleXAxis = -eulerAngles.x;
-            this._angleYAxis = eulerAngles.y;
-
-            // update pose
-            this._setDistanceToExamineOrigin(this._examineOriginResetDistance);
-            var forward = this._rotateInTargetSpace(new window.XML3DVec3(0,0,-1));
-            forward = forward.scale(this._examineOriginResetDistance);
-            this._examineOrigin.set(position.add(forward));
         },
 
         /**
