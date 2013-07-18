@@ -449,6 +449,51 @@
             return q;
         };
     }
+
+    if(!p.inverse)
+    {
+        /**
+         *  @this {window.XML3DRotation}
+         *  @return {window.XML3DRotation}
+         */
+        p.inverse = function()
+        {
+            var invQuat = XML3D.math.quat.invert(XML3D.math.quat.create(), this._data);
+            return new window.XML3DRotation(invQuat);
+        }
+    }
+
+    if(!p.toEulerAngles)
+    {
+
+        /** Convert a given XML3DRotation to euler angles.
+         *
+         *  @this {window.XML3DRotation}
+         *  @return {window.XML3DVec3}
+         */
+        p.toEulerAngles = function()
+        {
+            var q = this._data;
+
+            var qxy = q[0]*q[1];
+            var qxz = q[0]*q[2];
+            var qyz = q[1]*q[2];
+            var qwx = q[3]*q[0];
+            var qwy = q[3]*q[1];
+            var qwz = q[3]*q[2];
+
+            var qxx = q[0]*q[0];
+            var qyy = q[1]*q[1];
+            var qzz = q[2]*q[2];
+            var qww = q[3]*q[3];
+
+            var xAngle = Math.atan2(2 * (qyz + qwx), qww - qxx - qyy + qzz);
+            var yAngle = Math.asin(-2 * (qxz - qwy));
+            var zAngle = Math.atan2(2 * (qxy + qwz), qww + qxx - qyy - qzz);
+
+            return new window.XML3DVec3(xAngle, yAngle, zAngle);
+        }
+    }
 }());
 
 // ========================================================================
