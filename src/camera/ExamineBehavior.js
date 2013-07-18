@@ -300,7 +300,7 @@
          */
         rotate: function(orientation) {
 
-            var eulerAngles = XMOT.math.rotationToEuler(orientation);
+            var eulerAngles = orientation.toEulerAngles();
             return this.rotateByAngles(-eulerAngles.x, -eulerAngles.y);
         },
 
