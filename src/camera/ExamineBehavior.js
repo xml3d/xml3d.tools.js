@@ -374,42 +374,24 @@
          */
         rotateByAngles: function(deltaXAxis, deltaYAxis) {
 
-            var yAxisAngle = this._angleYAxis - this._rotateSpeed * deltaYAxis;
-            yAxisAngle = this._constrainYAxisAngle(yAxisAngle);
-            var xAxisAngle = this._angleXAxis + this._rotateSpeed * deltaXAxis;
-            xAxisAngle = this._constrainXAxisAngle(xAxisAngle);
+            var yAxisAngle = -this._rotateSpeed * deltaYAxis;
+            var xAxisAngle = -this._rotateSpeed * deltaXAxis;
 
-            // Position
-            var position = this._calculatePosition(xAxisAngle, yAxisAngle);
-            var oldPosition = this.target.getPosition();
-            if(!this._setTargetPosition(position))
+            var mx = new XML3DRotation(new XML3DVec3(1,0,0), xAxisAngle);
+            var my = new XML3DRotation(new XML3DVec3(0,1,0), yAxisAngle);
+            var newViewOrient = my.multiply(this.target.getOrientation().multiply(mx));
+
+            var zAxis = newViewOrient.rotateVec3(new XML3DVec3(0,0,1));
+            var newViewPos = this._examineOrigin.add(zAxis.scale(this._distanceToExamineOrigin));
+
+            var oldViewPos = this.target.getPosition();
+            if(!this._setTargetPosition(newViewPos))
                 return false;
 
-            // Right
-            var cosAngleYAxis = Math.cos(yAxisAngle);
-            var sinAngleYAxis = Math.sin(yAxisAngle);
-
-            var right = new window.XML3DVec3(cosAngleYAxis,0,-sinAngleYAxis);
-            right = right.normalize();
-
-            // direction
-            var direction = this._examineOrigin.subtract(position);
-            direction = direction.normalize();
-
-            // up
-            var up = right.cross(direction);
-
-            var orientation = new window.XML3DRotation();
-            orientation.setFromBasis(right, up, direction.negate());
-
-            if(!this._setTargetOrientation(orientation))
-            {
-                this._setTargetPosition(oldPosition);
+            if(!this._setTargetOrientation(newViewOrient)) {
+                this._setTargetPosition(oldViewPos);
                 return false;
             }
-
-            this._angleXAxis = xAxisAngle;
-            this._angleYAxis = yAxisAngle;
 
             return true;
         },
