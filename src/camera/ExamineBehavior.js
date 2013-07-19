@@ -80,6 +80,8 @@
             this._targetTracker.xfmChanged = this.callback("_onTargetXfmChanged");
 
             this._parseOptions(options);
+
+            this._updateDistanceToExamineOrigin();
         },
 
         /**
@@ -89,7 +91,9 @@
         onAttach: function() {
             XMOT.util.fireWhenMeshesLoaded(this.target.object, this.callback("_updateDollyCoefficient"));
 
+            this._doOwnTransformChange = true;
             this._targetTracker.attach();
+            this._doOwnTransformChange = false;
         },
 
         /**
