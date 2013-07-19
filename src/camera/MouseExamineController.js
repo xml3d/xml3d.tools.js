@@ -34,29 +34,18 @@
          *
          *  @this {XMOT.MouseExamineController}
          *  @param {number=} distance to the scene center, default: scene's aabb diagonal
-         *  @return {boolean} true if the transformation was actually performed
          */
         lookAtScene: function(distanceToSceneCenter) {
-            return this.behavior.lookAtScene(distanceToSceneCenter);
+            this.behavior.lookAtScene(distanceToSceneCenter);
         },
 
         /**
          *  @this {XMOT.MouseExamineController}
          *  @param {window.XML3DVec3} targetPt
-         *  @return {boolean} whether the transformation has been actually applied
+         *  @param {number=} distanceToPoint. Default: examine origin reset distance
          */
-        lookAt: function(targetPt) {
-            return this.behavior.lookAt(targetPt);
-        },
-
-        /**
-         *  @this {XMOT.MouseExamineController}
-         *  @param {window.XML3DVec3} newExamineOrigin
-         *  @param {number} distanceToExamineOrigin
-         *  @return {boolean} true if the reset was successful
-         */
-        resetTargetPose: function(newExamineOrigin, distanceToExamineOrigin) {
-            return this.behavior.resetTargetPose(newExamineOrigin, distanceToExamineOrigin);
+        lookAt: function(targetPt, distanceToPoint) {
+            this.behavior.lookAt(targetPt, distanceToPoint);
         },
 
         /**
@@ -128,7 +117,7 @@
                 break;
 
             case this.ROTATE:
-                this.behavior.rotateByAngles(action.delta.y, action.delta.x);
+                this.behavior.rotateByAngles(-action.delta.y, -action.delta.x);
                 break;
             }
         },

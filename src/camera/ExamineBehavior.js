@@ -11,7 +11,7 @@
      *
      *  @constructor
      */
-    XMOT.ExamineBehavior = new XMOT.Class(XMOT.util.Attachable, {
+    XMOT.ExamineBehavior = new XMOT.Class(XMOT.CameraBehavior, {
 
         /**
          *  @this {XMOT.ExamineBehavior}
@@ -20,7 +20,7 @@
          *
          *  options:
          *  o rotateSpeed, default 1
-         *  o dollySpeed, default 40
+         *  o dollySpeed, default 1
          *  o examineOrigin, default: scene's bounding box center on which lookAtScene() is called
          *  o examineOriginResetDistance: default 1. When the target's transformation changes
          *      the internal state needs to be updated. The examination origin is set by offsetting
@@ -28,26 +28,14 @@
          *
          *  o {min,max}DistanceToExamineOrigin: default {Number.MIN_VALUE, Number.MAX_VALUE},
          *      minimum and maximum distance to the examination origin
-         *
-         *  o {min,max}AngleXAxis: constraints for the rotation around the x-axis. Default is
-         *      {-Math.PI/2, Math.PI/2} to avoid gimbal lock.
-         *  o {min,max}AngleYAxis: constraints for the rotation around the y-axis. Default is
-         *      {-Number.MAX_VALUE, Number.MAX_VALUE}.
-         *
-         *  The min and max angle values specify values that are NOT to be reached. They are modified
-         *  with a bias of 0.01 (i.e. min is actually min + 0.01 and max is max - 0.01)
          */
         initialize: function(targetViewGroup, options) {
 
-            this.callSuper();
-
-            this.target = XMOT.util.getOrCreateTransformable(targetViewGroup);
+            this.callSuper(targetViewGroup, options);
 
             /** @private */
             this._targetScene = XMOT.util.getXml3dRoot(this.target.object);
 
-            /** @private */
-            this._rotateSpeed = 1;
             /** @private */
             this._dollySpeed = 1;
 
@@ -116,14 +104,6 @@
          *  @this {XMOT.ExamineBehavior}
          *  @return {number}
          */
-        getRotateSpeed: function() {
-            return this._rotateSpeed;
-        },
-
-        /**
-         *  @this {XMOT.ExamineBehavior}
-         *  @return {number}
-         */
         getDollySpeed: function() {
             return this._dollySpeed;
         },
@@ -174,104 +154,21 @@
             return this._maxDistanceToExamineOrigin;
         },
 
-        /** Resets the camera pose to look at the whole scene.
-         *
-         *  @this {XMOT.ExamineBehavior}
-         *  @param {number=} distance to the scene center, default: scene's aabb diagonal
-         *  @return {boolean} true if the transformation was actually performed
-         */
-        lookAtScene: function(distanceToSceneCenter) {
-
-            var callback = function() {
-                this._onSceneMeshesLoaded(distanceToSceneCenter);
-            }.bind(this);
-            XMOT.util.fireWhenMeshesLoaded(this._targetScene, callback);
-
-            return true;
-        },
-
-        _onSceneMeshesLoaded: function(distanceToSceneCenter) {
-
-            var defaultDistance = this._examineOriginResetDistance;
-            if(distanceToSceneCenter === undefined)
-                distanceToSceneCenter = defaultDistance;
-
-            var sceneCenter = new window.XML3DVec3(0,0,0);
-
-            var bb = this._targetScene.getBoundingBox();
-            if (!bb.isEmpty()) {
-                sceneCenter.set(bb.center());
-
-                if(distanceToSceneCenter === defaultDistance) {
-
-                    var bbDiagonal = bb.size().length();
-                    if(bbDiagonal > distanceToSceneCenter) {
-                        distanceToSceneCenter = bbDiagonal;
-                    }
-                }
-            }
-
-            this.resetTargetPose(sceneCenter, distanceToSceneCenter);
-        },
-
         /**
          *  @this {XMOT.ExamineBehavior}
-         *  @param {window.XML3DVec3} targetPt
-         *  @return {boolean} whether the transformation has been actually applied
+         *  @inheritDoc
+         *  @param {number=} distanceToPoint. Default: examine origin reset distance
          */
-        lookAt: function(targetPt) {
+        lookAt: function(point, distanceToPoint) {
 
-            var forward = this._examineOrigin.subtract(this.target.getPosition());
-            forward = forward.normalize();
+            if(distanceToPoint === undefined)
+                distanceToPoint = this._examineOriginResetDistance;
 
-            var temporaryUp = this._rotateInTargetSpace(new window.XML3DVec3(0,1,0));
+            this._doOwnTransformChange = true;
+            this.callSuper(point, distanceToPoint);
+            this._doOwnTransformChange = false;
 
-            var right = forward.cross(temporaryUp);
-            if (right.length() < XMOT.math.EPSILON)
-            {
-                right = this._rotateInTargetSpace(new window.XML3DVec3(1,0,0));
-            }
-            right = right.normalize();
-
-            var up = right.cross(forward);
-
-            var orientation = new window.XML3DRotation();
-            orientation.setFromBasis(right, up, forward.negate());
-
-            // perform actual setting
-            var oldExamineOrigin = new XML3DVec3(this._examineOrigin);
-            var oldDistance = this._distanceToExamineOrigin;
-
-            this._examineOrigin.set(targetPt);
-            this._updateDistanceToExamineOrigin();
-
-            if(!this.rotate(orientation)) {
-                this._examineOrigin.set(oldExamineOrigin);
-                this._setDistanceToExamineOrigin(oldDistance);
-                return false;
-            }
-
-            return true;
-        },
-
-        /**
-         *  @this {XMOT.ExamineBehavior}
-         *  @param {window.XML3DVec3} newExamineOrigin
-         *  @param {number} distanceToExamineOrigin
-         *  @return {boolean} true if the reset was successful
-         */
-        resetTargetPose: function(newExamineOrigin, distanceToExamineOrigin) {
-
-            var positionOffset = new window.XML3DVec3(0, 0, distanceToExamineOrigin);
-            var targetPosition = newExamineOrigin.add(positionOffset);
-
-            if(!this._setTargetPosition(targetPosition))
-                return false;
-
-            this._examineOrigin.set(newExamineOrigin);
-            this._setDistanceToExamineOrigin(distanceToExamineOrigin);
-
-            return true;
+            this._setExamineOrigin(point);
         },
 
         /**
@@ -285,8 +182,7 @@
             var currentScale = this._getDistanceToExamineOrigin();
             var totalScale = this._clampDistanceToExamineOrigin(scaledDelta + currentScale);
 
-            var translVec = new window.XML3DVec3(0, 0, totalScale);
-            translVec = this.target.getOrientation().rotateVec3(translVec);
+            var translVec = this._rotateInTargetSpace(new window.XML3DVec3(0, 0, totalScale));
             var newPosition = this._examineOrigin.add(translVec);
 
             if(!this._setTargetPosition(newPosition))
@@ -299,38 +195,20 @@
 
         /**
          *  @this {XMOT.ExamineBehavior}
-         *  @param {window.XML3DRotation} orientation
-         *  @return {boolean} true if the rotate action was actually performed
+         *  @inheritDoc
          */
-        rotate: function(orientation) {
+        rotateByAngles: function(xAxisAngle, yAxisAngle) {
 
-            var eulerAngles = orientation.toEulerAngles();
-            return this.rotateByAngles(-eulerAngles.x, -eulerAngles.y);
-        },
+            var newOrientation = this.getNewCameraOrientation(xAxisAngle, yAxisAngle);
 
-        /**
-         *  @this {XMOT.ExamineBehavior}
-         *  @param {number} deltaXAxis the value on how much to scale on the x-axis
-         *  @param {number} deltaYAxis the value on how much to scale on the y-axis
-         *  @return {boolean} true if the rotate action was actually performed
-         */
-        rotateByAngles: function(deltaXAxis, deltaYAxis) {
-
-            var yAxisAngle = -this._rotateSpeed * deltaYAxis;
-            var xAxisAngle = -this._rotateSpeed * deltaXAxis;
-
-            var mx = new XML3DRotation(new XML3DVec3(1,0,0), xAxisAngle);
-            var my = new XML3DRotation(new XML3DVec3(0,1,0), yAxisAngle);
-            var newViewOrient = my.multiply(this.target.getOrientation().multiply(mx));
-
-            var zAxis = newViewOrient.rotateVec3(new XML3DVec3(0,0,1));
+            var zAxis = newOrientation.rotateVec3(new XML3DVec3(0,0,1));
             var newViewPos = this._examineOrigin.add(zAxis.scale(this._distanceToExamineOrigin));
 
             var oldViewPos = this.target.getPosition();
             if(!this._setTargetPosition(newViewPos))
                 return false;
 
-            if(!this._setTargetOrientation(newViewOrient)) {
+            if(!this._setTargetOrientation(newOrientation)) {
                 this._setTargetPosition(oldViewPos);
                 return false;
             }
@@ -346,8 +224,6 @@
         _parseOptions: function(options) {
 
             var options = options || {};
-            if(options.rotateSpeed !== undefined)
-                this._rotateSpeed = options.rotateSpeed;
             if(options.dollySpeed !== undefined)
                 this._dollySpeed = options.dollySpeed;
             if(options.examineOrigin !== undefined)
@@ -360,7 +236,17 @@
             if(options.maxDistanceToExamineOrigin !== undefined)
                 this._maxDistanceToExamineOrigin = options.maxDistanceToExamineOrigin;
 
-            this._examineOriginResetDistance = this._clampDistanceToExamineOrigin(this._examineOriginResetDistance);
+            this._examineOriginResetDistance =
+                this._clampDistanceToExamineOrigin(this._examineOriginResetDistance);
+        },
+
+        /**
+         *  @this {XMOT.ExamineBehavior}
+         *  @private
+         */
+        _setExamineOrigin: function(newExamineOrigin) {
+            this._examineOrigin.set(newExamineOrigin);
+            this._updateDistanceToExamineOrigin();
         },
 
         /**
@@ -422,17 +308,16 @@
 
             var position = this.target.getPosition();
 
-            // update pose
             this._setDistanceToExamineOrigin(this._examineOriginResetDistance);
             var forward = this._rotateInTargetSpace(new window.XML3DVec3(0,0,-1));
-            forward = forward.scale(this._examineOriginResetDistance);
+            forward = forward.scale(this._distanceToExamineOrigin);
             this._examineOrigin.set(position.add(forward));
         },
 
         /**
          *  @this {XMOT.ExamineBehavior}
          *  @private
-         *
+         *  @param {window.XML3DVec3} vec
          *  @return {window.XML3DVec3}
          */
         _rotateInTargetSpace: function(vec) {
