@@ -58,6 +58,14 @@
 
         /**
          *  @this {XMOT.MouseController}
+         *  @param {XMOT.util.EventDispatcher} eventDispatcher
+         */
+        setEventDispatcher: function(eventDispatcher) {
+            this._eventDispatcher = eventDispatcher;
+        },
+
+        /**
+         *  @this {XMOT.MouseController}
          */
         onDragStart: function(action) {},
 

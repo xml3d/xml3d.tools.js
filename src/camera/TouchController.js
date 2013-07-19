@@ -62,6 +62,14 @@
 
         /**
          *  @this {XMOT.TouchController}
+         *  @param {XMOT.util.EventDispatcher} eventDispatcher
+         */
+        setEventDispatcher: function(eventDispatcher) {
+            this._eventDispatcher = eventDispatcher;
+        },
+
+        /**
+         *  @this {XMOT.TouchController}
          */
         onDragStart: function(action) {},
 
