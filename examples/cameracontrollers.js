@@ -33,7 +33,7 @@ function onChangeCamType() {
         break;
 
     case "fly":
-        options.behavior = {moveSpeed: 0.2};
+        options = {moveSpeed: 0.2, rotateSpeed: 2};
         CamType = XMOT.MouseKeyboardFlyController;
         break;
 
