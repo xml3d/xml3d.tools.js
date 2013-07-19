@@ -248,6 +248,9 @@
             if(options.examineOrigin !== undefined) {
                 this._initialExamineOriginSet = true;
                 this._examineOrigin.set(options.examineOrigin);
+
+                if(options.examineOriginResetDistance === undefined)
+                    this._examineOriginResetDistance = this._getDistanceToExamineOrigin();
             }
             else {
                 this._initialExamineOriginSet = false;
