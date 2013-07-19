@@ -116,6 +116,20 @@
             this._rotateSpeed = speed;
         },
 
+        /**
+         *  @this {XMOT.CameraBehavior}
+         *  @return {window.XML3DVec3}
+         */
+        getLookDirection: function() {
+
+            var curRot = this.target.getOrientation();
+
+            var defaultDirection = new window.XML3DVec3(0, 0, -1);
+            var lookDirection = curRot.rotateVec3(defaultDirection).normalize();
+
+            return lookDirection;
+        },
+
         /** Calculate and return the camera's orientation with the
          *  given angles applied. The rotation itself is not set in
          *  the camera. This is done in rotateByAngles().

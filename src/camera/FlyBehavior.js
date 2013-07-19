@@ -84,7 +84,7 @@
          */
         _stepRight: function(doInvertDirection) {
 
-            var lookDirection = this._getLookDirection();
+            var lookDirection = this.getLookDirection();
 
             var stepDirection = lookDirection.cross(new XML3DVec3(0,1,0));
 
@@ -102,28 +102,13 @@
          */
         _moveInCamDirection: function(doInvertDirection) {
 
-            var moveDirection = this._getLookDirection();
+            var moveDirection = this.getLookDirection();
 
             if(doInvertDirection) {
                 moveDirection = moveDirection.scale(-1);
             }
 
             this._translateCamera(moveDirection);
-        },
-
-        /**
-         *  @this {XMOT.FlyBehavior}
-         *  @private
-         *  @return {window.XML3DVec3}
-         */
-        _getLookDirection: function() {
-
-            var curRot = this.target.getOrientation();
-
-            var defaultDirection = new window.XML3DVec3(0, 0, -1);
-            var lookDirection = curRot.rotateVec3(defaultDirection).normalize();
-
-            return lookDirection;
         },
 
         /**
