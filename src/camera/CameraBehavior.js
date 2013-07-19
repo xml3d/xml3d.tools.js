@@ -85,7 +85,9 @@
             var initCamDirection = new XML3DVec3(0, 0, -1);
 
             var position = this.target.getPosition();
-            var posToPoint = point.subtract(position).normalize();
+            var posToPoint = new XML3DVec3(0, 0, -1);
+            if(!position.equals(point))
+                posToPoint.set(point.subtract(position).normalize());
 
             var dirRot = new XML3DRotation();
             dirRot.setRotation(initCamDirection, posToPoint);
