@@ -13,7 +13,7 @@
      *
      *  @constructor
      */
-    XMOT.FlyBehavior = new XMOT.Class({
+    XMOT.FlyBehavior = new XMOT.Class(XMOT.CameraBehavior, {
 
         /**
          *  @this {XMOT.FlyBehavior}
@@ -26,29 +26,11 @@
          */
         initialize: function(targetViewGroup, options) {
 
-			this.target = XMOT.util.getOrCreateTransformable(targetViewGroup);
+            this.callSuper(targetViewGroup, options);
 
-            this._rotateSpeed = 1;
             this._moveSpeed = 1;
-
-            this._parseOptions(options);
-        },
-
-        /**
-         *  @this {XMOT.FlyBehavior}
-         */
-        rotate: function(deltaX, deltaY) {
-
-            var deltaXAxis = -this._rotateSpeed * deltaX * 2.0 * Math.PI;
-            var deltaYAxis = -this._rotateSpeed * deltaY * 2.0 * Math.PI;
-
-            var mx = new window.XML3DRotation(new window.XML3DVec3(1, 0, 0), deltaXAxis);
-            var my = new window.XML3DRotation(new window.XML3DVec3(0, 1, 0), deltaYAxis);
-
-            var currentOrient = this.target.getOrientation();
-            var newRot = my.multiply(currentOrient.multiply(mx));
-
-            this.target.setOrientation(newRot);
+            if(options !== undefined && options.moveSpeed !== undefined)
+                this._moveSpeed = options.moveSpeed;
         },
 
         /**
@@ -81,67 +63,23 @@
 
         /**
          *  @this {XMOT.FlyBehavior}
+         *  @return {number}
          */
-        lookAt: function(point) {
-
-            var initCamDirection = new XML3DVec3(0, 0, -1);
-
-            // calculate new direction
-            var position = this.getPosition();
-            var direction = point.subtract(position).normalize();
-
-            var dirRot = new XML3DRotation();
-            dirRot.setRotation(initCamDirection, direction);
-
-            this.target.rotate(dirRot);
-        },
-
         getMoveSpeed: function() {
             return this._moveSpeed;
         },
 
+        /**
+         *  @this {XMOT.FlyBehavior}
+         *  @param {number} speed
+         */
         setMoveSpeed: function(speed) {
             this._moveSpeed = speed;
         },
 
-        getRotationSpeed: function() {
-            return this._rotateSpeed;
-        },
-
-        setRotationSpeed: function(speed) {
-            this._rotateSpeed = speed;
-        },
-
         /**
          *  @this {XMOT.FlyBehavior}
-         */
-        _parseOptions: function(options) {
-
-            var options = options || {};
-
-            if(options.rotateSpeed !== undefined)
-                this._rotateSpeed = options.rotateSpeed;
-            if(options.moveSpeed !== undefined)
-                this._moveSpeed = options.moveSpeed;
-        },
-
-        /**
-         *  @this {XMOT.FlyBehavior}
-         *  @private
-         */
-        _moveInCamDirection: function(doInvertDirection) {
-
-            var moveDirection = this._getLookDirection();
-
-            if(doInvertDirection) {
-                moveDirection = moveDirection.scale(-1);
-            }
-
-            this._translateCamera(moveDirection);
-        },
-
-        /**
-         *  @this {XMOT.FlyBehavior}
+         *  @param {boolean} doInvertDirection
          *  @private
          */
         _stepRight: function(doInvertDirection) {
@@ -159,7 +97,24 @@
 
         /**
          *  @this {XMOT.FlyBehavior}
+         *  @param {boolean} doInvertDirection
          *  @private
+         */
+        _moveInCamDirection: function(doInvertDirection) {
+
+            var moveDirection = this._getLookDirection();
+
+            if(doInvertDirection) {
+                moveDirection = moveDirection.scale(-1);
+            }
+
+            this._translateCamera(moveDirection);
+        },
+
+        /**
+         *  @this {XMOT.FlyBehavior}
+         *  @private
+         *  @return {window.XML3DVec3}
          */
         _getLookDirection: function() {
 
@@ -173,15 +128,13 @@
 
         /**
          *  @this {XMOT.FlyBehavior}
+         *  @param {window.XML3DVec3} direction
          *  @private
          */
         _translateCamera: function(direction) {
 
             var transl = direction.scale(this._moveSpeed);
-
-            var newPos = this.target.getPosition().add(transl);
-
-            this.target.setPosition(newPos);
+            this.target.translate(transl);
         }
     });
 }());
