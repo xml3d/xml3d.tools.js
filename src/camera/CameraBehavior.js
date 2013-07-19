@@ -7,7 +7,7 @@
      *
      *  @constructor
      */
-    XMOT.CameraBehavior = new XMOT.Class({
+    XMOT.CameraBehavior = new XMOT.Class(XMOT.util.Attachable, {
 
         /**
          *  @this {XMOT.CameraBehavior}
@@ -18,6 +18,8 @@
          *  o moveSpeed
          */
         initialize: function(targetViewGroup, options) {
+
+            this.callSuper();
 
             this.target = XMOT.util.getOrCreateTransformable(targetViewGroup);
 
@@ -47,16 +49,8 @@
          */
         rotateByAngles: function(xAxisAngle, yAxisAngle) {
 
-            xAxisAngle *= this._rotateSpeed;
-            yAxisAngle *= this._rotateSpeed;
-
-            var mx = new window.XML3DRotation(new window.XML3DVec3(1, 0, 0), xAxisAngle);
-            var my = new window.XML3DRotation(new window.XML3DVec3(0, 1, 0), yAxisAngle);
-
-            var currentOrient = this.target.getOrientation();
-            var newRot = my.multiply(currentOrient.multiply(mx));
-
-            return this.target.setOrientation(newRot);
+            var newOrientation = this.getNewCameraOrientation(xAxisAngle, yAxisAngle);
+            return this.target.setOrientation(newOrientation);
         },
 
         /** Resets the camera pose to look at the whole scene.
@@ -118,6 +112,28 @@
          */
         setRotationSpeed: function(speed) {
             this._rotateSpeed = speed;
+        },
+
+        /** Calculate and return the camera's orientation with the
+         *  given angles applied. The rotation itself is not set in
+         *  the camera. This is done in rotateByAngles().
+         *
+         *  @this {XMOT.CameraBehavior}
+         *  @protected
+         *  @param {number} xAxisAngle in radians
+         *  @param {number} yAxisAngle in radians
+         *  @return {window.XML3DRotation}
+         */
+        getNewCameraOrientation: function(xAxisAngle, yAxisAngle) {
+
+            xAxisAngle *= this._rotateSpeed;
+            yAxisAngle *= this._rotateSpeed;
+
+            var mx = new window.XML3DRotation(new window.XML3DVec3(1, 0, 0), xAxisAngle);
+            var my = new window.XML3DRotation(new window.XML3DVec3(0, 1, 0), yAxisAngle);
+
+            var currentOrient = this.target.getOrientation();
+            return my.multiply(currentOrient.multiply(mx));
         }
     });
 }());
