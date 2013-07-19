@@ -27,7 +27,7 @@ function onChangeCamType() {
     switch(getCamType())
     {
     case "examine":
-        CamType = XMOT.MouseExamineController;
+        CamType = XMOT.ExamineController;
         options.examineOrigin = $("#shape_d1e22")[0].getBoundingBox().center();
         options.dollySpeed = 5;
         break;
