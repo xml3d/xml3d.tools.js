@@ -40,6 +40,9 @@
             this._dollySpeed = 1;
 
             /** @private */
+            this._initialExamineOriginSet = false;
+
+            /** @private */
             this._examineOrigin = new window.XML3DVec3();
 
             /** @private */
@@ -78,6 +81,9 @@
          */
         onAttach: function() {
             XMOT.util.fireWhenMeshesLoaded(this.target.object, this.callback("_updateDollyCoefficient"));
+
+            if(this._initialExamineOriginSet)
+                this.lookAt(this._examineOrigin);
 
             this._doOwnTransformChange = true;
             this._targetTracker.attach();
@@ -226,11 +232,11 @@
             var options = options || {};
             if(options.dollySpeed !== undefined)
                 this._dollySpeed = options.dollySpeed;
-            if(options.examineOrigin !== undefined)
-                this._examineOrigin.set(options.examineOrigin);
 
             if(options.examineOriginResetDistance !== undefined)
                 this._examineOriginResetDistance = options.examineOriginResetDistance;
+            else
+                this._examineOriginResetDistance = this._getDistanceToExamineOrigin();
             if(options.minDistanceToExamineOrigin !== undefined)
                 this._minDistanceToExamineOrigin = options.minDistanceToExamineOrigin;
             if(options.maxDistanceToExamineOrigin !== undefined)
@@ -238,6 +244,24 @@
 
             this._examineOriginResetDistance =
                 this._clampDistanceToExamineOrigin(this._examineOriginResetDistance);
+
+            if(options.examineOrigin !== undefined) {
+                this._initialExamineOriginSet = true;
+                this._examineOrigin.set(options.examineOrigin);
+            }
+            else {
+                this._initialExamineOriginSet = false;
+                this._resetExamineOrigin();
+            }
+        },
+
+        /**
+         *  @this {XMOT.ExamineBehavior}
+         *  @private
+         */
+        _resetExamineOrigin: function() {
+            var scaledDir = this.getLookDirection().scale(this._examineOriginResetDistance);
+            this._examineOrigin.set(this.target.getPosition().add(scaledDir));
         },
 
         /**
