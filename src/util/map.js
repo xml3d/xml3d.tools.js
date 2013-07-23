@@ -87,6 +87,13 @@
             }
         },
 
+        /** Removes all keys and values from the map.
+         *  @this {XMOT.util.Map}
+         */
+        clear: function() {
+            this._containers = [];
+        },
+
         /** Similar to add(), but removes the key before adding the values to the key.
          *
          *  @this {XMOT.util.Map}
@@ -95,7 +102,7 @@
          */
         set: function(key, values) {
 
-            this.removeKey(key);
+            this._removeKey(key);
             this.add(key, values);
         },
 
@@ -119,11 +126,45 @@
          */
         get: function(key) {
 
-            if(!this.containsKey(key)) {
-                throw new Error("XMOT.util.Map.getValues(): no entry present for given object");
-            }
+            this._assertHas(key);
 
             var containerIdx = this._indexOfContainer(key);
+            return this._containers[containerIdx].values;
+        },
+
+        /** Retrieve the values that correspond to the key next to the
+         *  given one on the right side. Since the underlying container object
+         *  is an array, this is the index of the given key plus one.
+         *
+         *  @this {XMOT.util.Map}
+         *  @param {Object} key
+         *  @return {Array.<Object>} values
+         */
+        getNext: function(key) {
+
+            this._assertHas(key);
+
+            var containerIdx = this._indexOfContainer(key);
+            containerIdx = (containerIdx+1) % this.size();
+
+            return this._containers[containerIdx].values;
+        },
+
+        /** Retrieve the values that correspond to the key next to the
+         *  given one on the left side. Since the underlying container object
+         *  is an array, this is the index of the given key minus one.
+         *
+         *  @this {XMOT.util.Map}
+         *  @param {Object} key
+         *  @return {Array.<Object>} values
+         */
+        getPrevious: function(key) {
+
+            this._assertHas(key);
+
+            var containerIdx = this._indexOfContainer(key);
+            containerIdx = (containerIdx-1) % this.size();
+
             return this._containers[containerIdx].values;
         },
 
@@ -142,6 +183,20 @@
 
             for(var i = 0; i < c.values.length; i++) {
                 fn(c.values[i]);
+            }
+        },
+
+        /** Checks if the given key has an entry and throws an exception if that's not
+         *  the case.
+         *
+         *  @this {XMOT.util.Map}
+         * 	@param {Object} key
+         *  @private
+         */
+        _assertHas: function(key) {
+
+            if(!this.has(key)) {
+                throw new Error("XMOT.util.Map: no entry present for given key");
             }
         },
 
@@ -183,7 +238,7 @@
             c.values.splice(idx, 1);
 
             if(c.values.length < 1)
-                this.removeKey(key);
+                this._removeKey(key);
         },
 
         /** Removes the key and all of it's values from the map.

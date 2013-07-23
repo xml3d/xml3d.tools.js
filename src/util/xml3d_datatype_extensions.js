@@ -16,17 +16,17 @@
      *
      * @param {number} a
      * @param {number} b
+     * @param {number=} epsilon. Default: XML3D.EPSILON
      *
      * @return {boolean} true if a and b differ by at most XML3D.EPSILON
      */
-    XML3D.epsilonEquals = function(a, b) {
-        var diff;
+    XML3D.epsilonEquals = function(a, b, epsilon) {
 
-        diff = a - b;
-        if ((diff < 0 ? -diff : diff) > XML3D.EPSILON) {
-            return false;
-        }
-        return true;
+        if(epsilon === undefined)
+            epsilon = XML3D.EPSILON;
+
+        var diff = a - b;
+        return (Math.abs(diff) <= XML3D.EPSILON);
     };
 }());
 
@@ -64,6 +64,20 @@
 
     /**
      * @this {XML3DBox}
+     * @param {!XML3DVec3} point to test intersection with
+     * @return {boolean} true if this and the other bbox intersect
+     */
+    p.contains = function(point) {
+        if(this.min.x > point.x || this.min.y > point.y || this.min.z > point.z)
+            return false;
+        if(this.max.x < point.x || this.max.y < point.y || this.max.z < point.z)
+            return false;
+
+        return true;
+    };
+
+    /**
+     * @this {XML3DBox}
      * @return {string} string representation of the bounding box
      */
     p.str = function() {
@@ -73,12 +87,13 @@
     /**
      * @this {XML3DBox}
      * @param {!XML3DBox} other the bounding box to test equality
+     * @param {number=} epsilon. Default XML3D.EPSILON
      * @return {boolean} true if the two bounding boxes' components differ at most by XML3D.EPSILON
      */
-    p.equals = function(other)
+    p.equals = function(other, epsilon)
     {
-        return this.min.equals(other.min)
-            && this.max.equals(other.max);
+        return this.min.equals(other.min, epsilon)
+            && this.max.equals(other.max, epsilon);
     };
 
     /**
@@ -139,28 +154,29 @@
      * @this XML3DMatrix
      *
      * @param {!XML3DMatrix} other the other matrix to test equality with
+     * @param {number=} epsilon. Default XML3D.EPSILON
      * @return {boolean} true if each of the matrices' components differ by at most XML3D.EPSILON
      */
-    p.equals = function(other) {
+    p.equals = function(other, epsilon) {
 
         var eq = XML3D.epsilonEquals;
 
-        return eq(this.m11, other.m11)
-            && eq(this.m12, other.m12)
-            && eq(this.m13, other.m13)
-            && eq(this.m14, other.m14)
-            && eq(this.m21, other.m21)
-            && eq(this.m22, other.m22)
-            && eq(this.m23, other.m23)
-            && eq(this.m24, other.m24)
-            && eq(this.m31, other.m31)
-            && eq(this.m32, other.m32)
-            && eq(this.m33, other.m33)
-            && eq(this.m34, other.m34)
-            && eq(this.m41, other.m41)
-            && eq(this.m42, other.m42)
-            && eq(this.m43, other.m43)
-            && eq(this.m44, other.m44);
+        return eq(this.m11, other.m11, epsilon)
+            && eq(this.m12, other.m12, epsilon)
+            && eq(this.m13, other.m13, epsilon)
+            && eq(this.m14, other.m14, epsilon)
+            && eq(this.m21, other.m21, epsilon)
+            && eq(this.m22, other.m22, epsilon)
+            && eq(this.m23, other.m23, epsilon)
+            && eq(this.m24, other.m24, epsilon)
+            && eq(this.m31, other.m31, epsilon)
+            && eq(this.m32, other.m32, epsilon)
+            && eq(this.m33, other.m33, epsilon)
+            && eq(this.m34, other.m34, epsilon)
+            && eq(this.m41, other.m41, epsilon)
+            && eq(this.m42, other.m42, epsilon)
+            && eq(this.m43, other.m43, epsilon)
+            && eq(this.m44, other.m44, epsilon);
     };
 
     /** Multiplies this matrix with the given vector
@@ -335,12 +351,13 @@
      * @this {XML3DRay}
      *
      * @param {!XML3DRay} other the other ray to test equality with
+     * @param {number=} epsilon. Default XML3D.EPSILON
      * @return {boolean} true if each component of the rays differ by at most XML3D.EPSILON
      */
-    p.equals = function(other) {
+    p.equals = function(other, epsilon) {
 
-        return this.origin.equals(other.origin)
-            && this.direction.equals(other.direction);
+        return this.origin.equals(other.origin, epsilon)
+            && this.direction.equals(other.direction, epsilon);
     };
 
     /**
@@ -384,12 +401,13 @@
     /**
      * @this {XML3DRotation}
      * @param {!XML3DRotation} other the other rotation to test equality with
+     * @param {number=} epsilon. Default XML3D.EPSILON
      * @return {boolean} true if axis and angle of both rotations differ by at most XML3D.EPSILON
      */
-    p.equals = function(other) {
+    p.equals = function(other, epsilon) {
 
-        return this.axis.equals(other.axis)
-            && XML3D.epsilonEquals(this.angle, other.angle);
+        return this.axis.equals(other.axis, epsilon)
+            && XML3D.epsilonEquals(this.angle, other.angle, epsilon);
     };
 
     if(!window.XML3DRotation.fromMatrix)
@@ -449,6 +467,51 @@
             return q;
         };
     }
+
+    if(!p.inverse)
+    {
+        /**
+         *  @this {window.XML3DRotation}
+         *  @return {window.XML3DRotation}
+         */
+        p.inverse = function()
+        {
+            var invQuat = XML3D.math.quat.invert(XML3D.math.quat.create(), this._data);
+            return new window.XML3DRotation(invQuat);
+        }
+    }
+
+    if(!p.toEulerAngles)
+    {
+
+        /** Convert a given XML3DRotation to euler angles.
+         *
+         *  @this {window.XML3DRotation}
+         *  @return {window.XML3DVec3}
+         */
+        p.toEulerAngles = function()
+        {
+            var q = this._data;
+
+            var qxy = q[0]*q[1];
+            var qxz = q[0]*q[2];
+            var qyz = q[1]*q[2];
+            var qwx = q[3]*q[0];
+            var qwy = q[3]*q[1];
+            var qwz = q[3]*q[2];
+
+            var qxx = q[0]*q[0];
+            var qyy = q[1]*q[1];
+            var qzz = q[2]*q[2];
+            var qww = q[3]*q[3];
+
+            var xAngle = Math.atan2(2 * (qyz + qwx), qww - qxx - qyy + qzz);
+            var yAngle = Math.asin(-2 * (qxz - qwy));
+            var zAngle = Math.atan2(2 * (qxy + qwz), qww + qxx - qyy - qzz);
+
+            return new window.XML3DVec3(xAngle, yAngle, zAngle);
+        }
+    }
 }());
 
 // ========================================================================
@@ -490,16 +553,17 @@
      *
      * @this {XML3DVec3}
      * @param {XML3DVec3} other
+     * @param {number=} epsilon. Default XML3D.EPSILON
      * @return {boolean}
      */
-    p.equals = function(other)
+    p.equals = function(other, epsilon)
     {
         if(!other)
             return false;
 
-        return XML3D.epsilonEquals(this.x, other.x)
-            && XML3D.epsilonEquals(this.y, other.y)
-            && XML3D.epsilonEquals(this.z, other.z);
+        return XML3D.epsilonEquals(this.x, other.x, epsilon)
+            && XML3D.epsilonEquals(this.y, other.y, epsilon)
+            && XML3D.epsilonEquals(this.z, other.z, epsilon);
     };
 
     /**

@@ -9,6 +9,8 @@
 
     var m = XMOT.math;
 
+    m.EPSILON = 1E-10;
+
     /**
      * Converts axis angle representation into an quaternion
      * @param {Array.<number>} axis
@@ -205,5 +207,4 @@
 
         return xfmMat;
     };
-
 }());

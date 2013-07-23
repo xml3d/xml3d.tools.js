@@ -45,25 +45,28 @@
         <file name="util/viewtracker.js" />
         <file name="util/transformsensor.js" />
         <file name="util/map.js" />
+        <file name="util/idgenerator.js" />
 
         <file name="animation/CombinedAnimation.js" />
 
+        <file name="constraint/DefaultConstraint.js" />
         <file name="constraint/ConstraintCollection.js" />
         <file name="constraint/SimpleConstraint.js" />
         <file name="constraint/ProhibitAxisMovementConstraint.js" />
         <file name="constraint/BoxedTranslationConstraint.js" />
 
         <file name="camera/CameraController.js" />
-        <file name="camera/ExamineControllerBehavior.js" />
-        <file name="camera/HemisphereControllerBehavior.js" />
+        <file name="camera/CameraBehavior.js" />
+        <file name="camera/ExamineBehavior.js" />
         <file name="camera/MouseController.js" />
         <file name="camera/KeyboardController.js" />
         <file name="camera/TouchController.js" />
         <file name="camera/MouseExamineController.js" />
-        <file name="camera/MouseHemisphereController.js" />
-        <file name="camera/FlyControllerBehavior.js" />
+        <file name="camera/FlyBehavior.js" />
         <file name="camera/MouseKeyboardFlyController.js" />
         <file name="camera/TouchFlyController.js" />
+        <file name="camera/ExamineController.js" />
+        <file name="camera/CameraAnimationController.js" />
 
         <file name="gamepad/GamepadEventProvider.js" />
 

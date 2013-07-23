@@ -38,19 +38,34 @@
             xfmable.setScale(this._initialRootScaling);
         },
 
-        /** This is called when the view transformation changes.
-         *
-         *  @this {XMOT.interaction.geometry.ViewedConstantSizeGeometry}
-         *  @protected
-         *
-         *  @param {Object} viewTracker the internal tracker used
-         *  @param {Object} evt the original DOM event that caused the change
-         */
+        /** @inheritDoc */
         onViewXfmChanged: function(viewTracker, evt) {
 
             this.callSuper();
+            this._adaptWidgetScaleToViewPose();
+        },
 
-            var curView = viewTracker.getCurrentView();
+        /** This is called when the target transformation changes.
+         *
+         *  @this {XMOT.interaction.geometry.Geometry}
+         *  @protected
+         *
+         *  @param {!Object} targetNode the node this observer tracks
+         *  @param {!Event} evt the original DOM event that caused the change
+         */
+        onTargetXfmChanged: function(targetNode, evt) {
+
+            this.callSuper();
+            this._adaptWidgetScaleToViewPose();
+        },
+
+        /**
+         *  @this {XMOT.interaction.geometry.ViewedConstantSizeGeometry}
+         *  @private
+         */
+        _adaptWidgetScaleToViewPose: function() {
+
+            var curView = XML3D.util.getOrCreateActiveView(this.widget.xml3d);;
             var viewPos = curView.getWorldMatrix().translation();
 
             var rootPos = this.geo.getGraphRoot().getWorldMatrix().translation();

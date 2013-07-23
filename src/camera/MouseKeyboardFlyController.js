@@ -2,8 +2,8 @@
 
     "use strict";
 
-    /** This controller brings together the mouse control and XMOT.ExamineControllerBehavior
-     *  to provide examine mode navigation using the mouse.
+    /** This controller brings together the mouse control and XMOT.FlyBehavior
+     *  to provide fly mode navigation using the mouse and keyboard.
      *
      *  @constructor
      */
@@ -15,9 +15,12 @@
          *  @param {Object} options
          *
          *  options:
-         *  o behavior: options to be passed to XMOT.FlyControllerBehavior
          *  o mouse: options to be passed to XMOT.MouseController
          *  o keyboard: options to be passed to XMOT.KeyboardController
+         *  o disableMovement: if true, no movement will be possible
+         *  o disableRotation: if true, no looking around is possible
+         *
+         *  For other options see FlyBehavior.
          *
          *  By default, the view can be rotated using the left mouse button,
          *  and movement can be done using W,A,S,D keys.
@@ -27,82 +30,66 @@
             this.callSuper();
 
             var options = options || {};
-            options.behavior = options.behavior || {};
             options.mouse = options.mouse || {};
             options.keyboard = options.keyboard || {};
 
-            this._target = XMOT.util.getOrCreateTransformable(targetViewGroup);
+            this.target = XMOT.util.getOrCreateTransformable(targetViewGroup);
 
-            this._behavior = new XMOT.FlyControllerBehavior(this._target, options.behavior);
+            this.behavior = new XMOT.FlyBehavior(this.target, options);
 
             if(options.mouse.eventDispatcher === undefined)
                 options.mouse.eventDispatcher = this._createMouseEventDispatcher();
 
-            this._mouseCtrl = new XMOT.MouseController(this._target, options.mouse);
+            this._mouseCtrl = new XMOT.MouseController(this.target, options.mouse);
             this._mouseCtrl.onDrag = this.callback("_onDrag");
 
-            this._keyCtrl = new XMOT.KeyboardController(this._target, options.keyboard);
+            this._keyCtrl = new XMOT.KeyboardController(this.target, options.keyboard);
             this._keyCtrl.onKeyDown = this.callback("_onKeyDown");
+            this._keyCtrl.onKeyUp = this.callback("_onKeyUp");
+
+            this._continuousInputProcessing = false;
+
+            /** map keyvalue => boolean */
+            this._currentlyPressedKeys = {};
+
+            this._disableMovement = false;
+            if(options.disableMovement === true)
+                this._disableMovement = true;
+            this._disableRotation = false;
+            if(options.disableRotation === true)
+                this._disableRotation = true;
         },
 
         lookAt: function(point) {
-            this._behavior.lookAt(point);
-        },
-
-        /**
-         *  @this {XMOT.MouseKeyboardFlyController}
-         */
-        setPosition: function(position) {
-            this._behavior.setPosition(position);
-        },
-
-        /**
-         *  @this {XMOT.MouseKeyboardFlyController}
-         */
-        setOrientation: function(orientation) {
-            this._behavior.setOrientation(orientation);
-        },
-
-        /**
-         *  @this {XMOT.MouseKeyboardFlyController}
-         */
-        getPosition: function() {
-            return this._behavior.getPosition();
-        },
-
-        /**
-         *  @this {XMOT.MouseKeyboardFlyController}
-         */
-        getOrientation: function() {
-            return this._behavior.getOrientation();
+            this.behavior.lookAt(point);
         },
 
         /**
          *  @this {XMOT.MouseKeyboardFlyController}
          */
         getMoveSpeed: function() {
-            return this._behavior.getMoveSpeed();
+            return this.behavior.getMoveSpeed();
         },
 
         /**
          *  @this {XMOT.MouseKeyboardFlyController}
          */
         setMoveSpeed: function(speed) {
-            this._behavior.setMoveSpeed(speed);
+            this.behavior.setMoveSpeed(speed);
         },
 
         /**
          *  @this {XMOT.MouseKeyboardFlyController}
          */
         getRotationSpeed: function() {
-            return this._behavior.getRotationSpeed();
+            return this.behavior.getRotationSpeed();
         },
 
         /**
          *  @this {XMOT.MouseKeyboardFlyController}
          */
         setRotationSpeed: function(speed) {
-            this._behavior.setRotationSpeed(speed);
+            this.behavior.setRotationSpeed(speed);
         },
 
         /**
@@ -111,8 +98,11 @@
          *  @override
          */
         onAttach: function() {
-            this._mouseCtrl.attach();
-            this._keyCtrl.attach();
+            if(!this._disableRotation)
+                this._mouseCtrl.attach();
+            if(!this._disableMovement)
+                this._keyCtrl.attach();
+            this._startInputProcessingLoop();
         },
 
         /**
@@ -123,6 +113,7 @@
         onDetach: function() {
             this._mouseCtrl.detach();
             this._keyCtrl.detach();
+            this._stopInputProcessingLoop();
         },
 
         /**
@@ -132,7 +123,7 @@
         _onDrag: function(action) {
             // we want mouse x-axis movement to map to y-axis rotation
             // so we flip the delta values
-            this._behavior.rotate(action.delta.y, action.delta.x);
+            this.behavior.rotateByAngles(-action.delta.y, -action.delta.x);
         },
 
         /**
@@ -141,20 +132,59 @@
          */
         _onKeyDown: function(evt) {
 
-            switch(evt.keyCode) {
-            case XMOT.KEY_W:
-                this._behavior.moveForward();
-                break;
-            case XMOT.KEY_S:
-                this._behavior.moveBackward();
-                break;
-            case XMOT.KEY_A:
-                this._behavior.stepLeft();
-                break;
-            case XMOT.KEY_D:
-                this._behavior.stepRight();
-                break;
+            this._currentlyPressedKeys[evt.keyCode] = true;
+        },
+
+        /**
+         *  @this {XMOT.MouseKeyboardFlyController}
+         *  @private
+         */
+        _onKeyUp: function(evt) {
+
+            this._currentlyPressedKeys[evt.keyCode] = false;
+        },
+
+        /**
+         *  @this {XMOT.MouseKeyboardFlyController}
+         *  @private
+         */
+        _startInputProcessingLoop: function() {
+            this._continuousInputProcessing = true;
+            this._inputProcessingLoop();
+        },
+
+        /**
+         *  @this {XMOT.MouseKeyboardFlyController}
+         *  @private
+         */
+        _stopInputProcessingLoop: function() {
+            this._continuousInputProcessing = false;
+        },
+
+        /**
+         *  @this {XMOT.MouseKeyboardFlyController}
+         *  @private
+         */
+        _inputProcessingLoop: function() {
+
+            if(!this._continuousInputProcessing) {
+                return;
             }
+
+            if(this._currentlyPressedKeys[XMOT.KEY_W] === true) {
+                this.behavior.moveForward();
+            }
+            if(this._currentlyPressedKeys[XMOT.KEY_S] === true) {
+                this.behavior.moveBackward();
+            }
+            if(this._currentlyPressedKeys[XMOT.KEY_A] === true) {
+                this.behavior.stepLeft();
+            }
+            if(this._currentlyPressedKeys[XMOT.KEY_D] === true) {
+                this.behavior.stepRight();
+            }
+
+            window.requestAnimationFrame(this.callback("_inputProcessingLoop"));
         },
 
         /**

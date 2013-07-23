@@ -611,6 +611,9 @@
 	 */
 	cc.mouseMovementHandler = function(e){
 		if(!this.mouseButtonIsDown || !this.allowPoi) return;
+
+		this.stopDefaultEventAction(e);
+
 		var currentX = e.pageX;
 		var currentY = e.pageY;
 		var x = currentX - this.oldMousePosition.x;

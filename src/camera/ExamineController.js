@@ -2,12 +2,12 @@
 
     "use strict";
 
-    /** This controller brings together the mouse control and XMOT.ExamineBehavior
-     *  to provide examine mode navigation using the mouse.
+    /** This controller brings together mouse control, touch control and XMOT.ExamineBehavior
+     *  to provide examine mode navigation using the mouse or the touchpad.
      *
      *  @constructor
      */
-    XMOT.MouseExamineController = new XMOT.Class(XMOT.MouseController, {
+    XMOT.ExamineController = new XMOT.Class(XMOT.util.Attachable, {
 
         // interaction types
         NONE: 0,
@@ -20,11 +20,27 @@
          */
         initialize: function(targetViewGroup, options) {
 
-            var options = options || {};
-            if(options.eventDispatcher === undefined)
-                options.eventDispatcher = this._createMouseEventDispatcher();
+            this.callSuper();
 
-            this.callSuper(targetViewGroup, options);
+            this.target = XMOT.util.getOrCreateTransformable(targetViewGroup);
+
+            var options = options || {};
+            if(options.mouseEventDispatcher === undefined)
+                options.mouseEventDispatcher = this._createMouseEventDispatcher();
+            if(options.touchEventDispatcher === undefined)
+                options.touchEventDispatcher = this._createTouchEventDispatcher();
+
+            this._mouseController = new XMOT.MouseController(this.target, options);
+            this._mouseController.setEventDispatcher(options.mouseEventDispatcher);
+            this._mouseController.onDragStart = this.callback("onMouseDragStart");
+            this._mouseController.onDrag = this.callback("onMouseDrag");
+            this._mouseController.onDragEnd = this.callback("onMouseDragEnd");
+
+            this._touchController = new XMOT.TouchController(this.target, options);
+            this._touchController.setEventDispatcher(options.touchEventDispatcher);
+            this._touchController.onDragStart = this.callback("onTouchDragStart");
+            this._touchController.onDrag = this.callback("onTouchDrag");
+            this._touchController.onDragEnd = this.callback("onTouchDragEnd");
 
             this.behavior = new XMOT.ExamineBehavior(this.target, options);
             this._currentAction = this.NONE;
@@ -81,7 +97,8 @@
          *  @inheritDoc
          */
         onAttach: function() {
-            this.callSuper();
+            this._mouseController.attach();
+            this._touchController.attach();
             this.behavior.attach();
         },
 
@@ -90,7 +107,8 @@
          *  @inheritDoc
          */
         onDetach: function() {
-            this.callSuper();
+            this._mouseController.detach();
+            this._touchController.detach();
             this.behavior.detach();
         },
 
@@ -98,7 +116,7 @@
          *  @this {XMOT.MouseExamineController}
          *  @override
          */
-        onDragStart: function(action) {
+        onMouseDragStart: function(action) {
 
             this._currentAction = this.ROTATE;
             if(action.evt.button === XMOT.MOUSEBUTTON_RIGHT)
@@ -109,16 +127,16 @@
          *  @this {XMOT.MouseExamineController}
          *  @override
          */
-        onDrag: function(action) {
+        onMouseDrag: function(action) {
 
             switch (this._currentAction) {
-            case this.DOLLY:
-                this.behavior.dolly(action.delta.y);
-                break;
+                case this.DOLLY:
+                    this.behavior.dolly(action.delta.y);
+                    break;
 
-            case this.ROTATE:
-                this.behavior.rotateByAngles(-action.delta.y, -action.delta.x);
-                break;
+                case this.ROTATE:
+                    this.behavior.rotateByAngles(-action.delta.y, -action.delta.x);
+                    break;
             }
         },
 
@@ -126,7 +144,43 @@
          *  @this {XMOT.MouseExamineController}
          *  @override
          */
-        onDragEnd: function(action) {
+        onMouseDragEnd: function(action) {
+            this._currentAction = this.NONE;
+        },
+
+        /**
+         *  @this {XMOT.MouseExamineController}
+         *  @override
+         */
+        onTouchDragStart: function(action) {
+
+            this._currentAction = this.ROTATE;
+            if(action.evt.touches.length > 1)
+                this._currentAction = this.DOLLY;
+        },
+
+        /**
+         *  @this {XMOT.MouseExamineController}
+         *  @override
+         */
+        onTouchDrag: function(action) {
+
+            switch (this._currentAction) {
+                case this.DOLLY:
+                    this.behavior.dolly(action.zoom);
+                    break;
+
+                case this.ROTATE:
+                    this.behavior.rotateByAngles(-action.deltas[0].y, -action.deltas[0].x);
+                    break;
+            }
+        },
+
+        /**
+         *  @this {XMOT.MouseExamineController}
+         *  @override
+         */
+        onTouchDragEnd: function(action) {
             this._currentAction = this.NONE;
         },
 
@@ -140,7 +194,25 @@
 
             disp.registerCustomHandler("mousedown", function(evt){
                 if(evt.button === XMOT.MOUSEBUTTON_LEFT
-                || evt.button === XMOT.MOUSEBUTTON_RIGHT)
+                    || evt.button === XMOT.MOUSEBUTTON_RIGHT)
+                    return true;
+
+                return false;
+            });
+
+            return disp;
+        },
+
+        /**
+         *  @this {XMOT.MouseExamineController}
+         *  @private
+         */
+        _createTouchEventDispatcher: function() {
+
+            var disp = new XMOT.util.EventDispatcher();
+
+            disp.registerCustomHandler('touchstart', function(evt){
+                if(evt.type === 'touchstart')
                     return true;
 
                 return false;

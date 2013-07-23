@@ -111,6 +111,19 @@
 
         return bbox;
     };
+
+    /**
+     *  Clamps the given value to lie within [min,max].
+     *
+     *  @param {number} value
+     *  @param {number} min
+     *  @param {number} max
+     *  @return {number}
+     */
+    u.clamp = function(value, min, max)
+    {
+        return Math.min(max, Math.max(min, value));
+    };
 }());
 
 
