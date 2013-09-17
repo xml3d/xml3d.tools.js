@@ -107,7 +107,7 @@
 
     <target name="develop" depends="init">
         <tstamp />
-        <concatScripts version="0.2.0"/>
+        <concatScripts version="DEVELOPMENT SNAPSHOT 0.2.0 (${TODAY})"/>
     </target>
 
     <target name="develop-min" depends="init">
