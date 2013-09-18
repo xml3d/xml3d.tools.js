@@ -81,7 +81,7 @@
 
         /** @inheritDoc */
         getScale: function(){
-            return XML3DVec3(this.transform.scale);
+            return new XML3DVec3(this.transform.scale);
         },
 
         /** @inheritDoc */
