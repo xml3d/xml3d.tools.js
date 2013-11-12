@@ -165,7 +165,7 @@
     	_onMouseOutOfCanvas: function(evt)
     	{
     		if(this._sensorIsActive)
-    			if(evt.fromElement.tagName == "canvas")
+                if(evt.fromElement.tagName.toLowerCase() == "canvas")
     				this._onMouseUp(evt);
     	},
 

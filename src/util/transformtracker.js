@@ -57,17 +57,17 @@
                 if(!node)
                     node = this.targetNode;
 
-                if(node.tagName == "xml3d")
+                if(node.tagName.toLowerCase() === "xml3d")
                     return;
 
-                if(node.tagName == "group")
+                if(node.tagName.toLowerCase() === "group")
                 {
                     node.addEventListener("DOMAttrModified",
                         XMOT.util.wrapCallback(this, this._onGrpAttrModified), false);
 
                     this._attachToTransformOfGrp(node);
                 }
-                else if(node.tagName == "view")
+                else if(node.tagName.toLowerCase() === "view")
                 {
                     node.addEventListener("DOMAttrModified",
                         XMOT.util.wrapCallback(this, this._onViewAttrModified), false);
@@ -96,17 +96,17 @@
                 if(!node)
                     node = this.targetNode;
 
-                if(node.tagName == "xml3d")
+                if(node.tagName.toLowerCase() === "xml3d")
                     return;
 
-                if(node.tagName == "group")
+                if(node.tagName.toLowerCase() === "group")
                 {
                     node.removeEventListener("DOMAttrModified",
                         XMOT.util.wrapCallback(this, this._onGrpAttrModified), false);
 
                     this._detachFromTransformOfGrp(node);
                 }
-                else if(node.tagName == "view")
+                else if(node.tagName.toLowerCase() === "view")
                 {
                     node.removeEventListener("DOMAttrModified",
                         XMOT.util.wrapCallback(this, this._onViewAttrModified), false);

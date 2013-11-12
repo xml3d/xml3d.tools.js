@@ -34,7 +34,7 @@
             this._selfCreatedMirror = (options.target !== undefined);
             if(this._selfCreatedMirror)
             {
-                if(options.target.object.parentNode.tagName !== "group")
+                if(options.target.object.parentNode.tagName.toLowerCase() !== "group")
                     throw new Error("XMOT.interaction.widgets.TranslateGizmo: target's parent node must be a group.");
                 this._mirror = new XMOT.xml3doverlay.GroupMirror(
                     id, options.target, options.xml3dOverlay);

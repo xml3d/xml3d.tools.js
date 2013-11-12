@@ -21,7 +21,7 @@
             throw new Error("XMOT.util.getXml3dRoot(): given element has no parent node.");
         }
 
-        if(el.tagName == "xml3d")
+        if(el.tagName.toLowerCase() === "xml3d")
             return el;
 
         if(el.parentNode)
@@ -75,7 +75,7 @@
      */
     u.transform = function(grp, xfm)
     {
-        if(grp.tagName !== "group")
+        if(grp.tagName.toLowerCase() !== "group")
             throw "XMOT.util.transform(): given element is not a group.";
 
         return getOrSetRefNode(grp, "transform", xfm);
@@ -92,7 +92,7 @@
      */
     u.shader = function(grp, sh)
     {
-        if(grp.tagName !== "group")
+        if(grp.tagName.toLowerCase() !== "group")
             throw "XMOT.util.shader(): given element is not a group.";
 
         return getOrSetRefNode(grp, "shader", sh);
@@ -203,7 +203,7 @@
         var meshNodes = [];
         var traverseFn = function(currentNode) {
 
-            if(currentNode.tagName === "mesh")
+            if(currentNode.tagName.toLowerCase() === "mesh")
                 meshNodes.push(currentNode);
 
             return true;

@@ -100,7 +100,7 @@
 
             this._xml3dCanvas = this.xml3d.parentNode.previousElementSibling;
 
-            if(this._xml3dCanvas.tagName !== "canvas")
+            if(this._xml3dCanvas.tagName.toLowerCase() !== "canvas")
                 throw new Error("XML3DOverlay: associated element must be a canvas.");
 
             var registerFn = this._xml3dCanvas.addEventListener.bind(this._xml3dCanvas);

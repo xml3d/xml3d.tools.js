@@ -50,7 +50,7 @@
          */
         initialize: function(id, target, options)
         {
-            if(target.object.parentNode.tagName !== "group")
+            if(target.object.parentNode.tagName.toLowerCase() !== "group")
                 throw new Error("XMOT.interaction.widgets.Widget: target's parent node must be a group.");
 
             if(!options)
