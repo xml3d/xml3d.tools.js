@@ -203,7 +203,8 @@
         var meshNodes = [];
         var traverseFn = function(currentNode) {
 
-            if(currentNode.tagName.toLowerCase() === "mesh")
+            if(currentNode.tagName !== undefined
+            && currentNode.tagName.toLowerCase() === "mesh")
                 meshNodes.push(currentNode);
 
             return true;
