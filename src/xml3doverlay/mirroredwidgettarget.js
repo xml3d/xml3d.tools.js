@@ -151,7 +151,7 @@
             targetScaleMatrix.m22 = scaleAvg;
             targetScaleMatrix.m33 = scaleAvg;
 
-            return targetScaleMatrix.multiply(targetMatrix);
+            return targetMatrix.multiply(targetScaleMatrix);
         },
 
         /** Create a group that is transformed by the given matrix.
