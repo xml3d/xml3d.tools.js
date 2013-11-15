@@ -38,6 +38,10 @@
          *      scaling of the target node. Default: true. Useful when widgets have to match the dimensions of the
          *      target node.
          *  o geometry: options given to the instanciated geometry class
+         *  o isEmptyTarget: tell the widget that the target group will be left empty for unknown reason
+         *      The widget will usually wait, until the bbox of the target is not empty, before it
+         *      performs certain actions. If this option is true, the widget will carry out those
+         *      actions immediately.
          *
          *  Most probably the target is not the group, that will be modified, but it's parent group,
          *  i.e. the group where the widget will be attached. Thus, an additional constraint for
@@ -74,6 +78,7 @@
 
             /** @private */
             this._autoScaleAdj = options.autoScale;
+            this._isEmptyTarget = options.isEmptyTarget === true;
 
             this._isAttached = false;
         },
@@ -87,7 +92,10 @@
                 this.geometry.constructAndAttach();
                 this._createBehavior();
 
-                XMOT.util.fireWhenMeshesLoaded(this.target.object, this.callback("_updateDefsElements"));
+                if(!this._isEmptyTarget)
+                    XMOT.util.fireWhenMeshesLoaded(this.target.object, this.callback("_updateDefsElements"));
+                else
+                    this._updateDefsElements();
 
                 this._isAttached = true;
             }
@@ -280,15 +288,16 @@
             var tarBBox = this.target.object.getBoundingBox();
 
             // translation: offset of target's bbox
-            var translation = new window.XML3DVec3(tarBBox.center());
+            var translation = this.target.getPosition();
+            if(!tarBBox.isEmpty())
+                translation = new window.XML3DVec3(tarBBox.center());
 
             var scale = this._getWidgetScaling();
 
             // root
             this.geometry.geo.updateTransforms("t_root", {
-            	transl: translation.str(),
-            	scale: scale.str(),
-                rot: targetXfm.rotation.str()
+                transl: translation.str(),
+                scale: scale.str()
             });
         },
 
@@ -308,8 +317,11 @@
             if(!this._autoScaleAdj)
                 return scale;
 
-            var tarBBoxSize = this.target.object.getBoundingBox().size();
-            scale = tarBBoxSize.multiply(new window.XML3DVec3(0.55, 0.55, 0.55));
+            if(!this.target.object.getBoundingBox().isEmpty())
+            {
+                var tarBBoxSize = this.target.object.getBoundingBox().size();
+                scale = tarBBoxSize.multiply(new window.XML3DVec3(0.55, 0.55, 0.55));
+            }
 
             var minScale = (scale.x + scale.y + scale.z) / 3;
             minScale /= 2;
