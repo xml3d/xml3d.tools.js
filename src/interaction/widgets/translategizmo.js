@@ -144,23 +144,14 @@
          *  which it does.
          */
         _createTranslationConstraint: function(constrainTranslationFunction) {
-
             function constrainTranslation(newTranslation, opts)
             {
                 if(!opts.transformable)
                     throw new Error("Constraint: no transformable given.");
+                var target = opts.transformable;
 
-                var worldMatrix = opts.transformable.object.getWorldMatrix();
-                var invWorldMatrix = worldMatrix.inverse();
-
-                var currentTranslation = opts.transformable.getPosition();
-
-                var localCurrentTransl = invWorldMatrix.multiplyPt(currentTranslation);
-                var localNewTransl = invWorldMatrix.multiplyPt(newTranslation);
-
-                constrainTranslationFunction(localCurrentTransl, localNewTransl);
-
-                newTranslation.set(worldMatrix.multiplyPt(localNewTransl));
+                var currentTransl = new XML3DVec3(target.getPosition());
+                constrainTranslationFunction(currentTransl, newTranslation);
 
                 return true;
             };
