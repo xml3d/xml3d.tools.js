@@ -88,14 +88,12 @@
             this.geo.destroy();
         },
 
-        // to be overriden by derived class
         /**
          *  @this {XMOT.interaction.geometry.Geometry}
          */
         createDefsElements: function()
         {
             this.geo.addTransforms("t_root", {
-                rotation: this.widget.target.getOrientation().str(),
                 translation: this.widget.target.getPosition().str()
             });
             this.onCreateDefsElements();
