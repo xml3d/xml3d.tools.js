@@ -39,7 +39,7 @@
         },
 
         /** @inheritDoc */
-        onViewXfmChanged: function(viewTracker, evt) {
+        onViewXfmChanged: function() {
 
             this.callSuper();
             this._adaptWidgetScaleToViewPose();
@@ -49,11 +49,8 @@
          *
          *  @this {XMOT.interaction.geometry.Geometry}
          *  @protected
-         *
-         *  @param {!Object} targetNode the node this observer tracks
-         *  @param {!Event} evt the original DOM event that caused the change
          */
-        onTargetXfmChanged: function(targetNode, evt) {
+        onTargetXfmChanged: function() {
 
             this.callSuper();
             this._adaptWidgetScaleToViewPose();
