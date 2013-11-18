@@ -17,32 +17,6 @@ var EXAMPLE_LIST = [
         href: "tests/test_gizmos.xhtml",
         info: "Widgets for performing constrained rotation and translation."
     },
-    {
-        cat: "complexwidgets",
-        name: "TransformBox",
-        href: "tests/test_transformbox.xhtml",
-        info: "A widget to perform translation, rotation and scaling."
-    },
-
-    // --- Simple Widgets ---
-    {
-        cat: "simplewidgets",
-        name: "TranslateBox",
-        href: "tests/test_translatebox.xhtml",
-        info: "A widget for translating objects using an interactive cube."
-    },
-    {
-        cat: "simplewidgets",
-        name: "UniformScaler",
-        href: "tests/test_uniformscaler.xhtml",
-        info: "A widget for uniform scaling of objects by dragging small cubes at the corners of the object."
-    },
-    {
-        cat: "simplewidgets",
-        name: "SingleAxisRotator",
-        href: "tests/test_axisrotator.xhtml",
-        info: "A widget for rotating an object around a single axis. It places interactive bars along the axis."
-    },
 
     // --- Behaviors ---
     {
@@ -70,12 +44,6 @@ var EXAMPLE_LIST = [
         name: "TrackBall",
         href: "tests/test_trackball.xhtml",
         info: "A test for the class underlying the .rotatable() plugin."
-    },
-    {
-        cat: "misc",
-        name: "TransformBox for Flat Surfaces",
-        href: "tests/test_transformbox_flat.xhtml",
-        info: "The TransformBox attached to a plane."
     },
     {
         cat: "misc",
