@@ -9,9 +9,13 @@
 
         /**
          *  @this {XMOT.interaction.geometry.TranslateBox}
+         *  @override
+         *  @protected
          */
         onCreateDefsElements: function()
         {
+            this.callSuper();
+
             // shaders
             this.geo.addShaders("s_transl", {
                 diffuseColor: "1 1 1", transparency: "0.85"
@@ -37,9 +41,13 @@
 
         /**
          *  @this {XMOT.interaction.geometry.TranslateBox}
+         *  @override
+         *  @protected
          */
         onCreateGraph: function()
         {
+            this.callSuper();
+
             this.geo.addToGraphRoot([
                  this._createRectGrp("xytrans"),
                  this._createRectGrp("yztrans"),
@@ -57,6 +65,8 @@
          */
         onTargetXfmChanged: function()
         {
+            this.callSuper();
+
             var rectFac = 0.93; // scale of rectangles (same, 1x1 rects)
 
             var rectScaleStr = rectFac + " " + rectFac + " " + rectFac;
