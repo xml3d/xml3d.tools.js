@@ -79,6 +79,9 @@
 
             this._targetTracker.attach();
             this._viewTracker.attach();
+
+            this.onViewXfmChanged();
+            this.onTargetXfmChanged();
         },
 
         destroy: function()
@@ -116,21 +119,15 @@
          *
          *  @this {XMOT.interaction.geometry.Geometry}
          *  @protected
-         *
-         *  @param {!Object} targetNode the node this observer tracks
-         *  @param {!Event} evt the original DOM event that caused the change
          */
-        onTargetXfmChanged: function(targetNode, evt) {},
+        onTargetXfmChanged: function() {},
 
         /** This is called when the view transformation changes.
          *
          *  @this {XMOT.interaction.geometry.Geometry}
          *  @protected
-         *
-         *  @param {Object} viewTracker the internal tracker used
-         *  @param {Object} evt the original DOM event that caused the change
          */
-        onViewXfmChanged: function(viewTracker, evt) {},
+        onViewXfmChanged: function() {},
 
         /** This is called when the defs elements are created. The geometry's
          *  root transform t_root is already created.
@@ -149,6 +146,10 @@
         onCreateGraph: function() {},
 
         /**
+         *  We use an internal wrapper method instead of directly registering
+         *  the protected method to allow an override of that method w/o affecting
+         *  the ability to track the transformation changes.
+         *
          *  @this {XMOT.interaction.geometry.Geometry}
          *  @param {!Object} targetNode the node this observer tracks
          *  @param {!Event} evt the original DOM event that caused the change
@@ -156,7 +157,7 @@
         _onTargetXfmChanged: function(targetNode, evt)
         {
             if(this.onTargetXfmChanged)
-                this.onTargetXfmChanged(targetNode, evt);
+                this.onTargetXfmChanged();
         },
 
         /** This is called when the view transformation changes.
@@ -168,7 +169,7 @@
         _onViewXfmChanged: function(viewTracker, evt)
         {
             if(this.onViewXfmChanged)
-                this.onViewXfmChanged(viewTracker, evt);
+                this.onViewXfmChanged();
         }
     });
 }());
