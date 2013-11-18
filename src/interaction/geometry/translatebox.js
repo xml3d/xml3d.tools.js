@@ -4,7 +4,8 @@
 
     XMOT.namespace("XMOT.interaction.geometry");
 
-    XMOT.interaction.geometry.TranslateBox = new XMOT.Class(XMOT.interaction.geometry.Geometry, {
+    XMOT.interaction.geometry.TranslateBox = new XMOT.Class(
+        XMOT.interaction.geometry.TargetScaledGeometry, {
 
         /**
          *  @this {XMOT.interaction.geometry.TranslateBox}
