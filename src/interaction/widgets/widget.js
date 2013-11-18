@@ -13,6 +13,7 @@
      * o onTargetXfmChanged() : called automatically when target's transformation changes
      * o callbacks where object creation/destruction takes place
      * o inherited from XMOT.util.Observable: child classes can use event mechanism easily.
+     * o automatic translation of widget geometry to the bbox center of the target node
      *
      * Derived classes have to specify the property GeometryType. It is used to construct the geometry
      * of the specific widget.
@@ -34,9 +35,6 @@
          *  @param {Object=} options
          *
          *  Options:
-         *  o autoScale automatically fit the scale of the widget's root group to the
-         *      scaling of the target node. Default: true. Useful when widgets have to match the dimensions of the
-         *      target node.
          *  o geometry: options given to the instanciated geometry class
          *  o isEmptyTarget: tell the widget that the target group will be left empty for unknown reason
          *      The widget will usually wait, until the bbox of the target is not empty, before it
@@ -77,7 +75,6 @@
             this.behavior = {}; // localID -> behavior, storage for all sensors and alike
 
             /** @private */
-            this._autoScaleAdj = options.autoScale;
             this._isEmptyTarget = options.isEmptyTarget === true;
 
             this._isAttached = false;
@@ -284,7 +281,6 @@
 
         _updateDefsElements: function() {
 
-            var targetXfm = this.target.transform;
             var tarBBox = this.target.object.getBoundingBox();
 
             // translation: offset of target's bbox
@@ -292,48 +288,10 @@
             if(!tarBBox.isEmpty())
                 translation = new window.XML3DVec3(tarBBox.center());
 
-            var scale = this._getWidgetScaling();
-
             // root
             this.geometry.geo.updateTransforms("t_root", {
-                transl: translation.str(),
-                scale: scale.str()
+                transl: translation.str()
             });
-        },
-
-        /** Calculate the widget's scaling factor based on the target node's bounding
-         *  box. The widget is scaled to be a little bit bigger than the target node's
-         *  size.
-         *  In addition, a minimum scaling factor is calculated (half of the average
-         *  scaling factor of the widget). If a scaling dimension is lower than that minimum
-         *  it is set to the minimum.
-         *  Why? Manipulate a plane that has 0 y-extend.
-         *
-         *  @return {window.XML3DVec3} the widget's scaling vector
-         */
-        _getWidgetScaling: function() {
-
-            var scale = new window.XML3DVec3(1,1,1);
-            if(!this._autoScaleAdj)
-                return scale;
-
-            if(!this.target.object.getBoundingBox().isEmpty())
-            {
-                var tarBBoxSize = this.target.object.getBoundingBox().size();
-                scale = tarBBoxSize.multiply(new window.XML3DVec3(0.55, 0.55, 0.55));
-            }
-
-            var minScale = (scale.x + scale.y + scale.z) / 3;
-            minScale /= 2;
-
-            if(scale.x < minScale)
-                scale.x = minScale;
-            if(scale.y < minScale)
-                scale.y = minScale;
-            if(scale.z < minScale)
-                scale.z = minScale;
-
-            return scale;
         }
     });
 }());
