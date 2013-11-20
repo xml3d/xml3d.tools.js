@@ -14,13 +14,13 @@ function onLoad() {
 
     gizmoRadios = document.getElementsByName('gizmotype');
     $(gizmoRadios).click(onChangeGizmoType);
-    onChangeGizmoType();
 
-    cameraCtrl = new XMOT.MouseExamineController($("#v_camera")[0].parentNode, {
-        examineOrigin: new XML3DVec3(0,0,-10)
+    cameraCtrl = new XMOT.MouseKeyboardFlyController($("#v_camera")[0].parentNode, {
+        rotateSpeed: 5
     });
     cameraCtrl.attach();
 
+    XMOT.util.fireWhenMeshesLoaded(targetGroup, onChangeGizmoType);
 };
 
 function onChangeGizmoType()

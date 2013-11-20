@@ -34,6 +34,9 @@
           </shader>
           <transform id="t_mainTargetParent" translation="0 0 -10" />
           <transform id="t_mainTarget" scale="2 2 2" />
+          <transform id="t_camera"
+                     rotation="-0.09110504 0.994380414 0.053919807 1.073698264"
+                     translation="26.7296199798584 4.267266750335693 5.452800273895264"/>
         </defs>
         <group transform="#t_mainTargetParent">
           <group id="g_mainTarget" shader="#s_rectangle" transform="#t_mainTarget">
@@ -41,7 +44,7 @@
           </group>
         </group>
 
-        <group id="g_camera">
+        <group id="g_camera" transform="#t_camera">
           <view position="0 0 10" id="v_camera" />
         </group>
       </xml3d>
