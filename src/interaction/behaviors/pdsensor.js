@@ -203,7 +203,6 @@
             if(this._sensorIsActive)
             {
             	evt.stopPropagation();
-
                 this.notifyListeners("drag", this, evt);
             }
         },
@@ -248,9 +247,10 @@
         {
             // update pd sensor status
             this.pdPose = this.xml3d.generateRay(pageX, pageY);
-            this.curHitPoint = new window.XML3DVec3();
 
+            this.curHitPoint = new window.XML3DVec3();
             this.curHitElement = this.xml3d.getElementByPoint(pageX, pageY, this.curHitPoint);
+
             if(!this.curHitElement)
                 this.curHitPoint = null; // invalidate hit point
         }
