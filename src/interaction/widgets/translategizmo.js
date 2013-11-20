@@ -148,10 +148,18 @@
             {
                 if(!opts.transformable)
                     throw new Error("Constraint: no transformable given.");
-                var target = opts.transformable;
 
-                var currentTransl = new XML3DVec3(target.getPosition());
-                constrainTranslationFunction(currentTransl, newTranslation);
+                var worldMatrix = opts.transformable.object.getWorldMatrix();
+                var invWorldMatrix = worldMatrix.inverse();
+
+                var currentTranslation = opts.transformable.getPosition();
+
+                var localCurrentTransl = invWorldMatrix.multiplyPt(currentTranslation);
+                var localNewTransl = invWorldMatrix.multiplyPt(newTranslation);
+
+                constrainTranslationFunction(localCurrentTransl, localNewTransl);
+
+                newTranslation.set(worldMatrix.multiplyPt(localNewTransl));
 
                 return true;
             };
