@@ -40,9 +40,6 @@
             else if(options.target !== undefined)
             {
                 this._selfCreatedMirror = true;
-
-                if(options.target.object.parentNode.tagName.toLowerCase() !== "group")
-                    throw new Error("XMOT.interaction.widgets.TranslateGizmo: target's parent node must be a group.");
                 this._mirror = new XMOT.xml3doverlay.GroupMirror(
                     id, options.target, options.xml3dOverlay);
             }
@@ -97,13 +94,8 @@
          */
         createReflectingConstraint: function(options)
         {
-            // setup the target node: it is the real target node's parent node
-            var realTargetParent = this._mirror.target().object.parentNode;
-            if(!realTargetParent)
-                throw new Error("XMOT.interaction.widgets.OverlayWidget: target doesn't have a parent node.");
-
             var target = XMOT.ClientMotionFactory.createTransformable(
-                this._mirror.target().object.parentNode);
+                this._mirror.target().object);
 
             var options = options || {};
 

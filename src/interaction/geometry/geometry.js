@@ -24,7 +24,7 @@
          */
         initialize: function(widget)
         {
-            this.geo = new XMOT.util.GeoObject(widget.ID, widget.xml3d, widget.root.object);
+            this.geo = new XMOT.util.GeoObject(widget.ID, widget.xml3d, widget.target.object);
             this.widget = widget;
 
             this._targetTracker = new XMOT.TransformTracker(widget.target.object);

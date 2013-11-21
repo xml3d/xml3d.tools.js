@@ -26,7 +26,7 @@
         // this should be overriden by derived classes, else the widget won't have any geometry
         GeometryType: XMOT.interaction.geometry.Geometry,
 
-        /** Sets up the basic construct for a widget and attaches it(!).
+        /** Sets up the basic construct for a widget.
          *
          *  @this {XMOT.interaction.widgets.Widget}
          *
@@ -41,10 +41,6 @@
          *      performs certain actions. If this option is true, the widget will carry out those
          *      actions immediately.
          *
-         *  Most probably the target is not the group, that will be modified, but it's parent group,
-         *  i.e. the group where the widget will be attached. Thus, an additional constraint for
-         *  the target's parent node can be defined by calling Widget.setConstraint().
-         *
          *  IMPORTANT: the target's corresponding transform node (for a group: the attached
          *  transform node and for a mesh that of it's parent node) is modified. If the target's
          *  group node has no transform element attached one is created.
@@ -52,9 +48,6 @@
          */
         initialize: function(id, target, options)
         {
-            if(target.object.parentNode.tagName.toLowerCase() !== "group")
-                throw new Error("XMOT.interaction.widgets.Widget: target's parent node must be a group.");
-
             if(!options)
                 options = {};
 
@@ -64,10 +57,6 @@
             this.xml3d = XMOT.util.getXml3dRoot(target.object);
             this.ID = id;
             this.target = target;
-
-            // root: the container node whose transform a widget modifies.
-            var rootGrp = this.target.object.parentNode;
-            this.root = XMOT.ClientMotionFactory.createTransformable(rootGrp);
 
             this.geometry = new this.GeometryType(this, options.geometry);
             this.behavior = {}; // localID -> behavior, storage for all sensors and alike
@@ -86,11 +75,6 @@
                 this.onBeforeAttach();
                 this.geometry.constructAndAttach();
                 this._createBehavior();
-
-                if(!this._isEmptyTarget)
-                    XMOT.util.fireWhenMeshesLoaded(this.target.object, this.callback("_updateDefsElements"));
-                else
-                    this._updateDefsElements();
 
                 this._isAttached = true;
             }
@@ -132,18 +116,6 @@
             return false;
         },
 
-        /** Set the given constraint in the root movable. That is the parent node's movable
-         *  of the target movable given in the constructor.
-         *
-         *  @this {XMOT.interaction.widgets.Widget}
-         *
-         *  @param {XMOT.Constraint} newConstraint
-         */
-        setConstraint: function(newConstraint)
-        {
-            this.root.setConstraint(newConstraint);
-        },
-
         /** This is the target that should be used for the behaviors.
          *  It will be a transformable pointing to the widget's root node, i.e.
          *  the target's parent node.
@@ -153,7 +125,7 @@
          */
         createBehaviorTarget: function(constraint)
         {
-            return XMOT.ClientMotionFactory.createTransformable(this.root.object, constraint);
+            return XMOT.ClientMotionFactory.createTransformable(this.target.object, constraint);
         },
 
         // --- Methods to be overriden ---
@@ -275,21 +247,6 @@
 
             this._isDragging = false;
             this.notifyListeners("dragend", this);
-        },
-
-        _updateDefsElements: function() {
-
-            var tarBBox = this.target.object.getBoundingBox();
-
-            // translation: offset of target's bbox
-            var translation = this.target.getPosition();
-            if(!tarBBox.isEmpty())
-                translation = new window.XML3DVec3(tarBBox.center());
-
-            // root
-            this.geometry.geo.updateTransforms("t_root", {
-                transl: translation.str()
-            });
         }
     });
 }());
