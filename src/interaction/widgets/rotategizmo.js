@@ -18,6 +18,9 @@
 
         /**
          *  @this {XMOT.interaction.widgets.RotateGizmo}
+         *
+         *  options:
+         *  o geometry.scale: a custom scaling of the widget geometry
          */
         initialize: function(id, options)
         {

@@ -20,14 +20,20 @@
          *  @this {XMOT.interaction.geometry.RotateGizmo}
          *  @param {XMOT.interaction.widgets.Widget} widget
          *  @param {Object=} options
+         *
+         *  options:
+         *      o scale: a custom scale that should be applied to the geometry
          */
         initialize: function(widget, options)
         {
             if(!options)
                 options = {};
 
+            var customScale = new XML3DVec3(0.05, 0.05, 0.05);
             if(!options.scale)
-                options.scale = new XML3DVec3(0.05, 0.05, 0.05);
+                options.scale = customScale;
+            else
+                options.scale = options.scale.multiply(customScale);
 
             this.callSuper(widget, options);
         },

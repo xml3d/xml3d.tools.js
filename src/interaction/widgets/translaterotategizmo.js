@@ -17,14 +17,23 @@
             "rotation:dragstart", "rotation:dragend"
         ],
 
+
+        /**
+         *  @this {XMOT.interaction.widgets.TranslateRotateGizmo}
+         *
+         *  options:
+         *  o geometry.scale: a custom scaling of the widget geometry
+         */
         initialize: function(id, options)
         {
             this.callSuper(id, options);
+            this._initialOptions = options;
+            if(this._initialOptions === undefined)
+                this._initialOptions = {};
 
-            if(options.rotationSpeed)
-                this._rotationSpeed = options.rotationSpeed;
-            else
-                this._rotationSpeed = 1;
+            if(this._initialOptions.rotationSpeed === undefined)
+                this._initialOptions._rotationSpeed = 1;
+            this._initialOptions.mirror = this.mirror();
         },
 
         /**
@@ -36,18 +45,12 @@
         {
             this.callSuper();
 
-            var options = {
-                mirror: this.mirror()
-            };
-
             this.behavior["translater"] = new XMOT.interaction.widgets.TranslateGizmo(
-                this.globalID("translater"), options);
+                this.globalID("translater"), this._initialOptions);
             this.behavior["translater"].attach();
 
-            options.rotationSpeed = this._rotationSpeed;
-
             this.behavior["rotater"] = new XMOT.interaction.widgets.RotateGizmo(
-                this.globalID("rotater"), options);
+                this.globalID("rotater"), this._initialOptions);
             this.behavior["rotater"].attach();
 
 

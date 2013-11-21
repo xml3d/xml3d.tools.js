@@ -57,8 +57,6 @@
 
             if(!options)
                 options = {};
-            if(!options.autoScale)
-                options.autoScale = true;
 
             this.callSuper();
             this.addListenerTypes(["dragstart", "drag", "dragend"]); // arg: this

@@ -13,6 +13,9 @@
          *  @this {XMOT.interaction.geometry.ViewedConstantSizeGeometry}
          *  @param {XMOT.interaction.widgets.Widget} widget
          *  @param {Object=} options
+         *
+         *  options:
+         *      o scale: a custom scale that should be applied to the geometry
          */
         initialize: function(widget, options)
         {

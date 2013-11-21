@@ -10,6 +10,9 @@
      *  axis or a plane.
      *
      *  @extends XMOT.interaction.widgets.OverlayWidget
+     *
+     *  constructor options:
+     *  o geometry.scale: a custom scaling of the widget geometry
      */
     XMOT.interaction.widgets.TranslateGizmo = new XMOT.Class(
         XMOT.interaction.widgets.OverlayWidget, {
