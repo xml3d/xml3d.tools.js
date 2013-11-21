@@ -30,6 +30,7 @@
         {
             if(!options)
                 throw new Error("XMOT.interaction.widgets.TranslateGizmo: no options given.");
+            options = XMOT.extend({}, options);
 
             if(options.mirror !== undefined)
                 this._mirror = options.mirror;

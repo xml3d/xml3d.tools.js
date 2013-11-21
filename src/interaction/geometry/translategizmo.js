@@ -28,6 +28,7 @@
         {
             if(!options)
                 options = {};
+            options = XMOT.extend({}, options);
 
             var customScale = new XML3DVec3(0.08, 0.08, 0.08);
             if(!options.scale)
