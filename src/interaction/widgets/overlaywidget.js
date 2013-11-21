@@ -33,10 +33,12 @@
             options = XMOT.extend({}, options);
 
             if(options.mirror !== undefined)
+            {
+                this._selfCreatedMirror = false;
                 this._mirror = options.mirror;
+            }
             else if(options.target !== undefined)
             {
-
                 this._selfCreatedMirror = true;
 
                 if(options.target.object.parentNode.tagName.toLowerCase() !== "group")

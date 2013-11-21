@@ -36,6 +36,7 @@
         onAttach: function()
         {
             this._xml3dOverlay.appendChild(this._mirroredViewGrp);
+            this._oldActiveView = this._xml3dOverlay.activeView;
             this._xml3dOverlay.activeView = "#v_" + this.ID;
 
             this._mirroredViewGrpXfmable =
@@ -49,7 +50,7 @@
             this._viewTracker.detach();
 
             this._xml3dOverlay.removeChild(this._mirroredViewGrp);
-            this._xml3dOverlay.activeView = "";
+            this._xml3dOverlay.activeView = this._oldActiveView;
         },
 
         _setupView: function()

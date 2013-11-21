@@ -42,6 +42,9 @@
             this._mirroredTargetRoot = null;
             this._mirroredTarget = null;
 
+            this._overlayDefs = null;
+            this._createdDefsChildren = [];
+
             this._setupMirroredTarget();
         },
 
@@ -68,6 +71,8 @@
          */
         onAttach: function()
         {
+            for(var i = 0; i < this._createdDefsChildren.length; i++)
+                this._overlayDefs.appendChild(this._createdDefsChildren[i]);
             this._xml3dOverlay.xml3d.appendChild(this._mirroredTargetRoot);
         },
 
@@ -79,6 +84,8 @@
         onDetach: function()
         {
             this._xml3dOverlay.xml3d.removeChild(this._mirroredTargetRoot);
+            for(var i = 0; i < this._createdDefsChildren.length; i++)
+                this._overlayDefs.removeChild(this._createdDefsChildren[i]);
         },
 
         /**
@@ -87,7 +94,7 @@
          */
         _setupMirroredTarget: function()
         {
-            var defsOverlay = XMOT.util.getOrCreateDefs(this._xml3dOverlay.xml3d);
+            this._overlayDefs = XMOT.util.getOrCreateDefs(this._xml3dOverlay.xml3d);
 
             var targetNode = this._target.object;
 
@@ -165,19 +172,19 @@
          */
         _createTransformedGroup: function(transformId, xfmMatrix, child)
         {
-            var defsOverlay = XMOT.util.getOrCreateDefs(this._xml3dOverlay.xml3d);
-
-            defsOverlay.appendChild(XMOT.creation.element("transform", {
+            var transform = XMOT.creation.element("transform", {
                 id: this.globalID(transformId),
                 translation: xfmMatrix.translation().str(),
                 rotation: xfmMatrix.rotation().str(),
                 scale: xfmMatrix.scaling().str()
-            }));
+            });
+            this._overlayDefs.appendChild(transform);
+
+            this._createdDefsChildren.push(transform);
 
             var group = XMOT.creation.element("group", {
                 transform: "#" + this.globalID(transformId)
             });
-
             if(child)
                 group.appendChild(child);
 
