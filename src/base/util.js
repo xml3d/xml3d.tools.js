@@ -81,10 +81,13 @@
      *
      *  @param tarobj the object to be extended
      *  @param srcobj the object from which to take the attributes
+     *  @return {Object} the given, updated target object
      */
     XMOT.extend = function(tarobj, srcobj)
     {
         for(var attr in srcobj)
             tarobj[attr] = srcobj[attr];
+
+        return tarobj;
     };
 }());
