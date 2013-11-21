@@ -24,7 +24,10 @@
 
             this.callSuper(widget);
 
-            this._customWidgetScale = new XML3DVec3(options.scale);
+            if(options.scale)
+                this._customWidgetScale = new XML3DVec3(options.scale);
+            else
+                this._customWidgetScale = new XML3DVec3(1, 1, 1);
             this._initialRootScaling = new XML3DVec3(1,1,1);
         },
 
