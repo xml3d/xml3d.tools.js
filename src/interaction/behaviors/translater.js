@@ -69,7 +69,6 @@
         _onTranslChanged: function(sensor)
         {
             var localTranslation = this._transformPtToTargetLocalSpace(this.translation);
-
             var finalTransl = this._translationOffset.add(localTranslation);
             this.targetTransformable.setPosition(finalTransl);
         },
