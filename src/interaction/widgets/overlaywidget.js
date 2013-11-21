@@ -31,17 +31,17 @@
             if(!options)
                 throw new Error("XMOT.interaction.widgets.TranslateGizmo: no options given.");
 
-            this._selfCreatedMirror = (options.target !== undefined);
-            if(this._selfCreatedMirror)
+            if(options.mirror !== undefined)
+                this._mirror = options.mirror;
+            else if(options.target !== undefined)
             {
+
+                this._selfCreatedMirror = true;
+
                 if(options.target.object.parentNode.tagName.toLowerCase() !== "group")
                     throw new Error("XMOT.interaction.widgets.TranslateGizmo: target's parent node must be a group.");
                 this._mirror = new XMOT.xml3doverlay.GroupMirror(
                     id, options.target, options.xml3dOverlay);
-            }
-            else if(options.mirror)
-            {
-                this._mirror = options.mirror;
             }
             else
                 throw new Error("XMOT.interaction.widgets.TranslateGizmo: the options must be either a target or a mirror.");
