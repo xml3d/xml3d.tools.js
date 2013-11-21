@@ -106,35 +106,24 @@
      */
     p.transform = function(mat)
     {
-        this.min.set(mat.multiplyPt(this.min));
-        this.max.set(mat.multiplyPt(this.max));
+        var p1 = new window.XML3DVec3(this.min);
+        var p2 = new window.XML3DVec3(this.min.x, this.min.y, this.max.z);
+        var p3 = new window.XML3DVec3(this.min.x, this.max.y, this.min.z);
+        var p4 = new window.XML3DVec3(this.max.x, this.min.y, this.min.z);
+        var p5 = new window.XML3DVec3(this.min.x, this.max.y, this.max.z);
+        var p6 = new window.XML3DVec3(this.max.x, this.max.y, this.min.z);
+        var p7 = new window.XML3DVec3(this.max.x, this.min.y, this.max.z);
+        var p8 = new window.XML3DVec3(this.max);
 
-        /* The transformation of the box might mix up the actual min
-         * and maximum values of the bounding box, since the box is
-         * always axis-aligned. Thus, we validate it and bring min
-         * and max back in order.
-         */
-        this.validate();
-
-        return this;
-    };
-
-    /**
-     * Returns the box that sets the min and max properties to
-     * the minimal and maximal vectors of min and max, respectively.
-     *
-     * \sa XML3DBox.transform()
-     *
-     * @this {XML3DBox}
-     * @return {XML3DBox} this, the validated bounding box
-     */
-    p.validate = function()
-    {
-        var mi = new window.XML3DVec3(this.min);
-        var ma = new window.XML3DVec3(this.max);
-
-        this.min.set(mi.mapVec(ma, Math.min));
-        this.max.set(mi.mapVec(ma, Math.max));
+        this.makeEmpty();
+        this.extend(mat.multiplyPt(p1));
+        this.extend(mat.multiplyPt(p2));
+        this.extend(mat.multiplyPt(p3));
+        this.extend(mat.multiplyPt(p4));
+        this.extend(mat.multiplyPt(p5));
+        this.extend(mat.multiplyPt(p6));
+        this.extend(mat.multiplyPt(p7));
+        this.extend(mat.multiplyPt(p8));
 
         return this;
     };
