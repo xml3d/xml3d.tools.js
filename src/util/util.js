@@ -52,6 +52,22 @@
         return obj.__callbacks[fn];
     };
 
+    u.getLocalBBox = function(node)
+    {
+        if(!node.getBoundingBox)
+            return new window.XML3DBox();
+        var bbox = node.getBoundingBox();
+
+        if(node.parentNode.getWorldMatrix)
+        {
+            var parentGlobMat = node.parentNode.getWorldMatrix();
+            var invParentGlobMat = parentGlobMat.inverse();
+            bbox.transform(invParentGlobMat);
+        }
+
+        return bbox;
+    };
+
     /**
      * Retrieve the world bounding box of a given node
      *
@@ -63,15 +79,7 @@
         if(!node.getBoundingBox)
             return new window.XML3DBox();
 
-        var bbox = node.getBoundingBox();
-
-        if(node.parentNode.getWorldMatrix)
-        {
-            var parentGlobMat = node.parentNode.getWorldMatrix();
-            bbox.transform(parentGlobMat);
-        }
-
-        return bbox;
+        return node.getBoundingBox();
     };
 
     /**
