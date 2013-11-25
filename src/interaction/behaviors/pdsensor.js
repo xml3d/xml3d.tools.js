@@ -125,9 +125,9 @@
                 registerFn(this.pickGroups[i], "mousedown", this.callback("_onMouseDown"));
             }
 
-            registerFn(this.xml3d, "mousemove", this.callback("_onMouseMove"));
-            registerFn(this.xml3d, "mouseup", this.callback("_onMouseUp"));
-            registerFn(window, "mouseout", this.callback("_onMouseOutOfCanvas"));
+            registerFn(document.body, "mousemove", this.callback("_onMouseMove"));
+            registerFn(document.body, "mouseup", this.callback("_onMouseUp"));
+            registerFn(document.body, "mouseout", this.callback("_onMouseOutOfCanvas"));
 
             this._isAttached = !this._isAttached;
         },
