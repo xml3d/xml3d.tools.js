@@ -28,7 +28,6 @@
          */
         initialize: function(id, pickGrps, targetTransformable, planeOrient, eventDispatcher)
         {
-
             if(!targetTransformable)
                 targetTransformable = XMOT.ClientMotionFactory.createTransformable(pickGrps[0]);
 
@@ -68,15 +67,8 @@
          */
         _onTranslChanged: function(sensor)
         {
-            var localTranslation = this._transformPtToTargetLocalSpace(this.translation);
-            var finalTransl = this._translationOffset.add(localTranslation);
+            var finalTransl = this._translationOffset.add(this.translation);
             this.targetTransformable.setPosition(finalTransl);
-        },
-
-        _transformPtToTargetLocalSpace: function(vec)
-        {
-            var invParentMatrix = XMOT.util.getParentWorldMatrix(this.targetTransformable.object).inverse();
-            return invParentMatrix.multiplyPt(vec, 1);
         }
     });
 }());
