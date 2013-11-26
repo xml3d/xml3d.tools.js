@@ -198,11 +198,10 @@
          */
         _onMouseMove: function(evt)
         {
-            this._pickAndUpdateStatus(evt.pageX, evt.pageY);
-
             if(this._sensorIsActive)
             {
-            	evt.stopPropagation();
+                evt.stopPropagation();
+                this._pickAndUpdateStatus(evt.pageX, evt.pageY);
                 this.notifyListeners("drag", this, evt);
             }
         },
@@ -220,7 +219,7 @@
 
             if(this._sensorIsActive)
             {
-            	evt.stopPropagation();
+                evt.stopPropagation();
 
                 this._sensorIsActive = false;
 
