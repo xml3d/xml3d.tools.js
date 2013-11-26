@@ -68,12 +68,9 @@
          */
         _setup2DTranslaters: function()
         {
-            this.behavior["xyaxis"] = this._create2DTranslater(
-                "xyaxis", "zaxis");
-            this.behavior["zyaxis"] = this._create2DTranslater(
-                "zyaxis", "xaxis");
-            this.behavior["xzaxis"] = this._create2DTranslater(
-                "xzaxis", "yaxis");
+            this.behavior["xyplane"] = this._create2DTranslater("xyplane");
+            this.behavior["yzplane"] = this._create2DTranslater("yzplane");
+            this.behavior["xzplane"] = this._create2DTranslater("xzplane");
         },
 
         /** Sets up a XMOT.interaction.behaviors.Translater for 1D translation.
@@ -91,7 +88,7 @@
         _create1DTranslater: function(id, planeOrientGrpId, constraintFn)
         {
             var eventDispatcher = new XMOT.util.EventDispatcher("mousedown", function(evt){
-                return (!evt.ctrlKey && evt.button === XMOT.MOUSEBUTTON_LEFT);
+                return (evt.button === XMOT.MOUSEBUTTON_LEFT);
             });
 
             var constraint = this._createTranslationConstraint(constraintFn);
@@ -105,27 +102,23 @@
         },
 
         /** Sets up a XMOT.interaction.behaviors.Translater for 2D translation.
-         *  An event dispatcher will be configured for mousedown event to allow
-         *  only left button in combination if the ctrl key being pressed.
          *
          *  @this {XMOT.interaction.widgets.TranslateGizmo}
          *  @private
          *
          *  @param {string} id
-         *  @param {string} pickGrpId id of the geometry item for picking
-         *  @param {XML3DVec3|!window.Element=} planeOrient the plane orientation of the translater
          *  @return {XMOT.interaction.behaviors.Translater}
          */
-        _create2DTranslater: function(id, pickGrpId)
+        _create2DTranslater: function(id)
         {
             var eventDispatcher = new XMOT.util.EventDispatcher("mousedown", function(evt) {
-                return (evt.ctrlKey && evt.button === XMOT.MOUSEBUTTON_LEFT);
+                return (evt.button === XMOT.MOUSEBUTTON_LEFT);
             });
 
             var constraint = this._createTranslationConstraint(function(){});
             var behaviorTarget = this.createBehaviorTarget(constraint);
 
-            var pickGrps = [this.geometry.getGeo(pickGrpId)];
+            var pickGrps = [this.geometry.getGeo(id)];
 
             return new XMOT.interaction.behaviors.Translater(
                 this.globalID(id), pickGrps, behaviorTarget,
