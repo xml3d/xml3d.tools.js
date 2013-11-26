@@ -48,9 +48,9 @@
         {
             this.callSuper();
 
-            this._createAxisDefsElements("xAxis", "0 0.8 0", "0 1 0 -1.57");
-            this._createAxisDefsElements("yAxis", "0.8 0 0", "1 0 0 1.57");
-            this._createAxisDefsElements("zAxis", "0 0 0.8");
+            this._createAxisDefsElements("xAxis", "0 0.8 0", "0 1 0 -1.57", 1);
+            this._createAxisDefsElements("yAxis", "0.8 0 0", "1 0 0 1.57", 1.01);
+            this._createAxisDefsElements("zAxis", "0 0 0.8", "0 0 1 0", 1.02);
         },
 
         /**
@@ -81,12 +81,13 @@
          *  @param {string} color
          *  @param {string=} rotation
          */
-        _createAxisDefsElements: function(id, color, rotation)
+        _createAxisDefsElements: function(id, color, rotation, scaleFactor)
         {
-            if(!rotation)
-                rotation = "0 0 1 0";
+            var scaleVec = new XML3DVec3(1, 1, 0.075);
+            scaleVec = scaleVec.scale(scaleFactor);
 
             this.geo.addTransforms("t_" + id, {
+                scale: scaleVec.str(),
                 rotation: rotation
             });
 
@@ -110,7 +111,7 @@
                 transform: "#" + this.geo.globalID("t_" + id),
                 shader: "#" + this.geo.globalID("s_" + id),
                 children: [
-                    XMOT.creation.quarterDisc(this.geo.xml3d)
+                    XMOT.creation.cylinder(this.geo.xml3d)
                 ]
             });
         }
