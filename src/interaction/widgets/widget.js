@@ -44,7 +44,6 @@
          *  IMPORTANT: the target's corresponding transform node (for a group: the attached
          *  transform node and for a mesh that of it's parent node) is modified. If the target's
          *  group node has no transform element attached one is created.
-         *  If the _target's parent node is not a group node an exception is thrown.
          */
         initialize: function(id, target, options)
         {
@@ -118,7 +117,7 @@
 
         /** This is the target that should be used for the behaviors.
          *  It will be a transformable pointing to the widget's root node, i.e.
-         *  the target's parent node.
+         *  the target's node.
          *
          *  @this {XMOT.interaction.widgets.Widget}
          *  @return {XMOT.Transformable}
