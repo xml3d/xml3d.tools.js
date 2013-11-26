@@ -96,9 +96,7 @@
          */
         createDefsElements: function()
         {
-            this.geo.addTransforms("t_root", {
-                translation: this.widget.target.getPosition().str()
-            });
+            this.geo.addTransforms("t_root");
             this.onCreateDefsElements();
         },
 
