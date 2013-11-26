@@ -197,6 +197,10 @@
             for(var s in this.behavior)
             {
                 var beh = this.behavior[s];
+
+                if(beh.attach)
+                    beh.attach();
+
                 if(!beh.addListener || !beh.isListenerType || !beh.isListenerType("dragstart")
                 || !beh.isListenerType("drag") || !beh.isListenerType("dragend"))
                     continue;
