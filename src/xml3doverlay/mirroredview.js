@@ -63,9 +63,6 @@
                 children: [this._mirroredView]
             });
 
-            this._xml3dOverlay.appendChild(viewGrp);
-            this._xml3dOverlay.activeView = "#v_" + this.ID;
-
             this._mirroredViewGrp = viewGrp;
         },
 
