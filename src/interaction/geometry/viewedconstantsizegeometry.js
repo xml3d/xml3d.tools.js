@@ -68,16 +68,37 @@
          */
         _adaptWidgetScaleToViewPose: function() {
 
+            var rootViewDist = this._getWidgetViewDistance();
+            var rootViewScaling = new XML3DVec3(rootViewDist, rootViewDist, rootViewDist);
+            var absoluteRootViewScaling = rootViewScaling.multiply(
+                this._getWidgetParentInverseScaling());
+            var finalRootScale = this._initialRootScaling.multiply(absoluteRootViewScaling);
+            this.geo.getGraphRootTransformable().setScale(finalRootScale);
+        },
+
+        /**
+         *  @this {XMOT.interaction.geometry.ViewedConstantSizeGeometry}
+         *  @private
+         *  @return {number} distance between the widget's root node and the view
+         */
+        _getWidgetViewDistance: function() {
+
             var curView = XML3D.util.getOrCreateActiveView(this.widget.xml3d);;
             var viewPos = curView.getWorldMatrix().translation();
 
             var rootPos = this.geo.getGraphRoot().getWorldMatrix().translation();
-            var rootViewDist = rootPos.subtract(viewPos).length();
+            return rootPos.subtract(viewPos).length();
+        },
 
-            var scaling = new XML3DVec3(rootViewDist, rootViewDist, rootViewDist);
-            var rootScale = this._initialRootScaling.multiply(scaling);
+        /**
+         *  @this {XMOT.interaction.geometry.ViewedConstantSizeGeometry}
+         *  @private
+         *  @return {window.XML3DVec3} world-to-local scaling vector of the widget's parent node
+         */
+        _getWidgetParentInverseScaling: function() {
 
-            this.geo.getGraphRootTransformable().setScale(rootScale);
+            var parentWorldMatrix = this.geo.getGraphRoot().parentNode.getWorldMatrix();
+            return parentWorldMatrix.inverse().scaling();
         }
     });
 }());
