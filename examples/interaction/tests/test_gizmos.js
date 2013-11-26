@@ -29,14 +29,6 @@ function onChangeGizmoType()
 
     switch(getGizmoType())
     {
-    case "combined":
-        createGizmosCombined();
-        break;
-
-    case "translaterotate":
-        createGizmosTranslateRotate();
-        break;
-
     case "translate":
         createGizmosTranslate();
         break;
@@ -91,32 +83,6 @@ function detachGizmos()
     }
 };
 
-function createGizmosCombined()
-{
-    targetMirror = new XMOT.xml3doverlay.GroupMirror("myGroupMirror",
-        targetTransformable);
-
-    gizmo = new XMOT.interaction.widgets.TranslateGizmo("myGizmo", {
-        mirror: targetMirror
-    });
-    gizmo.attach();
-
-    gizmo1 = new XMOT.interaction.widgets.RotateGizmo("myGizmo2", {
-        mirror: targetMirror,
-        rotationSpeed: getRotationSpeed()
-    });
-    gizmo1.attach();
-};
-
-function createGizmosTranslateRotate()
-{
-    gizmo = new XMOT.interaction.widgets.TranslateRotateGizmo("myGizmo", {
-        target: targetTransformable,
-        rotationSpeed: getRotationSpeed()
-    });
-    gizmo.attach();
-};
-
 function createGizmosTranslate()
 {
     gizmo = new XMOT.interaction.widgets.TranslateGizmo("myGizmo", {
@@ -129,7 +95,10 @@ function createGizmosRotate()
 {
     gizmo = new XMOT.interaction.widgets.RotateGizmo("myGizmo", {
         target: targetTransformable,
-        rotationSpeed: getRotationSpeed()
+        rotationSpeed: getRotationSpeed(),
+        geometry: {
+            scale: new XML3DVec3(2, 2, 2)
+        }
     });
     gizmo.attach();
 };

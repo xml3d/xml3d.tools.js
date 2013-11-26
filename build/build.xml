@@ -92,7 +92,6 @@
         <file name="interaction/widgets/overlaywidget.js" />
         <file name="interaction/widgets/translategizmo.js" />
         <file name="interaction/widgets/rotategizmo.js" />
-        <file name="interaction/widgets/translaterotategizmo.js" />
     </filelist>
 
     <filelist dir="../externs" id="externs">
