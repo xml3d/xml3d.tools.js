@@ -65,6 +65,13 @@
                 this.globalID(geoId), pickGrps, behaviorTarget, this._rotationSpeed, eventDispatcher);
             rot.axisRestriction(axis);
 
+            rot.addListener("dragstart", function() {
+                this.geometry.addHighlight(geoId);
+            }.bind(this));
+            rot.addListener("dragend", function() {
+                this.geometry.removeHighlight(geoId);
+            }.bind(this));
+
             return rot;
         }
     });

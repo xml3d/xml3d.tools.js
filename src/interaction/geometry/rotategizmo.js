@@ -48,9 +48,9 @@
         {
             this.callSuper();
 
-            this._createAxisDefsElements("xAxis", "0 0.8 0", "0 1 0 -1.57", 1);
-            this._createAxisDefsElements("yAxis", "0.8 0 0", "1 0 0 1.57", 1.01);
-            this._createAxisDefsElements("zAxis", "0 0 0.8", "0 0 1 0", 1.02);
+            this._createAxisDefsElements("xaxis", "0 0.8 0", "0 1 0 -1.57", 1);
+            this._createAxisDefsElements("yaxis", "0.8 0 0", "1 0 0 1.57", 1.01);
+            this._createAxisDefsElements("zaxis", "0 0 0.8", "0 0 1 0", 1.02);
         },
 
         /**
@@ -62,9 +62,9 @@
         {
             this.callSuper();
 
-            this.setGeo("xaxis", this._createAxisGroup("xAxis"));
-            this.setGeo("yaxis", this._createAxisGroup("yAxis"));
-            this.setGeo("zaxis", this._createAxisGroup("zAxis"));
+            this.setGeo("xaxis", this._createAxisGroup("xaxis"));
+            this.setGeo("yaxis", this._createAxisGroup("yaxis"));
+            this.setGeo("zaxis", this._createAxisGroup("zaxis"));
 
             this.geo.addToGraphRoot([
                 this.getGeo("xaxis"),
