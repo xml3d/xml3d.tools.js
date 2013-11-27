@@ -96,9 +96,8 @@
          *  @return {window.XML3DVec3} world-to-local scaling vector of the widget's parent node
          */
         _getWidgetParentInverseScaling: function() {
-
-            var parentWorldMatrix = this.geo.getGraphRoot().parentNode.getWorldMatrix();
-            return parentWorldMatrix.inverse().scaling();
+            var scale = parentWorldMatrix.scaling();
+            return new XML3DVec3(1/scale.x, 1/scale.y, 1/scale.z);
         }
     });
 }());
