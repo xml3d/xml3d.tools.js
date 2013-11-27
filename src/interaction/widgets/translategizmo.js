@@ -96,9 +96,18 @@
 
             var pickGrps = [this.geometry.getGeo(id)];
 
-            return new XMOT.interaction.behaviors.Translater(
+            var translater = new XMOT.interaction.behaviors.Translater(
                 this.globalID(id), pickGrps, behaviorTarget,
                 this.geometry.getGeo(planeOrientGrpId), eventDispatcher);
+
+            translater.addListener("dragstart", function() {
+                this.geometry.addHighlight(id);
+            }.bind(this));
+            translater.addListener("dragend", function() {
+                this.geometry.removeHighlight(id);
+            }.bind(this));
+
+            return translater;
         },
 
         /** Sets up a XMOT.interaction.behaviors.Translater for 2D translation.
@@ -120,9 +129,18 @@
 
             var pickGrps = [this.geometry.getGeo(id)];
 
-            return new XMOT.interaction.behaviors.Translater(
+            var translater = new XMOT.interaction.behaviors.Translater(
                 this.globalID(id), pickGrps, behaviorTarget,
                 pickGrps[0], eventDispatcher);
+
+            translater.addListener("dragstart", function() {
+                this.geometry.addHighlight(id);
+            }.bind(this));
+            translater.addListener("dragend", function() {
+                this.geometry.removeHighlight(id);
+            }.bind(this));
+
+            return translater;
         },
 
         /** Creates a translation constraint, where the given constraint function is applied

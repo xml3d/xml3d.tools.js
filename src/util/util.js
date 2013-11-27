@@ -132,6 +132,33 @@
     {
         return Math.min(max, Math.max(min, value));
     };
+
+    /**
+     * A shader is actually a node with a number of children, each of which defines
+     * an attribute 'name' and has a TextNode child. This method searches for the child
+     * of the given element, that has the 'name' attribute with the given name, replaces the
+     * TextNode content with the given value and returns the old value.
+     *
+     * @param shaderElement
+     * @param attributeName
+     * @param attributeValue
+     * @return {string} the old value of the shader attribute
+     */
+    u.setShaderAttribute = function(shaderElement, attributeName, attributeValue)
+    {
+        for(var i = 0; i < shaderElement.childNodes.length; i++)
+        {
+            var node = shaderElement.childNodes[i];
+            if(node.name === attributeName)
+            {
+                var oldValue = node.childNodes[0].nodeValue;
+                node.childNodes[0].nodeValue = attributeValue;
+                return oldValue;
+            }
+        }
+
+        throw new Error("Given attribute is not defined: " + attributeName);
+    };
 }());
 
 

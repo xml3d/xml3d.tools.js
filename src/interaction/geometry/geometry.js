@@ -113,6 +113,41 @@
             this.onCreateGraph();
         },
 
+        /**
+         * Adds a highlight to the geometry with the given ID. All it does it to set
+         * the ambient intensity of the corresponding shader to 1.
+         *
+         * @this {XMOT.interaction.geometry.Geometry}
+         * @param geometryId the ID of the geometry to be highlighted.
+         */
+        addHighlight: function(geometryId)
+        {
+            var shaderEl = this.geo.defs["s_" + geometryId];
+            if(!shaderEl)
+                throw new Error("RotateGizmo.addHighlight(): given shader does not exist: " + geometryId);
+
+            shaderEl.__oldHighlightValue = XMOT.util.setShaderAttribute(
+                shaderEl, "ambientIntensity", "1");
+        },
+
+        /**
+         * Removes a highlight from the geometry with the given ID. All it does it to restore
+         * the ambient intensity that has been previously set with addHighlight().
+         *
+         * @this {XMOT.interaction.geometry.Geometry}
+         * @param geometryId the ID of the geometry from which the highlight is to be removed
+         */
+        removeHighlight: function(geometryId)
+        {
+            var shaderEl = this.geo.defs["s_" + geometryId];
+            if(!shaderEl)
+                throw new Error("RotateGizmo.removeHighlight(): given shader does not exist: " + geometryId);
+
+            XMOT.util.setShaderAttribute(
+                shaderEl, "ambientIntensity", shaderEl.__oldHighlightValue);
+            shaderEl.__oldHighlightValue = undefined;
+        },
+
         /** This is called when the target transformation changes.
          *
          *  @this {XMOT.interaction.geometry.Geometry}
