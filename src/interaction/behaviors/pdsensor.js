@@ -129,6 +129,8 @@
             registerFn(document.body, "mouseup", this.callback("_onMouseUp"));
             registerFn(document.body, "mouseout", this.callback("_onMouseOutOfCanvas"));
 
+            this._firstPickGroupTransformable = XMOT.ClientMotionFactory.createTransformable(this.pickGroups[0]);
+
             this._isAttached = !this._isAttached;
         },
 
@@ -244,6 +246,8 @@
          */
         _pickAndUpdateStatus: function(pageX, pageY)
         {
+            this._firstPickGroupTransformable.setPosition(this._firstPickGroupTransformable.getPosition());
+
             // update pd sensor status
             this.pdPose = this.xml3d.generateRay(pageX, pageY);
 
