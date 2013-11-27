@@ -246,6 +246,11 @@
          */
         _pickAndUpdateStatus: function(pageX, pageY)
         {
+            /** This is a bugfix I just can't track down somehow. When moving an object with an overlay widget,
+             *  e.g. the gizmos, the picking afterwards will report the same point on the whole geometry of a widget part.
+             *  It only occurs when using the overlay and won't occur when just translating the elements manually.
+             *  Some update must fail, because the next line solves the bug.
+             */
             this._firstPickGroupTransformable.setPosition(this._firstPickGroupTransformable.getPosition());
 
             // update pd sensor status
