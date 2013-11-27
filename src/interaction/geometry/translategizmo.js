@@ -42,6 +42,33 @@
         /**
          *  @this {XMOT.interaction.geometry.TranslateGizmo}
          */
+        addHighlight: function(geometryId)
+        {
+            var shaderEl = this.geo.defs["s_" + geometryId];
+            if(!shaderEl)
+                throw new Error("TranslateGizmo.addHighlight(): given shader does not exist: " + id);
+
+            shaderEl.__oldHighlightValue = XMOT.util.setShaderAttribute(
+                shaderEl, "ambientIntensity", "1");
+        },
+
+        /**
+         *  @this {XMOT.interaction.geometry.TranslateGizmo}
+         */
+        removeHighlight: function(geometryId)
+        {
+            var shaderEl = this.geo.defs["s_" + geometryId];
+            if(!shaderEl)
+                throw new Error("TranslateGizmo.removeHighlight(): given shader does not exist: " + id);
+
+            XMOT.util.setShaderAttribute(
+                shaderEl, "ambientIntensity", shaderEl.__oldHighlightValue);
+            shaderEl.__oldHighlightValue = undefined;
+        },
+
+        /**
+         *  @this {XMOT.interaction.geometry.TranslateGizmo}
+         */
         onCreateDefsElements: function()
         {
             this.callSuper();
@@ -90,7 +117,7 @@
             this.geo.addShaders("s_" + id, {
                 shaderType: "urn:xml3d:shader:eyelight",
                 diffuseColor: color,
-                ambientIntensity: "0.3"
+                ambientIntensity: "0.6"
             });
         },
 
