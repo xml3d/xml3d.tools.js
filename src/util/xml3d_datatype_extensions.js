@@ -554,25 +554,4 @@
             && XML3D.epsilonEquals(this.y, other.y, epsilon)
             && XML3D.epsilonEquals(this.z, other.z, epsilon);
     };
-
-    /**
-     * Extract a vector where the given function is applied to each
-     * component of both vectors.
-     *
-     * @this {XML3DVec3}
-     * @param {!XML3DVec3} other
-     * @param {!function(number, number)} f
-     * @return {XML3DVec3} XML3DVec3(f(this.x,other.x),f(this.y,other.y), f(this.z,other.z))
-     *
-     */
-    p.mapVec = function(other, f)
-    {
-        var vec = new window.XML3DVec3();
-
-        vec.x = f(this.x, other.x);
-        vec.y = f(this.y, other.y);
-        vec.z = f(this.z, other.z);
-
-        return vec;
-    };
 }());
