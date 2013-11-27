@@ -113,6 +113,31 @@
             this.onCreateGraph();
         },
 
+        /**
+         * This method is to be overriden by deriving classes. It can be used
+         * to highlight a certain geometry. The geometry class itself does have
+         * no idea how to highlight certain object, but a geometry-generating, derived
+         * class does.
+         *
+         * @this {XMOT.interaction.geometry.Geometry}
+         * @param geometryId the ID of the geometry to be highlighted.
+         */
+        addHighlight: function(geometryId)
+        {
+            throw new Error("method not implemented. It has to be implemented by derived classes.");
+        },
+
+        /**
+         * @see  XMOT.interaction.geometry.Geometry#addHighlight()
+         *
+         * @this {XMOT.interaction.geometry.Geometry}
+         * @param geometryId the ID of the geometry from which the highlight is to be removed
+         */
+        removeHighlight: function(geometryId)
+        {
+            throw new Error("Method not implemented. It has to be implemented by derived classes.");
+        },
+
         /** This is called when the target transformation changes.
          *
          *  @this {XMOT.interaction.geometry.Geometry}
