@@ -87,7 +87,11 @@
             var viewPos = curView.getWorldMatrix().translation();
 
             var rootPos = this.geo.getGraphRoot().getWorldMatrix().translation();
-            return rootPos.subtract(viewPos).length();
+            var viewDistance = rootPos.subtract(viewPos).length();
+            if(viewDistance == 0) {
+                return 1;
+            }
+            return viewDistance;
         },
 
         /**
