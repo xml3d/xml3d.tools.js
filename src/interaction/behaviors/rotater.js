@@ -45,6 +45,10 @@
             this._initialRotation = new XML3DRotation(this.targetTransformable.getOrientation());
             this._rotationOffset = new XML3DRotation(this._initialRotation);
 
+            this._rotationXAxis = new XML3DVec3(-1, 0, 0);
+            this._rotationYAxis = new XML3DVec3(0, 1, 0);
+            this._rotationZAxis = new XML3DVec3(0, 0, 1);
+
             // listeners
             this.addListener("dragstart", this.callback("_onRotaterDragStart"));
             this.addListener("translchanged", this.callback("_onRotaterTranslChanged"));
@@ -112,6 +116,7 @@
         {
             // update the offset with perhaps changed rotation
             this._rotationOffset = new window.XML3DRotation(this.targetTransformable.transform.rotation);
+            this._updateRotationAxes();
         },
 
         /**
@@ -135,26 +140,26 @@
             var rotation = new XML3DRotation();
             if(this._axisRestriction === undefined)
             {
-                var rotX = new XML3DRotation(new XML3DVec3(1,0,0), angleX);
-                var rotY = new XML3DRotation(new XML3DVec3(0,1,0), angleY);
-                rotation.set(rotX.multiply(rotY));
+                var rotX = new XML3DRotation(this._rotationXAxis, angleX);
+                var rotY = new XML3DRotation(this._rotationYAxis, angleY);
+                rotation.set(rotY.multiply(rotX));
             }
             else
             {
                 var angleSum = angleX + angleY;
-                var axis = null;
+                var axis = new XML3DVec3();
 
                 if(this._axisRestriction === "x")
                 {
-                    axis = new XML3DVec3(1,0,0);
+                    axis.set(this._rotationXAxis);
                 }
                 else if(this._axisRestriction === "y")
                 {
-                    axis = new XML3DVec3(0,1,0);
+                    axis.set(this._rotationYAxis);
                 }
                 else // === "z"
                 {
-                    axis = new XML3DVec3(0,0,1);
+                    axis.set(this._rotationZAxis);
                 }
 
                 rotation.setAxisAngle(axis, angleSum);
@@ -165,6 +170,40 @@
 
             // and update target orientation
             this.targetTransformable.setOrientation(rotation);
+        },
+
+        /**
+         * We will always rotate around the local axes, e.g. (1,0,0) for the x-axis. However,
+         * dependent on the view, we might want to rotate around (-1,0,0) for example to stay
+         * coherent with the mouse movement.
+         * Thus, we will transform these axes from view space to the target space and there take
+         * the signs of the corresponding axis.
+         *
+         * @private
+         */
+        _updateRotationAxes: function() {
+            // get view to target matrix
+            var view = XML3D.util.getOrCreateActiveView(this.xml3d);
+            var viewToWorldMatrix = view.getViewMatrix().inverse();
+            var worldToTargetMatrix = this.targetTransformable.object.getWorldMatrix().inverse();
+            var viewToTargetMatrix = viewToWorldMatrix.multiply(worldToTargetMatrix);
+
+            // calculate signs
+            var xAxisFactor = viewToTargetMatrix.multiplyDir(new XML3DVec3(-1, 0, 0)).x;
+            var yAxisFactor = viewToTargetMatrix.multiplyDir(new XML3DVec3(0, 1, 0)).y;
+            var zAxisFactor = viewToTargetMatrix.multiplyDir(new XML3DVec3(0, 0, 1)).z;
+            var xAxisSign = this._getSignOfValue(xAxisFactor);
+            var yAxisSign = this._getSignOfValue(yAxisFactor);
+            var zAxisSign = this._getSignOfValue(zAxisFactor);
+
+            // update axes
+            this._rotationXAxis = new XML3DVec3(xAxisSign, 0, 0);
+            this._rotationYAxis = new XML3DVec3(0, yAxisSign, 0);
+            this._rotationZAxis = new XML3DVec3(0, 0, zAxisSign);
+        },
+
+        _getSignOfValue: function(value) {
+            return (value < 0) ? -1 : 1;
         }
     });
 }());
