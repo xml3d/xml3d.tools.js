@@ -3,10 +3,10 @@
     "use strict";
 
     /**
-     * ClientKeyframeAnimation implementation
+     * KeyframeAnimation implementation
      * @implements{Animation}
      */
-    XMOT.ClientKeyframeAnimation = new XMOT.Class({
+    XMOT.KeyframeAnimation = new XMOT.Class({
 
         /**
          * @param{string} name name of the animation

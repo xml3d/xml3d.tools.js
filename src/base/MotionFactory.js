@@ -82,7 +82,7 @@
                 throw "Element is not a valid keyframe animation";
             }
             else{
-                return new XMOT.ClientKeyframeAnimation(name, keys, position, orientation, scale, opt);
+                return new XMOT.KeyframeAnimation(name, keys, position, orientation, scale, opt);
             }
         },
 
