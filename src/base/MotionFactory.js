@@ -53,7 +53,7 @@
         createAnimatable: function(element, constraint)
         {
             if(!element) throw "No valid element, cannot create Animatable.";
-            return new XMOT.ClientAnimatable(element, this.getTransform(element), constraint);
+            return new XMOT.Animatable(element, this.getTransform(element), constraint);
         },
 
         /** @inheritDoc
