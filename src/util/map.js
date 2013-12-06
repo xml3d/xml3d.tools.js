@@ -2,9 +2,9 @@
 
     "use strict";
 
-    XMOT.namespace("XMOT.util");
+    XML3D.tools.namespace("XML3D.tools.util");
 
-    /** XMOT.util.Map provides a simple map from objects to arbitrary values.
+    /** XML3D.tools.util.Map provides a simple map from objects to arbitrary values.
      * 	In Javascript only strings are supported as keys, but sometimes we want to map
      *	raw objects instead. One object may contain multiple values.
      *
@@ -16,10 +16,10 @@
      *  "function() { [native code] }". I don't know of other ways to serialize
      *  arbitrary objects.
      */
-    XMOT.util.Map = new XMOT.Class({
+    XML3D.tools.util.Map = new XML3D.tools.Class({
 
         /**
-         *  @this {XMOT.util.Map}
+         *  @this {XML3D.tools.util.Map}
          */
         initialize: function() {
 
@@ -27,7 +27,7 @@
         },
 
         /**
-         *  @this {XMOT.util.Map}
+         *  @this {XML3D.tools.util.Map}
          *  @return {number} the number of keys in the map
          */
         size: function() {
@@ -36,13 +36,13 @@
 
         /** Adds a (key,values) pair to the map. The given key may not exist yet.
          *
-         *  @this {XMOT.util.Map}
+         *  @this {XML3D.tools.util.Map}
          * 	@param {Object} key
          * 	@param {Object|Array.<Object>} values
          */
         add: function(key, values) {
 
-            if(!XMOT.util.isDefined(values))
+            if(!XML3D.tools.util.isDefined(values))
                 return;
             if(!(values instanceof Array))
                 values = [values];
@@ -74,12 +74,12 @@
          *  erased. In case the given value is the only value of the associated
          *  key the key will be erased, too.
          *
-         *  @this {XMOT.util.Map}
+         *  @this {XML3D.tools.util.Map}
          * 	@param {Object} key
          * 	@param {Object=} value
          */
         remove: function(key, value) {
-            if(XMOT.util.isDefined(value)) {
+            if(XML3D.tools.util.isDefined(value)) {
                 this._removeValue(key, value);
             }
             else {
@@ -88,7 +88,7 @@
         },
 
         /** Removes all keys and values from the map.
-         *  @this {XMOT.util.Map}
+         *  @this {XML3D.tools.util.Map}
          */
         clear: function() {
             this._containers = [];
@@ -96,7 +96,7 @@
 
         /** Similar to add(), but removes the key before adding the values to the key.
          *
-         *  @this {XMOT.util.Map}
+         *  @this {XML3D.tools.util.Map}
          * 	@param {Object} key
          * 	@param {Object|Array.<Object>} values
          */
@@ -108,7 +108,7 @@
 
         /** Returns true if the map contains the given key.
          *
-         *  @this {XMOT.util.Map}
+         *  @this {XML3D.tools.util.Map}
          * 	@param {Object} key
          * 	@return {boolean} true if the given key is contained in the map
          */
@@ -120,7 +120,7 @@
         /** Retrieve all values for a given key. If the key is not contained in the
          *  map an exception is thrown.
          *
-         *  @this {XMOT.util.Map}
+         *  @this {XML3D.tools.util.Map}
          * 	@param {Object} key
          * 	@return {Array.<Object>} the values of the given key
          */
@@ -136,7 +136,7 @@
          *  given one on the right side. Since the underlying container object
          *  is an array, this is the index of the given key plus one.
          *
-         *  @this {XMOT.util.Map}
+         *  @this {XML3D.tools.util.Map}
          *  @param {Object} key
          *  @return {Array.<Object>} values
          */
@@ -154,7 +154,7 @@
          *  given one on the left side. Since the underlying container object
          *  is an array, this is the index of the given key minus one.
          *
-         *  @this {XMOT.util.Map}
+         *  @this {XML3D.tools.util.Map}
          *  @param {Object} key
          *  @return {Array.<Object>} values
          */
@@ -170,7 +170,7 @@
 
         /** Map the given function to all values of the given key.
          *
-         *  @this {XMOT.util.Map}
+         *  @this {XML3D.tools.util.Map}
          * 	@param {Object} key
          * 	@param {function(Object)} fn the argument is the value of the given object
          */
@@ -189,19 +189,19 @@
         /** Checks if the given key has an entry and throws an exception if that's not
          *  the case.
          *
-         *  @this {XMOT.util.Map}
+         *  @this {XML3D.tools.util.Map}
          * 	@param {Object} key
          *  @private
          */
         _assertHas: function(key) {
 
             if(!this.has(key)) {
-                throw new Error("XMOT.util.Map: no entry present for given key");
+                throw new Error("XML3D.tools.util.Map: no entry present for given key");
             }
         },
 
         /**
-         *  @this {XMOT.util.Map}
+         *  @this {XML3D.tools.util.Map}
          * 	@param {Object} key
          * 	@return {number} the index of the given key in the container array
          *  @private
@@ -220,7 +220,7 @@
         /** Removes a single value from the given key. If the key contains
          *  no values afterwards it is removed from the map.
          *
-         *  @this {XMOT.util.Map}
+         *  @this {XML3D.tools.util.Map}
          * 	@param {Object} key
          * 	@param {Object} value
          * 	@private
@@ -243,7 +243,7 @@
 
         /** Removes the key and all of it's values from the map.
          *
-         *  @this {XMOT.util.Map}
+         *  @this {XML3D.tools.util.Map}
          * 	@param {Object} key
          * 	@private
          */

@@ -13,10 +13,10 @@
      *
      *  @constructor
      */
-    XMOT.FlyBehavior = new XMOT.Class(XMOT.CameraBehavior, {
+    XML3D.tools.FlyBehavior = new XML3D.tools.Class(XML3D.tools.CameraBehavior, {
 
         /**
-         *  @this {XMOT.FlyBehavior}
+         *  @this {XML3D.tools.FlyBehavior}
          *  @param {Element|Transformable} targetViewGroup
          *  @param {Object} options
          *
@@ -34,35 +34,35 @@
         },
 
         /**
-         *  @this {XMOT.FlyBehavior}
+         *  @this {XML3D.tools.FlyBehavior}
          */
         moveForward: function() {
             this._moveInCamDirection();
         },
 
         /**
-         *  @this {XMOT.FlyBehavior}
+         *  @this {XML3D.tools.FlyBehavior}
          */
         moveBackward: function() {
             this._moveInCamDirection(true);
         },
 
         /**
-         *  @this {XMOT.FlyBehavior}
+         *  @this {XML3D.tools.FlyBehavior}
          */
         stepRight: function() {
             this._stepRight();
         },
 
         /**
-         *  @this {XMOT.FlyBehavior}
+         *  @this {XML3D.tools.FlyBehavior}
          */
         stepLeft: function() {
             this._stepRight(true);
         },
 
         /**
-         *  @this {XMOT.FlyBehavior}
+         *  @this {XML3D.tools.FlyBehavior}
          *  @return {number}
          */
         getMoveSpeed: function() {
@@ -70,7 +70,7 @@
         },
 
         /**
-         *  @this {XMOT.FlyBehavior}
+         *  @this {XML3D.tools.FlyBehavior}
          *  @param {number} speed
          */
         setMoveSpeed: function(speed) {
@@ -78,7 +78,7 @@
         },
 
         /**
-         *  @this {XMOT.FlyBehavior}
+         *  @this {XML3D.tools.FlyBehavior}
          *  @param {boolean} doInvertDirection
          *  @private
          */
@@ -96,7 +96,7 @@
         },
 
         /**
-         *  @this {XMOT.FlyBehavior}
+         *  @this {XML3D.tools.FlyBehavior}
          *  @param {boolean} doInvertDirection
          *  @private
          */
@@ -112,7 +112,7 @@
         },
 
         /**
-         *  @this {XMOT.FlyBehavior}
+         *  @this {XML3D.tools.FlyBehavior}
          *  @param {window.XML3DVec3} direction
          *  @private
          */

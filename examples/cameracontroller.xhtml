@@ -63,8 +63,8 @@
 
 		<script type="text/javascript">
 			var movObjects = {};
-			var factory = XMOT.MotionFactory;
-			var constraint = new XMOT.SimpleConstraint(true, true, true);
+			var factory = XML3D.tools.MotionFactory;
+			var constraint = new XML3D.tools.SimpleConstraint(true, true, true);
 			var controllerActive = true;
 
 			function animate(){
@@ -78,7 +78,7 @@
 			function initCamera(){
 				var rotatearoundpoint = false;
 				var initialRotation = new XML3DRotation(new XML3DVec3(0, 0, 0), 0);
-				movObjects.cam = new XMOT.CameraController("node-camera_player", "scene", initialRotation, "left", rotatearoundpoint);
+				movObjects.cam = new XML3D.tools.CameraController("node-camera_player", "scene", initialRotation, "left", rotatearoundpoint);
 				createPois();
 			}
 

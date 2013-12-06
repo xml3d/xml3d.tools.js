@@ -5,7 +5,7 @@
 	/**
 	 * A CombinedAnimation
 	 */
-    XMOT.CombinedAnimation = new XMOT.Class({
+    XML3D.tools.CombinedAnimation = new XML3D.tools.Class({
 
         initialize: function(name, opt){
             /**
@@ -85,7 +85,7 @@
          * @return this
          */
         addAnimation: function(animation, opt){
-            this.animations.push({animation: animation, opt: XMOT.mergeOptions(opt, animation.getOptions()), callbackCalled: false});
+            this.animations.push({animation: animation, opt: XML3D.tools.mergeOptions(opt, animation.getOptions()), callbackCalled: false});
             //adopt duration correctly
             var needed_duration = opt.duration*opt.loop + opt.delay;
             if(this.duration < needed_duration) this.duration = needed_duration;

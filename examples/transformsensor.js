@@ -22,10 +22,10 @@ function initScene()
     var $xml3d = $(xml3d);
 
     // setup defs element
-    var defs = XMOT.util.getOrCreateDefs(xml3d);
+    var defs = XML3D.tools.util.getOrCreateDefs(xml3d);
     var $defs = $(defs);
 
-    var cns = XMOT.creation;
+    var cns = XML3D.tools.creation;
 
     // shaders
     $defs.append(cns.phongShader({
@@ -50,13 +50,13 @@ function initScene()
     }));
 
     // target box
-    var tarXfm = XMOT.creation.element("transform", {
+    var tarXfm = XML3D.tools.creation.element("transform", {
         id: "t_target", translation: "0 2.5 0"});
     $defs.append(tarXfm);
 
     tarBox = cns.box(xml3d);
 
-    tarGrp = XMOT.creation.element("group", {
+    tarGrp = XML3D.tools.creation.element("group", {
         transform: "#" + $(tarXfm).attr("id"),
         shader: "#" + normalProxyShaderId
     });
@@ -68,11 +68,11 @@ function initScene()
 
     // interactor box
     intBox = cns.box(xml3d);
-    var intXfm = XMOT.creation.element("transform", {
+    var intXfm = XML3D.tools.creation.element("transform", {
         id: "t_interactor", translation: "0 -2.5 0"});
     $defs.append(intXfm);
 
-    intGrp = XMOT.creation.element("group", {
+    intGrp = XML3D.tools.creation.element("group", {
         transform: "#" + $(intXfm).attr("id"),
         shader: "#" + normalShaderId
     });
@@ -82,22 +82,22 @@ function initScene()
 
     $xml3d.append(intGrp);
 
-    var intGrpXfm = XMOT.MotionFactory.createTransformable(intGrp);
+    var intGrpXfm = XML3D.tools.MotionFactory.createTransformable(intGrp);
 
     // attach Translater to interactorbox
-    intSensor = new XMOT.interaction.behaviors.Translater("myTranslater",
+    intSensor = new XML3D.tools.interaction.behaviors.Translater("myTranslater",
             [intGrp], intGrpXfm);
 
     // initialize transformsensor
-    XMOT.util.fireWhenMeshesLoaded(tarGrp, setupXfmSensor);
+    XML3D.tools.util.fireWhenMeshesLoaded(tarGrp, setupXfmSensor);
 }
 
 function setupXfmSensor()
 {
-    var bbox = XMOT.util.getWorldBBox(tarGrp);
+    var bbox = XML3D.tools.util.getWorldBBox(tarGrp);
 
     // setup change observer
-    xfmSensor = new XMOT.TransformSensor("myxfmsensor", [intGrp], bbox);
+    xfmSensor = new XML3D.tools.TransformSensor("myxfmsensor", [intGrp], bbox);
 
     var proxy = tarGrp;
     xfmSensor.addListener("start", function(tarNode) {

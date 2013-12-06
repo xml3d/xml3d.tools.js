@@ -8,7 +8,7 @@ function onLoad()
 
     // setup xfm change observation
     var target = $("#group2")[0];
-    tracker = new XMOT.TransformTracker(target, onXfmChange);
+    tracker = new XML3D.tools.TransformTracker(target, onXfmChange);
     tracker.attach();
 }
 

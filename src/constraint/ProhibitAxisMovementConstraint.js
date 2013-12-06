@@ -8,7 +8,7 @@
      * @constructor
      * @implements {Constraint}
      */
-    XMOT.ProhibitAxisMovementConstraint = new XMOT.Class({
+    XML3D.tools.ProhibitAxisMovementConstraint = new XML3D.tools.Class({
 
         /**
          * @param {Boolean} x prohibit x axis

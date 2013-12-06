@@ -1,19 +1,19 @@
-XMOT.namespace("XMOT.util");
+XML3D.tools.namespace("XML3D.tools.util");
 
 /**
  *  A plane with an origin and a normal. The special thing here is that the normal can be set
  *  by a normal directly, a group (whose orientation serves for the calculation) or by nothing
  *  in which case a plane parallel to the user's view is constructed.
  */
-XMOT.util.Plane = new XMOT.Class({
+XML3D.tools.util.Plane = new XML3D.tools.Class({
 
     /**
-     *  @this {XMOT.util.Plane}
+     *  @this {XML3D.tools.util.Plane}
      */
     initialize: function(xml3d)
     {
-        if(!XMOT.util.isDefined(xml3d))
-            throw new Error("XMOT.util.Plane: no xml3d element given.");
+        if(!XML3D.tools.util.isDefined(xml3d))
+            throw new Error("XML3D.tools.util.Plane: no xml3d element given.");
 
         /** This vector will be used when computing the normal based on some orientations.
          *  There we need an "original" vector from which to rotate.
@@ -37,13 +37,13 @@ XMOT.util.Plane = new XMOT.Class({
 
     /** Set or retrieve the origin
      *
-     *  @this {XMOT.util.Plane}
+     *  @this {XML3D.tools.util.Plane}
      *  @param {window.XML3DVec3=} newOrigin
      *  @return {window.XML3DVec3} the origin
      */
     origin: function(newOrigin)
     {
-        if(XMOT.util.isDefined(newOrigin))
+        if(XML3D.tools.util.isDefined(newOrigin))
             this._origin.set(newOrigin);
 
         return new window.XML3DVec3(this._origin);
@@ -53,13 +53,13 @@ XMOT.util.Plane = new XMOT.Class({
      *  can be a vector or a group. To instruct the plane to use
      *  the user's view use setOrientation() below.
      *
-     *  @this {XMOT.util.Plane}
+     *  @this {XML3D.tools.util.Plane}
      *  @param {window.XML3DVec3|!Object=} newNormal
      *  @return {window.XML3DVec3} the current normal
      */
     normal: function(newNormal)
     {
-        if(XMOT.util.isDefined(newNormal))
+        if(XML3D.tools.util.isDefined(newNormal))
             this.setOrientation(newNormal);
         else if(!this._isNormalValid)
             this._updateOrientation();
@@ -71,7 +71,7 @@ XMOT.util.Plane = new XMOT.Class({
      *  If none is given everything's reset and a plane perpendicular to the
      *  user's viewing direction is taken.
      *
-     *  @this {XMOT.util.Plane}
+     *  @this {XML3D.tools.util.Plane}
      *  @param {window.XML3DVec3|!Object=} newOrientation
      */
     setOrientation: function(newOrientation)
@@ -81,7 +81,7 @@ XMOT.util.Plane = new XMOT.Class({
         // default: view-dependent, no user settings
         this._clearUserDefinitions();
 
-        if(XMOT.util.isDefined(newOrientation))
+        if(XML3D.tools.util.isDefined(newOrientation))
         {
             // use user-defined normal
             if(newOrientation.constructor === window.XML3DVec3)
@@ -91,14 +91,14 @@ XMOT.util.Plane = new XMOT.Class({
             else // use user-defined group
             {
                 this._userOrientationGrp = newOrientation;
-                this._xfmTracker = new XMOT.TransformTracker(newOrientation,
+                this._xfmTracker = new XML3D.tools.TransformTracker(newOrientation,
                         this.callback("_invalidateNormal"));
                 this._xfmTracker.attach();
             }
         }
         else // user user-view
         {
-            this._xfmTracker = new XMOT.ViewTracker(this._xml3d,
+            this._xfmTracker = new XML3D.tools.ViewTracker(this._xml3d,
                 this.callback("_invalidateNormal"));
             this._xfmTracker.attach();
         }
@@ -107,7 +107,7 @@ XMOT.util.Plane = new XMOT.Class({
     },
 
     /**
-     *  @this {XMOT.util.Plane}
+     *  @this {XML3D.tools.util.Plane}
      */
     str: function()
     {
@@ -116,7 +116,7 @@ XMOT.util.Plane = new XMOT.Class({
 
     /**
      *  @private
-     *  @this {XMOT.util.Plane}
+     *  @this {XML3D.tools.util.Plane}
      */
     _clearUserDefinitions: function()
     {
@@ -128,12 +128,12 @@ XMOT.util.Plane = new XMOT.Class({
 
     /**
      *  @private
-     *  @this {XMOT.util.Plane}
+     *  @this {XML3D.tools.util.Plane}
      */
     _updateOrientation: function()
     {
         // user set normal
-        if(XMOT.util.isDefined(this._userNormal))
+        if(XML3D.tools.util.isDefined(this._userNormal))
         {
             this._validNormal.set(this._userNormal);
         }
@@ -142,7 +142,7 @@ XMOT.util.Plane = new XMOT.Class({
             var orientMatrix = null;
 
             // user set group
-            if(XMOT.util.isDefined(this._userOrientationGrp))
+            if(XML3D.tools.util.isDefined(this._userOrientationGrp))
             {
                 orientMatrix = this._userOrientationGrp.getWorldMatrix();
             }
@@ -161,7 +161,7 @@ XMOT.util.Plane = new XMOT.Class({
 
     /**
      *  @private
-     *  @this {XMOT.util.Plane}
+     *  @this {XML3D.tools.util.Plane}
      */
     _invalidateNormal: function()
     {

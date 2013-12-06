@@ -7,7 +7,7 @@
      * @constructor
      * @implements{Transformable}
      */
-    XMOT.Transformable = new XMOT.Class({
+    XML3D.tools.Transformable = new XML3D.tools.Class({
 
         initialize: function(object, transform, constraint) {
             /**
@@ -28,7 +28,7 @@
              * @type {Constraint}
              */
             if(!constraint)
-                constraint = new XMOT.SimpleConstraint(true, true, true);
+                constraint = new XML3D.tools.SimpleConstraint(true, true, true);
             this.constraint = constraint;
 
             /**
@@ -167,9 +167,9 @@
             this._motionQueue.push(newEntry);
             if( this._motionQueue.length-1 == 0){
                 newEntry.tween.start();
-                if(!XMOT.animating) {
-                    XMOT.animate();
-                    XMOT.animating = true;
+                if(!XML3D.tools.animating) {
+                    XML3D.tools.animate();
+                    XML3D.tools.animating = true;
                 }
             }
             return this;
@@ -271,7 +271,7 @@
             var end = this._motionQueue[0].endOrientation;
             if(end == undefined) return undefined;
             var start = this._motionQueue[0].startOrientation;
-            return XMOT.math.slerp(start, end, t);
+            return XML3D.tools.math.slerp(start, end, t);
         },
 
         /**

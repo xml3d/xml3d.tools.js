@@ -2,7 +2,7 @@
 
     "use strict";
 
-    XMOT.namespace("XMOT.interaction.geometry");
+    XML3D.tools.namespace("XML3D.tools.interaction.geometry");
 
     /** The tree of this geometry looks like this:
      *  o graph root
@@ -13,12 +13,12 @@
      *
      *  The axes can be retrieved by their name using getGeo().
      */
-    XMOT.interaction.geometry.RotateGizmo = new XMOT.Class(
-        XMOT.interaction.geometry.ViewedConstantSizeGeometry, {
+    XML3D.tools.interaction.geometry.RotateGizmo = new XML3D.tools.Class(
+        XML3D.tools.interaction.geometry.ViewedConstantSizeGeometry, {
 
         /**
-         *  @this {XMOT.interaction.geometry.RotateGizmo}
-         *  @param {XMOT.interaction.widgets.Widget} widget
+         *  @this {XML3D.tools.interaction.geometry.RotateGizmo}
+         *  @param {XML3D.tools.interaction.widgets.Widget} widget
          *  @param {Object=} options
          *
          *  options:
@@ -28,7 +28,7 @@
         {
             if(!options)
                 options = {};
-            options = XMOT.extend({}, options);
+            options = XML3D.tools.extend({}, options);
 
             var customScale = new XML3DVec3(0.05, 0.05, 0.05);
             if(!options.scale)
@@ -40,7 +40,7 @@
         },
 
         /**
-         *  @this {XMOT.interaction.geometry.RotateGizmo}
+         *  @this {XML3D.tools.interaction.geometry.RotateGizmo}
          *  @override
          *  @protected
          */
@@ -54,7 +54,7 @@
         },
 
         /**
-         *  @this {XMOT.interaction.geometry.RotateGizmo}
+         *  @this {XML3D.tools.interaction.geometry.RotateGizmo}
          *  @override
          *  @protected
          */
@@ -74,7 +74,7 @@
         },
 
         /**
-         *  @this {XMOT.interaction.geometry.RotateGizmo}
+         *  @this {XML3D.tools.interaction.geometry.RotateGizmo}
          *  @private
          *
          *  @param {string} id
@@ -100,18 +100,18 @@
         },
 
         /**
-         *  @this {XMOT.interaction.geometry.RotateGizmo}
+         *  @this {XML3D.tools.interaction.geometry.RotateGizmo}
          *  @private
          *
          *  @param {string} id
          */
         _createAxisGroup: function(id)
         {
-            return XMOT.creation.element("group", {
+            return XML3D.tools.creation.element("group", {
                 transform: "#" + this.geo.globalID("t_" + id),
                 shader: "#" + this.geo.globalID("s_" + id),
                 children: [
-                    XMOT.creation.cylinder(this.geo.xml3d)
+                    XML3D.tools.creation.cylinder(this.geo.xml3d)
                 ]
             });
         }

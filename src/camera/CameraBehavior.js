@@ -7,10 +7,10 @@
      *
      *  @constructor
      */
-    XMOT.CameraBehavior = new XMOT.Class(XMOT.util.Attachable, {
+    XML3D.tools.CameraBehavior = new XML3D.tools.Class(XML3D.tools.util.Attachable, {
 
         /**
-         *  @this {XMOT.CameraBehavior}
+         *  @this {XML3D.tools.CameraBehavior}
          *  @param {Element|Transformable} targetViewGroup
          *  @param {Object=} options
          *
@@ -21,7 +21,7 @@
 
             this.callSuper();
 
-            this.target = XMOT.util.getOrCreateTransformable(targetViewGroup);
+            this.target = XML3D.tools.util.getOrCreateTransformable(targetViewGroup);
 
             this._rotateSpeed = 1;
 
@@ -30,7 +30,7 @@
         },
 
         /**
-         *  @this {XMOT.CameraBehavior}
+         *  @this {XML3D.tools.CameraBehavior}
          *  @param {window.XML3DRotation} orientation
          *  @return {boolean} true if the rotate action was actually performed
          */
@@ -41,7 +41,7 @@
         },
 
         /**
-         *  @this {XMOT.CameraBehavior}
+         *  @this {XML3D.tools.CameraBehavior}
          *  @param {number} xAxisAngle in radians
          *  @param {number} yAxisAngle in radians
          *  @return {boolean} true if the rotate action was actually performed
@@ -55,14 +55,14 @@
 
         /** Resets the camera pose to look at the whole scene.
          *
-         *  @this {XMOT.CameraBehavior}
+         *  @this {XML3D.tools.CameraBehavior}
          *  @param {number=} distanceToSceneCenter. Default: scene's aabb diagonal
          */
         lookAtScene: function(distanceToSceneCenter) {
 
             var sceneCenter = new XML3DVec3();
 
-            var scene = XMOT.util.getXml3dRoot(this.target.object);
+            var scene = XML3D.tools.util.getXml3dRoot(this.target.object);
             var bb = scene.getBoundingBox();
             if(!bb.isEmpty()) {
                 sceneCenter.set(bb.center());
@@ -76,7 +76,7 @@
         },
 
         /**
-         *  @this {XMOT.CameraBehavior}
+         *  @this {XML3D.tools.CameraBehavior}
          *  @param {window.XML3DVec3} point
          *  @param {number=} distanceToPoint. Default: position is not affected
          */
@@ -101,7 +101,7 @@
         },
 
         /**
-         *  @this {XMOT.CameraBehavior}
+         *  @this {XML3D.tools.CameraBehavior}
          *  @return {number}
          */
         getRotationSpeed: function() {
@@ -109,7 +109,7 @@
         },
 
         /**
-         *  @this {XMOT.CameraBehavior}
+         *  @this {XML3D.tools.CameraBehavior}
          *  @param {number} speed
          */
         setRotationSpeed: function(speed) {
@@ -117,7 +117,7 @@
         },
 
         /**
-         *  @this {XMOT.CameraBehavior}
+         *  @this {XML3D.tools.CameraBehavior}
          *  @return {window.XML3DVec3}
          */
         getLookDirection: function() {
@@ -134,7 +134,7 @@
          *  given angles applied. The rotation itself is not set in
          *  the camera. This is done in rotateByAngles().
          *
-         *  @this {XMOT.CameraBehavior}
+         *  @this {XML3D.tools.CameraBehavior}
          *  @protected
          *  @param {number} xAxisAngle in radians
          *  @param {number} yAxisAngle in radians

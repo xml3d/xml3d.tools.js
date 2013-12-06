@@ -2,34 +2,34 @@
 
     "use strict";
 
-    XMOT.namespace("XMOT.interaction.behaviors");
+    XML3D.tools.namespace("XML3D.tools.interaction.behaviors");
 
     /** Translater is a plane sensor that maps the translation output of that sensor
      *  directly to the given group transform's translation attribute.
      *
-     *  @extends XMOT.interaction.behaviors.PlaneSensor
+     *  @extends XML3D.tools.interaction.behaviors.PlaneSensor
      */
-    XMOT.interaction.behaviors.Translater = new XMOT.Class(
-            XMOT.interaction.behaviors.PlaneSensor,
+    XML3D.tools.interaction.behaviors.Translater = new XML3D.tools.Class(
+            XML3D.tools.interaction.behaviors.PlaneSensor,
     {
         /** Constructor of Translater
          *
-         *  @this {XMOT.interaction.behaviors.Translater}
+         *  @this {XML3D.tools.interaction.behaviors.Translater}
          *
          *  @param {string} id the id of this sensor
          *  @param {Array.<window.Element>} pickGrps the group this sensor should look for
-         *  @param {XMOT.Transformable} targetTransformable the movable this sensor will modify.
+         *  @param {XML3D.tools.Transformable} targetTransformable the movable this sensor will modify.
          *                 If not given, a Movable will be created from the first element of pickGrps
          *  @param {XML3DVec3|!window.Element} [planeOrient] the group or vector the sensor takes to decide where the plane
          *             normal should reside. If it's a group the local z=0 plane of the given group is taken.
          *             If a vector is given, the vector directly is taken. If not specified a plane
          *             parallel to the user's view is taken.
-         *  @param {XMOT.util.EventDispatcher=} eventDispatcher the object used to register events
+         *  @param {XML3D.tools.util.EventDispatcher=} eventDispatcher the object used to register events
          */
         initialize: function(id, pickGrps, targetTransformable, planeOrient, eventDispatcher)
         {
             if(!targetTransformable)
-                targetTransformable = XMOT.MotionFactory.createTransformable(pickGrps[0]);
+                targetTransformable = XML3D.tools.MotionFactory.createTransformable(pickGrps[0]);
 
             this.targetTransformable = targetTransformable;
 
@@ -49,10 +49,10 @@
         // ========================================================================
 
         /**
-         *  @this {XMOT.interaction.behaviors.Translater}
+         *  @this {XML3D.tools.interaction.behaviors.Translater}
          *  @private
          *
-         *  @param {XMOT.interaction.behaviors.Translater} sensor
+         *  @param {XML3D.tools.interaction.behaviors.Translater} sensor
          */
         _onTransPlaneDragStart: function(sensor)
         {
@@ -60,10 +60,10 @@
         },
 
         /**
-         *  @this {XMOT.interaction.behaviors.Translater}
+         *  @this {XML3D.tools.interaction.behaviors.Translater}
          *  @private
          *
-         *  @param {XMOT.interaction.behaviors.Translater} sensor
+         *  @param {XML3D.tools.interaction.behaviors.Translater} sensor
          */
         _onTranslChanged: function(sensor)
         {

@@ -2,19 +2,19 @@
 
     "use strict";
 
-    XMOT.namespace("XMOT.interaction.behaviors");
+    XML3D.tools.namespace("XML3D.tools.interaction.behaviors");
 
     /** A GroupMirror mirrors a given group in an own overlay.
      *  It creates the overlay and sets up a MirroredWidgetTarget.
      */
-    XMOT.interaction.behaviors.GroupMirror = new XMOT.Class(
-        XMOT.util.Attachable, {
+    XML3D.tools.interaction.behaviors.GroupMirror = new XML3D.tools.Class(
+        XML3D.tools.util.Attachable, {
 
         /**
-         *  @this {XMOT.interaction.behaviors.GroupMirror}
+         *  @this {XML3D.tools.interaction.behaviors.GroupMirror}
          *  @param {string} id
-         *  @param {XMOT.Transformable} target
-         *  @param {XMOT.xml3doverlay.XML3DOverlay=} xml3dOverlay
+         *  @param {XML3D.tools.Transformable} target
+         *  @param {XML3D.tools.xml3doverlay.XML3DOverlay=} xml3dOverlay
          *
          *  The overlay is optional. If it is not given, one will be created
          *  with the xml3d element of the given target node.
@@ -24,17 +24,17 @@
             this._realTarget = target;
 
             // overlay
-            var xml3dTarget = XMOT.util.getXml3dRoot(target.object);
+            var xml3dTarget = XML3D.tools.util.getXml3dRoot(target.object);
             if(xml3dOverlay)
                 this._xml3dOverlay = xml3dOverlay;
             else
             {
-                this._xml3dOverlay = new XMOT.xml3doverlay.XML3DOverlay(xml3dTarget);
+                this._xml3dOverlay = new XML3D.tools.xml3doverlay.XML3DOverlay(xml3dTarget);
                 this._xml3dOverlay.attach();
             }
 
             // mirror the target node
-            this._mirroredTarget = new XMOT.interaction.behaviors.MirroredWidgetTarget(
+            this._mirroredTarget = new XML3D.tools.interaction.behaviors.MirroredWidgetTarget(
                 id, this._xml3dOverlay, target);
         },
 
@@ -51,8 +51,8 @@
         },
 
         /**
-         *  @this {XMOT.interaction.behaviors.GroupMirror}
-         *  @return {XMOT.xml3doverlay.XML3DOverlay}
+         *  @this {XML3D.tools.interaction.behaviors.GroupMirror}
+         *  @return {XML3D.tools.xml3doverlay.XML3DOverlay}
          */
         overlay: function()
         {
@@ -60,8 +60,8 @@
         },
 
         /**
-         *  @this {XMOT.interaction.behaviors.GroupMirror}
-         *  @return {XMOT.Transformable} the target node that is mirrored
+         *  @this {XML3D.tools.interaction.behaviors.GroupMirror}
+         *  @return {XML3D.tools.Transformable} the target node that is mirrored
          */
         target: function()
         {
@@ -71,13 +71,13 @@
         /** Returns a transformable for the mirrored target node with
          *  the given constraint.
          *
-         *  @this {XMOT.interaction.behaviors.GroupMirror}
+         *  @this {XML3D.tools.interaction.behaviors.GroupMirror}
          *  @param {function(XML3DVec3,Object):boolean=} constraint
-         *  @return {XMOT.Transformable}
+         *  @return {XML3D.tools.Transformable}
          */
         mirroredTarget: function(constraint)
         {
-            return XMOT.MotionFactory.createTransformable(
+            return XML3D.tools.MotionFactory.createTransformable(
                 this._mirroredTarget.getNode(), constraint);
         }
     });

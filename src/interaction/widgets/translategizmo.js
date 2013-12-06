@@ -2,25 +2,25 @@
 
     "use strict";
 
-    XMOT.namespace("XMOT.interaction.widgets");
+    XML3D.tools.namespace("XML3D.tools.interaction.widgets");
 
     /**
      *  A TranslateGizmo attaches three arrow-handles to the target and
      *  through that enables constraint translation either along a single
      *  axis or a plane.
      *
-     *  @extends XMOT.interaction.widgets.OverlayWidget
+     *  @extends XML3D.tools.interaction.widgets.OverlayWidget
      *
      *  constructor options:
      *  o geometry.scale: a custom scaling of the widget geometry
      */
-    XMOT.interaction.widgets.TranslateGizmo = new XMOT.Class(
-        XMOT.interaction.widgets.OverlayWidget, {
+    XML3D.tools.interaction.widgets.TranslateGizmo = new XML3D.tools.Class(
+        XML3D.tools.interaction.widgets.OverlayWidget, {
 
-        GeometryType: XMOT.interaction.geometry.TranslateGizmo,
+        GeometryType: XML3D.tools.interaction.geometry.TranslateGizmo,
 
         /**
-         *  @this {XMOT.interaction.widgets.TranslateGizmo}
+         *  @this {XML3D.tools.interaction.widgets.TranslateGizmo}
          *  @override
          *  @protected
          */
@@ -31,7 +31,7 @@
         },
 
         /**
-         *  @this {XMOT.interaction.widgets.TranslateGizmo}
+         *  @this {XML3D.tools.interaction.widgets.TranslateGizmo}
          *  @private
          */
         _setup1DTranslaters: function()
@@ -63,7 +63,7 @@
         },
 
         /**
-         *  @this {XMOT.interaction.widgets.TranslateGizmo}
+         *  @this {XML3D.tools.interaction.widgets.TranslateGizmo}
          *  @private
          */
         _setup2DTranslaters: function()
@@ -73,22 +73,22 @@
             this.behavior["xzplane"] = this._create2DTranslater("xzplane");
         },
 
-        /** Sets up a XMOT.interaction.behaviors.Translater for 1D translation.
+        /** Sets up a XML3D.tools.interaction.behaviors.Translater for 1D translation.
          *  An event dispatcher will be configured for mousedown event to allow
          *  only left button in combination if no ctrl key being pressed.
          *
-         *  @this {XMOT.interaction.widgets.TranslateGizmo}
+         *  @this {XML3D.tools.interaction.widgets.TranslateGizmo}
          *  @private
          *
          *  @param {string} id should be the axisname, e.g. xaxis and correspond to the geometry name
          *  @param {string} planeOrientGrp the plane orientation of the translater
          *  @param {function(window.XML3DVec3,window.XML3DVec3)} constraintFn
-         *  @return {XMOT.interaction.behaviors.Translater}
+         *  @return {XML3D.tools.interaction.behaviors.Translater}
          */
         _create1DTranslater: function(id, planeOrientGrpId, constraintFn)
         {
-            var eventDispatcher = new XMOT.util.EventDispatcher("mousedown", function(evt){
-                return (evt.button === XMOT.MOUSEBUTTON_LEFT);
+            var eventDispatcher = new XML3D.tools.util.EventDispatcher("mousedown", function(evt){
+                return (evt.button === XML3D.tools.MOUSEBUTTON_LEFT);
             });
 
             var constraint = this._createTranslationConstraint(constraintFn);
@@ -96,7 +96,7 @@
 
             var pickGrps = [this.geometry.getGeo(id)];
 
-            var translater = new XMOT.interaction.behaviors.Translater(
+            var translater = new XML3D.tools.interaction.behaviors.Translater(
                 this.globalID(id), pickGrps, behaviorTarget,
                 this.geometry.getGeo(planeOrientGrpId), eventDispatcher);
 
@@ -110,18 +110,18 @@
             return translater;
         },
 
-        /** Sets up a XMOT.interaction.behaviors.Translater for 2D translation.
+        /** Sets up a XML3D.tools.interaction.behaviors.Translater for 2D translation.
          *
-         *  @this {XMOT.interaction.widgets.TranslateGizmo}
+         *  @this {XML3D.tools.interaction.widgets.TranslateGizmo}
          *  @private
          *
          *  @param {string} id
-         *  @return {XMOT.interaction.behaviors.Translater}
+         *  @return {XML3D.tools.interaction.behaviors.Translater}
          */
         _create2DTranslater: function(id)
         {
-            var eventDispatcher = new XMOT.util.EventDispatcher("mousedown", function(evt) {
-                return (evt.button === XMOT.MOUSEBUTTON_LEFT);
+            var eventDispatcher = new XML3D.tools.util.EventDispatcher("mousedown", function(evt) {
+                return (evt.button === XML3D.tools.MOUSEBUTTON_LEFT);
             });
 
             var constraint = this._createTranslationConstraint(function(){});
@@ -129,7 +129,7 @@
 
             var pickGrps = [this.geometry.getGeo(id)];
 
-            var translater = new XMOT.interaction.behaviors.Translater(
+            var translater = new XML3D.tools.interaction.behaviors.Translater(
                 this.globalID(id), pickGrps, behaviorTarget,
                 pickGrps[0], eventDispatcher);
 
@@ -146,11 +146,11 @@
         /** Creates a translation constraint, where the given constraint function is applied
          *  and afterwards updates the real target's translation with the new translation.
          *
-         *  @this {XMOT.interaction.widgets.TranslateGizmo}
+         *  @this {XML3D.tools.interaction.widgets.TranslateGizmo}
          *  @private
          *
          *  @param {function(window.XML3DVec3,window.XML3DVec3)} constrainTranslationFunction
-         *  @return {XMOT.Constraint}
+         *  @return {XML3D.tools.Constraint}
          *
          *  The constraint function is given the current translation and new translation
          *  and should update the new translation. The given translation values are

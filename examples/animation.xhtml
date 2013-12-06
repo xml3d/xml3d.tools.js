@@ -95,8 +95,8 @@
       <div id="footer"/>
 
 <script type="text/javascript">
-  var movObjects = {}, factory = XMOT.MotionFactory;
-  var constraint = new XMOT.SimpleConstraint(true, true, true);
+  var movObjects = {}, factory = XML3D.tools.MotionFactory;
+  var constraint = new XML3D.tools.SimpleConstraint(true, true, true);
   var id = 0;
 
   function startPositionAnimation() {
@@ -175,7 +175,7 @@
       c.addAnimation(a2, {duration: 5000, loop: 2});
       c.addAnimation(a3, {duration: 10000});
       c.addAnimation(a4);
-      var combined = new XMOT.CombinedAnimation("combined");
+      var combined = new XML3D.tools.CombinedAnimation("combined");
       combined.addAnimation(a1, {duration:1500});
       combined.addAnimation(a2, {delay: 2500, duration: 2000, callback:function(){console.log("Hier koennte ihre DebugInfo stehen");}} );
       combined.addAnimation(a1, {duration: 2000, loop: 3, delay: 5000, callback:function(){console.log("Done");}} );

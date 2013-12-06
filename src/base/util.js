@@ -5,30 +5,30 @@
     /**
      * global variable, used to check if an animation or movement is currently in progress
      */
-    XMOT.animating = false;
+    XML3D.tools.animating = false;
 
     /**
      * global variable, set a function, which is called within the animation loop
      */
-    XMOT.animationHook = undefined;
+    XML3D.tools.animationHook = undefined;
 
     /**
      * a cameracontroller register here and the update of the gamepad is called
      */
-    XMOT.registeredCameraController = undefined;
+    XML3D.tools.registeredCameraController = undefined;
 
     /**
      * Updates all the Tweens until all animations are finished and calls the hook.
      */
-    XMOT.animate = function(){
-        if(TWEEN.getAll().length || XMOT.animationHook || XMOT.registeredCameraController) {
-            window.requestAnimFrame(XMOT.animate, undefined);
-            if(XMOT.animationHook) XMOT.animationHook();
-            if(XMOT.registeredCameraController) XMOT.registeredCameraController.update();
+    XML3D.tools.animate = function(){
+        if(TWEEN.getAll().length || XML3D.tools.animationHook || XML3D.tools.registeredCameraController) {
+            window.requestAnimFrame(XML3D.tools.animate, undefined);
+            if(XML3D.tools.animationHook) XML3D.tools.animationHook();
+            if(XML3D.tools.registeredCameraController) XML3D.tools.registeredCameraController.update();
             TWEEN.update();
         }
         else
-            XMOT.animating = false;
+            XML3D.tools.animating = false;
     };
 
     /**
@@ -37,7 +37,7 @@
      * @param {{duration: number, loop: number, delay: number, easing: Function, callback: Function}} low options with low priority
      * @return {{duration: number, loop: number, delay: number, easing: Function, callback: Function}} merged options
      */
-    XMOT.mergeOptions = function(high, low){
+    XML3D.tools.mergeOptions = function(high, low){
         var ret = {};
         high = high || {};
         low = low || {};
@@ -56,11 +56,11 @@
      *
      *  Example:
      *
-     *  namespace("XMOT.interaction.behaviors"]) will create:
+     *  namespace("XML3D.tools.interaction.behaviors"]) will create:
      *
-     *  XMOT.interaction.behaviors
+     *  XML3D.tools.interaction.behaviors
      */
-    XMOT.namespace = function(fullName)
+    XML3D.tools.namespace = function(fullName)
     {
         var curParentNS = window;
 
@@ -83,7 +83,7 @@
      *  @param srcobj the object from which to take the attributes
      *  @return {Object} the given, updated target object
      */
-    XMOT.extend = function(tarobj, srcobj)
+    XML3D.tools.extend = function(tarobj, srcobj)
     {
         for(var attr in srcobj)
             tarobj[attr] = srcobj[attr];

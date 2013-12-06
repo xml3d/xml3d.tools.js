@@ -2,9 +2,9 @@
 
     "use strict";
 
-    XMOT.namespace("XMOT.util");
+    XML3D.tools.namespace("XML3D.tools.util");
 
-    var u = XMOT.util;
+    var u = XML3D.tools.util;
 
     function isFunction(object)
     {
@@ -37,6 +37,6 @@
         if(u.isTransformable(object))
             return object;
 
-        return XMOT.MotionFactory.createTransformable(object);
+        return XML3D.tools.MotionFactory.createTransformable(object);
     };
 }());

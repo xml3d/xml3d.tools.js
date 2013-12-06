@@ -97,7 +97,7 @@
 		 * @private
 		 * @type {ConstraintCollection}
 		 */
-		this.constraint = new XMOT.ConstraintCollection();
+		this.constraint = new XML3D.tools.ConstraintCollection();
 		/**
 		 * Xml3d Element
 		 * @private
@@ -105,7 +105,7 @@
 		 */
 		this.xml3dElement = document.getElementById(xml3dElementId);
 
-		var factory = XMOT.MotionFactory;
+		var factory = XML3D.tools.MotionFactory;
 		var cam = document.getElementById(camera_id);
 		/**
 		 * The Transformable
@@ -137,14 +137,14 @@
 		this.cameraModeInspect = inspectMode || false;
 		this.cameraModeFreeflight = !this.cameraModeInspect;
 
-		this.gamepadEventProvider = XMOT.GamepadEventProvider;
+		this.gamepadEventProvider = XML3D.tools.GamepadEventProvider;
 		this.padData = {};
 		this.activate();
 
 		//finally, register in the animation loop
-		if( !XMOT.registeredCameraController){
-			XMOT.registeredCameraController = this;
-			XMOT.animate();
+		if( !XML3D.tools.registeredCameraController){
+			XML3D.tools.registeredCameraController = this;
+			XML3D.tools.animate();
 		}
 		else
 			throw "Only one CameraController allowed.";
@@ -491,7 +491,7 @@
 	 */
 	cc.toggleHandlers = function(switchOn){
 
-		var cb = XMOT.util.wrapCallback;
+		var cb = XML3D.tools.util.wrapCallback;
 
 		// select the callbacks
 		var winListener = window.addEventListener;
@@ -531,10 +531,10 @@
 				this.currentlyPressedKeys[kc] = true;
 			}
 			switch(kc){
-				case XMOT.KEY_Q : this.nextPoi(); break;
-				case XMOT.KEY_E : this.beforePoi(); break;
-				case XMOT.KEY_R : this.reset(); break;
-				case XMOT.KEY_T : this.seeTheCompleteScene(); break;
+				case XML3D.tools.KEY_Q : this.nextPoi(); break;
+				case XML3D.tools.KEY_E : this.beforePoi(); break;
+				case XML3D.tools.KEY_R : this.reset(); break;
+				case XML3D.tools.KEY_T : this.seeTheCompleteScene(); break;
 				default : flag = false; break;
 			}
 			if(flag) this.stopDefaultEventAction(e);
@@ -559,16 +559,16 @@
 	 */
 	cc.moveWithKey = function(keyCode){
 	    switch(keyCode){
-			case XMOT.KEY_S : this.moveBackAndForward(this.moveSensivityKeyboard); break;
-			case XMOT.KEY_W : this.moveBackAndForward(-this.moveSensivityKeyboard); break;
-			case XMOT.KEY_A : this.moveLeftAndRight(-this.moveSensivityKeyboard); break;
-			case XMOT.KEY_D : this.moveLeftAndRight(this.moveSensivityKeyboard); break;
-			case XMOT.KEY_PGUP : this.moveUpAndDown(this.moveSensivityKeyboard); break;
-			case XMOT.KEY_PGDOWN : this.moveUpAndDown(-this.moveSensivityKeyboard); break;
-			case XMOT.KEY_UP : this.rotateUpAndDown(this.rotationSensivityMouse); break;
-			case XMOT.KEY_DOWN : this.rotateUpAndDown(-this.rotationSensivityMouse); break;
-			case XMOT.KEY_LEFT : this.rotateLeftAndRight(this.rotationSensivityMouse); break;
-			case XMOT.KEY_RIGHT : this.rotateLeftAndRight(-this.rotationSensivityMouse); break;
+			case XML3D.tools.KEY_S : this.moveBackAndForward(this.moveSensivityKeyboard); break;
+			case XML3D.tools.KEY_W : this.moveBackAndForward(-this.moveSensivityKeyboard); break;
+			case XML3D.tools.KEY_A : this.moveLeftAndRight(-this.moveSensivityKeyboard); break;
+			case XML3D.tools.KEY_D : this.moveLeftAndRight(this.moveSensivityKeyboard); break;
+			case XML3D.tools.KEY_PGUP : this.moveUpAndDown(this.moveSensivityKeyboard); break;
+			case XML3D.tools.KEY_PGDOWN : this.moveUpAndDown(-this.moveSensivityKeyboard); break;
+			case XML3D.tools.KEY_UP : this.rotateUpAndDown(this.rotationSensivityMouse); break;
+			case XML3D.tools.KEY_DOWN : this.rotateUpAndDown(-this.rotationSensivityMouse); break;
+			case XML3D.tools.KEY_LEFT : this.rotateLeftAndRight(this.rotationSensivityMouse); break;
+			case XML3D.tools.KEY_RIGHT : this.rotateLeftAndRight(-this.rotationSensivityMouse); break;
 	        default : return false; break;
 	    }
 	    return true;
@@ -720,5 +720,5 @@
 		this.lookAtPoint(center);
 	};
 
-	XMOT.CameraController = CameraController;
+	XML3D.tools.CameraController = CameraController;
 }());

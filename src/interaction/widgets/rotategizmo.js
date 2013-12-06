@@ -2,22 +2,22 @@
 
     "use strict";
 
-    XMOT.namespace("XMOT.interaction.widgets");
+    XML3D.tools.namespace("XML3D.tools.interaction.widgets");
 
     /**
      *  This gizmo adds 3 small rectangles to the target object with which the
      *  rotation of the target can be controlled, constrained to single axes the
      *  rectangle present.
      *
-     * @extends XMOT.interaction.widgets.OverlayWidget
+     * @extends XML3D.tools.interaction.widgets.OverlayWidget
      */
-    XMOT.interaction.widgets.RotateGizmo = new XMOT.Class(
-        XMOT.interaction.widgets.OverlayWidget, {
+    XML3D.tools.interaction.widgets.RotateGizmo = new XML3D.tools.Class(
+        XML3D.tools.interaction.widgets.OverlayWidget, {
 
-        GeometryType: XMOT.interaction.geometry.RotateGizmo,
+        GeometryType: XML3D.tools.interaction.geometry.RotateGizmo,
 
         /**
-         *  @this {XMOT.interaction.widgets.RotateGizmo}
+         *  @this {XML3D.tools.interaction.widgets.RotateGizmo}
          *
          *  options:
          *  o geometry.scale: a custom scaling of the widget geometry
@@ -31,7 +31,7 @@
         },
 
         /**
-         *  @this {XMOT.interaction.widgets.RotateGizmo}
+         *  @this {XML3D.tools.interaction.widgets.RotateGizmo}
          *  @override
          *  @protected
          */
@@ -43,7 +43,7 @@
         },
 
         /**
-         *  @this {XMOT.interaction.widgets.RotateGizmo}
+         *  @this {XML3D.tools.interaction.widgets.RotateGizmo}
          *  @private
          *
          *  @param {string} axis. "x", "y" or "z"
@@ -52,8 +52,8 @@
         {
             var geoId = axis + "axis";
 
-            var eventDispatcher = new XMOT.util.EventDispatcher("mousedown", function(evt) {
-                return (evt.button === XMOT.MOUSEBUTTON_LEFT);
+            var eventDispatcher = new XML3D.tools.util.EventDispatcher("mousedown", function(evt) {
+                return (evt.button === XML3D.tools.MOUSEBUTTON_LEFT);
             });
 
             var constraint = this.createReflectingConstraint();
@@ -61,7 +61,7 @@
 
             var pickGrps = [this.geometry.getGeo(geoId)];
 
-            var rot = new XMOT.interaction.behaviors.Rotater(
+            var rot = new XML3D.tools.interaction.behaviors.Rotater(
                 this.globalID(geoId), pickGrps, behaviorTarget, this._rotationSpeed, eventDispatcher);
             rot.axisRestriction(axis);
 

@@ -7,9 +7,9 @@
      * @constructor
      * @implements{MotionFactory}
      */
-    XMOT.MotionFactory = new XMOT.Singleton({
+    XML3D.tools.MotionFactory = new XML3D.tools.Singleton({
 
-        /** @this XMOT.MotionFactory */
+        /** @this XML3D.tools.MotionFactory */
         initialize: function()
         {
             /** Counter to create unique IDs for the elements added to DOM.
@@ -22,7 +22,7 @@
         },
 
         /** @inheritDoc
-         *  @this XMOT.MotionFactory
+         *  @this XML3D.tools.MotionFactory
          */
         createTransformable: function(element, constraint)
         {
@@ -32,15 +32,15 @@
             if(element instanceof window.Element)
             {
                 // bare element
-                return new XMOT.Transformable(element, this.getTransform(element), constraint);
+                return new XML3D.tools.Transformable(element, this.getTransform(element), constraint);
             }
             else if(element.object && element.transform && element.constraint)
             {
                 // transformable
                 var constraints = [constraint, element.constraint];
-                var constraintCollection = new XMOT.ConstraintCollection(constraints);
+                var constraintCollection = new XML3D.tools.ConstraintCollection(constraints);
 
-                return new XMOT.Transformable(element.object, element.transform, constraintCollection);
+                return new XML3D.tools.Transformable(element.object, element.transform, constraintCollection);
             }
             else
                 throw "No valid element, cannot create Transformable.";
@@ -48,16 +48,16 @@
         },
 
         /** @inheritDoc
-         *  @this XMOT.MotionFactory
+         *  @this XML3D.tools.MotionFactory
          */
         createAnimatable: function(element, constraint)
         {
             if(!element) throw "No valid element, cannot create Animatable.";
-            return new XMOT.Animatable(element, this.getTransform(element), constraint);
+            return new XML3D.tools.Animatable(element, this.getTransform(element), constraint);
         },
 
         /** @inheritDoc
-         *  @this XMOT.MotionFactory
+         *  @this XML3D.tools.MotionFactory
          */
         createKeyframeAnimation: function(name, element, opt)
         {
@@ -82,13 +82,13 @@
                 throw "Element is not a valid keyframe animation";
             }
             else{
-                return new XMOT.KeyframeAnimation(name, keys, position, orientation, scale, opt);
+                return new XML3D.tools.KeyframeAnimation(name, keys, position, orientation, scale, opt);
             }
         },
 
         /**
          * get Values from child
-         * @this XMOT.MotionFactory
+         * @this XML3D.tools.MotionFactory
          *
          * @param {*} child
          * @param {number}
@@ -111,7 +111,7 @@
 
         /**
          * creates a unique id
-         * @this XMOT.MotionFactory
+         * @this XML3D.tools.MotionFactory
          *
          * @return {string} unique id
          */
@@ -122,14 +122,14 @@
 
         /**
          * Gets the transform of an element and creates a transform if necessary
-         * @this XMOT.MotionFactory
+         * @this XML3D.tools.MotionFactory
          *
          * @param {Object} obj element
          * @return {Object} transform
          */
         getTransform: function(obj)
         {
-            return XMOT.util.getOrCreateTransform(obj, this.createUniqueId());
+            return XML3D.tools.util.getOrCreateTransform(obj, this.createUniqueId());
         }
     });
 }());

@@ -14,10 +14,10 @@
      *
      *  @constructor
      */
-    XMOT.MouseController = new XMOT.Class(XMOT.util.Attachable, {
+    XML3D.tools.MouseController = new XML3D.tools.Class(XML3D.tools.util.Attachable, {
 
         /**
-         *  @this {XMOT.MouseController}
+         *  @this {XML3D.tools.MouseController}
          *  @param {Element|Transformable} targetViewGroup
          *  @param {Object} options
          *
@@ -28,10 +28,10 @@
 
             var options = options || {};
 
-			this.target = XMOT.util.getOrCreateTransformable(targetViewGroup);
+			this.target = XML3D.tools.util.getOrCreateTransformable(targetViewGroup);
 
             /** @private */
-            this._targetXml3d = XMOT.util.getXml3dRoot(this.target.object);
+            this._targetXml3d = XML3D.tools.util.getXml3dRoot(this.target.object);
 
             /** @private */
             this._canvasWidth = this._targetXml3d.width || 800;
@@ -57,37 +57,37 @@
         },
 
         /**
-         *  @this {XMOT.MouseController}
-         *  @param {XMOT.util.EventDispatcher} eventDispatcher
+         *  @this {XML3D.tools.MouseController}
+         *  @param {XML3D.tools.util.EventDispatcher} eventDispatcher
          */
         setEventDispatcher: function(eventDispatcher) {
             this._eventDispatcher = eventDispatcher;
         },
 
         /**
-         *  @this {XMOT.MouseController}
+         *  @this {XML3D.tools.MouseController}
          */
         onDragStart: function(action) {},
 
         /**
-         *  @this {XMOT.MouseController}
+         *  @this {XML3D.tools.MouseController}
          */
         onDrag: function(action) {},
 
         /**
-         *  @this {XMOT.MouseController}
+         *  @this {XML3D.tools.MouseController}
          */
         onDragEnd: function(action) {},
 
         /**
-         *  @this {XMOT.MouseController}
+         *  @this {XML3D.tools.MouseController}
          */
         getScene: function() {
             return this._targetXml3d;
         },
 
         /**
-         *  @this {XMOT.MouseController}
+         *  @this {XML3D.tools.MouseController}
          *  @protected
          *  @override
          */
@@ -96,7 +96,7 @@
         },
 
         /**
-         *  @this {XMOT.MouseController}
+         *  @this {XML3D.tools.MouseController}
          *  @protected
          *  @override
          */
@@ -105,7 +105,7 @@
         },
 
         /**
-         *  @this {XMOT.MouseController}
+         *  @this {XML3D.tools.MouseController}
          *  @private
          */
         _toggleAttached: function(doAttach) {
@@ -124,7 +124,7 @@
         // --- Callbacks ---
 
         /**
-         *  @this {XMOT.MouseController}
+         *  @this {XML3D.tools.MouseController}
          *  @private
          */
         _onXML3DMouseDown: function(evt) {
@@ -136,7 +136,7 @@
         },
 
         /**
-         *  @this {XMOT.MouseController}
+         *  @this {XML3D.tools.MouseController}
          *  @private
          */
         _onDocumentMouseMove: function(evt) {
@@ -152,7 +152,7 @@
         },
 
         /**
-         *  @this {XMOT.MouseController}
+         *  @this {XML3D.tools.MouseController}
          *  @private
          */
         _onDocumentMouseUp: function(evt) {
@@ -169,7 +169,7 @@
         },
 
         /**
-         *  @this {XMOT.MouseController}
+         *  @this {XML3D.tools.MouseController}
          *  @private
          */
         _rememberPosition: function(evt) {
@@ -180,16 +180,16 @@
         // --- Utils ---
 
         /**
-         *  @this {XMOT.MouseController}
+         *  @this {XML3D.tools.MouseController}
          *  @private
          */
         _createDefaultEventDispatcher: function() {
 
-            var disp = new XMOT.util.EventDispatcher();
+            var disp = new XML3D.tools.util.EventDispatcher();
 
             disp.registerCustomHandler("mousedown", function(evt){
-                if(evt.button === XMOT.MOUSEBUTTON_LEFT
-                || evt.button === XMOT.MOUSEBUTTON_RIGHT)
+                if(evt.button === XML3D.tools.MOUSEBUTTON_LEFT
+                || evt.button === XML3D.tools.MOUSEBUTTON_RIGHT)
                     return true;
 
                 return false;
@@ -199,7 +199,7 @@
         },
 
         /**
-         *  @this {XMOT.MouseController}
+         *  @this {XML3D.tools.MouseController}
          *  @private
          */
         _constructAction: function(evt) {

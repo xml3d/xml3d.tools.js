@@ -2,7 +2,7 @@
 
     "use strict";
 
-    XMOT.namespace("XMOT.interaction.behaviors");
+    XML3D.tools.namespace("XML3D.tools.interaction.behaviors");
 
     /** Scaler maps the translation on a plane into a uniform scaling in all 3 dimensions.
      *
@@ -22,21 +22,21 @@
      * increases. If we don't do this, the scaling of the object will grow faster than the mouse
      * position is moving and, thus, flips with the scaling factor can happen.
      *
-     * @extends XMOT.interaction.behaviors.PlaneSensor
+     * @extends XML3D.tools.interaction.behaviors.PlaneSensor
      */
-    XMOT.interaction.behaviors.Scaler = new XMOT.Class(
-        XMOT.interaction.behaviors.PlaneSensor,
+    XML3D.tools.interaction.behaviors.Scaler = new XML3D.tools.Class(
+        XML3D.tools.interaction.behaviors.PlaneSensor,
     {
         /** Constructor of Scaler
          *
-         *  @this {XMOT.interaction.behaviors.Scaler}
+         *  @this {XML3D.tools.interaction.behaviors.Scaler}
          *
          *  @param {string} id the id of this sensor
          *  @param {Array.<Object>} pickGrps the groups this sensor will listen for events
-         *  @param {XMOT.Transformable} targetTransformable the group this sensor will modify. If not given,
+         *  @param {XML3D.tools.Transformable} targetTransformable the group this sensor will modify. If not given,
          *             it's equal to the first element in pickGrp.
          *  @param {boolean} [uniformScale] whether to perform uniform scaling. Default: true.
-         *  @param {XMOT.util.EventDispatcher=} eventDispatcher the object used to register events
+         *  @param {XML3D.tools.util.EventDispatcher=} eventDispatcher the object used to register events
          *
          *  @throws "target no transform"/"pick no transform" - targetGrp/pickGrp doesn't have transform attribute
          */
@@ -50,7 +50,7 @@
                 this.uniformScale = uniformScale;
 
             if(!targetTransformable)
-                targetTransformable = XMOT.MotionFactory.createTransformable(pickGrps[0]);
+                targetTransformable = XML3D.tools.MotionFactory.createTransformable(pickGrps[0]);
 
             this.targetTransformable = targetTransformable;
 
@@ -64,26 +64,26 @@
         // ========================================================================
 
         /**
-         *  @this {XMOT.interaction.behaviors.Scaler}
+         *  @this {XML3D.tools.interaction.behaviors.Scaler}
          *  @private
          *
-         *  @param {XMOT.interaction.behaviors.Scaler} sensor
+         *  @param {XML3D.tools.interaction.behaviors.Scaler} sensor
          */
         _onScalePlaneDragStart: function(sensor)
         {
             this._startTarGrpScale = new window.XML3DVec3(this.targetTransformable.transform.scale);
 
             // adjust scaling factor with world bounding box of target node
-            var tarSize = XMOT.util.getWorldBBox(this.targetTransformable.object).size();
+            var tarSize = XML3D.tools.util.getWorldBBox(this.targetTransformable.object).size();
 
             this._scaleAdjFactor = tarSize.length();
         },
 
         /**
-         *  @this {XMOT.interaction.behaviors.Scaler}
+         *  @this {XML3D.tools.interaction.behaviors.Scaler}
          *  @private
          *
-         *  @param {XMOT.interaction.behaviors.Scaler} sensor
+         *  @param {XML3D.tools.interaction.behaviors.Scaler} sensor
          */
         _onScalePlaneTranslChanged: function(sensor)
         {
@@ -109,7 +109,7 @@
          *  if either both position attributes, x and y, are negative or
          *  the length is below a certain threshold and one of x and y is negative.
          *
-         *  @this {XMOT.interaction.behaviors.Scaler}
+         *  @this {XML3D.tools.interaction.behaviors.Scaler}
          *  @private
          *
          *  @return {number} the scaling factor

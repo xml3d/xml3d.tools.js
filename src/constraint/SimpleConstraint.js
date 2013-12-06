@@ -5,7 +5,7 @@
      * @constructor
      * @implements {Constraint}
      */
-    XMOT.SimpleConstraint = new XMOT.Class({
+    XML3D.tools.SimpleConstraint = new XML3D.tools.Class({
 
         /**
          * @param {boolean} [allowedToMove]

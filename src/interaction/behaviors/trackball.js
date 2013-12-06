@@ -2,7 +2,7 @@
 
     "use strict";
 
-    XMOT.namespace("XMOT.interaction.behaviors");
+    XML3D.tools.namespace("XML3D.tools.interaction.behaviors");
 
     /** Simple 2DOF controlled rotator.
      *
@@ -20,13 +20,13 @@
      * See XML3D.Xml3dSceneController.prototype.mouseMoveEvent() "case(this.ROTATE)"
      * for more info.
      */
-    XMOT.interaction.behaviors.TrackBall = new XMOT.Class({
+    XML3D.tools.interaction.behaviors.TrackBall = new XML3D.tools.Class({
 
         /** Initializes the trackball with the dimensions of the tracking space.
          *
          *  The dimensions are needed to normalize the dragging input.
          *
-         *  @this {XMOT.interaction.behaviors.TrackBall}
+         *  @this {XML3D.tools.interaction.behaviors.TrackBall}
          *
          *  @param {number} maxX
          *  @param {number} maxY
@@ -58,7 +58,7 @@
         /** Sets the maximum x and y values. This is used for
          *  normalizing the 2D positions
          *
-         *  @this {XMOT.interaction.behaviors.TrackBall}
+         *  @this {XML3D.tools.interaction.behaviors.TrackBall}
          *
          *  @param {number} maxX
          *  @param {number} maxY
@@ -71,7 +71,7 @@
 
         /** Clear the rotation offset
          *
-         *  @this {XMOT.interaction.behaviors.TrackBall}
+         *  @this {XML3D.tools.interaction.behaviors.TrackBall}
          */
         resetRotationOffset: function()
         {
@@ -80,7 +80,7 @@
 
         /** Restrict the rotation to x or y axis
          *
-         *  @this {XMOT.interaction.behaviors.TrackBall}
+         *  @this {XML3D.tools.interaction.behaviors.TrackBall}
          *
          *  @param {string} [axis] the axis to restrict to. Can be "x", "y" or "z". Default: release
          *      the restriction.
@@ -97,7 +97,7 @@
 
         /** Sets the initial point on the sphere
          *
-         *  @this {XMOT.interaction.behaviors.TrackBall}
+         *  @this {XML3D.tools.interaction.behaviors.TrackBall}
          *
          *  @param {number} x within [0,maxX]
          *  @param {number} y within [0,maxY]
@@ -110,7 +110,7 @@
 
         /** Remember the last output rotation as new offset.
          *
-         *  @this {XMOT.interaction.behaviors.TrackBall}
+         *  @this {XML3D.tools.interaction.behaviors.TrackBall}
          */
         dragEnd: function()
         {
@@ -119,7 +119,7 @@
 
         /** calculate the rotation from start to current point on sphere.
          *
-         *  @this {XMOT.interaction.behaviors.TrackBall}
+         *  @this {XML3D.tools.interaction.behaviors.TrackBall}
          *
          *  @param {number} x within [0,maxX]
          *  @param {number} y within [0,maxY]
