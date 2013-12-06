@@ -5,9 +5,9 @@
 	/**
 	 * An implementation of Animatable
 	 * @implements Animatable
-	 * @extends ClientTransformable
+	 * @extends Transformable
 	 */
-    XMOT.ClientAnimatable = new XMOT.Class(XMOT.ClientTransformable, {
+    XMOT.ClientAnimatable = new XMOT.Class(XMOT.Transformable, {
 
         initialize: function(obj, transform, constraint){
 

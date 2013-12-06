@@ -32,7 +32,7 @@
             if(element instanceof window.Element)
             {
                 // bare element
-                return new XMOT.ClientTransformable(element, this.getTransform(element), constraint);
+                return new XMOT.Transformable(element, this.getTransform(element), constraint);
             }
             else if(element.object && element.transform && element.constraint)
             {
@@ -40,7 +40,7 @@
                 var constraints = [constraint, element.constraint];
                 var constraintCollection = new XMOT.ConstraintCollection(constraints);
 
-                return new XMOT.ClientTransformable(element.object, element.transform, constraintCollection);
+                return new XMOT.Transformable(element.object, element.transform, constraintCollection);
             }
             else
                 throw "No valid element, cannot create Transformable.";

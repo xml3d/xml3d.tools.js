@@ -7,7 +7,7 @@
      * @constructor
      * @implements{Transformable}
      */
-    XMOT.ClientTransformable = new XMOT.Class({
+    XMOT.Transformable = new XMOT.Class({
 
         initialize: function(object, transform, constraint) {
             /**
