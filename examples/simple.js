@@ -2,7 +2,7 @@ muh = 0;
 transformable = undefined;
 function initTransformable(){
 	var cube = document.getElementById("cube");
-	var factory = XMOT.ClientMotionFactory;
+	var factory = XMOT.MotionFactory;
 	transformable = factory.createTransformable(cube);
 }
 

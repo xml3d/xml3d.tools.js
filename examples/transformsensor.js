@@ -82,7 +82,7 @@ function initScene()
 
     $xml3d.append(intGrp);
 
-    var intGrpXfm = XMOT.ClientMotionFactory.createTransformable(intGrp);
+    var intGrpXfm = XMOT.MotionFactory.createTransformable(intGrp);
 
     // attach Translater to interactorbox
     intSensor = new XMOT.interaction.behaviors.Translater("myTranslater",

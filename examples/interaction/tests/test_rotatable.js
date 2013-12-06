@@ -20,7 +20,7 @@ function initScene()
 
 function attachSensor()
 {
-    var tarXfm = XMOT.ClientMotionFactory.createTransformable(target);
+    var tarXfm = XMOT.MotionFactory.createTransformable(target);
     sensor = new XMOT.interaction.behaviors.Rotater(
         "myRotater", [target],
         tarXfm

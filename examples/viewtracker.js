@@ -9,7 +9,7 @@ function initScene()
 {
     xml3d = $("xml3d")[0];
 
-	var camTransformable = XMOT.ClientMotionFactory.createTransformable($("#g_myview")[0]);
+	var camTransformable = XMOT.MotionFactory.createTransformable($("#g_myview")[0]);
     camCtrl = new XMOT.MouseKeyboardFlyController(camTransformable);
 	camCtrl.attach();
 

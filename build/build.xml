@@ -23,7 +23,7 @@
         <file name="base/util.js" />
         <file name="base/math.js" />
         <file name="base/ClientTransformable.js" />
-        <file name="base/ClientMotionFactory.js" />
+        <file name="base/MotionFactory.js" />
         <file name="base/ClientAnimatable.js" />
         <file name="base/ClientKeyframeAnimation.js" />
 

@@ -124,7 +124,7 @@
          */
         createBehaviorTarget: function(constraint)
         {
-            return XMOT.ClientMotionFactory.createTransformable(this.target.object, constraint);
+            return XMOT.MotionFactory.createTransformable(this.target.object, constraint);
         },
 
         // --- Methods to be overriden ---

@@ -10,7 +10,7 @@ var gizmoRadios = null;
 function onLoad() {
 
     var targetGroup = $("#g_mainTarget")[0];
-    targetTransformable = XMOT.ClientMotionFactory.createTransformable(targetGroup);
+    targetTransformable = XMOT.MotionFactory.createTransformable(targetGroup);
 
     gizmoRadios = document.getElementsByName('gizmotype');
     $(gizmoRadios).click(onChangeGizmoType);

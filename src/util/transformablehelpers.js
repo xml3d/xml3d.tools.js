@@ -37,6 +37,6 @@
         if(u.isTransformable(object))
             return object;
 
-        return XMOT.ClientMotionFactory.createTransformable(object);
+        return XMOT.MotionFactory.createTransformable(object);
     };
 }());

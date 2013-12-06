@@ -105,7 +105,7 @@
 		 */
 		this.xml3dElement = document.getElementById(xml3dElementId);
 
-		var factory = XMOT.ClientMotionFactory;
+		var factory = XMOT.MotionFactory;
 		var cam = document.getElementById(camera_id);
 		/**
 		 * The Transformable

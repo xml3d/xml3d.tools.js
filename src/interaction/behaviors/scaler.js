@@ -50,7 +50,7 @@
                 this.uniformScale = uniformScale;
 
             if(!targetTransformable)
-                targetTransformable = XMOT.ClientMotionFactory.createTransformable(pickGrps[0]);
+                targetTransformable = XMOT.MotionFactory.createTransformable(pickGrps[0]);
 
             this.targetTransformable = targetTransformable;
 

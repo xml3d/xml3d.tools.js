@@ -63,9 +63,9 @@
 
 		<script type="text/javascript">
 			var movObjects = {};
-			var factory = XMOT.ClientMotionFactory;
+			var factory = XMOT.MotionFactory;
 			var constraint = new XMOT.SimpleConstraint(true, true, true);
-			var controllerActive = true; 
+			var controllerActive = true;
 
 			function animate(){
 				var aobj = movObjects.cube;
@@ -96,23 +96,23 @@
 					cam.addPointOfInterest( new XML3DVec3(i, i, i), new XML3DRotation(new XML3DVec3(i, i, i), i) );
 				cam.addPointOfInterest( new XML3DVec3(i, i, i), new XML3DRotation(new XML3DVec3(i, i, i), i) );
 			}
-			
+
 			function toggleController(){
 				if(controllerActive)
 				{
-					movObjects.cam.deactivate();   
-					$("#toggleCtrl").html("Activate Controller"); 
+					movObjects.cam.deactivate();
+					$("#toggleCtrl").html("Activate Controller");
 				}
 				else
 				{
-					movObjects.cam.activate();			     
-					$("#toggleCtrl").html("Deactivate Controller");    
+					movObjects.cam.activate();
+					$("#toggleCtrl").html("Deactivate Controller");
 				}
 
-				controllerActive = !controllerActive; 
-			}			
+				controllerActive = !controllerActive;
+			}
 		</script>
-		</div> 
+		</div>
 		</div>
 	</body>
 </html>

@@ -77,7 +77,7 @@
          */
         mirroredTarget: function(constraint)
         {
-            return XMOT.ClientMotionFactory.createTransformable(
+            return XMOT.MotionFactory.createTransformable(
                 this._mirroredTarget.getNode(), constraint);
         }
     });

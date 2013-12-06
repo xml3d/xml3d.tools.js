@@ -159,7 +159,7 @@ XMOT.util.GeoObject = new XMOT.Class(XMOT.util.Attachable, {
         if(!this._rootTransformable)
         {
             this._rootTransformable =
-                XMOT.ClientMotionFactory.createTransformable(this.getGraphRoot());
+                XMOT.MotionFactory.createTransformable(this.getGraphRoot());
         }
         return this._rootTransformable;
     },

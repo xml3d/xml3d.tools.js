@@ -129,7 +129,7 @@
             registerFn(document.body, "mouseup", this.callback("_onMouseUp"));
             registerFn(document.body, "mouseout", this.callback("_onMouseOutOfCanvas"));
 
-            this._firstPickGroupTransformable = XMOT.ClientMotionFactory.createTransformable(this.pickGroups[0]);
+            this._firstPickGroupTransformable = XMOT.MotionFactory.createTransformable(this.pickGroups[0]);
 
             this._isAttached = !this._isAttached;
         },

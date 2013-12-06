@@ -3,13 +3,13 @@
     "use strict";
 
     /**
-     * ClientMotionFactory implementation
+     * MotionFactory implementation
      * @constructor
      * @implements{MotionFactory}
      */
-    XMOT.ClientMotionFactory = new XMOT.Singleton({
+    XMOT.MotionFactory = new XMOT.Singleton({
 
-        /** @this XMOT.ClientMotionFactory */
+        /** @this XMOT.MotionFactory */
         initialize: function()
         {
             /** Counter to create unique IDs for the elements added to DOM.
@@ -22,7 +22,7 @@
         },
 
         /** @inheritDoc
-         *  @this XMOT.ClientMotionFactory
+         *  @this XMOT.MotionFactory
          */
         createTransformable: function(element, constraint)
         {
@@ -48,7 +48,7 @@
         },
 
         /** @inheritDoc
-         *  @this XMOT.ClientMotionFactory
+         *  @this XMOT.MotionFactory
          */
         createAnimatable: function(element, constraint)
         {
@@ -57,7 +57,7 @@
         },
 
         /** @inheritDoc
-         *  @this XMOT.ClientMotionFactory
+         *  @this XMOT.MotionFactory
          */
         createKeyframeAnimation: function(name, element, opt)
         {
@@ -88,7 +88,7 @@
 
         /**
          * get Values from child
-         * @this XMOT.ClientMotionFactory
+         * @this XMOT.MotionFactory
          *
          * @param {*} child
          * @param {number}
@@ -111,7 +111,7 @@
 
         /**
          * creates a unique id
-         * @this XMOT.ClientMotionFactory
+         * @this XMOT.MotionFactory
          *
          * @return {string} unique id
          */
@@ -122,7 +122,7 @@
 
         /**
          * Gets the transform of an element and creates a transform if necessary
-         * @this XMOT.ClientMotionFactory
+         * @this XMOT.MotionFactory
          *
          * @param {Object} obj element
          * @return {Object} transform

@@ -9,7 +9,7 @@ function onLoad(){
     camRadios = document.getElementsByName('camtype');
     $(camRadios).click(onChangeCamType);
 
-    camTransformable = XMOT.ClientMotionFactory.createTransformable($("#g_camera")[0]);
+    camTransformable = XMOT.MotionFactory.createTransformable($("#g_camera")[0]);
 
     onChangeCamType();
 };

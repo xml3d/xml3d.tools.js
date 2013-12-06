@@ -40,7 +40,7 @@
             this._xml3dOverlay.activeView = "#v_" + this.ID;
 
             this._mirroredViewGrpXfmable =
-                XMOT.ClientMotionFactory.createTransformable(this._mirroredViewGrp);
+                XMOT.MotionFactory.createTransformable(this._mirroredViewGrp);
 
             this._viewTracker.attach();
         },

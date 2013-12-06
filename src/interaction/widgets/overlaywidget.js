@@ -94,7 +94,7 @@
          */
         createReflectingConstraint: function(options)
         {
-            var target = XMOT.ClientMotionFactory.createTransformable(
+            var target = XMOT.MotionFactory.createTransformable(
                 this._mirror.target().object);
 
             var options = options || {};
