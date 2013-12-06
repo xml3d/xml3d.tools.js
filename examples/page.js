@@ -24,15 +24,9 @@ var EXAMPLE_LIST = [
     },
     {
         cat: "misc",
-        name: "CameraController",
-        href: "cameracontroller.xhtml",
-        info: "Tests the XML3D.tools.CameraController"
-    },
-    {
-        cat: "misc",
         name: "Camera Controllers",
         href: "cameracontrollers.xhtml",
-        info: "Tests the camera controllers besides XML3D.tools.CameraController"
+        info: "Tests the camera controllers"
     },
     {
         cat: "misc",

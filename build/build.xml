@@ -55,7 +55,6 @@
         <file name="constraint/ProhibitAxisMovementConstraint.js" />
         <file name="constraint/BoxedTranslationConstraint.js" />
 
-        <file name="camera/CameraController.js" />
         <file name="camera/CameraBehavior.js" />
         <file name="camera/ExamineBehavior.js" />
         <file name="camera/MouseController.js" />
