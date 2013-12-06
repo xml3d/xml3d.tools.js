@@ -19,14 +19,14 @@
      * @param {!Object} _targetNode the node to track
      * @param {function(targetNode:!Object,evt:!Event)=} onXfmChanged method that should be called when transformation changed
      */
-    XMOT.TransformTracker = new XMOT.Class({
+    XML3D.tools.TransformTracker = new XML3D.tools.Class({
 
         initialize: function(_targetNode, onXfmChanged)
         {
             if(!_targetNode)
                 throw "TransformTracker: no target node specified.";
 
-            this.xml3d = XMOT.util.getXml3dRoot(_targetNode);
+            this.xml3d = XML3D.tools.util.getXml3dRoot(_targetNode);
             this.targetNode = _targetNode;
 
             if(onXfmChanged)
@@ -37,7 +37,7 @@
         },
 
         /** Event handler to be overriden by the user
-         * @this {XMOT.TransformTracker}
+         * @this {XML3D.tools.TransformTracker}
          * @param {!Object} targetNode the node this observer tracks
          * @param {!Event} evt the original DOM event that caused the change
          */
@@ -46,7 +46,7 @@
         /**
          * Register callbacks in the given node and all parent nodes.
          *
-         * @this {XMOT.TransformTracker}
+         * @this {XML3D.tools.TransformTracker}
          * @param {!Object} [node] (internal) the node to register. If not given the
          *  target node is taken.
          */
@@ -63,14 +63,14 @@
                 if(node.tagName.toLowerCase() === "group")
                 {
                     node.addEventListener("DOMAttrModified",
-                        XMOT.util.wrapCallback(this, this._onGrpAttrModified), false);
+                        XML3D.tools.util.wrapCallback(this, this._onGrpAttrModified), false);
 
                     this._attachToTransformOfGrp(node);
                 }
                 else if(node.tagName.toLowerCase() === "view")
                 {
                     node.addEventListener("DOMAttrModified",
-                        XMOT.util.wrapCallback(this, this._onViewAttrModified), false);
+                        XML3D.tools.util.wrapCallback(this, this._onViewAttrModified), false);
                 }
 
                 if(node.parentNode)
@@ -85,7 +85,7 @@
         /**
          * Deregister callbacks in the given node and all parent nodes.
          *
-         * @this {XMOT.TransformTracker}
+         * @this {XML3D.tools.TransformTracker}
          * @param {Object} node (internal) the node to register. If not given the
          *  target node is taken.
          */
@@ -102,14 +102,14 @@
                 if(node.tagName.toLowerCase() === "group")
                 {
                     node.removeEventListener("DOMAttrModified",
-                        XMOT.util.wrapCallback(this, this._onGrpAttrModified), false);
+                        XML3D.tools.util.wrapCallback(this, this._onGrpAttrModified), false);
 
                     this._detachFromTransformOfGrp(node);
                 }
                 else if(node.tagName.toLowerCase() === "view")
                 {
                     node.removeEventListener("DOMAttrModified",
-                        XMOT.util.wrapCallback(this, this._onViewAttrModified), false);
+                        XML3D.tools.util.wrapCallback(this, this._onViewAttrModified), false);
                 }
 
                 if(node.parentNode)
@@ -120,7 +120,7 @@
         },
 
         /**
-         *  @this {XMOT.TransformTracker}
+         *  @this {XML3D.tools.TransformTracker}
          *  @private
          */
         _onGrpAttrModified: function(evt)
@@ -143,7 +143,7 @@
         },
 
         /**
-         *  @this {XMOT.TransformTracker}
+         *  @this {XML3D.tools.TransformTracker}
          *  @private
          */
         _onViewAttrModified: function(evt)
@@ -156,7 +156,7 @@
         },
 
         /**
-         *  @this {XMOT.TransformTracker}
+         *  @this {XML3D.tools.TransformTracker}
          *  @private
          */
         _onXfmAttrModified: function(evt)
@@ -165,31 +165,31 @@
         },
 
         /**
-         *  @this {XMOT.TransformTracker}
+         *  @this {XML3D.tools.TransformTracker}
          *  @private
          */
         _attachToTransformOfGrp: function(grp)
         {
-            var xfm = XMOT.util.transform(grp);
+            var xfm = XML3D.tools.util.transform(grp);
             if(!xfm)
                 return;
 
             xfm.addEventListener("DOMAttrModified",
-                XMOT.util.wrapCallback(this, this._onXfmAttrModified), false);
+                XML3D.tools.util.wrapCallback(this, this._onXfmAttrModified), false);
         },
 
         /**
-         *  @this {XMOT.TransformTracker}
+         *  @this {XML3D.tools.TransformTracker}
          *  @private
          */
         _detachFromTransformOfGrp: function(grp)
         {
-            var xfm = XMOT.util.transform(grp);
+            var xfm = XML3D.tools.util.transform(grp);
             if(!xfm)
                 return;
 
             xfm.removeEventListener("DOMAttrModified",
-                XMOT.util.wrapCallback(this, this._onXfmAttrModified), false);
+                XML3D.tools.util.wrapCallback(this, this._onXfmAttrModified), false);
         }
     });
 }());

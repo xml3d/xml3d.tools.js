@@ -2,7 +2,7 @@
 
     "use strict";
 
-    XMOT.namespace("XMOT.xml3doverlay");
+    XML3D.tools.namespace("XML3D.tools.xml3doverlay");
 
     /** A mirrored view will create a view-subtree of the view of the target xml3d element.
      *  It will track changes to that view and reflect it in the created subtree.
@@ -11,8 +11,8 @@
      *  o view group node (target view's parent node world matrix)
      *      o view node (target view's position and rotation elements)
      */
-    XMOT.xml3doverlay.MirroredView = new XMOT.Class(
-        XMOT.util.Attachable, {
+    XML3D.tools.xml3doverlay.MirroredView = new XML3D.tools.Class(
+        XML3D.tools.util.Attachable, {
 
         nextViewId: 0,
 
@@ -29,7 +29,7 @@
 
             this._setupView();
 
-            this._viewTracker = new XMOT.ViewTracker(
+            this._viewTracker = new XML3D.tools.ViewTracker(
                 this._xml3dTarget, this.callback("_targetViewXfmChanged"));
         },
 
@@ -40,7 +40,7 @@
             this._xml3dOverlay.activeView = "#v_" + this.ID;
 
             this._mirroredViewGrpXfmable =
-                XMOT.ClientMotionFactory.createTransformable(this._mirroredViewGrp);
+                XML3D.tools.MotionFactory.createTransformable(this._mirroredViewGrp);
 
             this._viewTracker.attach();
         },
@@ -55,11 +55,11 @@
 
         _setupView: function()
         {
-            this._mirroredView = XMOT.creation.element("view", {
+            this._mirroredView = XML3D.tools.creation.element("view", {
                 id: "v_" + this.ID
             });
 
-            var viewGrp = XMOT.creation.element("group", {
+            var viewGrp = XML3D.tools.creation.element("group", {
                 children: [this._mirroredView]
             });
 

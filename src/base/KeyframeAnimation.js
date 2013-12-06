@@ -3,10 +3,10 @@
     "use strict";
 
     /**
-     * ClientKeyframeAnimation implementation
+     * KeyframeAnimation implementation
      * @implements{Animation}
      */
-    XMOT.ClientKeyframeAnimation = new XMOT.Class({
+    XML3D.tools.KeyframeAnimation = new XML3D.tools.Class({
 
         /**
          * @param{string} name name of the animation
@@ -171,7 +171,7 @@
             if(this.orientationValues == undefined) return undefined;
             var start = this.getOrientation(index);
             var end = this.getOrientation(index+1);
-            return XMOT.math.slerp(start, end, t);
+            return XML3D.tools.math.slerp(start, end, t);
         },
 
         /**

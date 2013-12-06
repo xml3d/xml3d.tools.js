@@ -11,10 +11,10 @@
      *
      *  @constructor
      */
-    XMOT.ExamineBehavior = new XMOT.Class(XMOT.CameraBehavior, {
+    XML3D.tools.ExamineBehavior = new XML3D.tools.Class(XML3D.tools.CameraBehavior, {
 
         /**
-         *  @this {XMOT.ExamineBehavior}
+         *  @this {XML3D.tools.ExamineBehavior}
          *  @param {Element|Transformable} targetViewGroup
          *  @param {Object} options
          *
@@ -34,7 +34,7 @@
             this.callSuper(targetViewGroup, options);
 
             /** @private */
-            this._targetScene = XMOT.util.getXml3dRoot(this.target.object);
+            this._targetScene = XML3D.tools.util.getXml3dRoot(this.target.object);
 
             /** @private */
             this._dollySpeed = 1;
@@ -67,7 +67,7 @@
             this._doOwnTransformChange = false;
 
             /** @private */
-            this._targetTracker = new XMOT.TransformTracker(this.target.object);
+            this._targetTracker = new XML3D.tools.TransformTracker(this.target.object);
             this._targetTracker.xfmChanged = this.callback("_onTargetXfmChanged");
 
             this._parseOptions(options);
@@ -76,11 +76,11 @@
         },
 
         /**
-         *  @this {XMOT.ExamineBehavior}
+         *  @this {XML3D.tools.ExamineBehavior}
          *  @inheritDoc
          */
         onAttach: function() {
-            XMOT.util.fireWhenMeshesLoaded(this.target.object, this.callback("_updateDollyCoefficient"));
+            XML3D.tools.util.fireWhenMeshesLoaded(this.target.object, this.callback("_updateDollyCoefficient"));
 
             if(this._initialExamineOriginSet)
                 this.lookAt(this._examineOrigin);
@@ -91,7 +91,7 @@
         },
 
         /**
-         *  @this {XMOT.ExamineBehavior}
+         *  @this {XML3D.tools.ExamineBehavior}
          *  @inheritDoc
          */
         onDetach: function() {
@@ -99,7 +99,7 @@
         },
 
         /**
-         *  @this {XMOT.ExamineBehavior}
+         *  @this {XML3D.tools.ExamineBehavior}
          *  @return {window.XML3DVec3}
          */
         getExamineOrigin: function() {
@@ -107,7 +107,7 @@
         },
 
         /**
-         *  @this {XMOT.ExamineBehavior}
+         *  @this {XML3D.tools.ExamineBehavior}
          *  @return {number}
          */
         getDollySpeed: function() {
@@ -115,7 +115,7 @@
         },
 
         /**
-         *  @this {XMOT.ExamineBehavior}
+         *  @this {XML3D.tools.ExamineBehavior}
          *  @return {number}
          */
         getResetDistanceToExamineOrigin: function() {
@@ -123,7 +123,7 @@
         },
 
         /**
-         *  @this {XMOT.ExamineBehavior}
+         *  @this {XML3D.tools.ExamineBehavior}
          *  @param {number} newDistance
          */
         setResetDistanceToExamineOrigin: function(newDistance) {
@@ -131,7 +131,7 @@
         },
 
         /**
-         *  @this {XMOT.ExamineBehavior}
+         *  @this {XML3D.tools.ExamineBehavior}
          *  @param {number} newMinDistance
          */
         setMinDistanceToExamineOrigin: function(newMinDistance) {
@@ -139,7 +139,7 @@
         },
 
         /**
-         *  @this {XMOT.ExamineBehavior}
+         *  @this {XML3D.tools.ExamineBehavior}
          *  @param {number} newMaxDistance
          */
         setMaxDistanceToExamineOrigin: function(newMaxDistance) {
@@ -147,21 +147,21 @@
         },
 
         /**
-         *  @this {XMOT.ExamineBehavior}
+         *  @this {XML3D.tools.ExamineBehavior}
          */
         getMinDistanceToExamineOrigin: function() {
             return this._minDistanceToExamineOrigin;
         },
 
         /**
-         *  @this {XMOT.ExamineBehavior}
+         *  @this {XML3D.tools.ExamineBehavior}
          */
         getMaxDistanceToExamineOrigin: function() {
             return this._maxDistanceToExamineOrigin;
         },
 
         /**
-         *  @this {XMOT.ExamineBehavior}
+         *  @this {XML3D.tools.ExamineBehavior}
          *  @inheritDoc
          *  @param {number=} distanceToPoint. Default: examine origin reset distance
          */
@@ -178,7 +178,7 @@
         },
 
         /**
-         *  @this {XMOT.ExamineBehavior}
+         *  @this {XML3D.tools.ExamineBehavior}
          *  @param {number} delta the value of how much to dolly from the current pose
          *  @return {boolean} true if the dolly action was actually performed
          */
@@ -200,7 +200,7 @@
         },
 
         /**
-         *  @this {XMOT.ExamineBehavior}
+         *  @this {XML3D.tools.ExamineBehavior}
          *  @inheritDoc
          */
         rotateByAngles: function(xAxisAngle, yAxisAngle) {
@@ -223,7 +223,7 @@
         },
 
         /**
-         *  @this {XMOT.ExamineBehavior}
+         *  @this {XML3D.tools.ExamineBehavior}
          *  @private
          *  @param {Object} options
          */
@@ -259,7 +259,7 @@
         },
 
         /**
-         *  @this {XMOT.ExamineBehavior}
+         *  @this {XML3D.tools.ExamineBehavior}
          *  @private
          */
         _resetExamineOrigin: function() {
@@ -268,7 +268,7 @@
         },
 
         /**
-         *  @this {XMOT.ExamineBehavior}
+         *  @this {XML3D.tools.ExamineBehavior}
          *  @private
          */
         _setExamineOrigin: function(newExamineOrigin) {
@@ -277,7 +277,7 @@
         },
 
         /**
-         *  @this {XMOT.ExamineBehavior}
+         *  @this {XML3D.tools.ExamineBehavior}
          *  @private
          */
         _updateDistanceToExamineOrigin: function() {
@@ -288,7 +288,7 @@
          *  Set the internal variable _distanceToExamineOrigin to the given distance
          *  and clamping against the bounds.
          *
-         *  @this {XMOT.ExamineBehavior}
+         *  @this {XML3D.tools.ExamineBehavior}
          *  @private
          *  @param {number} distance
          */
@@ -298,18 +298,18 @@
         },
 
         /**
-         *  @this {XMOT.ExamineBehavior}
+         *  @this {XML3D.tools.ExamineBehavior}
          *  @private
          *  @param {number} distance
          *  @return {number} distance clamped by _{min,max}DistanceToExamineOrigin
          */
         _clampDistanceToExamineOrigin: function(distance) {
-            return XMOT.util.clamp(distance, this._minDistanceToExamineOrigin,
+            return XML3D.tools.util.clamp(distance, this._minDistanceToExamineOrigin,
                 this._maxDistanceToExamineOrigin);
         },
 
         /**
-         *  @this {XMOT.ExamineBehavior}
+         *  @this {XML3D.tools.ExamineBehavior}
          *  @private
          *  @return {number} the current distance between the target and the origin
          */
@@ -318,7 +318,7 @@
         },
 
         /**
-         *  @this {XMOT.ExamineBehavior}
+         *  @this {XML3D.tools.ExamineBehavior}
          *  @private
          */
         _updateDollyCoefficient: function() {
@@ -326,7 +326,7 @@
         },
 
         /**
-         *  @this {XMOT.ExamineBehavior}
+         *  @this {XML3D.tools.ExamineBehavior}
          *  @private
          */
         _onTargetXfmChanged: function() {
@@ -342,7 +342,7 @@
         },
 
         /**
-         *  @this {XMOT.ExamineBehavior}
+         *  @this {XML3D.tools.ExamineBehavior}
          *  @private
          *  @param {window.XML3DVec3} vec
          *  @return {window.XML3DVec3}
@@ -352,7 +352,7 @@
         },
 
         /**
-         *  @this {XMOT.ExamineBehavior}
+         *  @this {XML3D.tools.ExamineBehavior}
          *  @private
          *  @param {window.XML3DVec3} position
          *  @return {boolean} whether setting was successful
@@ -365,7 +365,7 @@
         },
 
         /**
-         *  @this {XMOT.ExamineBehavior}
+         *  @this {XML3D.tools.ExamineBehavior}
          *  @private
          *  @param {window.XML3DRotation} orientation
          *  @return {boolean} whether setting was successful

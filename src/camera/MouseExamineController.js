@@ -2,12 +2,12 @@
 
     "use strict";
 
-    /** This controller brings together the mouse control and XMOT.ExamineBehavior
+    /** This controller brings together the mouse control and XML3D.tools.ExamineBehavior
      *  to provide examine mode navigation using the mouse.
      *
      *  @constructor
      */
-    XMOT.MouseExamineController = new XMOT.Class(XMOT.MouseController, {
+    XML3D.tools.MouseExamineController = new XML3D.tools.Class(XML3D.tools.MouseController, {
 
         // interaction types
         NONE: 0,
@@ -15,7 +15,7 @@
         DOLLY: 2,
 
         /**
-         *  @this {XMOT.MouseExamineController}
+         *  @this {XML3D.tools.MouseExamineController}
          *  @inheritDoc
          */
         initialize: function(targetViewGroup, options) {
@@ -26,13 +26,13 @@
 
             this.callSuper(targetViewGroup, options);
 
-            this.behavior = new XMOT.ExamineBehavior(this.target, options);
+            this.behavior = new XML3D.tools.ExamineBehavior(this.target, options);
             this._currentAction = this.NONE;
         },
 
         /** Resets the camera pose to look at the whole scene.
          *
-         *  @this {XMOT.MouseExamineController}
+         *  @this {XML3D.tools.MouseExamineController}
          *  @param {number=} distance to the scene center, default: scene's aabb diagonal
          */
         lookAtScene: function(distanceToSceneCenter) {
@@ -40,7 +40,7 @@
         },
 
         /**
-         *  @this {XMOT.MouseExamineController}
+         *  @this {XML3D.tools.MouseExamineController}
          *  @param {window.XML3DVec3} targetPt
          *  @param {number=} distanceToPoint. Default: examine origin reset distance
          */
@@ -49,7 +49,7 @@
         },
 
         /**
-         *  @this {XMOT.MouseExamineController}
+         *  @this {XML3D.tools.MouseExamineController}
          *  @param {number} delta the value of how much to dolly from the current pose
          *  @return {boolean} true if the dolly action was actually performed
          */
@@ -58,7 +58,7 @@
         },
 
         /**
-         *  @this {XMOT.MouseExamineController}
+         *  @this {XML3D.tools.MouseExamineController}
          *  @param {window.XML3DRotation} orientation
          *  @return {boolean} true if the rotate action was actually performed
          */
@@ -67,7 +67,7 @@
         },
 
         /**
-         *  @this {XMOT.MouseExamineController}
+         *  @this {XML3D.tools.MouseExamineController}
          *  @param {number} deltaXAxis the value on how much to scale on the x-axis
          *  @param {number} deltaYAxis the value on how much to scale on the y-axis
          *  @return {boolean} true if the rotate action was actually performed
@@ -77,7 +77,7 @@
         },
 
         /**
-         *  @this {XMOT.MouseExamineController}
+         *  @this {XML3D.tools.MouseExamineController}
          *  @inheritDoc
          */
         onAttach: function() {
@@ -86,7 +86,7 @@
         },
 
         /**
-         *  @this {XMOT.MouseExamineController}
+         *  @this {XML3D.tools.MouseExamineController}
          *  @inheritDoc
          */
         onDetach: function() {
@@ -95,18 +95,18 @@
         },
 
         /**
-         *  @this {XMOT.MouseExamineController}
+         *  @this {XML3D.tools.MouseExamineController}
          *  @override
          */
         onDragStart: function(action) {
 
             this._currentAction = this.ROTATE;
-            if(action.evt.button === XMOT.MOUSEBUTTON_RIGHT)
+            if(action.evt.button === XML3D.tools.MOUSEBUTTON_RIGHT)
                 this._currentAction = this.DOLLY;
         },
 
         /**
-         *  @this {XMOT.MouseExamineController}
+         *  @this {XML3D.tools.MouseExamineController}
          *  @override
          */
         onDrag: function(action) {
@@ -123,7 +123,7 @@
         },
 
         /**
-         *  @this {XMOT.MouseExamineController}
+         *  @this {XML3D.tools.MouseExamineController}
          *  @override
          */
         onDragEnd: function(action) {
@@ -131,16 +131,16 @@
         },
 
         /**
-         *  @this {XMOT.MouseExamineController}
+         *  @this {XML3D.tools.MouseExamineController}
          *  @private
          */
         _createMouseEventDispatcher: function() {
 
-            var disp = new XMOT.util.EventDispatcher();
+            var disp = new XML3D.tools.util.EventDispatcher();
 
             disp.registerCustomHandler("mousedown", function(evt){
-                if(evt.button === XMOT.MOUSEBUTTON_LEFT
-                || evt.button === XMOT.MOUSEBUTTON_RIGHT)
+                if(evt.button === XML3D.tools.MOUSEBUTTON_LEFT
+                || evt.button === XML3D.tools.MOUSEBUTTON_RIGHT)
                     return true;
 
                 return false;

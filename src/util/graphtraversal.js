@@ -2,9 +2,9 @@
 
     "use strict";
 
-    XMOT.namespace("XMOT.util");
+    XML3D.tools.namespace("XML3D.tools.util");
 
-    var u = XMOT.util;
+    var u = XML3D.tools.util;
 
     /** Iterates over the subgraph of the given node, calling the given
      *	function on each discovered node, including the node itself.
@@ -18,7 +18,7 @@
         {
             for(var i = 0; i < node.childNodes.length; i++)
             {
-                XMOT.util.traverseGraph(node.childNodes[i], fn);
+                XML3D.tools.util.traverseGraph(node.childNodes[i], fn);
             }
         }
     };
@@ -37,6 +37,6 @@
         if(false === fn(node))
             return;
 
-        XMOT.util.traverseToRoot(node.parentNode, fn);
+        XML3D.tools.util.traverseToRoot(node.parentNode, fn);
     };
 }());

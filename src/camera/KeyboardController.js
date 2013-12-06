@@ -13,10 +13,10 @@
      *
      *  @constructor
      */
-    XMOT.KeyboardController = new XMOT.Class(XMOT.util.Attachable, {
+    XML3D.tools.KeyboardController = new XML3D.tools.Class(XML3D.tools.util.Attachable, {
 
         /**
-         *  @this {XMOT.KeyboardController}
+         *  @this {XML3D.tools.KeyboardController}
          *  @param {Element|Transformable} targetViewGroup
          *  @param {Object} options
          *
@@ -27,30 +27,30 @@
 
             var options = options || {};
 
-            this.target = XMOT.util.getOrCreateTransformable(targetViewGroup);
+            this.target = XML3D.tools.util.getOrCreateTransformable(targetViewGroup);
 
             /** @private */
-            this._targetXml3d = XMOT.util.getXml3dRoot(this.target.object);
+            this._targetXml3d = XML3D.tools.util.getXml3dRoot(this.target.object);
 
             /** @private */
             if(options.eventDispatcher)
                 this._eventDispatcher = options.eventDispatcher;
             else
-                this._eventDispatcher = new XMOT.util.EventDispatcher();
+                this._eventDispatcher = new XML3D.tools.util.EventDispatcher();
         },
 
         /**
-         *  @this {XMOT.KeyboardController}
+         *  @this {XML3D.tools.KeyboardController}
          */
         onKeyDown: function(action) {},
 
         /**
-         *  @this {XMOT.KeyboardController}
+         *  @this {XML3D.tools.KeyboardController}
          */
         onKeyUp: function(action) {},
 
         /**
-         *  @this {XMOT.KeyboardController}
+         *  @this {XML3D.tools.KeyboardController}
          *  @protected
          *  @override
          */
@@ -59,7 +59,7 @@
         },
 
         /**
-         *  @this {XMOT.KeyboardController}
+         *  @this {XML3D.tools.KeyboardController}
          *  @protected
          *  @override
          */
@@ -68,7 +68,7 @@
         },
 
         /**
-         *  @this {XMOT.KeyboardController}
+         *  @this {XML3D.tools.KeyboardController}
          *  @private
          */
         _toggleAttached: function(doAttach) {
@@ -86,7 +86,7 @@
         // --- Callbacks ---
 
         /**
-         *  @this {XMOT.KeyboardController}
+         *  @this {XML3D.tools.KeyboardController}
          *  @private
          */
         _onKeyDown: function(evt) {
@@ -95,7 +95,7 @@
         },
 
         /**
-         *  @this {XMOT.KeyboardController}
+         *  @this {XML3D.tools.KeyboardController}
          *  @private
          */
         _onKeyUp: function(evt) {

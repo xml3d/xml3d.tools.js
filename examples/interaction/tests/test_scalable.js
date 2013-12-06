@@ -7,7 +7,7 @@ var cameraCtrl = null;
 
 function onLoad()
 {
-    cameraCtrl = new XMOT.MouseExamineController($("#controller_view")[0].parentNode);
+    cameraCtrl = new XML3D.tools.MouseExamineController($("#controller_view")[0].parentNode);
     cameraCtrl.attach();
 
     if(sensorActive)
@@ -17,9 +17,9 @@ function onLoad()
 function attachSensor()
 {
     var target = $("#g_target")[0];
-    var tarXfm = XMOT.ClientMotionFactory.createTransformable(target);
+    var tarXfm = XML3D.tools.MotionFactory.createTransformable(target);
 
-    sensor = new XMOT.interaction.behaviors.Scaler("myScaler",
+    sensor = new XML3D.tools.interaction.behaviors.Scaler("myScaler",
             [target], tarXfm, true);
 
     sensor.addListener("translchanged", onTranslChanged);
@@ -37,7 +37,7 @@ function detachSensor()
 
 function onTranslChanged()
 {
-    var xfm = XMOT.util.transform($("#g_target")[0]);
+    var xfm = XML3D.tools.util.transform($("#g_target")[0]);
 
     $("#scale").text(xfm.scale.str());
 }

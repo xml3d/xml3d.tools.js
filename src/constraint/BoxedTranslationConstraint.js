@@ -10,7 +10,7 @@
      * @implements {Constraint}
      * @constructor
      */
-    XMOT.BoxedTranslationConstraint = new XMOT.Class({
+    XML3D.tools.BoxedTranslationConstraint = new XML3D.tools.Class({
 
         /**
          * @param {XML3DBox} [box] the box constraint. Default: infinitely large box, i.e. no constraint

@@ -1,7 +1,7 @@
 (function(){
 
     /**
-     * XMOT.Class provides a framework for constructing classes.
+     * XML3D.tools.Class provides a framework for constructing classes.
      *
      * The basic handling is borrowed from JS.class (http://jsclass.jcoglan.com/).
      * The callSuper() idea is taken from Base (http://dean.edwards.name/weblog/2006/03/base/).
@@ -26,7 +26,7 @@
      *  for yourself, since callback("onClick") will always return the callback of the
      *  base class. (Assuming the base class registers itself first).
      */
-    XMOT.Class = function(base, body)
+    XML3D.tools.Class = function(base, body)
     {
         if(!body)
         {
@@ -49,7 +49,7 @@
 
             // remember parent methods
             var methods = extractMethods(base.prototype);
-            XMOT.extend(constructor.prototype.__parentMethods, methods);
+            XML3D.tools.extend(constructor.prototype.__parentMethods, methods);
         }
         else // base class initialization
         {
@@ -77,7 +77,7 @@
         }
 
         // extend the class' prototype with the given body
-        XMOT.extend(constructor.prototype, body);
+        XML3D.tools.extend(constructor.prototype, body);
 
         // wrap functions
         for(var name in constructor.prototype)
@@ -118,16 +118,16 @@
         return constructor;
     };
 
-    /** XMOT.Singleton is a small utility to create singleton classes.
+    /** XML3D.tools.Singleton is a small utility to create singleton classes.
      *  The idea is also taken from JS.class (http://jsclass.jcoglan.com/).
      *  Thus, see http://jsclass.jcoglan.com/singletons.html for more information.
      *
      *  The advantage is that we can still use all the features from the
-     *  XMOT.Class utility.
+     *  XML3D.tools.Class utility.
      */
-    XMOT.Singleton = function(base, body)
+    XML3D.tools.Singleton = function(base, body)
     {
-        var cls = new XMOT.Class(base, body);
+        var cls = new XML3D.tools.Class(base, body);
 
         var inst = new cls();
         inst.klass = cls;
@@ -150,7 +150,7 @@
 
     /**
      * Checks if the given method name is a function that is not created
-     * by XMOT.Class, but by the class user.
+     * by XML3D.tools.Class, but by the class user.
      *
      * @param {string} name the name to check
      */
@@ -171,7 +171,7 @@
      *
      * @return {Object} a new object containing only the methods from obj
      *
-     * \sa XMOT.Class.isClientMethod()
+     * \sa XML3D.tools.Class.isClientMethod()
      */
     function extractMethods(obj)
     {

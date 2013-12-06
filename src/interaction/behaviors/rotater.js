@@ -2,27 +2,27 @@
 
     "use strict";
 
-    XMOT.namespace("XMOT.interaction.behaviors");
+    XML3D.tools.namespace("XML3D.tools.interaction.behaviors");
 
     /** The Rotater takes the translation given by the PlaneSensor and interprets
      *  the individual components as angle in radians along the corresponding axis.
      *
-     *  @extends XMOT.interaction.behaviors.PlaneSensor
+     *  @extends XML3D.tools.interaction.behaviors.PlaneSensor
      */
-    XMOT.interaction.behaviors.Rotater = new XMOT.Class(
-        XMOT.interaction.behaviors.PlaneSensor,
+    XML3D.tools.interaction.behaviors.Rotater = new XML3D.tools.Class(
+        XML3D.tools.interaction.behaviors.PlaneSensor,
     {
         /** Constructor of Rotater
          *
-         *  @this {XMOT.interaction.behaviors.Rotater}
+         *  @this {XML3D.tools.interaction.behaviors.Rotater}
          *
          *  @param {string} id the id of this sensor
          *  @param {Array.<Object>} pickGrps the group this sensor will listen for events
-         *  @param {XMOT.Transformable=} targetTransformable the group this sensor will modify.
+         *  @param {XML3D.tools.Transformable=} targetTransformable the group this sensor will modify.
          *                 If not given, it is equal to the first element in pickGrp.
          *  @param {number=} rotSpeed rotation speed, default is 1
          *                  See XML3D.interaction.behaviors.PlaneSensor for further information.
-         *  @param {XMOT.util.EventDispatcher=} eventDispatcher the object used to register events
+         *  @param {XML3D.tools.util.EventDispatcher=} eventDispatcher the object used to register events
          *
          *  @throws "target no transform" if the target group doesn't have a transform
          *           attribute
@@ -34,7 +34,7 @@
 
             // --- setup this sensor ---
             if(!targetTransformable)
-                targetTransformable = XMOT.ClientMotionFactory.createTransformable(pickGrps[0]);
+                targetTransformable = XML3D.tools.MotionFactory.createTransformable(pickGrps[0]);
 
             this.targetTransformable = targetTransformable;
 
@@ -55,14 +55,14 @@
         },
 
         /**
-         *  @this {XMOT.interaction.behaviors.Rotater}
+         *  @this {XML3D.tools.interaction.behaviors.Rotater}
          *
          *  @param {string=} axis. Should be "x", "y" or "z"
          *  @return {string} current/new restriction
          */
         axisRestriction: function(axis)
         {
-            if(XMOT.util.isDefined(axis))
+            if(XML3D.tools.util.isDefined(axis))
             {
                 this._axisRestriction = axis;
             }
@@ -71,7 +71,7 @@
         },
 
         /**
-         *  @this {XMOT.interaction.behaviors.Rotater}
+         *  @this {XML3D.tools.interaction.behaviors.Rotater}
          */
         clearAxisRestriction: function()
         {
@@ -80,7 +80,7 @@
 
         /** reset the rotation that gets remembered between drags
          *
-         *  @this {XMOT.interaction.behaviors.Rotater}
+         *  @this {XML3D.tools.interaction.behaviors.Rotater}
          */
         resetRotation: function()
         {
@@ -89,7 +89,7 @@
 
         /** Set or retrieve the rotation speed
          *
-         *  @this {XMOT.interaction.behaviors.Rotater}
+         *  @this {XML3D.tools.interaction.behaviors.Rotater}
          *
          *  @param {number} [speed] default: do not set the speed.
          *  @return {number} the current speed
@@ -108,9 +108,9 @@
 
         /**
          *  @private
-         *  @this {XMOT.interaction.behaviors.Rotater}
+         *  @this {XML3D.tools.interaction.behaviors.Rotater}
          *
-         *  @param {XMOT.interaction.behaviors.Rotater} sensor
+         *  @param {XML3D.tools.interaction.behaviors.Rotater} sensor
          */
         _onRotaterDragStart: function(sensor)
         {
@@ -120,10 +120,10 @@
         },
 
         /**
-         *  @this {XMOT.interaction.behaviors.Rotater}
+         *  @this {XML3D.tools.interaction.behaviors.Rotater}
          *  @private
          *
-         *  @param {XMOT.interaction.behaviors.Rotater} sensor
+         *  @param {XML3D.tools.interaction.behaviors.Rotater} sensor
          */
         _onRotaterTranslChanged: function(sensor)
         {

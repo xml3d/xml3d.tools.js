@@ -23,7 +23,7 @@
 	 * Gamepad
 	 * @constructor
 	 */
-	var Gamepad = new XMOT.Class({
+	var Gamepad = new XML3D.tools.Class({
 
         initialize: function(status) {
             this.timestamp = status.timestamp;
@@ -81,7 +81,7 @@
      * @extends Gamepad
      * @constructor
      */
-    var XBox360Gamepad = new XMOT.Class(Gamepad, {
+    var XBox360Gamepad = new XML3D.tools.Class(Gamepad, {
 
         initialize: function(status) {
             this.callSuper();
@@ -154,7 +154,7 @@
 	 * @private
 	 * @constructor
 	 */
-    XMOT.GamepadEventProvider = new XMOT.Singleton({
+    XML3D.tools.GamepadEventProvider = new XML3D.tools.Singleton({
 
         initialize: function() {
             if (!this.gamepadApiAvailable()) {

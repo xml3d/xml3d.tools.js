@@ -8,7 +8,7 @@
      * @constructor
      * @implements {Constraint}
      */
-    XMOT.ConstraintCollection = new XMOT.Class({
+    XML3D.tools.ConstraintCollection = new XML3D.tools.Class({
 
         /**
          * @param {Array.<Constraint>|undefined} constraints

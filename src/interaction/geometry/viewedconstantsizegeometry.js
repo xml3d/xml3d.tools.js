@@ -2,16 +2,16 @@
 
     "use strict";
 
-    XMOT.namespace("XMOT.interaction.geometry");
+    XML3D.tools.namespace("XML3D.tools.interaction.geometry");
 
     /**
      */
-    XMOT.interaction.geometry.ViewedConstantSizeGeometry = new XMOT.Class(
-        XMOT.interaction.geometry.Geometry, {
+    XML3D.tools.interaction.geometry.ViewedConstantSizeGeometry = new XML3D.tools.Class(
+        XML3D.tools.interaction.geometry.Geometry, {
 
         /**
-         *  @this {XMOT.interaction.geometry.ViewedConstantSizeGeometry}
-         *  @param {XMOT.interaction.widgets.Widget} widget
+         *  @this {XML3D.tools.interaction.geometry.ViewedConstantSizeGeometry}
+         *  @param {XML3D.tools.interaction.widgets.Widget} widget
          *  @param {Object=} options
          *
          *  options:
@@ -32,7 +32,7 @@
         },
 
         /**
-         *  @this {XMOT.interaction.geometry.ViewedConstantSizeGeometry}
+         *  @this {XML3D.tools.interaction.geometry.ViewedConstantSizeGeometry}
          *  @protected
          */
         onCreateGraph: function()
@@ -53,7 +53,7 @@
 
         /** This is called when the target transformation changes.
          *
-         *  @this {XMOT.interaction.geometry.Geometry}
+         *  @this {XML3D.tools.interaction.geometry.Geometry}
          *  @protected
          */
         onTargetXfmChanged: function() {
@@ -63,7 +63,7 @@
         },
 
         /**
-         *  @this {XMOT.interaction.geometry.ViewedConstantSizeGeometry}
+         *  @this {XML3D.tools.interaction.geometry.ViewedConstantSizeGeometry}
          *  @private
          */
         _adaptWidgetScaleToViewPose: function() {
@@ -77,7 +77,7 @@
         },
 
         /**
-         *  @this {XMOT.interaction.geometry.ViewedConstantSizeGeometry}
+         *  @this {XML3D.tools.interaction.geometry.ViewedConstantSizeGeometry}
          *  @private
          *  @return {number} distance between the widget's root node and the view
          */
@@ -95,7 +95,7 @@
         },
 
         /**
-         *  @this {XMOT.interaction.geometry.ViewedConstantSizeGeometry}
+         *  @this {XML3D.tools.interaction.geometry.ViewedConstantSizeGeometry}
          *  @private
          *  @return {window.XML3DVec3} world-to-local scaling vector of the widget's parent node
          */

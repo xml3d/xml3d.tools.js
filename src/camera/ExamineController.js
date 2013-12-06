@@ -2,12 +2,12 @@
 
     "use strict";
 
-    /** This controller brings together mouse control, touch control and XMOT.ExamineBehavior
+    /** This controller brings together mouse control, touch control and XML3D.tools.ExamineBehavior
      *  to provide examine mode navigation using the mouse or the touchpad.
      *
      *  @constructor
      */
-    XMOT.ExamineController = new XMOT.Class(XMOT.util.Attachable, {
+    XML3D.tools.ExamineController = new XML3D.tools.Class(XML3D.tools.util.Attachable, {
 
         // interaction types
         NONE: 0,
@@ -15,14 +15,14 @@
         DOLLY: 2,
 
         /**
-         *  @this {XMOT.MouseExamineController}
+         *  @this {XML3D.tools.MouseExamineController}
          *  @inheritDoc
          */
         initialize: function(targetViewGroup, options) {
 
             this.callSuper();
 
-            this.target = XMOT.util.getOrCreateTransformable(targetViewGroup);
+            this.target = XML3D.tools.util.getOrCreateTransformable(targetViewGroup);
 
             var options = options || {};
             if(options.mouseEventDispatcher === undefined)
@@ -30,25 +30,25 @@
             if(options.touchEventDispatcher === undefined)
                 options.touchEventDispatcher = this._createTouchEventDispatcher();
 
-            this._mouseController = new XMOT.MouseController(this.target, options);
+            this._mouseController = new XML3D.tools.MouseController(this.target, options);
             this._mouseController.setEventDispatcher(options.mouseEventDispatcher);
             this._mouseController.onDragStart = this.callback("onMouseDragStart");
             this._mouseController.onDrag = this.callback("onMouseDrag");
             this._mouseController.onDragEnd = this.callback("onMouseDragEnd");
 
-            this._touchController = new XMOT.TouchController(this.target, options);
+            this._touchController = new XML3D.tools.TouchController(this.target, options);
             this._touchController.setEventDispatcher(options.touchEventDispatcher);
             this._touchController.onDragStart = this.callback("onTouchDragStart");
             this._touchController.onDrag = this.callback("onTouchDrag");
             this._touchController.onDragEnd = this.callback("onTouchDragEnd");
 
-            this.behavior = new XMOT.ExamineBehavior(this.target, options);
+            this.behavior = new XML3D.tools.ExamineBehavior(this.target, options);
             this._currentAction = this.NONE;
         },
 
         /** Resets the camera pose to look at the whole scene.
          *
-         *  @this {XMOT.MouseExamineController}
+         *  @this {XML3D.tools.MouseExamineController}
          *  @param {number=} distance to the scene center, default: scene's aabb diagonal
          */
         lookAtScene: function(distanceToSceneCenter) {
@@ -56,7 +56,7 @@
         },
 
         /**
-         *  @this {XMOT.MouseExamineController}
+         *  @this {XML3D.tools.MouseExamineController}
          *  @param {window.XML3DVec3} targetPt
          *  @param {number=} distanceToPoint. Default: examine origin reset distance
          */
@@ -65,7 +65,7 @@
         },
 
         /**
-         *  @this {XMOT.MouseExamineController}
+         *  @this {XML3D.tools.MouseExamineController}
          *  @param {number} delta the value of how much to dolly from the current pose
          *  @return {boolean} true if the dolly action was actually performed
          */
@@ -74,7 +74,7 @@
         },
 
         /**
-         *  @this {XMOT.MouseExamineController}
+         *  @this {XML3D.tools.MouseExamineController}
          *  @param {window.XML3DRotation} orientation
          *  @return {boolean} true if the rotate action was actually performed
          */
@@ -83,7 +83,7 @@
         },
 
         /**
-         *  @this {XMOT.MouseExamineController}
+         *  @this {XML3D.tools.MouseExamineController}
          *  @param {number} deltaXAxis the value on how much to scale on the x-axis
          *  @param {number} deltaYAxis the value on how much to scale on the y-axis
          *  @return {boolean} true if the rotate action was actually performed
@@ -93,7 +93,7 @@
         },
 
         /**
-         *  @this {XMOT.MouseExamineController}
+         *  @this {XML3D.tools.MouseExamineController}
          *  @inheritDoc
          */
         onAttach: function() {
@@ -103,7 +103,7 @@
         },
 
         /**
-         *  @this {XMOT.MouseExamineController}
+         *  @this {XML3D.tools.MouseExamineController}
          *  @inheritDoc
          */
         onDetach: function() {
@@ -113,18 +113,18 @@
         },
 
         /**
-         *  @this {XMOT.MouseExamineController}
+         *  @this {XML3D.tools.MouseExamineController}
          *  @override
          */
         onMouseDragStart: function(action) {
 
             this._currentAction = this.ROTATE;
-            if(action.evt.button === XMOT.MOUSEBUTTON_RIGHT)
+            if(action.evt.button === XML3D.tools.MOUSEBUTTON_RIGHT)
                 this._currentAction = this.DOLLY;
         },
 
         /**
-         *  @this {XMOT.MouseExamineController}
+         *  @this {XML3D.tools.MouseExamineController}
          *  @override
          */
         onMouseDrag: function(action) {
@@ -141,7 +141,7 @@
         },
 
         /**
-         *  @this {XMOT.MouseExamineController}
+         *  @this {XML3D.tools.MouseExamineController}
          *  @override
          */
         onMouseDragEnd: function(action) {
@@ -149,7 +149,7 @@
         },
 
         /**
-         *  @this {XMOT.MouseExamineController}
+         *  @this {XML3D.tools.MouseExamineController}
          *  @override
          */
         onTouchDragStart: function(action) {
@@ -160,7 +160,7 @@
         },
 
         /**
-         *  @this {XMOT.MouseExamineController}
+         *  @this {XML3D.tools.MouseExamineController}
          *  @override
          */
         onTouchDrag: function(action) {
@@ -177,7 +177,7 @@
         },
 
         /**
-         *  @this {XMOT.MouseExamineController}
+         *  @this {XML3D.tools.MouseExamineController}
          *  @override
          */
         onTouchDragEnd: function(action) {
@@ -185,16 +185,16 @@
         },
 
         /**
-         *  @this {XMOT.MouseExamineController}
+         *  @this {XML3D.tools.MouseExamineController}
          *  @private
          */
         _createMouseEventDispatcher: function() {
 
-            var disp = new XMOT.util.EventDispatcher();
+            var disp = new XML3D.tools.util.EventDispatcher();
 
             disp.registerCustomHandler("mousedown", function(evt){
-                if(evt.button === XMOT.MOUSEBUTTON_LEFT
-                    || evt.button === XMOT.MOUSEBUTTON_RIGHT)
+                if(evt.button === XML3D.tools.MOUSEBUTTON_LEFT
+                    || evt.button === XML3D.tools.MOUSEBUTTON_RIGHT)
                     return true;
 
                 return false;
@@ -204,12 +204,12 @@
         },
 
         /**
-         *  @this {XMOT.MouseExamineController}
+         *  @this {XML3D.tools.MouseExamineController}
          *  @private
          */
         _createTouchEventDispatcher: function() {
 
-            var disp = new XMOT.util.EventDispatcher();
+            var disp = new XML3D.tools.util.EventDispatcher();
 
             disp.registerCustomHandler('touchstart', function(evt){
                 if(evt.type === 'touchstart')

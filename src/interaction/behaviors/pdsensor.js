@@ -2,7 +2,7 @@
 
     "use strict";
 
-    XMOT.namespace("XMOT.interaction.behaviors");
+    XML3D.tools.namespace("XML3D.tools.interaction.behaviors");
 
     /** A simple pointing device sensor.
      *
@@ -15,11 +15,11 @@
      * Users of the class register handlers to the dragging events
      * "dragstart", "drag" and "dragend".
      *
-     * @extends XMOT.util.Observable
+     * @extends XML3D.tools.util.Observable
      *
      */
-    XMOT.interaction.behaviors.PDSensor = new XMOT.Class(
-        XMOT.util.Observable, {
+    XML3D.tools.interaction.behaviors.PDSensor = new XML3D.tools.Class(
+        XML3D.tools.util.Observable, {
 
         listenerTypes: [
             "dragstart", "drag", "dragend", // args (this, MouseEvent)
@@ -28,25 +28,25 @@
         ],
 
         /** Constructor of PDSensor
-         * @this {XMOT.interaction.behaviors.PDSensor}
+         * @this {XML3D.tools.interaction.behaviors.PDSensor}
          *
          * @param {string} id the id of this sensor
          * @param {Array.<Object>} grps the groups this sensor should look for. All should have the same xml3d root element.
-         * @param {XMOT.util.EventDispatcher=} eventDispatcher the object used to register events
+         * @param {XML3D.tools.util.EventDispatcher=} eventDispatcher the object used to register events
          */
         initialize: function(id, grps, eventDispatcher)
         {
         	this.callSuper();
 
             this.ID = id;
-            this.xml3d = XMOT.util.getXml3dRoot(grps[0]);
+            this.xml3d = XML3D.tools.util.getXml3dRoot(grps[0]);
             this.pickGroups = grps;
 
             // event dispatcher
             if(eventDispatcher !== undefined)
                 this._eventDispatcher = eventDispatcher;
             else
-                this._eventDispatcher = new XMOT.util.EventDispatcher();
+                this._eventDispatcher = new XML3D.tools.util.EventDispatcher();
 
             // -- pointing device's pose and hit information --
             this.pdPose = new window.XML3DRay(new window.XML3DVec3(0,0,0), new window.XML3DVec3(0,0,1));
@@ -69,7 +69,7 @@
 
         // -- attaching/detaching of mouse events --
         /**
-         * @this {XMOT.interaction.behaviors.PDSensor}
+         * @this {XML3D.tools.interaction.behaviors.PDSensor}
          */
         attach: function()
         {
@@ -81,7 +81,7 @@
         },
 
         /**
-         * @this {XMOT.interaction.behaviors.PDSensor}
+         * @this {XML3D.tools.interaction.behaviors.PDSensor}
          */
         detach: function()
         {
@@ -94,11 +94,11 @@
 
         // -- Status access --
         /**
-         * @this {XMOT.interaction.behaviors.PDSensor}
+         * @this {XML3D.tools.interaction.behaviors.PDSensor}
          */
         isOver: function() { return (this._numObjsOver === 0); },
         /**
-         * @this {XMOT.interaction.behaviors.PDSensor}
+         * @this {XML3D.tools.interaction.behaviors.PDSensor}
          */
         isActive: function() { return this._sensorIsActive; },
 
@@ -108,7 +108,7 @@
 
         /** Internal helper method to (de-)register event listeners
          *
-         *  @this {XMOT.interaction.behaviors.PDSensor}
+         *  @this {XML3D.tools.interaction.behaviors.PDSensor}
          *  @private
          *  @param {boolean} doAttach
          */
@@ -129,7 +129,7 @@
             registerFn(document.body, "mouseup", this.callback("_onMouseUp"));
             registerFn(document.body, "mouseout", this.callback("_onMouseOutOfCanvas"));
 
-            this._firstPickGroupTransformable = XMOT.ClientMotionFactory.createTransformable(this.pickGroups[0]);
+            this._firstPickGroupTransformable = XML3D.tools.MotionFactory.createTransformable(this.pickGroups[0]);
 
             this._isAttached = !this._isAttached;
         },
@@ -137,7 +137,7 @@
         // -- Mouse Event Handlers --
         /** onMouseOver: called if pd is moved over the influenced groups
          *
-         *  @this {XMOT.interaction.behaviors.PDSensor}
+         *  @this {XML3D.tools.interaction.behaviors.PDSensor}
          *  @private
          *  @param {MouseEvent} evt
          */
@@ -148,7 +148,7 @@
 
         /** onMouseOut: called when pd is moved out of influenced groups
          *
-         *  @this {XMOT.interaction.behaviors.PDSensor}
+         *  @this {XML3D.tools.interaction.behaviors.PDSensor}
          *  @private
          *
          *  @param {MouseEvent} evt
@@ -160,7 +160,7 @@
 
         /** onMouseOutOfCanvas: called when the mouse leaves
          *
-         * @this {XMOT.interaction.behaviors.PDSensor}
+         * @this {XML3D.tools.interaction.behaviors.PDSensor}
          * @private
          * @param evt
          */
@@ -173,7 +173,7 @@
 
         /** onMouseDown: called when primary pd button is pressed over influenced groups
          *
-         *  @this {XMOT.interaction.behaviors.PDSensor}
+         *  @this {XML3D.tools.interaction.behaviors.PDSensor}
          *  @private
          *  @param {MouseEvent} evt
          */
@@ -194,7 +194,7 @@
          *  important: it is called when a move happens in xml3d tag,
          *  not just over influenced groups
          *
-         *  @this {XMOT.interaction.behaviors.PDSensor}
+         *  @this {XML3D.tools.interaction.behaviors.PDSensor}
          *  @private
          *  @param {MouseEvent} evt
          */
@@ -210,7 +210,7 @@
 
         /** Called when mouseup on xml3d element.
          *
-         *  @this {XMOT.interaction.behaviors.PDSensor}
+         *  @this {XML3D.tools.interaction.behaviors.PDSensor}
          *  @private
          *
          *  @param {MouseEvent} evt
@@ -239,7 +239,7 @@
 
         /** perform a pick with the given page coordinates and update the internal state.
          *
-         *  @this {XMOT.interaction.behaviors.PDSensor}
+         *  @this {XML3D.tools.interaction.behaviors.PDSensor}
          *  @private
          *  @param {number} pageX
          *  @param {number} pageY

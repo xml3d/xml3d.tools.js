@@ -9,7 +9,7 @@ function onLoad(){
     camRadios = document.getElementsByName('camtype');
     $(camRadios).click(onChangeCamType);
 
-    camTransformable = XMOT.ClientMotionFactory.createTransformable($("#g_camera")[0]);
+    camTransformable = XML3D.tools.MotionFactory.createTransformable($("#g_camera")[0]);
 
     onChangeCamType();
 };
@@ -27,19 +27,19 @@ function onChangeCamType() {
     switch(getCamType())
     {
     case "examine":
-        CamType = XMOT.ExamineController;
+        CamType = XML3D.tools.ExamineController;
         options.examineOrigin = $("#shape_d1e22")[0].getBoundingBox().center();
         options.dollySpeed = 5;
         break;
 
     case "fly":
         options = {moveSpeed: 0.2, rotateSpeed: 2};
-        CamType = XMOT.MouseKeyboardFlyController;
+        CamType = XML3D.tools.MouseKeyboardFlyController;
         break;
 
     case "touch":
         options.behavior = {rotateSpeed: 0.2};
-        CamType = XMOT.TouchFlyController;
+        CamType = XML3D.tools.TouchFlyController;
         break;
     }
 

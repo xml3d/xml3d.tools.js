@@ -15,11 +15,11 @@
  * For example addShaders() or addTransforms() take local IDs, but construct elements with global
  * IDs, formed by the method globalID().
  */
-XMOT.util.GeoObject = new XMOT.Class(XMOT.util.Attachable, {
+XML3D.tools.util.GeoObject = new XML3D.tools.Class(XML3D.tools.util.Attachable, {
 
     /** Initializes the object.
      *
-     *  @this {XMOT.util.GeoObject}
+     *  @this {XML3D.tools.util.GeoObject}
      *  @param {string} _id the ID of this object
      *  @param {!Object} _xml3d the xml3d element in which the object will reside
      *  @param {!Object} [_rootGrp] the group to which this object is to be attached. If not given
@@ -31,7 +31,7 @@ XMOT.util.GeoObject = new XMOT.Class(XMOT.util.Attachable, {
 
         this.ID = _id;
         this.xml3d = _xml3d;
-        this.defsRoot = XMOT.util.getOrCreateDefs(_xml3d);
+        this.defsRoot = XML3D.tools.util.getOrCreateDefs(_xml3d);
 
         if(_rootGrp)
             this.rootGrp = _rootGrp;
@@ -46,7 +46,7 @@ XMOT.util.GeoObject = new XMOT.Class(XMOT.util.Attachable, {
 
     /** Detaches the object and resets the defs and graph.
      *
-     *  @this {XMOT.util.GeoObject}
+     *  @this {XML3D.tools.util.GeoObject}
      */
     destroy: function()
     {
@@ -62,7 +62,7 @@ XMOT.util.GeoObject = new XMOT.Class(XMOT.util.Attachable, {
     /** Attach the defs elements and the graph. Alternatively attachDefs() and
      *  attachGraph() can be called seperately.
      *
-     *  @this {XMOT.util.GeoObject}
+     *  @this {XML3D.tools.util.GeoObject}
      *  @protected
      *  @override
      */
@@ -74,7 +74,7 @@ XMOT.util.GeoObject = new XMOT.Class(XMOT.util.Attachable, {
 
     /** Remove the graph and defs elements from the DOM.
      *
-     *  @this {XMOT.util.GeoObject}
+     *  @this {XML3D.tools.util.GeoObject}
      *  @protected
      *  @override
      */
@@ -88,7 +88,7 @@ XMOT.util.GeoObject = new XMOT.Class(XMOT.util.Attachable, {
 
     /** Add all defs elements to the defsRoot
      *
-     *  @this {XMOT.util.GeoObject}
+     *  @this {XML3D.tools.util.GeoObject}
      */
     attachDefs: function()
     {
@@ -98,7 +98,7 @@ XMOT.util.GeoObject = new XMOT.Class(XMOT.util.Attachable, {
 
     /** Add the graph["root"] object to the root group
      *
-     *  @this {XMOT.util.GeoObject}
+     *  @this {XML3D.tools.util.GeoObject}
      */
     attachGraph: function()
     {
@@ -112,7 +112,7 @@ XMOT.util.GeoObject = new XMOT.Class(XMOT.util.Attachable, {
     /** Set the given node as the root node in the graph. This is the child node
      *  of this object's root group.
      *
-     *  @this {XMOT.util.GeoObject}
+     *  @this {XML3D.tools.util.GeoObject}
      *  @param {!Object} rootNode
      */
     setGraphRoot: function(rootNode)
@@ -123,13 +123,13 @@ XMOT.util.GeoObject = new XMOT.Class(XMOT.util.Attachable, {
     /** Add the given array of children to the graph root, set previously by
      *  setGraphRoot().
      *
-     *  @this {XMOT.util.GeoObject}
+     *  @this {XML3D.tools.util.GeoObject}
      *  @param {Array.<Object>} children
      */
     addToGraphRoot: function(children)
     {
         if(!this.graph["root"])
-            throw "XMOT.util.GeoObject: no root node present.";
+            throw "XML3D.tools.util.GeoObject: no root node present.";
 
         if(children.constructor !== Array)
             children = [children];
@@ -140,7 +140,7 @@ XMOT.util.GeoObject = new XMOT.Class(XMOT.util.Attachable, {
 
     /** Retrieve the graph root node.
      *
-     *  @this {XMOT.util.GeoObject}
+     *  @this {XML3D.tools.util.GeoObject}
      *  @return {Object}
      */
     getGraphRoot: function()
@@ -151,15 +151,15 @@ XMOT.util.GeoObject = new XMOT.Class(XMOT.util.Attachable, {
 
     /** Retrieve a transformable to the graph root node.
      *
-     *  @this {XMOT.util.GeoObject}
-     *  @return {XMOT.Transformable}
+     *  @this {XML3D.tools.util.GeoObject}
+     *  @return {XML3D.tools.Transformable}
      */
     getGraphRootTransformable: function()
     {
         if(!this._rootTransformable)
         {
             this._rootTransformable =
-                XMOT.ClientMotionFactory.createTransformable(this.getGraphRoot());
+                XML3D.tools.MotionFactory.createTransformable(this.getGraphRoot());
         }
         return this._rootTransformable;
     },
@@ -172,7 +172,7 @@ XMOT.util.GeoObject = new XMOT.Class(XMOT.util.Attachable, {
      *  id to the given id. This could be done without such a function, but it's
      *  pretty often used, so the encapsulation is useful.
      *
-     *  @this {XMOT.util.GeoObject}
+     *  @this {XML3D.tools.util.GeoObject}
      *  @param {string} id a local ID to be converted
      *  @return {string} the converted, global, ID
      */
@@ -183,9 +183,9 @@ XMOT.util.GeoObject = new XMOT.Class(XMOT.util.Attachable, {
 
     /** Creates phong shaders and adds them to the defs elements.
      *
-     *  @this {XMOT.util.GeoObject}
+     *  @this {XML3D.tools.util.GeoObject}
      *  @param {string|Array} IDs a single or array of local IDs for the shader.
-     *  @param {Object} [opts] the options for XMOT.creation.phongShader()
+     *  @param {Object} [opts] the options for XML3D.tools.creation.phongShader()
      *
      *  The id of the created shaders will be set to global IDs. The options
      *  get applied to each of the given IDs.
@@ -202,15 +202,15 @@ XMOT.util.GeoObject = new XMOT.Class(XMOT.util.Attachable, {
         {
             opts.id = this.globalID(IDs[i]);
 
-            this.defs[IDs[i]] = XMOT.creation.phongShader(opts);
+            this.defs[IDs[i]] = XML3D.tools.creation.phongShader(opts);
         }
     },
 
     /** Creates transform elements and adds them to the defs elements.
      *
-     *  @this {XMOT.util.GeoObject}
+     *  @this {XML3D.tools.util.GeoObject}
      *  @param {string|Array} IDs a single or array of local IDs for the transform elements
-     *  @param {Object} [opts] the options for XMOT.creation.element()
+     *  @param {Object} [opts] the options for XML3D.tools.creation.element()
      *
      *  The id of the created shaders will be set to global IDs. The options will
      *  be applied to each ID.
@@ -227,7 +227,7 @@ XMOT.util.GeoObject = new XMOT.Class(XMOT.util.Attachable, {
         {
             opts.id = this.globalID(IDs[i]);
 
-            this.defs[IDs[i]] = XMOT.creation.element("transform", opts);
+            this.defs[IDs[i]] = XML3D.tools.creation.element("transform", opts);
         }
     },
 
@@ -235,7 +235,7 @@ XMOT.util.GeoObject = new XMOT.Class(XMOT.util.Attachable, {
      *  with the given options. So basically setting a lot of transforms to the same
      *  values with a single call.
      *
-     *  @this {XMOT.util.GeoObject}
+     *  @this {XML3D.tools.util.GeoObject}
      *  @param {string|Array} localIDs a single ID or an array of IDs
      *  @param {!Object} opts an object of options, supported: transl, scale, rot
      */
@@ -266,7 +266,7 @@ XMOT.util.GeoObject = new XMOT.Class(XMOT.util.Attachable, {
 
     /** Append all children to the given element.
      *
-     *  @this {XMOT.util.GeoObject}
+     *  @this {XML3D.tools.util.GeoObject}
      *  @param {!Object} targetEl
      *  @param {Array.<Object>} children
      */
@@ -278,7 +278,7 @@ XMOT.util.GeoObject = new XMOT.Class(XMOT.util.Attachable, {
 
     /** Remove all childen from the given element.
      *
-     *  @this {XMOT.util.GeoObject}
+     *  @this {XML3D.tools.util.GeoObject}
      *  @param {!Object} targetEl
      *  @param {Array.<Object>} children
      */

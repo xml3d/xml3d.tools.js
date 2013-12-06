@@ -2,19 +2,19 @@
 
     "use strict";
 
-    XMOT.namespace("XMOT.interaction.widgets");
+    XML3D.tools.namespace("XML3D.tools.interaction.widgets");
 
     /** An OverlayWidget will work on a xml3d overlay to modify the given target.
      *  This class will setup a mirror for the target node and with that initialize
      *  the base class.
      *
-     *  @extends XMOT.interaction.widgets.Widget
+     *  @extends XML3D.tools.interaction.widgets.Widget
      */
-    XMOT.interaction.widgets.OverlayWidget = new XMOT.Class(
-        XMOT.interaction.widgets.Widget, {
+    XML3D.tools.interaction.widgets.OverlayWidget = new XML3D.tools.Class(
+        XML3D.tools.interaction.widgets.Widget, {
 
         /**
-         *  @this {XMOT.interaction.widgets.OverlayWidget}
+         *  @this {XML3D.tools.interaction.widgets.OverlayWidget}
          *  @param {string} id
          *  @param {Object} options
          *
@@ -29,8 +29,8 @@
         initialize: function(id, options)
         {
             if(!options)
-                throw new Error("XMOT.interaction.widgets.TranslateGizmo: no options given.");
-            options = XMOT.extend({}, options);
+                throw new Error("XML3D.tools.interaction.widgets.TranslateGizmo: no options given.");
+            options = XML3D.tools.extend({}, options);
 
             if(options.mirror !== undefined)
             {
@@ -40,11 +40,11 @@
             else if(options.target !== undefined)
             {
                 this._selfCreatedMirror = true;
-                this._mirror = new XMOT.xml3doverlay.GroupMirror(
+                this._mirror = new XML3D.tools.xml3doverlay.GroupMirror(
                     id, options.target, options.xml3dOverlay);
             }
             else
-                throw new Error("XMOT.interaction.widgets.TranslateGizmo: the options must be either a target or a mirror.");
+                throw new Error("XML3D.tools.interaction.widgets.TranslateGizmo: the options must be either a target or a mirror.");
 
             this._mirror.attach();
 
@@ -54,7 +54,7 @@
         },
 
         /**
-         *  @this {XMOT.interaction.widgets.OverlayWidget}
+         *  @this {XML3D.tools.interaction.widgets.OverlayWidget}
          *  @override
          *  @protected
          */
@@ -66,7 +66,7 @@
         },
 
         /**
-         *  @this {XMOT.interaction.widgets.OverlayWidget}
+         *  @this {XML3D.tools.interaction.widgets.OverlayWidget}
          *  @override
          *  @protected
          */
@@ -78,8 +78,8 @@
         },
 
         /**
-         *  @this {XMOT.interaction.widgets.OverlayWidget}
-         *  @return {XMOT.XMOT.interaction.behaviors.GroupMirror} the mirror set up by this class
+         *  @this {XML3D.tools.interaction.widgets.OverlayWidget}
+         *  @return {XML3D.tools.XML3D.tools.interaction.behaviors.GroupMirror} the mirror set up by this class
          */
         mirror: function()
         {
@@ -90,11 +90,11 @@
          *  it also set's the target node's properties, if the constraint admits the new values.
          *
          *  @param {Object} the constraint functions to be applied. They have the same signature
-         *      and name as in XMOT.Constraint.
+         *      and name as in XML3D.tools.Constraint.
          */
         createReflectingConstraint: function(options)
         {
-            var target = XMOT.ClientMotionFactory.createTransformable(
+            var target = XML3D.tools.MotionFactory.createTransformable(
                 this._mirror.target().object);
 
             var options = options || {};

@@ -8,10 +8,10 @@
      *
      *  @constructor
      */
-    XMOT.CameraAnimationController = new XMOT.Class({
+    XML3D.tools.CameraAnimationController = new XML3D.tools.Class({
 
         /**
-         *  @this {XMOT.CameraAnimationController}
+         *  @this {XML3D.tools.CameraAnimationController}
          *  @param {Element|Transformable} targetViewGroup
          *  @param {Object=} options
          *
@@ -27,12 +27,12 @@
                 options.moveToTime = 3000;
             }
 
-            this.target = XMOT.util.getOrCreateTransformable(targetViewGroup);
+            this.target = XML3D.tools.util.getOrCreateTransformable(targetViewGroup);
 
             /** @private */
-            this._idGenerator = new XMOT.util.IDGenerator();
+            this._idGenerator = new XML3D.tools.util.IDGenerator();
             /** @private */
-            this._pointOfInterests = new XMOT.util.Map();
+            this._pointOfInterests = new XML3D.tools.util.Map();
             /** @private */
             this._moveToTime = options.moveToTime;
 
@@ -46,7 +46,7 @@
         },
 
         /**
-         *  @this {XMOT.CameraAnimationController}
+         *  @this {XML3D.tools.CameraAnimationController}
          *  @return {boolean}
          */
         movementInProgress: function() {
@@ -54,7 +54,7 @@
         },
 
         /**
-         *  @this {XMOT.CameraAnimationController}
+         *  @this {XML3D.tools.CameraAnimationController}
          *  @param {window.XML3DVec3} position
          *  @param {window.XML3DRotation} orientation
          *  @param {number=} moveToTime. Default: class instance's moveToTime
@@ -82,7 +82,7 @@
         },
 
         /**
-         *  @this {XMOT.CameraAnimationController}
+         *  @this {XML3D.tools.CameraAnimationController}
          *  @param {string} id of the point of interest to remove
          */
         removePOI: function(id) {
@@ -90,7 +90,7 @@
         },
 
         /**
-         *  @this {XMOT.CameraAnimationController}
+         *  @this {XML3D.tools.CameraAnimationController}
          */
         clearPOIs: function() {
             this.stopMovementToPOI();
@@ -101,7 +101,7 @@
         },
 
         /**
-         *  @this {XMOT.CameraAnimationController}
+         *  @this {XML3D.tools.CameraAnimationController}
          *  @param {function()=} moveToFinishedCallback
          */
         moveToNextPOI: function(moveToFinishedCallback) {
@@ -111,7 +111,7 @@
         },
 
         /**
-         *  @this {XMOT.CameraAnimationController}
+         *  @this {XML3D.tools.CameraAnimationController}
          *  @param {function()=} moveToFinishedCallback
          */
         moveToPreviousPOI: function(moveToFinishedCallback) {
@@ -121,7 +121,7 @@
         },
 
         /**
-         *  @this {XMOT.CameraAnimationController}
+         *  @this {XML3D.tools.CameraAnimationController}
          *  @param {Object} poi
          *  @return {boolean} true if movement has actually been started
          *
@@ -150,7 +150,7 @@
          *  continuing until the end of the array. If the whole action is finished
          *  invokes the optional callback.
          *
-         *  @this {XMOT.CameraAnimationController}
+         *  @this {XML3D.tools.CameraAnimationController}
          *  @param {Array.<{id:string,moveToTime:number}>} POIs, moveToTime is optional
          *  @param {function()=} moveToFinishedCallback
          *  @return {boolean} true if movement has actually been started
@@ -194,7 +194,7 @@
         },
 
         /**
-         *  @this {XMOT.CameraAnimationController}
+         *  @this {XML3D.tools.CameraAnimationController}
          */
         stopMovementToPOI: function() {
 
@@ -203,7 +203,7 @@
         },
 
         /**
-         *  @this {XMOT.CameraAnimationController}
+         *  @this {XML3D.tools.CameraAnimationController}
          *  @private
          *  @param {function()=} moveToFinishedCallback
          */

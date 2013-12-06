@@ -22,10 +22,10 @@
         <file name="base/class.js" />
         <file name="base/util.js" />
         <file name="base/math.js" />
-        <file name="base/ClientTransformable.js" />
-        <file name="base/ClientMotionFactory.js" />
-        <file name="base/ClientAnimatable.js" />
-        <file name="base/ClientKeyframeAnimation.js" />
+        <file name="base/Transformable.js" />
+        <file name="base/MotionFactory.js" />
+        <file name="base/Animatable.js" />
+        <file name="base/KeyframeAnimation.js" />
 
         <file name="util/xml3d_datatype_extensions.js" />
         <file name="util/util.js" />

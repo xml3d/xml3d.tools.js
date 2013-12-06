@@ -2,21 +2,21 @@
 
     "use strict";
 
-    /** This controller brings together the touch control and XMOT.FlyBehavior
+    /** This controller brings together the touch control and XML3D.tools.FlyBehavior
      *  to provide fly mode navigation using touch.
      *
      *  @constructor
      */
-    XMOT.TouchFlyController = new XMOT.Class(XMOT.util.Attachable, {
+    XML3D.tools.TouchFlyController = new XML3D.tools.Class(XML3D.tools.util.Attachable, {
 
         /**
-         *  @this {XMOT.TouchFlyController}
+         *  @this {XML3D.tools.TouchFlyController}
          *  @param {Element|Transformable} targetViewGroup
          *  @param {Object} options
          *
          *  options:
-         *  o behavior: options to be passed to XMOT.FlyBehavior
-         *  o touch: options to be passed to XMOT.TouchController
+         *  o behavior: options to be passed to XML3D.tools.FlyBehavior
+         *  o touch: options to be passed to XML3D.tools.TouchController
          *
          *  By default, the view can be rotated using the movement of a single finger,
          *  and movement can be done using zoom/pinch gestures.
@@ -29,14 +29,14 @@
             options.behavior = options.behavior || {};
             options.touch = options.touch || {};
 
-            this.target = XMOT.util.getOrCreateTransformable(targetViewGroup);
+            this.target = XML3D.tools.util.getOrCreateTransformable(targetViewGroup);
 
-            this._behavior = new XMOT.FlyBehavior(this.target, options.behavior);
+            this._behavior = new XML3D.tools.FlyBehavior(this.target, options.behavior);
 
             if(options.touch.eventDispatcher === undefined)
                 options.touch.eventDispatcher = this._createTouchEventDispatcher();
 
-            this._touchCtrl = new XMOT.TouchController(this.target, options.touch);
+            this._touchCtrl = new XML3D.tools.TouchController(this.target, options.touch);
             this._touchCtrl.onDrag = this.callback("_onDrag");
         },
 
@@ -45,63 +45,63 @@
         },
 
         /**
-         *  @this {XMOT.TouchFlyController}
+         *  @this {XML3D.tools.TouchFlyController}
          */
         setPosition: function(position) {
             this._behavior.setPosition(position);
         },
 
         /**
-         *  @this {XMOT.TouchFlyController}
+         *  @this {XML3D.tools.TouchFlyController}
          */
         setOrientation: function(orientation) {
             this._behavior.setOrientation(orientation);
         },
 
         /**
-         *  @this {XMOT.TouchFlyController}
+         *  @this {XML3D.tools.TouchFlyController}
          */
         getPosition: function() {
             return this._behavior.getPosition();
         },
 
         /**
-         *  @this {XMOT.TouchFlyController}
+         *  @this {XML3D.tools.TouchFlyController}
          */
         getOrientation: function() {
             return this._behavior.getOrientation();
         },
 
         /**
-         *  @this {XMOT.TouchFlyController}
+         *  @this {XML3D.tools.TouchFlyController}
          */
         getMoveSpeed: function() {
             return this._behavior.getMoveSpeed();
         },
 
         /**
-         *  @this {XMOT.TouchFlyController}
+         *  @this {XML3D.tools.TouchFlyController}
          */
         setMoveSpeed: function(speed) {
             this._behavior.setMoveSpeed(speed);
         },
 
         /**
-         *  @this {XMOT.TouchFlyController}
+         *  @this {XML3D.tools.TouchFlyController}
          */
         getRotationSpeed: function() {
             return this._behavior.getRotationSpeed();
         },
 
         /**
-         *  @this {XMOT.TouchFlyController}
+         *  @this {XML3D.tools.TouchFlyController}
          */
         setRotationSpeed: function(speed) {
             this._behavior.setRotationSpeed(speed);
         },
 
         /**
-         *  @this {XMOT.TouchFlyController}
+         *  @this {XML3D.tools.TouchFlyController}
          *  @protected
          *  @override
          */
@@ -110,7 +110,7 @@
         },
 
         /**
-         *  @this {XMOT.TouchFlyController}
+         *  @this {XML3D.tools.TouchFlyController}
          *  @protected
          *  @override
          */
@@ -119,7 +119,7 @@
         },
 
         /**
-         *  @this {XMOT.TouchFlyController}
+         *  @this {XML3D.tools.TouchFlyController}
          *  @private
          */
         _onDrag: function(action) {
@@ -134,12 +134,12 @@
 
 
         /**
-         *  @this {XMOT.TouchFlyController}
+         *  @this {XML3D.tools.TouchFlyController}
          *  @private
          */
         _createTouchEventDispatcher: function() {
 
-            var disp = new XMOT.util.EventDispatcher();
+            var disp = new XML3D.tools.util.EventDispatcher();
 
             disp.registerCustomHandler('touchstart', function(evt){
                 if(evt.type === 'touchstart')

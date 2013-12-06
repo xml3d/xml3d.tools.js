@@ -14,31 +14,31 @@ var EXAMPLE_LIST = [
         cat: "misc",
         name: "Animatable",
         href: "animation.xhtml",
-        info: "Tests the XMOT.Animatable"
+        info: "Tests the XML3D.tools.Animatable"
     },
     {
         cat: "misc",
         name: "Transformable",
         href: "simple.xhtml",
-        info: "Tests the XMOT.Transformable"
+        info: "Tests the XML3D.tools.Transformable"
     },
     {
         cat: "misc",
         name: "CameraController",
         href: "cameracontroller.xhtml",
-        info: "Tests the XMOT.CameraController"
+        info: "Tests the XML3D.tools.CameraController"
     },
     {
         cat: "misc",
         name: "Camera Controllers",
         href: "cameracontrollers.xhtml",
-        info: "Tests the camera controllers besides XMOT.CameraController"
+        info: "Tests the camera controllers besides XML3D.tools.CameraController"
     },
     {
         cat: "misc",
         name: "GamePad",
         href: "gamepad.xhtml",
-        info: "Tests the XMOT.GamepadEventProvider"
+        info: "Tests the XML3D.tools.GamepadEventProvider"
     },
     {
         cat: "misc",
@@ -64,7 +64,7 @@ var EXAMPLE_LIST = [
         cat: "utils",
         name: "Element Factory",
         href: "elementfactory.xhtml",
-        info: "Constructs a lid cube using the XMOT.creation facility."
+        info: "Constructs a lid cube using the XML3D.tools.creation facility."
     },
     {
         cat: "utils",

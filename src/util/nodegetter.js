@@ -2,9 +2,9 @@
 
     "use strict";
 
-    XMOT.namespace("XMOT.util");
+    XML3D.tools.namespace("XML3D.tools.util");
 
-    var u = XMOT.util;
+    var u = XML3D.tools.util;
 
     /** Returns the xml3d element in which the given element is contained.
      * If none is found, null is returned.
@@ -15,10 +15,10 @@
     u.getXml3dRoot = function(el)
     {
         if(!el) {
-            throw new Error("XMOT.util.getXml3dRoot(): given element is not defined.");
+            throw new Error("XML3D.tools.util.getXml3dRoot(): given element is not defined.");
         }
         if(!el.parentNode) {
-            throw new Error("XMOT.util.getXml3dRoot(): given element has no parent node.");
+            throw new Error("XML3D.tools.util.getXml3dRoot(): given element has no parent node.");
         }
 
         if(el.tagName.toLowerCase() === "xml3d")
@@ -31,8 +31,8 @@
     };
 
     /** Internal helper method. Gets and/or sets a reference pointed to by attrName
-     *  of the element el. For more information see XMOT.util.transform()
-     *  or XMOT.util.shader().
+     *  of the element el. For more information see XML3D.tools.util.transform()
+     *  or XML3D.tools.util.shader().
      *
      *  @param {!Object} el
      *  @param {!string} attrName
@@ -76,7 +76,7 @@
     u.transform = function(grp, xfm)
     {
         if(grp.tagName.toLowerCase() !== "group")
-            throw "XMOT.util.transform(): given element is not a group.";
+            throw "XML3D.tools.util.transform(): given element is not a group.";
 
         return getOrSetRefNode(grp, "transform", xfm);
     };
@@ -93,7 +93,7 @@
     u.shader = function(grp, sh)
     {
         if(grp.tagName.toLowerCase() !== "group")
-            throw "XMOT.util.shader(): given element is not a group.";
+            throw "XML3D.tools.util.shader(): given element is not a group.";
 
         return getOrSetRefNode(grp, "shader", sh);
     };
@@ -113,7 +113,7 @@
 
         if(!defs)
         {
-            defs = XMOT.creation.element("defs");
+            defs = XML3D.tools.creation.element("defs");
             xml3d.appendChild(defs);
         }
 
@@ -134,7 +134,7 @@
      */
     u.getOrCreateTransform = function(targetGrp, newId)
     {
-        var t = XMOT.util.transform(targetGrp);
+        var t = XML3D.tools.util.transform(targetGrp);
 
         if(t) // found it, just return
             return t;
@@ -143,7 +143,7 @@
         var defs = u.getOrCreateDefs(xml3d);
 
         // create transform
-        t = XMOT.creation.element("transform", {id: newId});
+        t = XML3D.tools.creation.element("transform", {id: newId});
         defs.appendChild(t);
         targetGrp.setAttribute("transform", "#" + newId);
 
@@ -210,7 +210,7 @@
             return true;
         };
 
-        XMOT.util.traverseGraph(node, traverseFn);
+        XML3D.tools.util.traverseGraph(node, traverseFn);
         return meshNodes;
     };
 }());

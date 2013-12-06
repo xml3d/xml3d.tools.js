@@ -7,7 +7,7 @@ var dragCounter = null; // thing that puts dots in the div as drag-feedback
 
 function initScene()
 {
-    cameraCtrl = new XMOT.MouseExamineController($("#controller_view")[0].parentNode);
+    cameraCtrl = new XML3D.tools.MouseExamineController($("#controller_view")[0].parentNode);
     cameraCtrl.attach();
 
     var grp1ConstrBox = new XML3DBox(
@@ -15,12 +15,12 @@ function initScene()
         new XML3DVec3(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE)
     );
 
-    var bns = XMOT.interaction.behaviors;
-    var motFac = XMOT.ClientMotionFactory;
+    var bns = XML3D.tools.interaction.behaviors;
+    var motFac = XML3D.tools.MotionFactory;
 
     // group1
     var target1 = $("#group1")[0];
-    var tarXfm1 = motFac.createTransformable(target1, new XMOT.BoxedTranslationConstraint(grp1ConstrBox));
+    var tarXfm1 = motFac.createTransformable(target1, new XML3D.tools.BoxedTranslationConstraint(grp1ConstrBox));
 
     sensor1 = new bns.Translater("transl1", [target1], tarXfm1);
     sensor1.addListener("dragstart", onDragStart);
@@ -35,7 +35,7 @@ function initScene()
     );
 
     var target2 = $("#group2")[0];
-    var tarXfm2 = motFac.createTransformable(target2, new XMOT.BoxedTranslationConstraint(grp2ConstrBox));
+    var tarXfm2 = motFac.createTransformable(target2, new XML3D.tools.BoxedTranslationConstraint(grp2ConstrBox));
 
     sensor2 = new bns.Translater("transl2", [target2], tarXfm2);
     sensor2.addListener("dragstart", onDragStart);
@@ -68,7 +68,7 @@ function toggleSensors()
 // ============================================================================
 // Event Handlers
 // ============================================================================
-Counter = new XMOT.Class({
+Counter = new XML3D.tools.Class({
 
     initialize: function(_targetDiv)
     {
@@ -117,8 +117,8 @@ function onTranslChanged(sensor, e)
 {
     $("#trans").html(sensor.translation.str());
 
-    var xfm1 = XMOT.util.transform($("#group1")[0]);
-    var xfm2 = XMOT.util.transform($("#group2")[0]);
+    var xfm1 = XML3D.tools.util.transform($("#group1")[0]);
+    var xfm2 = XML3D.tools.util.transform($("#group2")[0]);
 
     $("#transGrp1").html(xfm1.translation.str());
     $("#transGrp2").html(xfm2.translation.str());

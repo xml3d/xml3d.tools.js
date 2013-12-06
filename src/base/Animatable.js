@@ -5,9 +5,9 @@
 	/**
 	 * An implementation of Animatable
 	 * @implements Animatable
-	 * @extends ClientTransformable
+	 * @extends Transformable
 	 */
-    XMOT.ClientAnimatable = new XMOT.Class(XMOT.ClientTransformable, {
+    XML3D.tools.Animatable = new XML3D.tools.Class(XML3D.tools.Transformable, {
 
         initialize: function(obj, transform, constraint){
 
@@ -45,7 +45,7 @@
             //same animation might have different options on another animatable
             this.availableAnimations[animation.name] = {};
             var tmp = this.availableAnimations[animation.name];
-            tmp.opt = XMOT.mergeOptions(opt, animation.getOptions());
+            tmp.opt = XML3D.tools.mergeOptions(opt, animation.getOptions());
             tmp.animation = animation;
             return this;
         },
@@ -56,7 +56,7 @@
             this.idCounter++;
             var animation = this.availableAnimations[name];
             if(!animation) throw "Add animation before starting animation: "+name;
-            this.activeAnimations[id] = {animation:animation.animation, opt:XMOT.mergeOptions(opt, animation.opt)};
+            this.activeAnimations[id] = {animation:animation.animation, opt:XML3D.tools.mergeOptions(opt, animation.opt)};
             this.startClockGenerator(id);
             //finally return the id after setting up everything
             return id;
@@ -103,9 +103,9 @@
             //and finally the start
             a.clockGenerator = cg;
             cg.start();
-            if(!XMOT.animating) {
-                XMOT.animating = true;
-                XMOT.animate();
+            if(!XML3D.tools.animating) {
+                XML3D.tools.animating = true;
+                XML3D.tools.animate();
             }
         },
 

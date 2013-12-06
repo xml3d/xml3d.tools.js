@@ -9,12 +9,12 @@ function initScene()
 {
     xml3d = $("xml3d")[0];
 
-	var camTransformable = XMOT.ClientMotionFactory.createTransformable($("#g_myview")[0]);
-    camCtrl = new XMOT.MouseKeyboardFlyController(camTransformable);
-	camCtrl.attach();
+    var camTransformable = XML3D.tools.MotionFactory.createTransformable($("#g_myview")[0]);
+    camCtrl = new XML3D.tools.MouseKeyboardFlyController(camTransformable);
+    camCtrl.attach();
 
     // setup tracker
-    tracker = new XMOT.ViewTracker(xml3d, onViewXfmChanged);
+    tracker = new XML3D.tools.ViewTracker(xml3d, onViewXfmChanged);
     tracker.attach();
 }
 

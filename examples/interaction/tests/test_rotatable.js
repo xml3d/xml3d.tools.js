@@ -7,21 +7,21 @@ var trackballActive = false;
 
 function initScene()
 {
-    cameraCtrl = new XMOT.MouseExamineController($("#controller_view")[0].parentNode);
+    cameraCtrl = new XML3D.tools.MouseExamineController($("#controller_view")[0].parentNode);
     cameraCtrl.attach();
 
     xml3d = document.getElementById("MyXml3d");
 
     target = $("#group1")[0];
-    target.appendChild(XMOT.creation.box(xml3d));
+    target.appendChild(XML3D.tools.creation.box(xml3d));
 
     toggleTrackBall();
 }
 
 function attachSensor()
 {
-    var tarXfm = XMOT.ClientMotionFactory.createTransformable(target);
-    sensor = new XMOT.interaction.behaviors.Rotater(
+    var tarXfm = XML3D.tools.MotionFactory.createTransformable(target);
+    sensor = new XML3D.tools.interaction.behaviors.Rotater(
         "myRotater", [target],
         tarXfm
     );
@@ -57,7 +57,7 @@ function toggleTrackBall()
 
 function changeRestriction(axis)
 {
-    if(XMOT.util.isDefined(axis))
+    if(XML3D.tools.util.isDefined(axis))
         sensor.axisRestriction(axis);
     else
         sensor.clearAxisRestriction();
@@ -81,6 +81,6 @@ function onDragEnd()
 
 function onTranslChanged()
 {
-    var xfm = XMOT.util.transform($("#group1")[0]);
+    var xfm = XML3D.tools.util.transform($("#group1")[0]);
     $("#rotation").html($(xfm).attr("rotation"));
 }

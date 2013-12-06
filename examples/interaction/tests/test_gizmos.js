@@ -10,17 +10,17 @@ var gizmoRadios = null;
 function onLoad() {
 
     var targetGroup = $("#g_mainTarget")[0];
-    targetTransformable = XMOT.ClientMotionFactory.createTransformable(targetGroup);
+    targetTransformable = XML3D.tools.MotionFactory.createTransformable(targetGroup);
 
     gizmoRadios = document.getElementsByName('gizmotype');
     $(gizmoRadios).click(onChangeGizmoType);
 
-    cameraCtrl = new XMOT.MouseKeyboardFlyController($("#v_camera")[0].parentNode, {
+    cameraCtrl = new XML3D.tools.MouseKeyboardFlyController($("#v_camera")[0].parentNode, {
         rotateSpeed: 5
     });
     cameraCtrl.attach();
 
-    XMOT.util.fireWhenMeshesLoaded(targetGroup, onChangeGizmoType);
+    XML3D.tools.util.fireWhenMeshesLoaded(targetGroup, onChangeGizmoType);
 };
 
 function onChangeGizmoType()
@@ -85,7 +85,7 @@ function detachGizmos()
 
 function createGizmosTranslate()
 {
-    gizmo = new XMOT.interaction.widgets.TranslateGizmo("myGizmo", {
+    gizmo = new XML3D.tools.interaction.widgets.TranslateGizmo("myGizmo", {
         target: targetTransformable
     });
     gizmo.attach();
@@ -93,7 +93,7 @@ function createGizmosTranslate()
 
 function createGizmosRotate()
 {
-    gizmo = new XMOT.interaction.widgets.RotateGizmo("myGizmo", {
+    gizmo = new XML3D.tools.interaction.widgets.RotateGizmo("myGizmo", {
         target: targetTransformable,
         rotationSpeed: getRotationSpeed(),
         geometry: {

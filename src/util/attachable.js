@@ -2,17 +2,17 @@
 
     "use strict";
 
-    XMOT.namespace("XMOT.util");
+    XML3D.tools.namespace("XML3D.tools.util");
 
     /** Base class for attaching/detach behavior.
      *  Users of derived classes just invoke the attach()/detach() methods.
      *  Users of this class derive from it and overwrite the onAttach()/onDetach()
      *  methods.
      */
-    XMOT.util.Attachable = new XMOT.Class({
+    XML3D.tools.util.Attachable = new XML3D.tools.Class({
 
         /**
-         *  @this {XMOT.interaction.behaviors.Attachable}
+         *  @this {XML3D.tools.interaction.behaviors.Attachable}
          */
         initialize: function()
         {
@@ -20,7 +20,7 @@
         },
 
         /**
-         *  @this {XMOT.interaction.behaviors.Attachable}
+         *  @this {XML3D.tools.interaction.behaviors.Attachable}
          */
         attach: function()
         {
@@ -32,7 +32,7 @@
         },
 
         /**
-         *  @this {XMOT.interaction.behaviors.Attachable}
+         *  @this {XML3D.tools.interaction.behaviors.Attachable}
          */
         detach: function()
         {
@@ -44,7 +44,7 @@
         },
 
         /**
-         *  @this {XMOT.interaction.behaviors.Attachable}
+         *  @this {XML3D.tools.interaction.behaviors.Attachable}
          */
         setAttached: function(isAttached)
         {
@@ -52,7 +52,7 @@
         },
 
         /**
-         *  @this {XMOT.interaction.behaviors.Attachable}
+         *  @this {XML3D.tools.interaction.behaviors.Attachable}
          */
         isAttached: function()
         {
@@ -60,13 +60,13 @@
         },
 
         /**
-         *  @this {XMOT.interaction.behaviors.Attachable}
+         *  @this {XML3D.tools.interaction.behaviors.Attachable}
          *  @protected
          */
         onAttach: function() {},
 
         /**
-         *  @this {XMOT.interaction.behaviors.Attachable}
+         *  @this {XML3D.tools.interaction.behaviors.Attachable}
          *  @protected
          */
         onDetach: function() {}

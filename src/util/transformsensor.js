@@ -9,10 +9,10 @@
  * the associated transform sensor. Any additional information can be obtained from
  * that sensor.
  *
- * @extends XMOT.util.Observable
+ * @extends XML3D.tools.util.Observable
  */
-XMOT.TransformSensor = new XMOT.Class(
-    XMOT.util.Observable, {
+XML3D.tools.TransformSensor = new XML3D.tools.Class(
+    XML3D.tools.util.Observable, {
 
 	listenerTypes: [
         "start", "end" // args (this)
@@ -21,7 +21,7 @@ XMOT.TransformSensor = new XMOT.Class(
     /** Initializes the sensor with the given values and attaches the sensor to
      *  the target groups.
      *
-     *  @this {XMOT.TransformSensor}
+     *  @this {XML3D.tools.TransformSensor}
      *
      *  @param {string} _id a unique identifier for this sensor
      *  @param {Array.<Object>} _tarGrps the groups of which to track transformation changes
@@ -32,7 +32,7 @@ XMOT.TransformSensor = new XMOT.Class(
     	this.callSuper();
 
         this.ID = _id;
-        this.xml3d = XMOT.util.getXml3dRoot(_tarGrps[0]);
+        this.xml3d = XML3D.tools.util.getXml3dRoot(_tarGrps[0]);
         this.targetGrps = _tarGrps;
         this.bbox = _bbox;
 
@@ -47,7 +47,7 @@ XMOT.TransformSensor = new XMOT.Class(
         this.attach();
     },
 
-    /** @this {XMOT.TransformSensor} */
+    /** @this {XML3D.tools.TransformSensor} */
     attach: function()
     {
         if(!this._isAttached)
@@ -58,7 +58,7 @@ XMOT.TransformSensor = new XMOT.Class(
             for(var i in grps)
             {
                 var tar = grps[i];
-                this._observers[tar] = new XMOT.TransformTracker(tar);
+                this._observers[tar] = new XML3D.tools.TransformTracker(tar);
                 this._observers[tar].xfmChanged = this.callback("_xfmChanged");
                 this._observers[tar].attach();
             }
@@ -67,7 +67,7 @@ XMOT.TransformSensor = new XMOT.Class(
         }
     },
 
-    /** @this {XMOT.TransformSensor} */
+    /** @this {XML3D.tools.TransformSensor} */
     detach: function()
     {
         if(this._isAttached)
@@ -87,16 +87,16 @@ XMOT.TransformSensor = new XMOT.Class(
         }
     },
 
-    /** Callback of internally used XMOT.TransformTracker
+    /** Callback of internally used XML3D.tools.TransformTracker
      *
-     *  @this {XMOT.TransformSensor}
+     *  @this {XML3D.tools.TransformSensor}
      *  @private
      *
      *  @param {!Object} tarNode
      */
     _xfmChanged: function(tarNode)
     {
-        var tarBBox = XMOT.util.getWorldBBox(tarNode);
+        var tarBBox = XML3D.tools.util.getWorldBBox(tarNode);
 
         var isInt = this.bbox.intersects(tarBBox);
         var alreadyInt = this.currentIntersectGrps[tarNode];

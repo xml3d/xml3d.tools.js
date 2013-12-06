@@ -1,13 +1,13 @@
 /**
- * This file constructs the XMOT.util namespace and adds miscellaneous utilities.
+ * This file constructs the XML3D.tools.util namespace and adds miscellaneous utilities.
  */
 (function() {
 
     "use strict";
 
-    XMOT.namespace("XMOT.util");
+    XML3D.tools.namespace("XML3D.tools.util");
 
-    var u = XMOT.util;
+    var u = XML3D.tools.util;
 
     /**
      * Returns whether the object is actually given as argument. If it is it has
@@ -91,8 +91,8 @@
      */
     u.getParentWorldMatrix = function(node)
     {
-        if(!XMOT.util.isDefined(node.parentNode)
-        || !XMOT.util.isDefined(node.parentNode.getWorldMatrix))
+        if(!XML3D.tools.util.isDefined(node.parentNode)
+        || !XML3D.tools.util.isDefined(node.parentNode.getWorldMatrix))
             return new window.XML3DMatrix();
 
         return node.parentNode.getWorldMatrix();

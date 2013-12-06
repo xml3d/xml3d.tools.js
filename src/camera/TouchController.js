@@ -14,10 +14,10 @@
      *
      *  @constructor
      */
-    XMOT.TouchController = new XMOT.Class(XMOT.util.Attachable, {
+    XML3D.tools.TouchController = new XML3D.tools.Class(XML3D.tools.util.Attachable, {
 
         /**
-         *  @this {XMOT.TouchController}
+         *  @this {XML3D.tools.TouchController}
          *  @param {Element|Transformable} targetViewGroup
          *  @param {Object} options
          *
@@ -28,10 +28,10 @@
 
             var options = options || {};
 
-			this.target = XMOT.util.getOrCreateTransformable(targetViewGroup);
+			this.target = XML3D.tools.util.getOrCreateTransformable(targetViewGroup);
 
             /** @private */
-            this._targetXml3d = XMOT.util.getXml3dRoot(this.target.object);
+            this._targetXml3d = XML3D.tools.util.getXml3dRoot(this.target.object);
 
             /** @private */
             this._canvasWidth = this._targetXml3d.width || 800;
@@ -61,37 +61,37 @@
         },
 
         /**
-         *  @this {XMOT.TouchController}
-         *  @param {XMOT.util.EventDispatcher} eventDispatcher
+         *  @this {XML3D.tools.TouchController}
+         *  @param {XML3D.tools.util.EventDispatcher} eventDispatcher
          */
         setEventDispatcher: function(eventDispatcher) {
             this._eventDispatcher = eventDispatcher;
         },
 
         /**
-         *  @this {XMOT.TouchController}
+         *  @this {XML3D.tools.TouchController}
          */
         onDragStart: function(action) {},
 
         /**
-         *  @this {XMOT.TouchController}
+         *  @this {XML3D.tools.TouchController}
          */
         onDrag: function(action) {},
 
         /**
-         *  @this {XMOT.TouchController}
+         *  @this {XML3D.tools.TouchController}
          */
         onDragEnd: function(action) {},
 
         /**
-         *  @this {XMOT.TouchController}
+         *  @this {XML3D.tools.TouchController}
          */
         getScene: function() {
             return this._targetXml3d;
         },
 
         /**
-         *  @this {XMOT.TouchController}
+         *  @this {XML3D.tools.TouchController}
          *  @protected
          *  @override
          */
@@ -100,7 +100,7 @@
         },
 
         /**
-         *  @this {XMOT.TouchController}
+         *  @this {XML3D.tools.TouchController}
          *  @protected
          *  @override
          */
@@ -109,7 +109,7 @@
         },
 
         /**
-         *  @this {XMOT.TouchController}
+         *  @this {XML3D.tools.TouchController}
          *  @private
          */
         _toggleAttached: function(doAttach) {
@@ -129,7 +129,7 @@
         // --- Callbacks ---
 
         /**
-         *  @this {XMOT.TouchController}
+         *  @this {XML3D.tools.TouchController}
          *  @private
          */
         _onXML3DTouchStart: function(evt) {
@@ -141,7 +141,7 @@
         },
 
         /**
-         *  @this {XMOT.TouchController}
+         *  @this {XML3D.tools.TouchController}
          *  @private
          */
         _onDocumentTouchMove: function(evt) {
@@ -158,7 +158,7 @@
 
 
         /**
-         *  @this {XMOT.TouchController}
+         *  @this {XML3D.tools.TouchController}
          *  @private
          */
         _onDocumentTouchEnd: function(evt) {
@@ -179,7 +179,7 @@
         },
 
         /**
-         *  @this {XMOT.TouchController}
+         *  @this {XML3D.tools.TouchController}
          *  @private
          */
         _rememberPositions: function(evt) {
@@ -193,12 +193,12 @@
         // --- Utils ---
 
         /**
-         *  @this {XMOT.TouchController}
+         *  @this {XML3D.tools.TouchController}
          *  @private
          */
         _createDefaultEventDispatcher: function() {
 
-            var disp = new XMOT.util.EventDispatcher();
+            var disp = new XML3D.tools.util.EventDispatcher();
 
             disp.registerCustomHandler("touchstart", function(evt){
                 if(evt.type === "touchstart")
@@ -211,7 +211,7 @@
         },
 
         /**
-         *  @this {XMOT.TouchController}
+         *  @this {XML3D.tools.TouchController}
          *  @private
          */
         _constructAction: function(evt) {

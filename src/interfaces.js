@@ -1,8 +1,8 @@
 /** @namespace **/
-var XMOT = XMOT || {};
+XML3D.tools = XML3D.tools || {};
 
 /** @define {string} */
-XMOT.version = '%VERSION%';
+XML3D.tools.version = '%VERSION%';
 
 (function() {
 

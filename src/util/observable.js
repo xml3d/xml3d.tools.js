@@ -12,10 +12,10 @@
  *  All listeners of an event type can be called with notifyListeners(), which expects the
  *  corresponding event name.
  */
-XMOT.util.Observable = new XMOT.Class({
+XML3D.tools.util.Observable = new XML3D.tools.Class({
 
     /**
-     *  @this {XMOT.util.Observable}
+     *  @this {XML3D.tools.util.Observable}
      */
     initialize: function()
     {
@@ -31,7 +31,7 @@ XMOT.util.Observable = new XMOT.Class({
 
     /** Remembers the given (array of) event name as valid event names.
      *
-     *  @this {XMOT.util.Observable}
+     *  @this {XML3D.tools.util.Observable}
      */
     addListenerTypes: function(listenerTypes)
     {
@@ -44,14 +44,14 @@ XMOT.util.Observable = new XMOT.Class({
             {
                 var type = listenerTypes[i];
                 if(this._listenerTypes[type] === true)
-                    throw "XMOT.util.Observable: type already registered: '" + type + "'!";
+                    throw "XML3D.tools.util.Observable: type already registered: '" + type + "'!";
 
                 this._listenerTypes[type] = true;
             }
         }
         else if(this._listenerTypes[listenerTypes] === true)
         {
-            throw "XMOT.util.Observable: type already registered: '" + listenerTypes + "'!";
+            throw "XML3D.tools.util.Observable: type already registered: '" + listenerTypes + "'!";
         }
         else
             this._listenerTypes[listenerTypes] = true;
@@ -60,7 +60,7 @@ XMOT.util.Observable = new XMOT.Class({
     /** Remove the given listener types from the array. The listeners will not be
      *  removed!
      *
-     *  @this {XMOT.util.Observable}
+     *  @this {XML3D.tools.util.Observable}
      */
     removeListenerTypes: function(listenerTypes)
     {
@@ -79,7 +79,7 @@ XMOT.util.Observable = new XMOT.Class({
 
     /** Add a listener for the given event type
      *
-     *  @this {XMOT.util.Observable}
+     *  @this {XML3D.tools.util.Observable}
      *
      *  @param {string} evtname
      *  @param {function()} listener
@@ -97,7 +97,7 @@ XMOT.util.Observable = new XMOT.Class({
 
     /** Remove first occurence of given element.
      *
-     *  @this {XMOT.util.Observable}
+     *  @this {XML3D.tools.util.Observable}
      *  @param {string} evtname
      *  @param {function()} listener
      */
@@ -122,7 +122,7 @@ XMOT.util.Observable = new XMOT.Class({
     /** Notifies all listeners. Arguments can be given to this function that get
      *     forwarded to each listener.
      *
-     *  @this {XMOT.util.Observable}
+     *  @this {XML3D.tools.util.Observable}
      *  @param {string} evtname
      */
     notifyListeners: function(evtname)
@@ -138,7 +138,7 @@ XMOT.util.Observable = new XMOT.Class({
 
     /** Returns whether this listener manager manages the given event name.
      *
-     *  @this {XMOT.util.Observable}
+     *  @this {XML3D.tools.util.Observable}
      *  @param {string} evtname
      *  @return {boolean} true if evtname is registered as a listener type.
      */

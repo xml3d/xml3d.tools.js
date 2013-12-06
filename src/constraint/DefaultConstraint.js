@@ -7,7 +7,7 @@
      *  @constructor
      *  @implements {Constraint}
      */
-    XMOT.DefaultConstraint = new XMOT.Class({
+    XML3D.tools.DefaultConstraint = new XML3D.tools.Class({
 
         /** @inheritDoc */
         constrainRotation: function(newRotation, opts){

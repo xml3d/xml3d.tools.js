@@ -2,10 +2,10 @@
 
     "use strict";
 
-    XMOT.namespace("XMOT.util");
+    XML3D.tools.namespace("XML3D.tools.util");
 
     /** An EventDispatcher is used to control the specific events that are needed by some
-     *  classes, e.g. XMOT.interaction.behaviors.PDSensor.
+     *  classes, e.g. XML3D.tools.interaction.behaviors.PDSensor.
      *
      *  Why a dispatcher?
      *  Per default the PDSensor emits a "dragstart" event, when any mouse button is pressed.
@@ -25,13 +25,13 @@
      *  3) Upon receiving an event decide whether you want the event to be dispatched.
      *      If you don't want it to be dispatched return false. Else return anything else.
      */
-    XMOT.util.EventDispatcher = new XMOT.Class({
+    XML3D.tools.util.EventDispatcher = new XML3D.tools.Class({
 
         /** Initializes the dispatcher.
          *  Optionally a custom handler can be registered right away by providing the
          *  proper arguments.
          *
-         *  @this {XMOT.util.EventDispatcher}
+         *  @this {XML3D.tools.util.EventDispatcher}
          *
          *  @param {string=} eventName
          *  @param {function(Event):boolean=} callback
@@ -48,7 +48,7 @@
          *  Use this method as a user of the dispatcher, i.e. to abstract from the
          *  direct event.
          *
-         *  @this {XMOT.util.EventDispatcher}
+         *  @this {XML3D.tools.util.EventDispatcher}
          *
          *  @param {window.Element} targetElement
          *  @param {string} eventName
@@ -82,7 +82,7 @@
          *  Use this method as a user of the dispatcher, i.e. to abstract from the
          *  direct event.
          *
-         *  @this {XMOT.util.EventDispatcher}
+         *  @this {XML3D.tools.util.EventDispatcher}
          *
          *  @param {window.Element} targetElement
          *  @param {string} eventName
@@ -110,7 +110,7 @@
          *  forward any events to the given callback and ask it whether to actually
          *  dispatch the event.
          *
-         *  @this {XMOT.util.EventDispatcher}
+         *  @this {XML3D.tools.util.EventDispatcher}
          *
          *  @param {string} eventName
          *  @param {function(window.Event): boolean} callback
@@ -124,7 +124,7 @@
 
         /** Registers an event in the "traditional" way.
          *
-         *  @this {XMOT.util.EventDispatcher}
+         *  @this {XML3D.tools.util.EventDispatcher}
          *  @private
          */
         _registerListenerOnTarget: function(targetElement, eventName, callback)
@@ -134,7 +134,7 @@
 
         /** Deregisters an event in the "traditional" way.
          *
-         *  @this {XMOT.util.EventDispatcher}
+         *  @this {XML3D.tools.util.EventDispatcher}
          *  @private
          */
         _deregisterListenerOnTarget: function(targetElement, eventName, callback)
@@ -145,7 +145,7 @@
         /** Will invoke all the custom handlers and ask them whether to dispatch the given event.
          *  If any of the handlers says no, the event will not be dispatched.
          *
-         *  @this {XMOT.util.EventDispatcher}
+         *  @this {XML3D.tools.util.EventDispatcher}
          *  @private
          */
         _handleEvent: function(evt, ctx) {
@@ -165,7 +165,7 @@
         },
 
         /**
-         *  @this {XMOT.util.EventDispatcher}
+         *  @this {XML3D.tools.util.EventDispatcher}
          *  @private
          */
         _hasCustomHandlers: function(eventName) {
@@ -177,7 +177,7 @@
         },
 
         /**
-         *  @this {XMOT.util.EventDispatcher}
+         *  @this {XML3D.tools.util.EventDispatcher}
          *  @private
          */
         _findContextIndex: function(targetElement, eventName, callback) {

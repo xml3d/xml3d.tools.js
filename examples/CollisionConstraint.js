@@ -63,5 +63,5 @@
     };
 
     //export
-    XMOT.CollisionConstraint = CollisionConstraint;
+    XML3D.tools.CollisionConstraint = CollisionConstraint;
 }());

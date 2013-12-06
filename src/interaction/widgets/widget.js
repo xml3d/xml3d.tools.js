@@ -2,7 +2,7 @@
 
     "use strict";
 
-    XMOT.namespace("XMOT.interaction.widgets");
+    XML3D.tools.namespace("XML3D.tools.interaction.widgets");
 
     /**
      * Widget is a utility base class, that gathers some common functions required
@@ -12,26 +12,26 @@
      * o attach/detach(): automatic attach and detach and invoking corresponding callbacks, so child classes can react.
      * o onTargetXfmChanged() : called automatically when target's transformation changes
      * o callbacks where object creation/destruction takes place
-     * o inherited from XMOT.util.Observable: child classes can use event mechanism easily.
+     * o inherited from XML3D.tools.util.Observable: child classes can use event mechanism easily.
      * o automatic translation of widget geometry to the bbox center of the target node
      *
      * Derived classes have to specify the property GeometryType. It is used to construct the geometry
      * of the specific widget.
      *
-     * @extends XMOT.util.Observable
+     * @extends XML3D.tools.util.Observable
      */
-    XMOT.interaction.widgets.Widget = new XMOT.Class(
-        XMOT.util.Observable, {
+    XML3D.tools.interaction.widgets.Widget = new XML3D.tools.Class(
+        XML3D.tools.util.Observable, {
 
         // this should be overriden by derived classes, else the widget won't have any geometry
-        GeometryType: XMOT.interaction.geometry.Geometry,
+        GeometryType: XML3D.tools.interaction.geometry.Geometry,
 
         /** Sets up the basic construct for a widget.
          *
-         *  @this {XMOT.interaction.widgets.Widget}
+         *  @this {XML3D.tools.interaction.widgets.Widget}
          *
          *  @param {string} id the id if this TransformBox and also the id of the corresponding root group node
-         *  @param {XMOT.Transformable} target the target transformable
+         *  @param {XML3D.tools.Transformable} target the target transformable
          *  @param {Object=} options
          *
          *  Options:
@@ -53,7 +53,7 @@
             this.callSuper();
             this.addListenerTypes(["dragstart", "drag", "dragend"]); // arg: this
 
-            this.xml3d = XMOT.util.getXml3dRoot(target.object);
+            this.xml3d = XML3D.tools.util.getXml3dRoot(target.object);
             this.ID = id;
             this.target = target;
 
@@ -66,7 +66,7 @@
             this._isAttached = false;
         },
 
-        /** @this {XMOT.interaction.widgets.Widget} */
+        /** @this {XML3D.tools.interaction.widgets.Widget} */
         attach: function()
         {
             if(!this._isAttached)
@@ -79,7 +79,7 @@
             }
         },
 
-        /** @this {XMOT.interaction.widgets.Widget} */
+        /** @this {XML3D.tools.interaction.widgets.Widget} */
         detach: function()
         {
             if(this._isAttached)
@@ -96,7 +96,7 @@
         /** Returns true if any object in the behavior is active. That means
          *  it has a method isActive and that method returns true.
          *
-         *  @this {XMOT.interaction.widgets.Widget}
+         *  @this {XML3D.tools.interaction.widgets.Widget}
          *
          *  @return {boolean}
          */
@@ -119,26 +119,26 @@
          *  It will be a transformable pointing to the widget's root node, i.e.
          *  the target's node.
          *
-         *  @this {XMOT.interaction.widgets.Widget}
-         *  @return {XMOT.Transformable}
+         *  @this {XML3D.tools.interaction.widgets.Widget}
+         *  @return {XML3D.tools.Transformable}
          */
         createBehaviorTarget: function(constraint)
         {
-            return XMOT.ClientMotionFactory.createTransformable(this.target.object, constraint);
+            return XML3D.tools.MotionFactory.createTransformable(this.target.object, constraint);
         },
 
         // --- Methods to be overriden ---
 
         /** Called before anything is attached.
          *
-         *  @this {XMOT.interaction.widgets.Widget}
+         *  @this {XML3D.tools.interaction.widgets.Widget}
          *  @protected
          */
         onBeforeAttach: function() {},
 
         /** Called after everything is detached.
          *
-         *  @this {XMOT.interaction.widgets.Widget}
+         *  @this {XML3D.tools.interaction.widgets.Widget}
          *  @protected
          */
         onAfterDetach: function() {},
@@ -148,14 +148,14 @@
          *  will invoke the onTarXfmChanged() method, so that clients have a place to adjust
          *  to transformation changes.
          *
-         *  @this {XMOT.interaction.widgets.Widget}
+         *  @this {XML3D.tools.interaction.widgets.Widget}
          *  @protected
          */
         onCreateBehavior: function() {},
 
         /** Called before geometry is destroyed and where the sensor attribute is still filled.
          *
-         *  @this {XMOT.interaction.widgets.Widget}
+         *  @this {XML3D.tools.interaction.widgets.Widget}
          *  @protected
          */
         onDestroyBehavior: function() {},
@@ -164,7 +164,7 @@
         /** all IDs are prefixed with the widget's ID. This function
          *  encapsulates the creation of such "global" IDs.
          *
-         *  @this {XMOT.interaction.widgets.Widget}
+         *  @this {XML3D.tools.interaction.widgets.Widget}
          *
          *  @param localID
          *  @return {string} the ID prefixed with the widget's ID
@@ -177,7 +177,7 @@
         /** Returns the element corresponding to the global if of the given
          *  local id.
          *
-         *  @this {XMOT.interaction.widgets.Widget}
+         *  @this {XML3D.tools.interaction.widgets.Widget}
          *
          *  @param {string} localID
          *  @return {Element}
@@ -214,7 +214,7 @@
         },
 
         /**
-         *  @this {XMOT.interaction.widgets.Widget}
+         *  @this {XML3D.tools.interaction.widgets.Widget}
          *  @private
          */
         _destroyBehavior: function()

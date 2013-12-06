@@ -2,7 +2,7 @@
 
     "use strict";
 
-    XMOT.namespace("XMOT.xml3doverlay.XML3DOverlay");
+    XML3D.tools.namespace("XML3D.tools.xml3doverlay.XML3DOverlay");
 
     /** This class will create an xml3d element on top of the given one.
      *  It will forward any mouse events that don't hit an xml3d element to the target
@@ -26,11 +26,11 @@
      *  However, if multiple overlays are present that causes an infinite loop (switch
      *  the overlay below another one invisible...).
      */
-    XMOT.xml3doverlay.XML3DOverlay = new XMOT.Class(
-        XMOT.util.Attachable, {
+    XML3D.tools.xml3doverlay.XML3DOverlay = new XML3D.tools.Class(
+        XML3D.tools.util.Attachable, {
 
         /**
-         *  @this {XMOT.xml3doverlay.XML3DOverlay}
+         *  @this {XML3D.tools.xml3doverlay.XML3DOverlay}
          */
         initialize: function(targetXML3DElement)
         {
@@ -40,12 +40,12 @@
 
             this._xml3dCanvas = null; // set in _registerEventListeners()
 
-            this._mirroredView = new XMOT.xml3doverlay.MirroredView(
+            this._mirroredView = new XML3D.tools.xml3doverlay.MirroredView(
                 targetXML3DElement, this.xml3d);
         },
 
         /**
-         *  @this {XMOT.xml3doverlay.XML3DOverlay}
+         *  @this {XML3D.tools.xml3doverlay.XML3DOverlay}
          *  @override
          *  @protected
          */
@@ -57,7 +57,7 @@
         },
 
         /**
-         *  @this {XMOT.xml3doverlay.XML3DOverlay}
+         *  @this {XML3D.tools.xml3doverlay.XML3DOverlay}
          *  @override
          *  @protected
          */
@@ -69,7 +69,7 @@
         },
 
         /**
-         *  @this {XMOT.xml3doverlay.XML3DOverlay}
+         *  @this {XML3D.tools.xml3doverlay.XML3DOverlay}
          *  @private
          */
         _createXML3DElement: function()
@@ -85,11 +85,11 @@
             styleAttrib += "position:absolute;";
             styleAttrib += "top:" + targetOffset.top + "px;left:" + targetOffset.left + "px;";
 
-            return XMOT.creation.element("xml3d", { style: styleAttrib });
+            return XML3D.tools.creation.element("xml3d", { style: styleAttrib });
         },
 
         /**
-         *  @this {XMOT.xml3doverlay.XML3DOverlay}
+         *  @this {XML3D.tools.xml3doverlay.XML3DOverlay}
          *  @private
          */
         _registerEventListeners: function(doAddListener)
@@ -115,7 +115,7 @@
         },
 
         /**
-         *  @this {XMOT.xml3doverlay.XML3DOverlay}
+         *  @this {XML3D.tools.xml3doverlay.XML3DOverlay}
          *  @private
          */
         _onOverlayMouseEvent: function(evt)
@@ -146,7 +146,7 @@
         },
 
         /**
-         *  @this {XMOT.xml3doverlay.XML3DOverlay}
+         *  @this {XML3D.tools.xml3doverlay.XML3DOverlay}
          *  @private
          */
         _getTargetZIndex: function()
@@ -161,7 +161,7 @@
         },
 
         /**
-         *  @this {XMOT.xml3doverlay.XML3DOverlay}
+         *  @this {XML3D.tools.xml3doverlay.XML3DOverlay}
          *  @private
          */
         _getTargetStyleProperty: function(stylePropertyName)
@@ -173,7 +173,7 @@
                 return computedStyle.getPropertyValue(stylePropertyName);
             }
 
-            throw new Error("XMOT.xml3doverlay.XML3DOverlay: missing style property '" + stylePropertyName + "' of target element!");
+            throw new Error("XML3D.tools.xml3doverlay.XML3DOverlay: missing style property '" + stylePropertyName + "' of target element!");
         },
 
         /** Calculate the offset of the given element and return it.

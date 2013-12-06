@@ -1,13 +1,13 @@
 /**
- * This file constructs the XMOT.math namespace.
+ * This file constructs the XML3D.tools.math namespace.
  */
 (function() {
 
     "use strict";
 
-    XMOT.namespace("XMOT.math");
+    XML3D.tools.namespace("XML3D.tools.math");
 
-    var m = XMOT.math;
+    var m = XML3D.tools.math;
 
     m.EPSILON = 1E-10;
 
@@ -18,7 +18,7 @@
      * @return {Array.<number>} quaternion
      */
     m.axisAngleToQuaternion = function(axis, angle) {
-        var normAxis = XMOT.math.normalizeVector(axis);
+        var normAxis = XML3D.tools.math.normalizeVector(axis);
         var quat = [];
         var s = Math.sin(angle/2);
         quat[0] = normAxis[0] *s;

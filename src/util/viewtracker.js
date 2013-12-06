@@ -9,9 +9,9 @@
      * @param {!Object} targetXml3dElement the xml3d section whose active view is to be tracked
      * @param {function(viewTracker:!Object,evt:!Event)=} onXfmChanged the callback to be invoked
      */
-    XMOT.ViewTracker = new XMOT.Class({
+    XML3D.tools.ViewTracker = new XML3D.tools.Class({
 
-        /** @this {XMOT.ViewTracker} */
+        /** @this {XML3D.tools.ViewTracker} */
         initialize: function(targetXml3dElement, onXfmChanged)
         {
             if(onXfmChanged)
@@ -35,13 +35,13 @@
 
         /** Event handler to be overriden by the user
          *
-         *  @this {XMOT.ViewTracker}
+         *  @this {XML3D.tools.ViewTracker}
          *  @param {Object} viewTracker this instance
          *  @param {Object} evt the original DOM event that caused the change
          */
         xfmChanged: function(viewTracker, evt) { },
 
-        /** @this {XMOT.ViewTracker} */
+        /** @this {XML3D.tools.ViewTracker} */
         attach: function()
         {
             if(!this._attached)
@@ -53,7 +53,7 @@
 
                 if(this._xfmObs)
                     this._xfmObs.detach();
-                this._xfmObs = new XMOT.TransformTracker(this._currentViewElement);
+                this._xfmObs = new XML3D.tools.TransformTracker(this._currentViewElement);
                 this._xfmObs.xfmChanged = this.callback("_onXfmChanged");
                 this._xfmObs.attach();
 
@@ -62,7 +62,7 @@
             }
         },
 
-        /** @this {XMOT.ViewTracker} */
+        /** @this {XML3D.tools.ViewTracker} */
         detach: function()
         {
             if(this._attached)
@@ -75,7 +75,7 @@
             }
         },
 
-        /** @this {XMOT.ViewTracker} */
+        /** @this {XML3D.tools.ViewTracker} */
         getCurrentView: function()
         {
             return this._currentViewElement;
@@ -83,7 +83,7 @@
 
         /**
          *  @private
-         *  @this {XMOT.ViewTracker}
+         *  @this {XML3D.tools.ViewTracker}
          */
         _onXml3DAttrModified: function(evt)
         {
@@ -96,7 +96,7 @@
 
         /**
          *  @private
-         *  @this {XMOT.ViewTracker}
+         *  @this {XML3D.tools.ViewTracker}
          */
         _onXfmChanged: function(targetNode, evt)
         {

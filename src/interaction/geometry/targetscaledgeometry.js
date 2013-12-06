@@ -2,17 +2,17 @@
 
     "use strict";
 
-    XMOT.namespace("XMOT.interaction.geometry");
+    XML3D.tools.namespace("XML3D.tools.interaction.geometry");
 
     /**
      */
-    XMOT.interaction.geometry.TargetScaledGeometry = new XMOT.Class(
-        XMOT.interaction.geometry.Geometry, {
+    XML3D.tools.interaction.geometry.TargetScaledGeometry = new XML3D.tools.Class(
+        XML3D.tools.interaction.geometry.Geometry, {
 
         /** This is called when the graph is created. The geometry's root
          *  is already initialized.
          *
-         *  @this {XMOT.interaction.geometry.Geometry}
+         *  @this {XML3D.tools.interaction.geometry.Geometry}
          *  @override
          *  @protected
          */
@@ -20,13 +20,13 @@
         {
             this.callSuper();
 
-            XMOT.util.fireWhenMeshesLoaded(this.widget.target.object,
+            XML3D.tools.util.fireWhenMeshesLoaded(this.widget.target.object,
                 this.callback("_adaptWidgetScaleToViewPose"));
         },
 
         /** This is called when the target transformation changes.
          *
-         *  @this {XMOT.interaction.geometry.TargetScaledGeometry}
+         *  @this {XML3D.tools.interaction.geometry.TargetScaledGeometry}
          *  @protected
          */
         onTargetXfmChanged: function() {
@@ -35,7 +35,7 @@
         },
 
         /**
-         *  @this {XMOT.interaction.geometry.TargetScaledGeometry}
+         *  @this {XML3D.tools.interaction.geometry.TargetScaledGeometry}
          *  @private
          */
         _adaptWidgetScaleToViewPose: function() {
