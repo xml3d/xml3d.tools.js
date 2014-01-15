@@ -79,13 +79,3 @@ function getCamType()
     return "none";
 }
 
-
-function createCustomFlyMouseEventDispatcher()
-{
-    var disp = new XML3D.tools.util.EventDispatcher();
-    disp.registerCustomHandler("mousedown", function(evt){
-        return evt.button === XML3D.tools.MOUSEBUTTON_RIGHT;
-    });
-
-    return disp;
-}
