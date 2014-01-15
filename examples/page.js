@@ -19,7 +19,7 @@ var EXAMPLE_LIST = [
     {
         cat: "misc",
         name: "Transformable",
-        href: "simple.xhtml",
+        href: "transformable.xhtml",
         info: "Tests the XML3D.tools.Transformable"
     },
     {
