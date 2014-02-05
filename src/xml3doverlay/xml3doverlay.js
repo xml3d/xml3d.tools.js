@@ -20,6 +20,10 @@
      *  Thus, we will simply forward the unfiltered events, that the canvas itself
      *  receives.
      *
+     *  The overlay element will be attached to the same parent as the target xml3d element.
+     *  More specifically it will have the same parent as the target canvas element
+     *  (because after attaching the xml3d.js will pack that into a div aso.).
+     *
      *  PROBLEM
      *  There is a general problem with overlays: multiple ones on top of each other.
      *  Now the propagation to underlying elements is done by making itself invisible.
@@ -36,9 +40,10 @@
         {
             this.callSuper();
             this.xml3dTarget = targetXML3DElement;
+            this._canvasTarget = this._getCanvasElement(this.xml3dTarget);
             this.xml3d = this._createXML3DElement();
 
-            this._xml3dCanvas = null; // set in _registerEventListeners()
+            this._canvas = null; // set in onAttach()
 
             this._mirroredView = new XML3D.tools.xml3doverlay.MirroredView(
                 targetXML3DElement, this.xml3d);
@@ -51,7 +56,9 @@
          */
         onAttach: function()
         {
-            document.body.appendChild(this.xml3d);
+            this._canvasTarget.parentNode.appendChild(this.xml3d);
+            this._canvas = this._getCanvasElement(this.xml3d);
+
             this._mirroredView.attach();
             this._registerEventListeners(true);
         },
@@ -68,6 +75,18 @@
             this.xml3d.parentNode.removeChild(this.xml3d);
         },
 
+        _getCanvasElement: function(xml3d)
+        {
+            if(!xml3d.parentNode || !xml3d.parentNode.previousElementSibling)
+                throw new Error("XML3DOverlay: xml3d element has no parent node or no canvas attached.");
+
+            var canvas = xml3d.parentNode.previousElementSibling;
+            if(canvas.tagName.toLowerCase() !== "canvas")
+                throw new Error("XML3DOverlay: associated element must be a canvas.");
+
+            return canvas;
+        },
+
         /**
          *  @this {XML3D.tools.xml3doverlay.XML3DOverlay}
          *  @private
@@ -76,13 +95,16 @@
         {
             var targetWidth = this.xml3dTarget.offsetWidth;
             var targetHeight = this.xml3dTarget.offsetHeight;
-            var targetOffset = this._calculateOffset(this.xml3dTarget);
+            var targetOffset = {top : this._canvasTarget.offsetTop, left: this._canvasTarget.offsetLeft};
+            console.log("offset: " + targetOffset.top + "x" + targetOffset.left);
             var zIndex = this._getTargetZIndex();
 
             var styleAttrib = "width:" + targetWidth + "px;height:" + targetHeight + "px;";
             styleAttrib += "background-color:transparent;";
             styleAttrib += "z-index:" + zIndex + ";";
             styleAttrib += "position:absolute;";
+            // we append the overlay to the same parent as the original element
+            // so we want the same offset to the parent as the other xml3d's canvas
             styleAttrib += "top:" + targetOffset.top + "px;left:" + targetOffset.left + "px;";
 
             return XML3D.tools.creation.element("xml3d", { style: styleAttrib });
@@ -94,17 +116,19 @@
          */
         _registerEventListeners: function(doAddListener)
         {
-            if(!this.xml3d.parentNode || !this.xml3d.parentNode.previousElementSibling)
-                throw new Error("XML3DOverlay: xml3d element has no parent node or no canvas attached.");
+            this._registerOverlayEventListeners(doAddListener);
+            this._registerTargetEventListeners(doAddListener);
+        },
 
-            this._xml3dCanvas = this.xml3d.parentNode.previousElementSibling;
-
-            if(this._xml3dCanvas.tagName.toLowerCase() !== "canvas")
-                throw new Error("XML3DOverlay: associated element must be a canvas.");
-
-            var registerFn = this._xml3dCanvas.addEventListener.bind(this._xml3dCanvas);
+        /**
+         *  @this {XML3D.tools.xml3doverlay.XML3DOverlay}
+         *  @private
+         */
+        _registerOverlayEventListeners: function(doAddListener)
+        {
+            var registerFn = this._canvas.addEventListener.bind(this._canvas);
             if(doAddListener === false)
-                registerFn = this._xml3dCanvas.removeEventListener.bind(this._xml3dCanvas);
+                registerFn = this._canvas.removeEventListener.bind(this._canvas);
 
             registerFn("click", this.callback("_onOverlayMouseEvent"), false);
             registerFn("mousedown", this.callback("_onOverlayMouseEvent"), false);
@@ -112,6 +136,15 @@
             registerFn("mouseover", this.callback("_onOverlayMouseEvent"), false);
             registerFn("mousemove", this.callback("_onOverlayMouseEvent"), false);
             registerFn("mouseout", this.callback("_onOverlayMouseEvent"), false);
+        },
+
+        _registerTargetEventListeners: function(doAddListener)
+        {
+            var registerFn = this.xml3dTarget.addEventListener.bind(this.xml3dTarget);
+            if(doAddListener === false)
+                registerFn = this.xml3dTarget.removeEventListener.bind(this.xml3dTarget);
+
+            registerFn("resize", this.callback("_onTargetResizeEvent"));
         },
 
         /**
@@ -124,11 +157,11 @@
             if(elOverlay)
                 return; // hit: do not delegate anything
 
-            var oldStyleDisplay = this._xml3dCanvas.style.display;
+            var oldStyleDisplay = this._canvas.style.display;
 
-            this._xml3dCanvas.style.display = "none";
+            this._canvas.style.display = "none";
             var newEl = document.elementFromPoint(evt.clientX, evt.clientY);
-            this._xml3dCanvas.style.display = oldStyleDisplay;
+            this._canvas.style.display = oldStyleDisplay;
 
             if(newEl)
                 this._delegateEvent(evt, newEl);
@@ -143,6 +176,20 @@
                 evt.metaKey, evt.button, evt.relatedTarget);
 
             newTarget.dispatchEvent(newEvt);
+        },
+
+        /** We are most-def not parented under the same node as the target xml3d element.
+         *  Thus, we track the resize event of the target node and forward that to your
+         *  overlay manually.
+         *
+         *  @param evt
+         *  @private
+         */
+        _onTargetResizeEvent: function(evt)
+        {
+            var dimensions = evt.detail;
+            this.xml3d.style.width = dimensions.width + "px";
+            this.xml3d.style.height = dimensions.height + "px";
         },
 
         /**
@@ -174,40 +221,6 @@
             }
 
             throw new Error("XML3D.tools.xml3doverlay.XML3DOverlay: missing style property '" + stylePropertyName + "' of target element!");
-        },
-
-        /** Calculate the offset of the given element and return it.
-         *
-         *  @param {Object} element
-         *  @return {{top:number, left:number}} the offset
-         *
-         *  This code is taken from http://javascript.info/tutorial/coordinates .
-         *  We don't want to do it with the offsetParent way, because the xml3d
-         *  element is actually invisible and thus offsetParent will return null
-         *  at least in WebKit. Also it's slow. So we use getBoundingClientRect().
-         *  However it returns the box relative to the window, not the document.
-         *  Thus, we need to incorporate the scroll factor. And because IE is so
-         *  awesome some workarounds have to be done and the code gets complicated.
-         */
-        _calculateOffset: function(element)
-        {
-            var box = element.getBoundingClientRect();
-            var body = document.body;
-            var docElem = document.documentElement;
-
-            // get scroll factor (every browser except IE supports page offsets)
-            var scrollTop = window.pageYOffset || docElem.scrollTop || body.scrollTop;
-            var scrollLeft = window.pageXOffset || docElem.scrollLeft || body.scrollLeft;
-
-            // the document (`html` or `body`) can be shifted from left-upper corner in IE. Get the shift.
-            var clientTop = docElem.clientTop || body.clientTop || 0;
-            var clientLeft = docElem.clientLeft || body.clientLeft || 0;
-
-            var top  = box.top +  scrollTop - clientTop;
-            var left = box.left + scrollLeft - clientLeft;
-
-            // for Firefox an additional rounding is sometimes required
-            return {top: Math.round(top), left: Math.round(left)};
         }
     });
 
