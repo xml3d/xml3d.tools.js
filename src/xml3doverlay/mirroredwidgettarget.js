@@ -140,7 +140,9 @@
             var targetNode = this._target.object;
 
             var targetMatrix = targetNode.getLocalMatrix();
-            var targetScale = targetNode.getBoundingBox().size().scale(0.5);
+            var targetScale = new XML3DVec3(1,1,1);
+            if(!targetNode.getBoundingBox().isEmpty())
+                targetScale = targetNode.getBoundingBox().size().scale(0.5);
 
             // we pre-multiply the scaling to the target's local matrix
             // however we don't want an already set scaling to be affected
