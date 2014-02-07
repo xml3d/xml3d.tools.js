@@ -37,19 +37,16 @@
         _setup1DTranslaters: function()
         {
             var xAxisConstraintFn = function(currentTranslation, newTranslation) {
-
                 newTranslation.y = currentTranslation.y;
                 newTranslation.z = currentTranslation.z;
             };
 
             var yAxisConstraintFn = function(currentTranslation, newTranslation) {
-
                 newTranslation.x = currentTranslation.x;
                 newTranslation.z = currentTranslation.z;
             };
 
             var zAxisConstraintFn = function(currentTranslation, newTranslation) {
-
                 newTranslation.x = currentTranslation.x;
                 newTranslation.y = currentTranslation.y;
             };
