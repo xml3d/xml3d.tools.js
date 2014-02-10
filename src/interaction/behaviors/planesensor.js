@@ -143,7 +143,6 @@
         {
             // intersect ray with view plane norm
             var intersectHitP = new window.XML3DVec3();
-
             if(1 !== XML3D.tools.math.intersectRayPlane(this.pdPose,
                 this._plane.origin(), this._plane.normal(), intersectHitP))
             {
@@ -165,11 +164,8 @@
         _calcTranslation: function()
         {
             var transl = this._planeHitPoint.subtract(this._plane.origin());
-
             if(this._translationConstraint.constrainTranslation(transl))
-            {
                 this.translation.set(transl);
-            }
         }
     });
 }());

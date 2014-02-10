@@ -56,7 +56,7 @@
          */
         _onTransPlaneDragStart: function(sensor)
         {
-            this._translationOffset.set(this.targetTransformable.transform.translation);
+            this._translationOffset.set(this.targetTransformable.getPosition());
         },
 
         /**
@@ -67,7 +67,23 @@
          */
         _onTranslChanged: function(sensor)
         {
-            var finalTransl = this._translationOffset.add(this.translation);
+            /** The translation of the PDSensor is in world-space, thus we will transform
+             *  it to fit into the target node's local space. It does not need to be translated
+             *  since that is what we care about. But the rotation should match the target node's
+             *  space. Thus we will transform it by the parent node's world orientation.
+             *  We do not take the target node's world orientation itself because the translation
+             *  of the target node does not include it's rotation (an object is translate and afterwards
+             *  it is rotated).
+             */
+            var localTranslation = this.translation;
+            if(this.targetTransformable.object.parentNode.getWorldMatrix !== undefined)
+            {
+                var localToWorldRotation = this.targetTransformable.object.parentNode.getWorldMatrix().rotation();
+                var worldToLocalRotation = localToWorldRotation.inverse();
+                localTranslation = worldToLocalRotation.rotateVec3(this.translation);
+            }
+
+            var finalTransl = this._translationOffset.add(localTranslation);
             this.targetTransformable.setPosition(finalTransl);
         }
     });

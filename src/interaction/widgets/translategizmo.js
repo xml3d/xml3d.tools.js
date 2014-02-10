@@ -37,19 +37,16 @@
         _setup1DTranslaters: function()
         {
             var xAxisConstraintFn = function(currentTranslation, newTranslation) {
-
                 newTranslation.y = currentTranslation.y;
                 newTranslation.z = currentTranslation.z;
             };
 
             var yAxisConstraintFn = function(currentTranslation, newTranslation) {
-
                 newTranslation.x = currentTranslation.x;
                 newTranslation.z = currentTranslation.z;
             };
 
             var zAxisConstraintFn = function(currentTranslation, newTranslation) {
-
                 newTranslation.x = currentTranslation.x;
                 newTranslation.y = currentTranslation.y;
             };
@@ -154,8 +151,7 @@
          *
          *  The constraint function is given the current translation and new translation
          *  and should update the new translation. The given translation values are
-         *  in local space of the target node. This is supposed to ease the constraining,
-         *  which it does.
+         *  in local space of the target node.
          */
         _createTranslationConstraint: function(constrainTranslationFunction) {
             function constrainTranslation(newTranslation, opts)
@@ -163,17 +159,26 @@
                 if(!opts.transformable)
                     throw new Error("Constraint: no transformable given.");
 
-                var worldMatrix = opts.transformable.object.getWorldMatrix();
-                var invWorldMatrix = worldMatrix.inverse();
-
+                /** We want the translation to be in local space of the target node, which
+                 *  includes the target node's own rotation. This rotation is not yet applied
+                 *  to the translation value, so we transform it here.
+                 */
+                // apply target node's rotation
                 var currentTranslation = opts.transformable.getPosition();
+                var targetRotation = opts.transformable.getOrientation();
+                var invTargetRotation = targetRotation.inverse();
 
-                var localCurrentTransl = invWorldMatrix.multiplyPt(currentTranslation);
-                var localNewTransl = invWorldMatrix.multiplyPt(newTranslation);
+                // we take the inverse rotation because we want to transform from the target's
+                // "world" space to the target's local space (incl. rotation)
+                var localCurTranslation = invTargetRotation.rotateVec3(currentTranslation);
+                var localNewTranslation = invTargetRotation.rotateVec3(newTranslation);
 
-                constrainTranslationFunction(localCurrentTransl, localNewTransl);
+                // constrain it
+                constrainTranslationFunction(localCurTranslation, localNewTranslation);
 
-                newTranslation.set(worldMatrix.multiplyPt(localNewTransl));
+                // invert the rotation again
+                var targetNewTranslation = targetRotation.rotateVec3(localNewTranslation);
+                newTranslation.set(targetNewTranslation);
 
                 return true;
             };
