@@ -46,7 +46,7 @@
         <file name="util/transformsensor.js" />
         <file name="util/map.js" />
         <file name="util/idgenerator.js" />
-        <file name="util/mouseclickprovider.js" />
+        <file name="util/MouseClickEventProvider.js" />
 
         <file name="animation/CombinedAnimation.js" />
 

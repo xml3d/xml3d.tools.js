@@ -11,7 +11,7 @@
      *  This class fixes this behavior. Give it an element and a callback, which will be invoked
      *  when a "real" click happens.
      */
-    XML3D.tools.util.MouseClickProvider = new XML3D.tools.Class({
+    XML3D.tools.util.MouseClickEventProvider = new XML3D.tools.Class({
 
         _mouseDownX: 0,
         _mouseDownY: 0,
