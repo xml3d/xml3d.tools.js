@@ -39,7 +39,18 @@
             this.idCounter = 0;
         },
 
-        /** @inheritDoc */
+        /**
+         * @param animation
+         * @param opt
+         * @returns {XML3D.tools.Animatable}
+         *
+         * options:
+         *  o duration (seconds)
+         *  o delay: start animation after this delay (seconds)
+         *  o startTime: do not start the animation from the beginning, but from this time (absolute, seconds)
+         *  o easing: function(normalizedTime): time, a function to be applied to the normalized time during an animation
+         *  o callback: function to be invoked when the animation completed
+         */
         addAnimation: function(animation, opt){
             //do not change options of the animation, store options of the animation of this animatable
             //same animation might have different options on another animatable
@@ -50,7 +61,6 @@
             return this;
         },
 
-        /** @inheritDoc */
         startAnimation: function(name, opt){
             var id = this.idCounter;
             this.idCounter++;
@@ -71,7 +81,8 @@
             var a = this.activeAnimations[id];
             var opt = a.opt;
             var time = opt.duration;
-            var cg = new TWEEN.Tween({t:0}).to({t:time}, time).delay(opt.delay);
+            var startTime = (opt.startTime !== undefined) ? opt.startTime : 0;
+            var cg = new TWEEN.Tween({t:startTime}).to({t:time}, time).delay(opt.delay);
 
             //setup update and complete callbacks
             var that = this;
