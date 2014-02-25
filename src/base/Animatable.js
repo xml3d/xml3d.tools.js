@@ -61,6 +61,11 @@
             return this;
         },
 
+        /**
+         * @param name
+         * @param opt see XML3D.tools.Animatable.addAnimation() for a list of supported options
+         * @returns {number}
+         */
         startAnimation: function(name, opt){
             var id = this.idCounter;
             this.idCounter++;
