@@ -87,6 +87,8 @@ function createGizmosTranslate()
 {
     gizmo = new XML3D.tools.interaction.widgets.TranslateGizmo("myGizmo", {
         target: targetTransformable
+        // uncomment the line below to test disabling of specific component
+        //, disabledComponents: ["xyplane", "yzplane", "xzplane"]
     });
     gizmo.attach();
 };
