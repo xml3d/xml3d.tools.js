@@ -16,38 +16,38 @@
          * @param{Array.<number>|undefined} scaleValues
          * @param{Object} opt
          */
-        initialize: function(name, keys, positionValues, orientationValues, scaleValues, opt){
-
+        initialize: function(name, keys, positionValues, orientationValues, scaleValues, opt)
+        {
             /**
              * name of animation
-             * @private
              * @type {string}
              */
             this.name = name;
+
             /**
              * Array of the keys
              * @private
              * @type{Array.<number>}
              */
-            this.keys = keys;
+            this._keys = keys;
             /**
              * Array fo the position values
              * @private
              * @type{Array.<number>|undefined}
              */
-            this.positionValues = positionValues;
+            this._positionValues = positionValues;
             /**
              * Array of the orientation values
              * @private
              * @type{Array.<number>|undefined}
              */
-            this.orientationValues = orientationValues;
+            this._orientationValues = orientationValues;
             /**
              * Array of the scale values
              * @private
              * @type{Array.<number>|undefined}
              */
-            this.scaleValues = scaleValues;
+            this._scaleValues = scaleValues;
 
             //options - set defaults
             /**
@@ -55,69 +55,97 @@
              * @private
              * @type {number}
              */
-            this.loop = 1;
+            this._loop = 1;
             /**
              * delay
              * @private
              * @type{number}
              */
-            this.delay = 0;
+            this._delay = 0;
             /**
              * Duration of the animation
              * @private
              * @type {number}
              */
-            this.duration = 1000;
+            this._duration = 1000;
             /**
              * easing
              * @private
              * @type {Function}
              */
-            this.easing = TWEEN.Easing.Linear.None;
+            this._easing = TWEEN.Easing.Linear.None;
             /**
              * Callback, executed as soon as the animation ended
              * @private
              * @type {Function}
              */
-            this.callback = function(){};
-            if(opt){
+            this._callback = function(){};
+            if(opt)
                 this.setOptions(opt);
-            }
         },
 
         /** @inheritDoc */
-        applyAnimation: function(animatable, currentTime, startTime, endTime, easing){
+        applyAnimation: function(animatable, currentTime, startTime, endTime, easing)
+        {
             var t = (currentTime - startTime) / (endTime - startTime);
-            if(easing && typeof(easing) === "function") t = easing(t); //otherwise its linear
-            var indexOfLastKey = this.keys.length - 1;
-            if (t <= this.keys[0]){
-                this.setValue( animatable, this.getPosition(0), this.getOrientation(0), this.getScale(0) );
-            }else if (t >= this.keys[indexOfLastKey]){
-                this.setValue( animatable, this.getPosition(indexOfLastKey), this.getOrientation(indexOfLastKey), this.getScale(indexOfLastKey) );
-            }else{
-                for ( var i = 0; i < indexOfLastKey; i++){
-                    if (this.keys[i] < t && t <= this.keys[i + 1]) {
-                        var p = (t - this.keys[i]) / (this.keys[i + 1] - this.keys[i]);
-                        this.setValue( animatable, this.getInterpolatedPosition(i, p), this.getInterpolatedOrientation(i, p), this.getInterpolatedScale(i, p) );
-                    }
-                }
-            }
+            if(easing && typeof(easing) === "function")
+                t = easing(t); //otherwise its linear
+
+            var indexOfLastKey = this._keys.length - 1;
+            if (t <= this._keys[0])
+                this._setValueByKeyIndex(animatable, 0);
+            else if (t >= this._keys[indexOfLastKey])
+                this._setValueByKeyIndex(animatable, indexOfLastKey);
+            else
+                this._interpolateKeyValue(animatable, t);
+        },
+
+        /** @inheritDoc */
+        getOptions: function()
+        {
+            return {
+                duration: this._duration,
+                loop: this._loop,
+                delay: this._delay,
+                easing: this._easing,
+                callback: this._callback
+            };
+        },
+
+        /** @inheritDoc */
+        setOptions: function(opt)
+        {
+            if(opt.loop)
+                this._loop = opt.loop;
+            if(opt.duration)
+                this._duration = opt.duration;
+            if(opt.easing && typeof(opt.easing) === "function")
+                this._easing = opt.easing;
+            if(opt.callback && typeof(opt.callback) === "function")
+                this._callback = opt.callback;
+        },
+
+        _setValueByKeyIndex: function(animatable, keyIndex)
+        {
+            this._setValue(animatable, this._getPosition(keyIndex),
+                this._getOrientation(keyIndex), this._getScale(keyIndex));
         },
 
         /**
          * Set position and animation of the animatable
          * @private
          * @param {Animatable} animatable
-         * @param {XML3DVec3|undefined} position
-         * @param {XML3DRotation|undefined} orientation
-         * @param {XML3DVec3|undefined} scale
+         * @param {XML3DVec3} position
+         * @param {XML3DRotation} orientation
+         * @param {XML3DVec3} scale
          */
-        setValue: function(animatable, position, orientation, scale){
-            if(position != undefined)
+        _setValue: function(animatable, position, orientation, scale)
+        {
+            if(this._positionValues !== undefined)
                 animatable.setPosition(position);
-            if(orientation != undefined)
+            if(this._orientationValues != undefined)
                 animatable.setOrientation(orientation);
-            if(scale != undefined)
+            if(this._scaleValues != undefined)
                 animatable.setScale(scale);
         },
 
@@ -126,11 +154,11 @@
          * @private
          * @param {number} index
          * @param {number} t interpolationparameter
-         * @return {XML3DVec3|undefined} Position
+         * @return {XML3DVec3} Position
          */
-        getInterpolatedPosition: function(index, t){
-            if(this.positionValues == undefined) return undefined;
-            return this.interpolateXML3DVec3(this.getPosition(index), this.getPosition(index+1), t);
+        _getInterpolatedPosition: function(index, t)
+        {
+            return this._interpolateXML3DVec3(this._getPosition(index), this._getPosition(index+1), t);
         },
 
         /**
@@ -138,11 +166,11 @@
          * @private
          * @param {number} index
          * @param {number} t interpolationparameter
-         * @return {XML3DVec3|undefined} Position
+         * @return {XML3DVec3} Position
          */
-        getInterpolatedScale: function(index, t){
-            if(this.scaleValues == undefined) return undefined;
-            return this.interpolateXML3DVec3(this.getScale(index), this.getScale(index+1), t);
+        _getInterpolatedScale: function(index, t)
+        {
+            return this._interpolateXML3DVec3(this._getScale(index), this._getScale(index+1), t);
         },
 
         /**
@@ -151,9 +179,10 @@
          * @param {XML3DVec3} vec1
          * @param {XML3DVec3} vec2
          * @param {number} t interpolationparameter
-         * @return {XML3DVec3|undefined} interpolated array
+         * @return {XML3DVec3} interpolated array
          */
-        interpolateXML3DVec3: function(vec1, vec2, t){
+        _interpolateXML3DVec3: function(vec1, vec2, t)
+        {
             var interpolatedX = vec1.x + ( vec2.x - vec1.x ) * t;
             var interpolatedY = vec1.y + ( vec2.y - vec1.y ) * t;
             var interpolatedZ = vec1.z + ( vec2.z - vec1.z ) * t;
@@ -165,12 +194,12 @@
          * @private
          * @param {number} index
          * @param {number} t interpolationparameter
-         * @return {Array.<number>|undefined} Orientation
+         * @return {Array.<number>} Orientation
          */
-        getInterpolatedOrientation: function(index, t){
-            if(this.orientationValues == undefined) return undefined;
-            var start = this.getOrientation(index);
-            var end = this.getOrientation(index+1);
+        _getInterpolatedOrientation: function(index, t)
+        {
+            var start = this._getOrientation(index);
+            var end = this._getOrientation(index+1);
             return XML3D.tools.math.slerp(start, end, t);
         },
 
@@ -180,10 +209,16 @@
          * @param {number} key
          * @return {XML3DVec3|undefined} Position
          */
-        getPosition: function(key){
-            if(this.positionValues == undefined || key > this.keys.length-1 /*just in case*/) return undefined;
+        _getPosition: function(key)
+        {
+            if(this._positionValues === undefined)
+                return new XML3DVec3();
+
+            if(key > this._keys.length - 1)
+                key = this._keys.length - 1;
             var index = key*3;
-            return new XML3DVec3( this.positionValues[index], this.positionValues[index+1], this.positionValues[index+2] );
+            return new XML3DVec3(this._positionValues[index],
+                this._positionValues[index+1], this._positionValues[index+2]);
         },
 
         /**
@@ -192,41 +227,69 @@
          * @param {number} key
          * @return {XML3DVec3|undefined} Position
          */
-        getScale: function(key){
-            if(this.scaleValues == undefined || key > this.keys.length-1 /*just in case*/) return undefined;
+        _getScale: function(key)
+        {
+            if(this._scaleValues === undefined)
+                return new XML3DVec3(1,1,1);
+
+            if(key > this._keys.length - 1)
+                key = this._keys.length - 1;
             var index = key*3;
-            return new XML3DVec3( this.scaleValues[index], this.scaleValues[index+1], this.scaleValues[index+2] );
+            return new XML3DVec3(this._scaleValues[index], this._scaleValues[index+1],
+                this._scaleValues[index+2] );
         },
 
         /**
          * Gets an orientation corresponding to a key
          * @private
          * @param {number} key
-         * @return {Array.<number>|undefined} Orientation
+         * @return {XML3DRotation} Orientation
          */
-        getOrientation: function(key){
-            if(this.orientationValues == undefined || key > this.keys.length-1 /*just in case*/) return undefined;
+        _getOrientation: function(key)
+        {
+            if(this._orientationValues === undefined)
+                return new XML3DRotation();
+
+            if(key > this._keys.length - 1)
+                key = this._keys.length - 1;
             var index = key*4;
             var ret = new XML3DRotation();
-            ret.setQuaternion( new XML3DVec3(this.orientationValues[index], this.orientationValues[index+1], this.orientationValues[index+2]), this.orientationValues[index+3]);
+            ret.setQuaternion( new XML3DVec3(
+                this._orientationValues[index], this._orientationValues[index+1],
+                this._orientationValues[index+2]), this._orientationValues[index+3]);
             return ret;
         },
 
-        /** @inheritDoc */
-        getOptions: function(){
-            return {duration: this.duration, loop: this.loop, delay: this.delay, easing: this.easing, callback: this.callback};
+        _interpolateKeyValue: function(animatable, keyValue)
+        {
+            var keyIndex = this._getInterpolationKeyIndex(keyValue);
+            var interpolatedValue = this._interpolateKeys(keyValue, keyIndex);
+            this._setInterpolatedValueByKeyIndex(animatable, keyIndex, interpolatedValue);
         },
 
-        /** @inheritDoc */
-        setOptions: function(opt){
-            if(opt.loop)
-                this.loop = opt.loop;
-            if(opt.duration)
-                this.duration = opt.duration;
-            if(opt.easingk && typeof(opt.easing) === "function")
-                this.easing = opt.easing;
-            if(opt.callback && typeof(opt.callback) === "function")
-                this.callback = opt.callback;
+        _getInterpolationKeyIndex: function(keyValue)
+        {
+            var indexOfLastKey = this._keys.length - 1;
+            for(var i = 0; i < indexOfLastKey; i++)
+            {
+                if(this._keys[i] <= keyValue && keyValue <= this._keys[i + 1])
+                    return i;
+            }
+
+            return indexOfLastKey;
+        },
+
+        _interpolateKeys: function(keyValue, keyIndex)
+        {
+            return (keyValue - this._keys[keyIndex]) / (this._keys[keyIndex + 1] - this._keys[keyIndex]);
+        },
+
+        _setInterpolatedValueByKeyIndex: function(animatable, keyIndex, interpolatedValue)
+        {
+            var position = this._getInterpolatedPosition(keyIndex, interpolatedValue);
+            var orientation = this._getInterpolatedOrientation(keyIndex, interpolatedValue);
+            var scale = this._getInterpolatedScale(keyIndex, interpolatedValue);
+            this._setValue(animatable, position, orientation, scale);
         }
     });
 }());
