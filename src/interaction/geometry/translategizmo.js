@@ -16,6 +16,8 @@
     XML3D.tools.interaction.geometry.TranslateGizmo = new XML3D.tools.Class(
         XML3D.tools.interaction.geometry.ViewedConstantSizeGeometry, {
 
+        disabledComponents: [],
+
         /**
          *  @this {XML3D.tools.interaction.geometry.TranslateGizmo}
          *  @param {XML3D.tools.interaction.widgets.Widget} widget
@@ -23,6 +25,8 @@
          *
          *  options:
          *      o scale: a custom scale that should be applied to the geometry
+         *      o disabledComponents: an array with the names of components that are to be disabled
+         *          - values: "xaxis", "yaxis", "zaxis", "xyplane", "xzplane", "yzplane"
          */
         initialize: function(widget, options)
         {
@@ -35,6 +39,8 @@
                 options.scale = customScale;
             else
                 options.scale = options.scale.multiply(customScale);
+            if(options.disabledComponents)
+                this.disabledComponents = options.disabledComponents;
 
             this.callSuper(widget, options);
         },
@@ -46,13 +52,18 @@
         {
             this.callSuper();
 
-            this._createAxisArrowDefs("xaxis", "0 1 0 1.57", "0 0.8 0");
-            this._createAxisArrowDefs("yaxis", "1 0 0 -1.57", "0.8 0 0");
-            this._createAxisArrowDefs("zaxis", "0 0 1 0", "0 0 0.8");
-
-            this._createAxisPlaneDefs("yzplane", "0 0.8 0", "0 1 0 -1.57", "0 1 1");
-            this._createAxisPlaneDefs("xzplane", "0.8 0 0", "1 0 0 1.57", "1 0 1");
-            this._createAxisPlaneDefs("xyplane", "0 0 0.8", "0 0 1 0", "1 1 0");
+            if(0 > this.disabledComponents.indexOf("xaxis"))
+                this._createAxisArrowDefs("xaxis", "0 1 0 1.57", "0 0.8 0");
+            if(0 > this.disabledComponents.indexOf("yaxis"))
+                this._createAxisArrowDefs("yaxis", "1 0 0 -1.57", "0.8 0 0");
+            if(0 > this.disabledComponents.indexOf("zaxis"))
+                this._createAxisArrowDefs("zaxis", "0 0 1 0", "0 0 0.8");
+            if(0 > this.disabledComponents.indexOf("yzplane"))
+                this._createAxisPlaneDefs("yzplane", "0 0.8 0", "0 1 0 -1.57", "0 1 1");
+            if(0 > this.disabledComponents.indexOf("xzplane"))
+                this._createAxisPlaneDefs("xzplane", "0.8 0 0", "1 0 0 1.57", "1 0 1");
+            if(0 > this.disabledComponents.indexOf("xyplane"))
+                this._createAxisPlaneDefs("xyplane", "0 0 0.8", "0 0 1 0", "1 1 0");
         },
 
         /**
@@ -62,22 +73,18 @@
         {
             this.callSuper();
 
-            this.setGeo("xaxis", this._createAxisArrowGroup("xaxis"));
-            this.setGeo("yaxis", this._createAxisArrowGroup("yaxis"));
-            this.setGeo("zaxis", this._createAxisArrowGroup("zaxis"));
-
-            this.setGeo("yzplane", this._createAxisPlaneGroup("yzplane"));
-            this.setGeo("xzplane", this._createAxisPlaneGroup("xzplane"));
-            this.setGeo("xyplane", this._createAxisPlaneGroup("xyplane"));
-
-            this.geo.addToGraphRoot([
-                this.getGeo("xaxis"),
-                this.getGeo("yaxis"),
-                this.getGeo("zaxis"),
-                this.getGeo("yzplane"),
-                this.getGeo("xzplane"),
-                this.getGeo("xyplane")
-            ]);
+            if(0 > this.disabledComponents.indexOf("xaxis"))
+                this._createAxisArrowGroup("xaxis");
+            if(0 > this.disabledComponents.indexOf("yaxis"))
+                this._createAxisArrowGroup("yaxis");
+            if(0 > this.disabledComponents.indexOf("zaxis"))
+                this._createAxisArrowGroup("zaxis");
+            if(0 > this.disabledComponents.indexOf("yzplane"))
+                this._createAxisPlaneGroup("yzplane");
+            if(0 > this.disabledComponents.indexOf("xzplane"))
+                this._createAxisPlaneGroup("xzplane");
+            if(0 > this.disabledComponents.indexOf("xyplane"))
+                this._createAxisPlaneGroup("xyplane");
         },
 
         _createAxisArrowDefs: function(id, rotation, color)
@@ -96,13 +103,16 @@
 
         _createAxisArrowGroup: function(id)
         {
-            return XML3D.tools.creation.element("group", {
+            var group = XML3D.tools.creation.element("group", {
                 transform: "#" + this.geo.globalID("t_" + id),
                 shader: "#" + this.geo.globalID("s_" + id),
                 children: [
                     XML3D.tools.creation.arrow(this.geo.xml3d)
                 ]
             });
+
+            this.setGeo(id, group);
+            this.geo.addToGraphRoot(group);
         },
 
         _createAxisPlaneDefs: function(id, color, rotation, translation)
@@ -128,13 +138,16 @@
 
         _createAxisPlaneGroup: function(id)
         {
-            return XML3D.tools.creation.element("group", {
+            var group = XML3D.tools.creation.element("group", {
                 transform: "#" + this.geo.globalID("t_" + id),
                 shader: "#" + this.geo.globalID("s_" + id),
                 children: [
                     XML3D.tools.creation.rectangle(this.geo.xml3d)
                 ]
             });
+
+            this.setGeo(id, group);
+            this.geo.addToGraphRoot(group);
         }
     });
 }());

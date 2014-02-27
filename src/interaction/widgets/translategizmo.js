@@ -13,11 +13,27 @@
      *
      *  constructor options:
      *  o geometry.scale: a custom scaling of the widget geometry
+     *  o disabledComponents: an array with the names of components that are to be disabled
+     *      - values: "xaxis", "yaxis", "zaxis", "xyplane", "xzplane", "yzplane"
      */
     XML3D.tools.interaction.widgets.TranslateGizmo = new XML3D.tools.Class(
         XML3D.tools.interaction.widgets.OverlayWidget, {
 
         GeometryType: XML3D.tools.interaction.geometry.TranslateGizmo,
+        disabledComponents: [],
+
+        initialize: function(id, options)
+        {
+            if(options.disabledComponents)
+            {
+                this.disabledComponents = options.disabledComponents;
+                if(!options.geometry)
+                    options.geometry = {};
+                options.geometry.disabledComponents = options.disabledComponents;
+            }
+
+            this.callSuper(id, options);
+        },
 
         /**
          *  @this {XML3D.tools.interaction.widgets.TranslateGizmo}
@@ -36,27 +52,38 @@
          */
         _setup1DTranslaters: function()
         {
-            var xAxisConstraintFn = function(currentTranslation, newTranslation) {
-                newTranslation.y = currentTranslation.y;
-                newTranslation.z = currentTranslation.z;
-            };
+            if(0 > this.disabledComponents.indexOf("xaxis"))
+            {
+                var xAxisConstraintFn = function(currentTranslation, newTranslation) {
+                    newTranslation.y = currentTranslation.y;
+                    newTranslation.z = currentTranslation.z;
+                };
 
-            var yAxisConstraintFn = function(currentTranslation, newTranslation) {
-                newTranslation.x = currentTranslation.x;
-                newTranslation.z = currentTranslation.z;
-            };
+                this.behavior["xaxis"] = this._create1DTranslater(
+                    "xaxis", "zaxis", xAxisConstraintFn);
+            }
 
-            var zAxisConstraintFn = function(currentTranslation, newTranslation) {
-                newTranslation.x = currentTranslation.x;
-                newTranslation.y = currentTranslation.y;
-            };
+            if(0 > this.disabledComponents.indexOf("yaxis"))
+            {
+                var yAxisConstraintFn = function(currentTranslation, newTranslation) {
+                    newTranslation.x = currentTranslation.x;
+                    newTranslation.z = currentTranslation.z;
+                };
 
-            this.behavior["xaxis"] = this._create1DTranslater(
-                "xaxis", "zaxis", xAxisConstraintFn);
-            this.behavior["yaxis"] = this._create1DTranslater(
-                "yaxis", "zaxis", yAxisConstraintFn);
-            this.behavior["zaxis"] = this._create1DTranslater(
-                "zaxis", "xaxis", zAxisConstraintFn);
+                this.behavior["yaxis"] = this._create1DTranslater(
+                    "yaxis", "zaxis", yAxisConstraintFn);
+            }
+
+            if(0 > this.disabledComponents.indexOf("zaxis"))
+            {
+                var zAxisConstraintFn = function(currentTranslation, newTranslation) {
+                    newTranslation.x = currentTranslation.x;
+                    newTranslation.y = currentTranslation.y;
+                };
+
+                this.behavior["zaxis"] = this._create1DTranslater(
+                    "zaxis", "xaxis", zAxisConstraintFn);
+            }
         },
 
         /**
@@ -65,9 +92,12 @@
          */
         _setup2DTranslaters: function()
         {
-            this.behavior["xyplane"] = this._create2DTranslater("xyplane");
-            this.behavior["yzplane"] = this._create2DTranslater("yzplane");
-            this.behavior["xzplane"] = this._create2DTranslater("xzplane");
+            if(0 > this.disabledComponents.indexOf("xyplane"))
+                this.behavior["xyplane"] = this._create2DTranslater("xyplane");
+            if(0 > this.disabledComponents.indexOf("yzplane"))
+                this.behavior["yzplane"] = this._create2DTranslater("yzplane");
+            if(0 > this.disabledComponents.indexOf("xzplane"))
+                this.behavior["xzplane"] = this._create2DTranslater("xzplane");
         },
 
         /** Sets up a XML3D.tools.interaction.behaviors.Translater for 1D translation.
