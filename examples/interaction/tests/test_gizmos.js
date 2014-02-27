@@ -97,7 +97,8 @@ function createGizmosRotate()
         target: targetTransformable,
         rotationSpeed: getRotationSpeed(),
         geometry: {
-            scale: new XML3DVec3(2, 2, 2)
+            scale: new XML3DVec3(2, 2, 2),
+            bandWidth: 1.1
         }
     });
     gizmo.attach();
