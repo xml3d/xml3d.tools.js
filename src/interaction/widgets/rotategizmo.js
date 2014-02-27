@@ -21,6 +21,7 @@
          *
          *  options:
          *  o geometry.scale: a custom scaling of the widget geometry
+         *  o geometry.bandWidth: the width of a band (default: 1)
          */
         initialize: function(id, options)
         {

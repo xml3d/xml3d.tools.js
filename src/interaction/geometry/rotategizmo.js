@@ -16,6 +16,8 @@
     XML3D.tools.interaction.geometry.RotateGizmo = new XML3D.tools.Class(
         XML3D.tools.interaction.geometry.ViewedConstantSizeGeometry, {
 
+        bandWidth: 1,
+
         /**
          *  @this {XML3D.tools.interaction.geometry.RotateGizmo}
          *  @param {XML3D.tools.interaction.widgets.Widget} widget
@@ -23,6 +25,7 @@
          *
          *  options:
          *      o scale: a custom scale that should be applied to the geometry
+         *      o bandWidth: the width of a band (default: 1)
          */
         initialize: function(widget, options)
         {
@@ -35,6 +38,9 @@
                 options.scale = customScale;
             else
                 options.scale = options.scale.multiply(customScale);
+            if(options.bandWidth)
+                this.bandWidth = options.bandWidth;
+
 
             this.callSuper(widget, options);
         },
@@ -48,9 +54,9 @@
         {
             this.callSuper();
 
-            this._createAxisDefsElements("xaxis", "0 0.8 0", "0 1 0 -1.57", 1);
-            this._createAxisDefsElements("yaxis", "0.8 0 0", "1 0 0 1.57", 1.01);
-            this._createAxisDefsElements("zaxis", "0 0 0.8", "0 0 1 0", 1.02);
+            this._createAxisDefsElements("xaxis", "0 0.8 0", "0 1 0 -1.57", 0);
+            this._createAxisDefsElements("yaxis", "0.8 0 0", "1 0 0 1.57", 0.01);
+            this._createAxisDefsElements("zaxis", "0 0 0.8", "0 0 1 0", 0.02);
         },
 
         /**
@@ -81,10 +87,13 @@
          *  @param {string} color
          *  @param {string=} rotation
          */
-        _createAxisDefsElements: function(id, color, rotation, scaleFactor)
+        _createAxisDefsElements: function(id, color, rotation, sizeOffset)
         {
-            var scaleVec = new XML3DVec3(1, 1, 0.075);
-            scaleVec = scaleVec.scale(scaleFactor);
+            var scaleVec = new XML3DVec3(1, 1, 0.1*this.bandWidth);
+            // when increasing the bandwidth the size and thus offset of the band to the lower ones
+            // should increase, too, else we get an overlap. Thus, we scale the size offset by the
+            // band width
+            scaleVec = scaleVec.scale(1 + sizeOffset*this.bandWidth);
 
             this.geo.addTransforms("t_" + id, {
                 scale: scaleVec.str(),
