@@ -74,13 +74,19 @@
              *  We do not take the target node's world orientation itself because the translation
              *  of the target node does not include it's rotation (an object is translate and afterwards
              *  it is rotated).
+             *  We do the same for the scaling factor. If the scaling of the parent node is too high/low
+             *  the translation will be too much/less.
              */
             var localTranslation = this.translation;
             if(this.targetTransformable.object.parentNode.getWorldMatrix !== undefined)
             {
-                var localToWorldRotation = this.targetTransformable.object.parentNode.getWorldMatrix().rotation();
-                var worldToLocalRotation = localToWorldRotation.inverse();
-                localTranslation = worldToLocalRotation.rotateVec3(this.translation);
+                var parentWorldMatrix = this.targetTransformable.object.parentNode.getWorldMatrix();
+                var worldToLocalRotation = parentWorldMatrix.rotation().inverse();
+                var localToWorldScale = parentWorldMatrix.scaling();
+                var worldToLocalScale =
+                    new XML3DVec3(1/localToWorldScale.x, 1/localToWorldScale.y, 1/localToWorldScale.z);
+                localTranslation = localTranslation.multiply(worldToLocalScale);
+                localTranslation = worldToLocalRotation.rotateVec3(localTranslation);
             }
 
             var finalTransl = this._translationOffset.add(localTranslation);
