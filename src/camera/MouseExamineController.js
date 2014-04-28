@@ -17,17 +17,30 @@
         /**
          *  @this {XML3D.tools.MouseExamineController}
          *  @inheritDoc
+         *
+         *  The options can be a "controls" object with the following attributes:
+         *  o rotate: which mouse button is used for rotation, default left
+         *  o dolly: which mouse button is used for dolly, default right
          */
         initialize: function(targetViewGroup, options) {
 
             var options = options || {};
-            if(options.eventDispatcher === undefined)
-                options.eventDispatcher = this._createMouseEventDispatcher();
-
+            options.controls = options.controls || {};
+            options.eventDispatcher = this._createMouseEventDispatcher();
             this.callSuper(targetViewGroup, options);
 
             this.behavior = new XML3D.tools.ExamineBehavior(this.target, options);
             this._currentAction = this.NONE;
+
+            this._controls = this._createControls(options);
+        },
+
+        _createControls: function(options) {
+
+            return {
+                rotate: options.controls.rotate || XML3D.tools.MOUSEBUTTON_LEFT,
+                dolly: options.controls.dolly || XML3D.tools.MOUSEBUTTON_RIGHT
+            };
         },
 
         /** Resets the camera pose to look at the whole scene.
@@ -100,9 +113,16 @@
          */
         onDragStart: function(action) {
 
-            this._currentAction = this.ROTATE;
-            if(action.evt.button === XML3D.tools.MOUSEBUTTON_RIGHT)
+            this._currentAction = this.NONE;
+            switch(action.evt.button)
+            {
+            case this._controls.rotate:
+                this._currentAction = this.ROTATE;
+                break;
+            case this._controls.dolly:
                 this._currentAction = this.DOLLY;
+                break;
+            }
         },
 
         /**
@@ -139,12 +159,12 @@
             var disp = new XML3D.tools.util.EventDispatcher();
 
             disp.registerCustomHandler("mousedown", function(evt){
-                if(evt.button === XML3D.tools.MOUSEBUTTON_LEFT
-                || evt.button === XML3D.tools.MOUSEBUTTON_RIGHT)
+                if(evt.button === this._controls.rotate
+                || evt.button === this._controls.dolly)
                     return true;
 
                 return false;
-            });
+            }.bind(this));
 
             return disp;
         }
