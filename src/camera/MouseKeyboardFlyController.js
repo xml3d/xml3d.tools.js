@@ -15,10 +15,14 @@
          *  @param {Object} options
          *
          *  options:
-         *  o mouse: options to be passed to XML3D.tools.MouseController
-         *  o keyboard: options to be passed to XML3D.tools.KeyboardController
          *  o disableMovement: if true, no movement will be possible
          *  o disableRotation: if true, no looking around is possible
+         *  o controls: an object that describes custom controls
+         *
+         *  Controls object attributes:
+         *  o forward/backward/left/right: keys for movement, default w/s/a/d
+         *  o useRotationActivator: whether to use a mouse button to activate view rotation
+         *  o rotationActivator: the mouse button used to activate view rotation
          *
          *  For other options see FlyBehavior.
          *
@@ -30,34 +34,47 @@
             this.callSuper();
 
             var options = options || {};
-            options.mouse = options.mouse || {};
-            options.keyboard = options.keyboard || {};
+            options.controls = options.controls || {};
 
             this.target = XML3D.tools.util.getOrCreateTransformable(targetViewGroup);
-
             this.behavior = new XML3D.tools.FlyBehavior(this.target, options);
-
-            if(options.mouse.eventDispatcher === undefined)
-                options.mouse.eventDispatcher = this._createMouseEventDispatcher();
-
-            this._mouseCtrl = new XML3D.tools.MouseController(this.target, options.mouse);
-            this._mouseCtrl.onDrag = this.callback("_onDrag");
-
-            this._keyCtrl = new XML3D.tools.KeyboardController(this.target, options.keyboard);
-            this._keyCtrl.onKeyDown = this.callback("_onKeyDown");
-            this._keyCtrl.onKeyUp = this.callback("_onKeyUp");
+            this._initControllers();
+            this._controls = this._createControls(options);
 
             this._continuousInputProcessing = false;
-
             /** map keyvalue => boolean */
             this._currentlyPressedKeys = {};
+            this._disableMovement = (options.disableMovement === true);
+            this._disableRotation = (options.disableRotation === true);
+        },
 
-            this._disableMovement = false;
-            if(options.disableMovement === true)
-                this._disableMovement = true;
-            this._disableRotation = false;
-            if(options.disableRotation === true)
-                this._disableRotation = true;
+        _initControllers: function() {
+
+            this._mouseCtrl = new XML3D.tools.MouseController(this.target, {
+                eventDispatcher: this._createMouseEventDispatcher()
+            });
+            this._mouseCtrl.onDrag = this.callback("_onDrag");
+
+            this._keyCtrl = new XML3D.tools.KeyboardController(this.target);
+            this._keyCtrl.onKeyDown = this.callback("_onKeyDown");
+            this._keyCtrl.onKeyUp = this.callback("_onKeyUp");
+        },
+
+        _createControls: function(options) {
+
+            var controls = {
+                forward: options.controls.forward || XML3D.tools.KEY_W,
+                left: options.controls.left || XML3D.tools.KEY_A,
+                right: options.controls.right || XML3D.tools.KEY_S,
+                backward: options.controls.backward || XML3D.tools.KEY_D,
+                useRotationActivator: true,
+                rotationActivator: options.controls.rotationActivator || XML3D.tools.MOUSEBUTTON_LEFT
+            };
+
+            if(options.useRotationActivator !== undefined)
+                controls.useRotationActivator = options.useRotationActivator;
+
+            return controls;
         },
 
         lookAt: function(point) {
@@ -171,16 +188,16 @@
                 return;
             }
 
-            if(this._currentlyPressedKeys[XML3D.tools.KEY_W] === true) {
+            if(this._currentlyPressedKeys[this._controls.forward] === true) {
                 this.behavior.moveForward();
             }
-            if(this._currentlyPressedKeys[XML3D.tools.KEY_S] === true) {
+            if(this._currentlyPressedKeys[this._controls.backward] === true) {
                 this.behavior.moveBackward();
             }
-            if(this._currentlyPressedKeys[XML3D.tools.KEY_A] === true) {
+            if(this._currentlyPressedKeys[this._controls.left] === true) {
                 this.behavior.stepLeft();
             }
-            if(this._currentlyPressedKeys[XML3D.tools.KEY_D] === true) {
+            if(this._currentlyPressedKeys[this._controls.right] === true) {
                 this.behavior.stepRight();
             }
 
@@ -194,13 +211,12 @@
         _createMouseEventDispatcher: function() {
 
             var disp = new XML3D.tools.util.EventDispatcher();
-
             disp.registerCustomHandler("mousedown", function(evt){
-                if(evt.button === XML3D.tools.MOUSEBUTTON_LEFT)
+                if(!this._controls.useRotationActivator)
                     return true;
 
-                return false;
-            });
+                return evt.button === this._controls.rotationActivator;
+            }.bind(this));
 
             return disp;
         }
