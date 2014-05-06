@@ -1,67 +1,62 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd" >
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd" >
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:webgl="http://www.xml3d.org/2009/xml3d/webgl">
 <head>
-  <title>TransformSensor Test</title>
-  <link rel="stylesheet" type="text/css" media="all" href="style/default.css" />
+    <title>TransformSensor</title>
+    <link rel="stylesheet" type="text/css" media="all" href="style/default.css"/>
 
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
-  <script type="text/javascript" src="external/xml3d.js"></script>
-  <script type="text/javascript" src="../build/output/xml3d.tools.js"></script>
-  <script type="text/javascript" src="page.js" />
+    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+    <script type="text/javascript" src="external/xml3d.js"></script>
+    <script type="text/javascript" src="../build/output/xml3d.tools.js"></script>
+    <script type="text/javascript" src="page.js"/>
 
-  <script type="text/javascript" src="transformsensor.js"></script>
+    <script type="text/javascript" src="transformsensor.js"></script>
 </head>
 
 <body onload="initScene()">
 <div id="overall">
-    <div id="content">
-  <h1>TransformSensor Test</h1>
-  <div style="padding: 16px" >
-    <div id="Xml3dWrapper" style="color: red" >
-      <xml3d id="MyXml3d"
-        xmlns="http://www.xml3d.org/2009/xml3d"
-        xmlns:xlink="http://www.w3.org/1999/xlink"
-        webgl:showLog="false"
-        activeView="#controller_view"
-        pickableBackground="true"
-      >
-        <view id="controller_view" position="0 0 10" />
+<div id="content">
+    <h1>TransformSensor</h1>
+
+    <xml3d id="MyXml3d"
+           xmlns="http://www.xml3d.org/2009/xml3d"
+           activeView="#controller_view"
+    >
+        <view id="controller_view" position="0 0 10"/>
 
         <defs>
-          <lightshader id="s_light" script="urn:xml3d:lightshader:point">
-            <float3 name="intensity">0.6 0.6 0.6</float3>
-            <float3 name="attenuation">1.0 0.01 0.0</float3>
-          </lightshader>
-          <transform id="t_light" translation="0 2 5" />
+            <lightshader id="s_light" script="urn:xml3d:lightshader:point">
+                <float3 name="intensity">0.6 0.6 0.6</float3>
+                <float3 name="attenuation">1.0 0.01 0.0</float3>
+            </lightshader>
+            <transform id="t_light" translation="0 2 5"/>
         </defs>
 
         <group transform="#t_light">
-          <light shader="#s_light" />
+            <light shader="#s_light"/>
         </group>
-      </xml3d>
+    </xml3d>
+
+    <div class="description">
+        <div class="paragraph">
+            The TransformSensor is similar to X3D's
+            <a href="http://www.web3d.org/x3d/specifications/ISO-IEC-19775-1.2-X3D-AbstractSpecification/Part01/components/envsensor.html#TransformSensor">
+                TransformSensor
+            </a>.
+            You give it a bounding box and target node. The sensor tracks
+            transformation changes in the target node and notifies the listeners
+            as soon as the bounding box of the target node intersects with the given
+            bounding box.
+        </div>
+        <div class="paragraph">
+            In this example the bounding box is visualized by the red cube.
+            The target node is the blue cube. Dragging the blue cube near the
+            red one triggers an intersection that causes the red cube to change
+            the color to green.
+        </div>
     </div>
-  </div>
-
-  <div id="useKeys" />
-
-  <div class="message">
-    <p>The TransformSensor is similar to X3D's
-    <a href="http://www.web3d.org/x3d/specifications/ISO-IEC-19775-1.2-X3D-AbstractSpecification/Part01/components/envsensor.html#TransformSensor">
-    TransformSensor
-    </a>.
-    You give it a bounding box and target node. The sensor tracks
-    transformation changes in the target node and notifies the listeners
-    as soon as the bounding box of the target node intersects with the given
-    bounding box.</p>
-
-    <p>In this example the bounding box is visualized by the red cube.
-    The target node is the blue cube. Dragging the blue cube near the
-    red one triggers an intersection that causes the red cube to decrease
-    it's transparency value.</p>
-  </div>
-    </div>
-  </div>
+</div>
+</div>
 </body>
 </html>
