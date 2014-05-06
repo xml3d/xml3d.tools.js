@@ -84,7 +84,7 @@
     var XBox360Gamepad = new XML3D.tools.Class(Gamepad, {
 
         initialize: function(status) {
-            this.callSuper();
+            this.callSuper(status);
 
             this.buttons = [];
             this.axes = [];
