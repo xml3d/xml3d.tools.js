@@ -1,127 +1,120 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd" >
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd" >
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:webgl="http://www.xml3d.org/2009/xml3d/webgl">
 <head>
-  <title>.translatable() Test</title>
-  <link rel="stylesheet" type="text/css" media="all"
-    href="../../style/default.css"
-    />
+    <title>Translatable</title>
+    <link rel="stylesheet" type="text/css" media="all"
+          href="../../style/default.css"
+            />
 
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
-  <script type="text/javascript" src="../../external/xml3d.js"></script>
-  <script type="text/javascript" src="../../../build/output/xml3d.tools.js"></script>
-  <script type="text/javascript" src="../page.js" />
+    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+    <script type="text/javascript" src="../../external/xml3d.js"></script>
+    <script type="text/javascript" src="../../../build/output/xml3d.tools.js"></script>
+    <script type="text/javascript" src="../page.js"/>
 
-  <script type="text/javascript" src="test_translatable.js"></script>
+    <script type="text/javascript" src="test_translatable.js"></script>
 </head>
 
 <body onload="initScene();">
 <div id="overall">
-    <div id="content">
-  <h1>.translatable() Test</h1>
-  <div style="padding: 16px" >
-    <div id="Xml3dWrapper" style="color: red" >
-      <xml3d id="MyXml3d" style="width:350px; height:350px;"
-        xmlns="http://www.xml3d.org/2009/xml3d"
-        xmlns:xlink="http://www.w3.org/1999/xlink"
-        webgl:showLog="false"
-        activeView="#controller_view"
-        pickableBackground="true"
-      >
-      <group>
-        <view id="controller_view" position="0 3 20" />
-      </group>
-
-      <defs>
-        <data id="mySimpleMesh">
-          <int name="index">0 1 2 1 2 3</int>
-          <float3 name="position">
-           -1.0 -1.0 -0.0
-            1.0 -1.0 -0.0
-           -1.0  1.0 -0.0
-            1.0  1.0 -0.0
-          </float3>
-          <float3 name="normal">
-            0.0 0.0 1.0
-            0.0 0.0 1.0
-            0.0 0.0 1.0
-            0.0 0.0 1.0
-          </float3>
-          <float2 name="texcoord">
-            0.0 1.0
-            1.0 1.0
-            0.0 0.0
-            1.0 0.0
-          </float2>
-        </data>
-        <transform id="trans1" translation="0 2.5 0" />
-        <transform id="trans2" translation="0 -2.5 0" />
-        <transform id="transall" />
-
-        <shader id="s_grp1" script="urn:xml3d:shader:phong">
-           <float3 name="diffuseColor">1 0 0</float3>
-           <float name="ambientIntensity">1</float>
-        </shader>
-
-        <shader id="s_grp2" script="urn:xml3d:shader:phong">
-           <float3 name="diffuseColor">0 1 0</float3>
-           <float name="ambientIntensity">1</float>
-        </shader>
-      </defs>
-
-      <group id="group_all" transform="#transall">
-        <group id="group1" transform="#trans1" shader="#s_grp1">
-          <mesh id="mesh_group1" type="triangles" src="#mySimpleMesh" />
+<div id="content">
+    <h1>Translatable</h1>
+    <xml3d id="MyXml3d" style="width:350px; height:350px;"
+           xmlns="http://www.xml3d.org/2009/xml3d"
+           activeView="#controller_view"
+            >
+        <group>
+            <view id="controller_view" position="0 3 20"/>
         </group>
 
-        <group id="group2" transform="#trans2" shader="#s_grp2">
-          <mesh id="mesh_group2" type="triangles" src="#mySimpleMesh" />
+        <defs>
+            <data id="mySimpleMesh">
+                <int name="index">0 1 2 1 2 3</int>
+                <float3 name="position">
+                    -1.0 -1.0 -0.0
+                    1.0 -1.0 -0.0
+                    -1.0 1.0 -0.0
+                    1.0 1.0 -0.0
+                </float3>
+                <float3 name="normal">
+                    0.0 0.0 1.0
+                    0.0 0.0 1.0
+                    0.0 0.0 1.0
+                    0.0 0.0 1.0
+                </float3>
+                <float2 name="texcoord">
+                    0.0 1.0
+                    1.0 1.0
+                    0.0 0.0
+                    1.0 0.0
+                </float2>
+            </data>
+            <transform id="trans1" translation="0 2.5 0"/>
+            <transform id="trans2" translation="0 -2.5 0"/>
+            <transform id="transall"/>
+
+            <shader id="s_grp1" script="urn:xml3d:shader:phong">
+                <float3 name="diffuseColor">1 0 0</float3>
+                <float name="ambientIntensity">1</float>
+            </shader>
+
+            <shader id="s_grp2" script="urn:xml3d:shader:phong">
+                <float3 name="diffuseColor">0 1 0</float3>
+                <float name="ambientIntensity">1</float>
+            </shader>
+        </defs>
+
+        <group id="group_all" transform="#transall">
+            <group id="group1" transform="#trans1" shader="#s_grp1">
+                <mesh id="mesh_group1" type="triangles" src="#mySimpleMesh"/>
+            </group>
+
+            <group id="group2" transform="#trans2" shader="#s_grp2">
+                <mesh id="mesh_group2" type="triangles" src="#mySimpleMesh"/>
+            </group>
         </group>
-      </group>
 
-      </xml3d>
+    </xml3d>
+
+    <div class="actions">
+        <input id="b_toggleSensors" type="button" value="Detach Sensors" class="test-button" onclick="toggleSensors();"/>
     </div>
-  </div>
 
+    <div class="description">
+        <div class="paragraph">
+            To every rectangle a Translatable is attached. The rectangles'
+            translations can be changed by dragging them. The translation plane is orthogonal
+            to the viewing direction.
+        </div>
 
-  <div id="useKeys" />
+        <div class="paragraph">
+            Both of them have their translations restricted. The sensor attached to the upper rectangle
+            is only allowed to translate in the upper half of the space and the counter part holds
+            for the other sensor.
+        </div>
 
-  <div class="actions">
-    <input id="b_toggleSensors" type="button" value="Detach Sensors" onclick="toggleSensors();"/>
-  </div>
+        <div class="paragraph">
+            Below the drag status is depicted. The number of dots are increased, whenever
+            there is a drag event arriving.
+        </div>
 
-  <div class="message">
-    <p>To every rectangle the jQuery plugin .translatable() is called. The rectangles'
-    translations can be changed by dragging them.</p>
+        <div class="paragraph">
+            IDs:
+            <ul>
+                <li>red: group1</li>
+                <li>green: group2</li>
+            </ul>
+        </div>
 
-    <p>The translation plane is orthogonal to the viewing direction.</p>
-
-    <p>Both of them have their translations restricted. The sensor attached to the upper rectangle
-    is only allowed to translate in the upper half of the space and the counter part holds
-    for the other sensor.</p>
-
-    IDs:
-    <ul>
-      <li>red: group1</li>
-      <li>green: group2</li>
-    </ul>
-
-    <p>
-    Below the drag status is depicted also. The number of dots are increased, whenever
-    there is a drag event arriving from the translatable().
-    </p>
-  </div>
-
-  <div class="message">
-    <div id="dragstatus">drag: off</div>
-    <div id="dragop">.</div>
-    <div>mousepos: <span id="mousepos"></span></div>
-    <!-- <div>transGrp1: <span id="transGrp1"></span></div> -->
-    <!-- <div>transGrp2: <span id="transGrp2"></span></div> -->
-  </div>
+        <div class="paragraph">
+            <div id="dragstatus">drag: off</div>
+            <div id="dragop">.</div>
+            <div>mousepos: <span id="mousepos"></span></div>
+        </div>
     </div>
-  </div>
+</div>
+</div>
 
 </body>
 </html>
