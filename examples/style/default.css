@@ -223,3 +223,22 @@ a:hover{
     margin-top: 5px;
     margin-bottom: 5px;
 }
+
+.spanhalf {
+    display: inline-block;
+    width: 48%;
+}
+
+.separator {
+    border-bottom: 1px solid #ccc;
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+
+.paragraph {
+    margin-top: 1em;
+}
+
+.paragraph > ul {
+    margin-top: 0.5em;
+}
