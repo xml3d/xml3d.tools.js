@@ -65,8 +65,8 @@
             var controls = {
                 forward: options.controls.forward || XML3D.tools.KEY_W,
                 left: options.controls.left || XML3D.tools.KEY_A,
-                right: options.controls.right || XML3D.tools.KEY_S,
-                backward: options.controls.backward || XML3D.tools.KEY_D,
+                right: options.controls.right || XML3D.tools.KEY_D,
+                backward: options.controls.backward || XML3D.tools.KEY_S,
                 useRotationActivator: true,
                 rotationActivator: options.controls.rotationActivator || XML3D.tools.MOUSEBUTTON_LEFT
             };
