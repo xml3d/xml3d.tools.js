@@ -3,7 +3,7 @@
 <head>
     <link href="http://www.xml3d.org/xml3d/script/xml3d.css" media="all" rel="stylesheet" type="text/css"/>
 
-    <title>GamepadConnector</title>
+    <title>Gamepad</title>
 
     <link rel="stylesheet" type="text/css" media="all" href="style/default.css"/>
 
@@ -17,135 +17,140 @@
 <body onload="init()">
 <div id="overall">
     <div id="content">
-        <h1>GamepadConnector</h1>
+        <h1>Gamepad</h1>
 
         <div class="description">Tests the gamepad availability, in case one or two are connected.</div>
 
-        <h3>Gamepad 1</h3>
+        <div class="separator" />
 
-        <div style="width: 350px;">Button Left Shoulder:
-            <div style="float:right;" id="ls">up</div>
-        </div>
-        <div style="width: 350px;">Button Right Shoulder:
-            <div style="float:right;" id="rs">up</div>
-        </div>
-        <div style="width: 350px;">Button Left Trigger:
-            <div style="float:right;" id="lt">0</div>
-        </div>
-        <div style="width: 350px;">Button Right Trigger:
-            <div style="float:right;" id="rt">0</div>
-        </div>
-        <div style="width: 350px;">Button Start:
-            <div style="float:right;" id="start">up</div>
-        </div>
-        <div style="width: 350px;">Button Back:
-            <div style="float:right;" id="back">up</div>
-        </div>
-        <div style="width: 350px;">Button A:
-            <div style="float:right;" id="a">up</div>
-        </div>
-        <div style="width: 350px;">Button B:
-            <div style="float:right;" id="b">up</div>
-        </div>
-        <div style="width: 350px;">Button X:
-            <div style="float:right;" id="x">up</div>
-        </div>
-        <div style="width: 350px;">Button Y:
-            <div style="float:right;" id="y">up</div>
-        </div>
-        <div style="width: 350px;">Left Stick Button:
-            <div style="float:right;" id="lsb">up</div>
-        </div>
-        <div style="width: 350px;">Right Stick Button:
-            <div style="float:right;" id="rsb">up</div>
-        </div>
-        <div style="width: 350px;">DPad Left:
-            <div style="float:right;" id="dpl">up</div>
-        </div>
-        <div style="width: 350px;">DPad Right:
-            <div style="float:right;" id="dpr">up</div>
-        </div>
-        <div style="width: 350px;">DPad Up:
-            <div style="float:right;" id="dpu">up</div>
-        </div>
-        <div style="width: 350px;">DPad Down:
-            <div style="float:right;" id="dpd">up</div>
-        </div>
-        <div style="width: 350px;">Left x-Axis:
-            <div style="float:right;" id="x-l">0</div>
-        </div>
-        <div style="width: 350px;">Left y-Axis:
-            <div style="float:right;" id="y-l">0</div>
-        </div>
-        <div style="width: 350px;">Right x-Axis
-            <div style="float:right;" id="x-r">0</div>
-        </div>
-        <div style="width: 350px;">Right y-Axis
-            <div style="float:right;" id="y-r">0</div>
+        <div class="spanhalf">
+            <h3>Gamepad 1</h3>
+
+            <div style="width: 350px;">Button Left Shoulder:
+                <div style="float:right;" id="ls">up</div>
+            </div>
+            <div style="width: 350px;">Button Right Shoulder:
+                <div style="float:right;" id="rs">up</div>
+            </div>
+            <div style="width: 350px;">Button Left Trigger:
+                <div style="float:right;" id="lt">0</div>
+            </div>
+            <div style="width: 350px;">Button Right Trigger:
+                <div style="float:right;" id="rt">0</div>
+            </div>
+            <div style="width: 350px;">Button Start:
+                <div style="float:right;" id="start">up</div>
+            </div>
+            <div style="width: 350px;">Button Back:
+                <div style="float:right;" id="back">up</div>
+            </div>
+            <div style="width: 350px;">Button A:
+                <div style="float:right;" id="a">up</div>
+            </div>
+            <div style="width: 350px;">Button B:
+                <div style="float:right;" id="b">up</div>
+            </div>
+            <div style="width: 350px;">Button X:
+                <div style="float:right;" id="x">up</div>
+            </div>
+            <div style="width: 350px;">Button Y:
+                <div style="float:right;" id="y">up</div>
+            </div>
+            <div style="width: 350px;">Left Stick Button:
+                <div style="float:right;" id="lsb">up</div>
+            </div>
+            <div style="width: 350px;">Right Stick Button:
+                <div style="float:right;" id="rsb">up</div>
+            </div>
+            <div style="width: 350px;">DPad Left:
+                <div style="float:right;" id="dpl">up</div>
+            </div>
+            <div style="width: 350px;">DPad Right:
+                <div style="float:right;" id="dpr">up</div>
+            </div>
+            <div style="width: 350px;">DPad Up:
+                <div style="float:right;" id="dpu">up</div>
+            </div>
+            <div style="width: 350px;">DPad Down:
+                <div style="float:right;" id="dpd">up</div>
+            </div>
+            <div style="width: 350px;">Left x-Axis:
+                <div style="float:right;" id="x-l">0</div>
+            </div>
+            <div style="width: 350px;">Left y-Axis:
+                <div style="float:right;" id="y-l">0</div>
+            </div>
+            <div style="width: 350px;">Right x-Axis
+                <div style="float:right;" id="x-r">0</div>
+            </div>
+            <div style="width: 350px;">Right y-Axis
+                <div style="float:right;" id="y-r">0</div>
+            </div>
         </div>
 
-        <br />
-        <h3>Gamepad 2</h3>
+        <div class="spanhalf">
+            <h3>Gamepad 2</h3>
 
-        <div style="width: 350px;">Button Left Shoulder:
-            <div style="float:right;" id="ls2">up</div>
-        </div>
-        <div style="width: 350px;">Button Right Shoulder:
-            <div style="float:right;" id="rs2">up</div>
-        </div>
-        <div style="width: 350px;">Button Left Trigger:
-            <div style="float:right;" id="lt2">0</div>
-        </div>
-        <div style="width: 350px;">Button Right Trigger:
-            <div style="float:right;" id="rt2">0</div>
-        </div>
-        <div style="width: 350px;">Button Start:
-            <div style="float:right;" id="start2">up</div>
-        </div>
-        <div style="width: 350px;">Button Back:
-            <div style="float:right;" id="back2">up</div>
-        </div>
-        <div style="width: 350px;">Button A:
-            <div style="float:right;" id="a2">up</div>
-        </div>
-        <div style="width: 350px;">Button B:
-            <div style="float:right;" id="b2">up</div>
-        </div>
-        <div style="width: 350px;">Button X:
-            <div style="float:right;" id="x2">up</div>
-        </div>
-        <div style="width: 350px;">Button Y:
-            <div style="float:right;" id="y2">up</div>
-        </div>
-        <div style="width: 350px;">Left Stick Button:
-            <div style="float:right;" id="lsb2">up</div>
-        </div>
-        <div style="width: 350px;">Right Stick Button:
-            <div style="float:right;" id="rsb2">up</div>
-        </div>
-        <div style="width: 350px;">DPad Left:
-            <div style="float:right;" id="dpl2">up</div>
-        </div>
-        <div style="width: 350px;">DPad Right:
-            <div style="float:right;" id="dpr2">up</div>
-        </div>
-        <div style="width: 350px;">DPad Up:
-            <div style="float:right;" id="dpu2">up</div>
-        </div>
-        <div style="width: 350px;">DPad Down:
-            <div style="float:right;" id="dpd2">up</div>
-        </div>
-        <div style="width: 350px;">Left x-Axis:
-            <div style="float:right;" id="x-l2">0</div>
-        </div>
-        <div style="width: 350px;">Left y-Axis:
-            <div style="float:right;" id="y-l2">0</div>
-        </div>
-        <div style="width: 350px;">Right x-Axis
-            <div style="float:right;" id="x-r2">0</div>
-        </div>
-        <div style="width: 350px;">Right y-Axis
-            <div style="float:right;" id="y-r2">0</div>
+            <div style="width: 350px;">Button Left Shoulder:
+                <div style="float:right;" id="ls2">up</div>
+            </div>
+            <div style="width: 350px;">Button Right Shoulder:
+                <div style="float:right;" id="rs2">up</div>
+            </div>
+            <div style="width: 350px;">Button Left Trigger:
+                <div style="float:right;" id="lt2">0</div>
+            </div>
+            <div style="width: 350px;">Button Right Trigger:
+                <div style="float:right;" id="rt2">0</div>
+            </div>
+            <div style="width: 350px;">Button Start:
+                <div style="float:right;" id="start2">up</div>
+            </div>
+            <div style="width: 350px;">Button Back:
+                <div style="float:right;" id="back2">up</div>
+            </div>
+            <div style="width: 350px;">Button A:
+                <div style="float:right;" id="a2">up</div>
+            </div>
+            <div style="width: 350px;">Button B:
+                <div style="float:right;" id="b2">up</div>
+            </div>
+            <div style="width: 350px;">Button X:
+                <div style="float:right;" id="x2">up</div>
+            </div>
+            <div style="width: 350px;">Button Y:
+                <div style="float:right;" id="y2">up</div>
+            </div>
+            <div style="width: 350px;">Left Stick Button:
+                <div style="float:right;" id="lsb2">up</div>
+            </div>
+            <div style="width: 350px;">Right Stick Button:
+                <div style="float:right;" id="rsb2">up</div>
+            </div>
+            <div style="width: 350px;">DPad Left:
+                <div style="float:right;" id="dpl2">up</div>
+            </div>
+            <div style="width: 350px;">DPad Right:
+                <div style="float:right;" id="dpr2">up</div>
+            </div>
+            <div style="width: 350px;">DPad Up:
+                <div style="float:right;" id="dpu2">up</div>
+            </div>
+            <div style="width: 350px;">DPad Down:
+                <div style="float:right;" id="dpd2">up</div>
+            </div>
+            <div style="width: 350px;">Left x-Axis:
+                <div style="float:right;" id="x-l2">0</div>
+            </div>
+            <div style="width: 350px;">Left y-Axis:
+                <div style="float:right;" id="y-l2">0</div>
+            </div>
+            <div style="width: 350px;">Right x-Axis
+                <div style="float:right;" id="x-r2">0</div>
+            </div>
+            <div style="width: 350px;">Right y-Axis
+                <div style="float:right;" id="y-r2">0</div>
+            </div>
         </div>
     </div>
 </div>
