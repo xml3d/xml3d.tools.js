@@ -148,6 +148,13 @@
         }
     });
 
+    var UnknownControllerIdError = new XML3D.tools.Class({
+
+        initialize: function(controllerId) {
+            this.controllerId = controllerId;
+        }
+    });
+
 	/**
 	 * GamepadConnector - Singleton
 	 * This whole module will only work with Chrome 21 (or higher)
@@ -200,10 +207,27 @@
 
         handleNewlyConnectedGamepads: function (newStatusData) {
             for (var i=0; i<newStatusData.length; i++) {
-                var index = newStatusData[i] ? newStatusData[i].index : undefined;
-                if(index !== undefined && !this.pads[index]){
-                    this.pads[index] = this.createNewGamepad(newStatusData[i]);
+                if(!newStatusData[i]) {
+                    continue;
                 }
+                this.handleNewlyConnectedGamepad(newStatusData[i]);
+            }
+        },
+
+        handleNewlyConnectedGamepad: function(statusData) {
+            var index = statusData.index;
+            if(index === undefined || this.pads[index] !== undefined){
+                return;
+            }
+
+            try {
+                this.pads[index] = this.createNewGamepad(statusData);
+            } catch(error) {
+                if(!error.controllerId) {
+                    throw error;
+                }
+                console.log("Unknown controller id: " + error.controllerId);
+                this.pads[index] = null;
             }
         },
 
@@ -212,8 +236,7 @@
             if(id.indexOf("Xbox 360 Controller") !== -1){
                 return new XBox360Gamepad(newGamepadData);
             }
-            console.log("Unknown Controller id: " + id);
-            return undefined;
+            throw new UnknownControllerIdError(id);
         },
 
         handleDisconnectedGamepads: function (newStatusData) {
