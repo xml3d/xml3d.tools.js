@@ -4,6 +4,8 @@
  * Time: 2:06 PM
  */
 init = function () {
+    XML3D.tools.GamepadEventProvider.enable();
+
     //create connector
     var ls = document.getElementById("ls");
     window.addEventListener("GamepadButtonDown", function (e) {

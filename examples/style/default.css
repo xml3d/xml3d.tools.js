@@ -247,3 +247,7 @@ a:hover{
 .paragraph > ul {
     margin-top: 0.5em;
 }
+
+.code {
+    font-family: monospace;
+}
