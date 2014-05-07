@@ -1,95 +1,102 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd" >
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd" >
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:webgl="http://www.xml3d.org/2009/xml3d/webgl">
 <head>
-  <title>.scalable() Test</title>
-  <link rel="stylesheet" type="text/css" media="all" href="../../style/default.css" />
+    <title>Scalable</title>
+    <link rel="stylesheet" type="text/css" media="all" href="../../style/default.css"/>
 
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
-  <script type="text/javascript" src="../../external/xml3d.js"></script>
-  <script type="text/javascript" src="../../../build/output/xml3d.tools.js"></script>
-  <script type="text/javascript" src="../page.js" />
+    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+    <script type="text/javascript" src="../../external/xml3d.js"></script>
+    <script type="text/javascript" src="../../../build/output/xml3d.tools.js"></script>
+    <script type="text/javascript" src="../page.js"/>
 
-  <script type="text/javascript" src="test_scalable.js"></script>
+    <script type="text/javascript" src="test_scalable.js"></script>
 </head>
 
 <body>
 <div id="overall">
     <div id="content">
-  <h1>.scalable() Test</h1>
-  <div style="padding: 16px" >
-    <div id="Xml3dWrapper" style="color: red" >
-      <xml3d id="MyXml3d"
-        xmlns="http://www.xml3d.org/2009/xml3d"
-        xmlns:xlink="http://www.w3.org/1999/xlink"
-        webgl:showLog="false"
-        activeView="#controller_view"
-        style="width:350px; height:350px;"
-      >
-        <group>
-          <view id="controller_view" position="0 0 10" />
-        </group>
+        <h1>Scalable</h1>
 
-        <defs>
-          <data id="d_target" type="triangles">
-            <int name="index">
-            4 0 3 4 3 7 2 6 7 2 7 3 1 5 2 5 6 2 0 4 1 4 5 1 4 7 5 7 6 5 0 1 2 0 2 3
-            </int>
-            <float3 name="position">
-            1.0 0.999999940395 -1.0 1.0 -1.0 -1.0 -1.00000011921 -0.999999821186 -1.0 -0.999999642372 1.00000035763 -1.0 1.00000047684 0.999999463558 1.0 0.999999344349 -1.00000059605 1.0 -1.00000035763 -0.999999642372 1.0 -0.999999940395 1.0 1.0
-            </float3>
-            <float3 name="normal">
-            0.408246099949 0.408246099949 -0.816492199898 0.816492199898 -0.408246099949 -0.408246099949 -0.577349185944 -0.577349185944 -0.577349185944 -0.408246099949 0.816492199898 -0.408246099949 0.666646301746 0.666646301746 0.333323150873 0.333323150873 -0.666646301746 0.666646301746 -0.577349185944 -0.577349185944 0.577349185944 -0.666646301746 0.333323150873 0.666646301746
-            </float3>
-          </data>
-          <transform id="t_target" rotation="1 1 1 0.7"/>
+        <xml3d id="MyXml3d"
+               xmlns="http://www.xml3d.org/2009/xml3d"
+               activeView="#controller_view"
+               style="width:350px; height:350px;"
+        >
+            <group>
+                <view id="controller_view" position="0 0 10"/>
+            </group>
 
-          <shader id="s_target" script="urn:xml3d:shader:phong">
-             <float3 name="diffuseColor">1 0 0</float3>
-             <float name="ambientIntensity">0.3</float>
-          </shader>
+            <defs>
+                <data id="d_target" type="triangles">
+                    <int name="index">
+                        4 0 3 4 3 7 2 6 7 2 7 3 1 5 2 5 6 2 0 4 1 4 5 1 4 7 5 7 6 5 0 1 2 0 2 3
+                    </int>
+                    <float3 name="position">
+                        1.0 0.999999940395 -1.0 1.0 -1.0 -1.0 -1.00000011921 -0.999999821186 -1.0
+                        -0.999999642372 1.00000035763 -1.0 1.00000047684 0.999999463558 1.0 0.999999344349
+                        -1.00000059605 1.0 -1.00000035763 -0.999999642372 1.0 -0.999999940395 1.0 1.0
+                    </float3>
+                    <float3 name="normal">
+                        0.408246099949 0.408246099949 -0.816492199898 0.816492199898 -0.408246099949
+                        -0.408246099949 -0.577349185944 -0.577349185944 -0.577349185944 -0.408246099949
+                        0.816492199898 -0.408246099949 0.666646301746 0.666646301746 0.333323150873
+                        0.333323150873 -0.666646301746 0.666646301746 -0.577349185944 -0.577349185944
+                        0.577349185944 -0.666646301746 0.333323150873 0.666646301746
+                    </float3>
+                </data>
+                <transform id="t_target" rotation="1 1 1 0.7"/>
 
-          <lightshader id="s_light" script="urn:xml3d:lightshader:point">
-            <float3 name="intensity">1 1 1</float3>
-            <float3 name="attenuation">1 0 0</float3>
-          </lightshader>
+                <shader id="s_target" script="urn:xml3d:shader:phong">
+                    <float3 name="diffuseColor">1 0 0</float3>
+                    <float name="ambientIntensity">0.5</float>
+                </shader>
 
-          <transform id="t_light" translation="0 1 10" />
-        </defs>
+                <lightshader id="s_light" script="urn:xml3d:lightshader:point">
+                    <float3 name="intensity">1 1 1</float3>
+                    <float3 name="attenuation">1 0 0</float3>
+                </lightshader>
 
-        <group transform="#t_light">
-            <light shader="#s_light" />
-        </group>
+                <transform id="t_light" translation="0 1 10"/>
+            </defs>
 
-        <group id="g_target" transform="#t_target" shader="#s_target">
-            <mesh src="#d_target" />
-        </group>
+            <group transform="#t_light">
+                <light shader="#s_light"/>
+            </group>
 
-      </xml3d>
+            <group id="g_target" transform="#t_target" shader="#s_target">
+                <mesh src="#d_target"/>
+            </group>
+
+        </xml3d>
+
+        <div class="actions">
+            <input type="button" class="test-button" value="Activate Sensor" id="togglesensor" onclick="toggleSensor();"/>
+        </div>
+
+        <div class="description">
+            <div class="paragraph">
+                Upon activation the scaling of the rectangle can be uniformly controlled by
+                using the jQuery plugin .scalable(). That means the scaling factor is determined
+                based on the translation along a plane orthogonal to the viewing plane.
+            </div>
+
+            <div class="separator" />
+
+            <div class="paragraph">
+                The status can be reviewed below.
+                <ul>
+                    <li><b>Scale:</b> the scale attribute of the target element's transform node.</li>
+                </ul>
+            </div>
+
+            <div class="paragraph">
+                <b>Scale:</b> <span id="scale">no dragging done yet</span>
+            </div>
+        </div>
+
     </div>
-  </div>
-
-  <div id="useKeys" />
-
-  <div class="actions">
-    <input type="button" value="Activate Sensor" id="togglesensor" onclick="toggleSensor();" />
-  </div>
-
-  <div class="message">
-    <p>Upon activation the scaling of the rectangle can be uniformly controlled by
-    using the jQuery plugin .scalable(). That means the scaling factor is determined
-    based on the translation along a plane orthogonal to the viewing plane.</p>
-
-    <p>The status can be reviewed below.
-      <ul>
-        <li><b>Scale:</b> the scale attribute of the target element's transform node.</li>
-      </ul>
-    </p>
-  </div>
-
-  <div class="message">Scale: <span id="scale">no dragging done yet</span></div>
-    </div>
-  </div>
+</div>
 </body>
 </html>
