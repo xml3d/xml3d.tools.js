@@ -212,6 +212,11 @@ a:hover{
     margin-top: 2%;
 }
 
+.inline-action {
+    margin: 0.1em;
+    display: inline-block;
+}
+
 .description {
     margin-top: 2%;
 }
