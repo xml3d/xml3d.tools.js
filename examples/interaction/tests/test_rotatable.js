@@ -82,5 +82,5 @@ function onDragEnd()
 function onTranslChanged()
 {
     var xfm = XML3D.tools.util.transform($("#group1")[0]);
-    $("#rotation").html($(xfm).attr("rotation"));
+    $("#rotation").html(xfm.rotation.str());
 }
