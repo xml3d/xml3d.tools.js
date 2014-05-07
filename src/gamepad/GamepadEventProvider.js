@@ -163,65 +163,69 @@
 	 */
     XML3D.tools.GamepadEventProvider = new XML3D.tools.Singleton({
 
-        initialize: function() {
-            if (!this.gamepadApiAvailable()) {
+        enable: function() {
+            if (!this._gamepadApiAvailable()) {
                 console.log("No Gamepad API available");
                 return;
             }
 
             this.pollingInProgress = false;
             this.pads = [];
-            this.startPolling();
+            this._startPolling();
         },
 
-        gamepadApiAvailable: function() {
-            return !!navigator.webkitGetGamepads || !!navigator.webkitGamepads;
+        disable: function() {
+            this.pollingInProgress = false;
         },
 
-        startPolling: function() {
+        _startPolling: function() {
             if (!this.pollingInProgress) {
                 this.pollingInProgress = true;
-                this.onePoll();
+                this._onePoll();
             }
         },
 
-        onePoll: function() {
-            var newStatusData = this.getNewStatusDataFromAPI();
+        _gamepadApiAvailable: function() {
+            return !!navigator.webkitGetGamepads || !!navigator.webkitGamepads;
+        },
+
+        _onePoll: function() {
+            var newStatusData = this._getNewStatusDataFromAPI();
             if (!newStatusData) {
                 console.log("Cannot retrieve gamepad data");
                 return;
             }
-            this.processNewStatusData(newStatusData);
-            this.nextPoll();
+            this._processNewStatusData(newStatusData);
+            this._nextPoll();
         },
 
-        getNewStatusDataFromAPI: function() {
+        _getNewStatusDataFromAPI: function() {
             return (navigator.webkitGetGamepads && navigator.webkitGetGamepads()) || navigator.webkitGamepads;
         },
 
-        processNewStatusData: function(newStatusData) {
-            this.handleNewlyConnectedGamepads(newStatusData);
-            this.handleDisconnectedGamepads(newStatusData);
-            this.updateGamepads(newStatusData);
+        _processNewStatusData: function(newStatusData) {
+            this._handleNewlyConnectedGamepads(newStatusData);
+            this._handleDisconnectedGamepads(newStatusData);
+            this._updateGamepads(newStatusData);
         },
 
-        handleNewlyConnectedGamepads: function (newStatusData) {
+        _handleNewlyConnectedGamepads: function (newStatusData) {
             for (var i=0; i<newStatusData.length; i++) {
                 if(!newStatusData[i]) {
                     continue;
                 }
-                this.handleNewlyConnectedGamepad(newStatusData[i]);
+                this._handleNewlyConnectedGamepad(newStatusData[i]);
             }
         },
 
-        handleNewlyConnectedGamepad: function(statusData) {
+        _handleNewlyConnectedGamepad: function(statusData) {
             var index = statusData.index;
             if(index === undefined || this.pads[index] !== undefined){
                 return;
             }
 
             try {
-                this.pads[index] = this.createNewGamepad(statusData);
+                this.pads[index] = this._createNewGamepad(statusData);
             } catch(error) {
                 if(!error.controllerId) {
                     throw error;
@@ -231,7 +235,7 @@
             }
         },
 
-        createNewGamepad: function (newGamepadData) {
+        _createNewGamepad: function (newGamepadData) {
             var id = newGamepadData.id;
             if(id.indexOf("Xbox 360 Controller") !== -1){
                 return new XBox360Gamepad(newGamepadData);
@@ -239,7 +243,7 @@
             throw new UnknownControllerIdError(id);
         },
 
-        handleDisconnectedGamepads: function (newStatusData) {
+        _handleDisconnectedGamepads: function (newStatusData) {
             for(var i=0; i<this.pads.length; i++){
                 if(!this.pads[i]){
                     continue;
@@ -251,7 +255,7 @@
             }
         },
 
-        updateGamepads: function (newStatusData) {
+        _updateGamepads: function (newStatusData) {
             for(var i=0; i<this.pads.length; i++){
                 if(!this.pads[i]){
                     continue;
@@ -261,20 +265,16 @@
             }
         },
 
-        nextPoll: function () {
+        _nextPoll: function () {
             if(!this.pollingInProgress){
                 return;
             }
             if(window.requestAnimFrame){
-                window.requestAnimFrame(this.onePoll.bind(this), undefined);
+                window.requestAnimFrame(this._onePoll.bind(this), undefined);
             }
             else if(window.requestAnimationFrame){
-                window.requestAnimationFrame(this.onePoll.bind(this), undefined);
+                window.requestAnimationFrame(this._onePoll.bind(this), undefined);
             }
-        },
-
-        stopPolling: function () {
-            this.pollingInProgress = false;
         }
     });
 }());
