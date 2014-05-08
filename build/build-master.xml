@@ -70,9 +70,9 @@ SOFTWARE.
             <property name="finalScript" value="${buildDir}/${script.start}@{extension}.js" />
 
             <concat destfile="${finalScript}">
-                <header>/**${line.separator}</header>
+                <header>/*${line.separator}</header>
                 <fileset file="${basedir}/../LICENSE" />
-                <footer>${line.separator}@version: @{version} ${line.separator}**/
+                <footer>${line.separator}@version: @{version} ${line.separator}*/
                     ${line.separator}</footer>
             </concat>
 
@@ -93,15 +93,37 @@ SOFTWARE.
         <attribute name="version" />
         <element name="args" optional="true" />
         <sequential>
+            <property name="finalScript" value="${buildDir}/${script.start}@{extension}.js" />
+            <property name="mintmp" value="${buildDir}/mintmp" />
+            <property name="licensetmp" value="${buildDir}/licensetmp" />
+
+            <!-- minification -->
             <jscomp compilationlevel="@{level}" warning="verbose"
                 generateexports="yes" debug="false"
-                output="${buildDir}/${script.start}@{extension}.js">
+                output="${mintmp}">
                 <args/>
                 <externs refid="externs">
                 </externs>
                 <sources refid="sourceFiles">
                 </sources>
             </jscomp>
+            <!-- license -->
+            <concat destfile="${licensetmp}">
+                <header>/*${line.separator}</header>
+                <fileset file="${basedir}/../LICENSE" />
+                <footer>${line.separator}@version: @{version} ${line.separator}*/
+                    ${line.separator}</footer>
+            </concat>
+            <!-- concat license and minified version -->
+            <concat destfile="${finalScript}">
+                <filelist files="${licensetmp},${mintmp}" />
+            </concat>
+            <delete>
+                <filelist files="${licensetmp},${mintmp}" />
+            </delete>
+            <!-- set version -->
+            <replaceregexp file="${finalScript}" match="%VERSION%"
+                           replace="@{version}" byline="true" />
         </sequential>
     </macrodef>
 
