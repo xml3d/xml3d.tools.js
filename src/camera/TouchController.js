@@ -234,16 +234,15 @@
             var zoomFactor = 1;
 
             if (evt.touches.length > 1) {
-				if (this._lastZoomVectorLength !== undefined) {
+                if (this._lastZoomVectorLength !== undefined) {
                     var dv = {x: positions[0].x - positions[1].x, y: positions[0].y - positions[1].y};
                     var currLength = Math.sqrt(dv.x*dv.x + dv.y*dv.y);
                     zoomFactor = 1.0 + currLength - this._lastZoomVectorLength;
                     this._lastZoomVectorLength = currLength;
-				} else {
+                } else {
                     var dv = {x: positions[0].x - positions[1].x, y: positions[0].y - positions[1].y};
                     this._lastZoomVectorLength = Math.sqrt(dv.x*dv.x + dv.y*dv.y);
-				}
-
+                }
             } else {
                 this._lastZoomVectorLength = undefined;
             }
