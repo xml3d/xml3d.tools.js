@@ -126,12 +126,12 @@ SOFTWARE.
         _startClockGenerator: function(id)
         {
             var animation = this._activeAnimations[id];
-            animation.clockGenerator = this._createClockGenerator(animation);
+            animation.clockGenerator = this._createClockGenerator(id, animation);
             animation.clockGenerator.start();
             this._startGlobalAnimation();
         },
 
-        _createClockGenerator: function(animation)
+        _createClockGenerator: function(id, animation)
         {
             //use a tween as a clock generator
             var opt = animation.opt;
@@ -147,7 +147,7 @@ SOFTWARE.
                 animation.animation.applyAnimation(that, this.t, 0, time, opt.easing);
             });
 
-            clockGenerator.onComplete( function(value){
+            clockGenerator.onComplete( function(){
                 //this is the interpolated object!
                 //animation ended -> callback or loop
                 var numberOfLoops = opt.loop;
