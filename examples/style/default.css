@@ -1,20 +1,12 @@
 @namespace xml3d "http://www.xml3d.org/2009/xml3d";
 
+/* ============================================================================
+ * === page.js ===
+ * ============================================================================ */
+
 * {
     padding: 0;
     margin: 0;
-}
-
-xml3d|float,
-xml3d|float2,
-xml3d|float3,
-xml3d|float4,
-xml3d|float4x4,
-xml3d|int,
-xml3d|int4,
-xml3d|bool,
-xml3d|script  {
-   display: none;
 }
 
 body {
@@ -179,13 +171,6 @@ a:hover{
     padding-bottom: 4px;
 }
 
-#content div.description{
-    border: 1px solid #ccc;
-    background: #eee;
-    padding: 8px;
-    margin-bottom: 8px;
-}
-
 #content .xml3d{
     display: block;
     border: 1px solid #aaa;
@@ -215,111 +200,54 @@ a:hover{
     display: block;
 }
 
-
-
 #footer {
 
 }
 
-/* =============================== */
-/* Tests Styles
-/* =============================== */
-div.message{
-   border: 1px solid #666666;
-   padding: 4px;
-   margin: 0 0 4px 0;
+/* ============================================================================
+ * === own stuff ===
+ * ============================================================================ */
+
+.actions {
+    margin-top: 2%;
 }
 
-div.actions{
-   clear: both;
-   border: 1px solid #ccc;
-   background-color: #fff;
-   padding: 4px;
-   margin: 0 0 4px 0;
+.inline-action {
+    margin: 0.1em;
+    display: inline-block;
 }
 
-div.actions a{
-   padding-right: 8px;
+.description {
+    margin-top: 2%;
 }
 
-
-div.groundtruth{
-   border: 1px solid #006600;
-   background-color: #003300;
-   padding: 4px 6px;
-   margin: 0 4px 4px 0;
-   float: left;
-   width: 320px;
-   overflow: hidden;
+.test-button {
+    width: 200px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    margin-top: 5px;
+    margin-bottom: 5px;
 }
 
-.groundtruth h3{
-    padding: 0;
-    margin: 4px 0 4px 0;
+.spanhalf {
+    display: inline-block;
+    width: 48%;
 }
 
-.groundtruth img{
-    padding: 0;
-    margin: 0;
+.separator {
+    border-bottom: 1px solid #ccc;
+    margin-top: 1em;
+    margin-bottom: 1em;
 }
 
-.groundtruth p{
-   width: 300px;
+.paragraph {
+    margin-top: 1em;
 }
 
-table.testtable  {
-   margin: 14px;
-   width: 300px;
+.paragraph > ul {
+    margin-top: 0.5em;
 }
 
-table, td, th
-{
-    border-color: #000;
-    border-style: solid;
-}
-
-table
-{
-    border-width: 0 0 1px 1px;
-    border-spacing: 0;
-    border-collapse: collapse;
-}
-
-td, th
-{
-    margin: 0;
-    padding: 4px;
-    border-width: 1px 1px 0 0;
-    background-color: #666;
-}
-
-/* Description */
-
-div#description{
-   width: 400px;
-   float: left;
-   border: 1px solid #666666;
-   padding: 6px;
-   margin: 0 8px 4px 0;
-   min-height: 188px
-
-}
-
-#description button
-{
-   width: 150px;
-   float: left;
-}
-
-#description div
-{
-   clear: left;
-   border-top: 1px solid #333333;
-   padding: 4px 0;
-}
-#description div p
-{
-   padding: 0px 0 4px 4px;
-   margin: 0 0 0 158px;
-   border-left: 1px solid #333333;
+.code {
+    font-family: monospace;
 }

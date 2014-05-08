@@ -52,18 +52,6 @@ function getGizmoType()
     return "none";
 };
 
-function getRotationSpeed()
-{
-    var val = $("#i_rotationSpeed").val();
-    if(!isNaN(val) || val <= 0)
-        return val;
-    else
-    {
-        alert("Enter a valid number greater than zero.");
-        return 1;
-    }
-};
-
 function detachGizmos()
 {
     if(gizmo)
@@ -97,7 +85,6 @@ function createGizmosRotate()
 {
     gizmo = new XML3D.tools.interaction.widgets.RotateGizmo("myGizmo", {
         target: targetTransformable,
-        rotationSpeed: getRotationSpeed(),
         geometry: {
             scale: new XML3DVec3(2, 2, 2),
             bandWidth: 1.1

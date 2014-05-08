@@ -33,9 +33,6 @@
 
             this._behavior = new XML3D.tools.FlyBehavior(this.target, options.behavior);
 
-            if(options.touch.eventDispatcher === undefined)
-                options.touch.eventDispatcher = this._createTouchEventDispatcher();
-
             this._touchCtrl = new XML3D.tools.TouchController(this.target, options.touch);
             this._touchCtrl.onDrag = this.callback("_onDrag");
         },
@@ -130,25 +127,6 @@
                 //invert delta to represent touch-"dragging" of a point
                 this._behavior.rotate(-action.deltas[0].y, -action.deltas[0].x);
             }
-        },
-
-
-        /**
-         *  @this {XML3D.tools.TouchFlyController}
-         *  @private
-         */
-        _createTouchEventDispatcher: function() {
-
-            var disp = new XML3D.tools.util.EventDispatcher();
-
-            disp.registerCustomHandler('touchstart', function(evt){
-                if(evt.type === 'touchstart')
-                    return true;
-
-                return false;
-            });
-
-            return disp;
         }
     });
 }());

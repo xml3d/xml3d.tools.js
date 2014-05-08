@@ -13,13 +13,13 @@ var EXAMPLE_LIST = [
     {
         cat: "misc",
         name: "Animatable",
-        href: "animation.xhtml",
+        href: "animatable.xhtml",
         info: "Tests the XML3D.tools.Animatable"
     },
     {
         cat: "misc",
         name: "Transformable",
-        href: "simple.xhtml",
+        href: "transformable.xhtml",
         info: "Tests the XML3D.tools.Transformable"
     },
     {

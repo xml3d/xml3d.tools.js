@@ -30,23 +30,19 @@ function initScene()
     // shaders
     $defs.append(cns.phongShader({
         id: normalShaderId,
-        diffuseColor: "0 0 0.6",
-        transparency: "0.3"
+        diffuseColor: "0 0 0.6"
     }));
     $defs.append(cns.phongShader({
         id: highlightShaderId,
-        diffuseColor: "0 0 1",
-        transparency: "0.3"
+        diffuseColor: "0 0 1"
     }));
     $defs.append(cns.phongShader({
         id: normalProxyShaderId,
-        diffuseColor: "0.8 0 0",
-        transparency: "0.3"
+        diffuseColor: "1 0 0"
     }));
     $defs.append(cns.phongShader({
         id: highProxyShaderId,
-        diffuseColor: "0 0.8 0",
-        transparency: "0.3"
+        diffuseColor: "0 1 0"
     }));
 
     // target box

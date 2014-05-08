@@ -15,7 +15,7 @@ function initScene()
     target = $("#group1")[0];
     target.appendChild(XML3D.tools.creation.box(xml3d));
 
-    toggleTrackBall();
+    toggleActivation();
 }
 
 function attachSensor()
@@ -37,20 +37,20 @@ function detachSensor()
     sensor = null;
 }
 
-function toggleTrackBall()
+function toggleActivation()
 {
     if(trackballActive)
     {
         detachSensor();
 
-        document.getElementById("toggletrackball").value = "Activate Trackball";
+        document.getElementById("toggleactivation").value = "Activate Rotatable";
         trackballActive = false;
     }
     else
     {
         attachSensor();
 
-        document.getElementById("toggletrackball").value = "Deactivate Trackball";
+        document.getElementById("toggleactivation").value = "Deactivate Rotatable";
         trackballActive = true;
     }
 }
@@ -82,5 +82,5 @@ function onDragEnd()
 function onTranslChanged()
 {
     var xfm = XML3D.tools.util.transform($("#group1")[0]);
-    $("#rotation").html($(xfm).attr("rotation"));
+    $("#rotation").html(xfm.rotation.str());
 }

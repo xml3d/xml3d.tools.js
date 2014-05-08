@@ -1,113 +1,88 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd" >
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:webgl="http://www.xml3d.org/2009/xml3d/webgl">
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title>.trackable() Test</title>
-    <link rel="stylesheet" type="text/css" media="all"
-        href="style/default.css"
-        />
+    <link rel="stylesheet" type="text/css" media="all" href="style/default.css" />
 
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
     <script type="text/javascript" src="external/xml3d.js"></script>
     <script type="text/javascript" src="../build/output/xml3d.tools.js"></script>
     <script type="text/javascript" src="page.js" />
 
-    <script src="transformtracker.js" />
+    <script type="text/javascript" src="transformtracker.js" />
 </head>
 
 <body onload="onLoad();">
 <div id="overall">
-    <div id="content">
-    <h1>TransformTracker Test</h1>
+<div id="content">
+    <h1>TransformTracker</h1>
 
-    <div style="padding: 16px" >
-        <div id="Xml3dWrapper" style="color: red" >
-            <xml3d id="MyXml3d" style="width:350px; height:350px;"
-                xmlns="http://www.xml3d.org/2009/xml3d"
-                xmlns:xlink="http://www.w3.org/1999/xlink"
-                webgl:showLog="false"
-                activeView="#controller_view"
-                pickableBackground="false"
-            >
-            <view id="view1" position="0 0 10" />
-            <view id="view2" position="5 0 5"  orientation="0 1 0 1.0"/>
-            <view id="view3" position="-5 0 5"  orientation="0 1 0 -1.0"/>
-            <view id="controller_view" position="0 0 10" />
-            <light id="light1" intensity="10.8" global="false" />
+    <xml3d id="MyXml3d" style="width:350px; height:350px;"
+        xmlns="http://www.xml3d.org/2009/xml3d"
+        activeView="#v_default"
+    >
+        <view id="v_default" position="0 0 10" />
 
-            <defs>
-                <data id="mySimpleMesh" type="triangles">
-                  <int name="index">0 1 2 1 2 3</int>
-                  <float3 name="position">-1.0 -1.0 -0.0
-                           1.0 -1.0 -0.0
-                          -1.0  1.0 -0.0
-                           1.0  1.0 -0.0
-                  </float3>
-                  <float3 name="normal">
-                      0.0 0.0 1.0
-                      0.0 0.0 1.0
-                      0.0 0.0 1.0
-                      0.0 0.0 1.0</float3>
-                  <float2 name="texcoord">0.0 1.0
-                      1.0 1.0
-                      0.0 0.0
-                      1.0 0.0
-                  </float2>
-                </data>
-                <transform id="trans1" translation="0 2.5 0" />
-                <transform id="trans2" translation="0 -2.5 0" />
-                <transform id="trans3" translation="2.5 0 0" />
-            </defs>
+        <defs>
+            <data id="rectangle" type="triangles">
+                <int name="index">0 1 2 1 2 3</int>
+                <float3 name="position">-1.0 -1.0 -0.0 1.0 -1.0 -0.0 -1.0  1.0 -0.0 1.0  1.0 -0.0</float3>
+                <float3 name="normal">0.0 0.0 1.0 0.0 0.0 1.0 0.0 0.0 1.0 0.0 0.0 1.0</float3>
+                <float2 name="texcoord">0.0 1.0 1.0 1.0 0.0 0.0 1.0 0.0</float2>
+            </data>
+            <transform id="trans1" translation="0 2.5 0" />
+            <transform id="trans2" translation="0 -2.5 0" />
+            <transform id="trans3" translation="2.5 0 0" />
+        </defs>
 
-            <group id="group_all">
-                <group id="group2" transform="#trans2">
-                    <mesh id="use2" src="#mySimpleMesh" />
-                </group>
+        <group id="group_all">
+            <group id="group2" transform="#trans2">
+                <mesh src="#rectangle" />
             </group>
+        </group>
+    </xml3d>
 
-            </xml3d>
+    <div class="actions">
+        <div>
+            <button type="button" class="test-button" onclick="toggleXfmValueOfGrp2();">
+            Toggle target node's transform value.
+            </button>
+            Move the rectangle up and down.
+        </div>
+        <div>
+            <button type="button" class="test-button" onclick="toggleXfmAttrOfGrpAll();">
+            Toggle target parent's transform attribute.
+            </button>
+            Move the rectangle left and right.
         </div>
     </div>
 
-  <form>
-     <button type="button" onclick="toggleXfmValueOfGrp2();">
-       Toggle target node's transform value.
-     </button>
-     <br />
-     <button type="button" onclick="toggleXfmAttrOfGrpAll();">
-       Toggle target parent's transform attribute.
-     </button>
-  </form>
+    <div class="description">
+        <div class="paragraph">Through the XML3D.tools.TransformTracker transformation changes of given nodes
+        can be tracked. That is it notifies it's listener as soon as the global matrix
+        of the node changed.
+        </div>
+        <div class="paragraph">
+            In this example the XML3D.tools.TransformTracker is invoked on the rectangle. By hitting
+            the buttons above you can change two parameters:
+            <ul>
+                <li>the transform attribute of the target node</li>
+                <li>set and remove the transform attribute of the target parent's node.</li>
+            </ul>
+        </div>
 
-  <div class="message">
-    <p>Through the XML3D.tools.TransformTracker transformation changes of given nodes
-    can be tracked. That is it notifies it's listener as soon as the global matrix
-    of the node changed.
-    </p>
+        <div class="separator" />
 
-    <p>
-      In this example the XML3D.tools.TransformTracker is invoked on the grey rectangle. By hitting
-      the buttons above you can change two parameters:
-      <ul>
-          <li>the transform attribute of the target node</li>
-          <li>set and remove the transform attribute of the target parent's node.</li>
-      </ul>
-    </p>
+        <div class="paragraph">
+            The <span style="font-style:italic;">xfmchanged event</span> below displays the <it>xfmchanged</it>
+            event status upon reception.
+        </div>
 
-    <p>The status can be reviewed below.
-      <ul>
-        <li><b>xfmchanged event: </b>
-          Displays the <it>xfmchanged</it> event status upon reception.
-        </li>
-      </ul>
-    </p>
-  </div>
-
-    <div class="message">
-        <div>xfmchanged event: <span id="xfmchanged">none</span></div>
+        <div class="paragraph"><b>xfmchanged event:</b> <span id="xfmchanged">none</span></div>
     </div>
-    </div>
-  </div>
+</div>
+</div>
 </body>
 </html>
