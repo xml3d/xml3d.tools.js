@@ -124,7 +124,7 @@ SOFTWARE.
             });
 
             this.geo.addShaders("s_" + id, {
-                shaderType: "urn:xml3d:shader:eyelight",
+                shaderType: "urn:xml3d:shader:tools-eyelight",
                 diffuseColor: color,
                 ambientIntensity: "0.3",
                 transparency: "0.5"

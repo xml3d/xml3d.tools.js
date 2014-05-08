@@ -41,6 +41,7 @@ SOFTWARE.
         <file name="interfaces.js" />
         <!-- contrib -->
         <file name="contrib/Tween.js" />
+        <file name="contrib/toolsEyelightShader.js" />
         <!-- our sources -->
         <file name="base/class.js" />
         <file name="base/util.js" />
