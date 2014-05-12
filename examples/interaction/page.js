@@ -40,14 +40,14 @@ var EXAMPLE_LIST = [
         href: "tests/test_gizmos.xhtml",
         info: "Widgets for performing constrained rotation and translation."
     },
+    {
+        cat: "complexwidgets",
+        name: "AlongSurfaceTranslateGizmo",
+        href: "tests/test_alongsurfacetranslategizmo.xhtml",
+        info: "A gizmo for translating a node along the surface it is placed on."
+    },
 
     // --- Behaviors ---
-    {
-        cat: "behaviors",
-        name: "AlongSurfaceTranslater",
-        href: "tests/test_alongsurfacetranslater.xhtml",
-        info: "A behavior for translating a node along the surface it is placed on."
-    },
     {
         cat: "behaviors",
         name: "Translatable",

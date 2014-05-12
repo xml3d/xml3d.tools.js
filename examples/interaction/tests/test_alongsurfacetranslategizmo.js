@@ -25,7 +25,7 @@ window.addEventListener("load", onLoad, false);
 
 var cameraCtrl = null;
 var xml3d = null;
-var widget = null;
+var gizmo = null;
 
 function onLoad()
 {
@@ -41,9 +41,12 @@ function onLoad()
     });
     cameraCtrl.attach();
 
-    var target = $("#g_cube")[0];
-    widget = new XML3D.tools.interaction.behaviors.AlongSurfaceTranslater("myWidget", [target]);
-    widget.attach();
+    var target = XML3D.tools.MotionFactory.createTransformable($("#g_cube")[0]);
+    gizmo = new XML3D.tools.interaction.widgets.AlongSurfaceTranslateGizmo(
+        "myWidget", target, {
+            keyDisableConstraint: XML3D.tools.KEY_CTRL // default is CTRL
+    });
+    gizmo.attach();
 }
 
 function generateSurface()
@@ -67,7 +70,7 @@ function generateSurface()
 
     defs.appendChild(cns.element("transform", {
         id: "t_bottom",
-        rotation: "1 0 0 -1.57",
+        rotation: "1 0 0 -1.47",
         translation: "0 1 0"
     }));
 
