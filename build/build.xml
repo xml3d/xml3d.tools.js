@@ -83,6 +83,7 @@ SOFTWARE.
         <file name="constraint/ProhibitAxisMovementConstraint.js" />
         <file name="constraint/BoxedTranslationConstraint.js" />
         <file name="constraint/CascadedConstraint.js" />
+        <file name="constraint/AlongSurfaceTranslationConstraint.js" />
 
         <file name="camera/CameraBehavior.js" />
         <file name="camera/ExamineBehavior.js" />
@@ -112,6 +113,7 @@ SOFTWARE.
         <file name="interaction/behaviors/trackball.js" />
         <file name="interaction/behaviors/rotater.js" />
         <file name="interaction/behaviors/translater.js" />
+        <file name="interaction/behaviors/AlongSurfaceTranslater.js" />
 
         <file name="interaction/widgets/widget.js" />
         <file name="interaction/widgets/overlaywidget.js" />
