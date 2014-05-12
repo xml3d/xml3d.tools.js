@@ -33,6 +33,7 @@
         initialize: function(targetTransformable)
         {
             this._target = targetTransformable;
+            this._xml3d = XML3D.tools.util.getXml3dRoot(this._target.object);
             XML3D.tools.util.fireWhenMeshesLoaded(this._target.object, this._initWhenTargetReady.bind(this));
         },
 
@@ -77,7 +78,7 @@
             var ray = new XML3DRay(rayOrigin, this._rayDirection);
             var hitPoint = new XML3DVec3();
 
-            var hitElement = xml3d.getElementByRay(ray, hitPoint);
+            var hitElement = this._xml3d.getElementByRay(ray, hitPoint);
             if(!hitElement)
                 return null;
 
