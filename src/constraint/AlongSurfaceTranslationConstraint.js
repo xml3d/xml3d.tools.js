@@ -51,6 +51,7 @@
             this._boundingSphereRadius = Math.sqrt(bboxSize.x*bboxSize.x + bboxSize.z*bboxSize.z) / 2;
 
             this._resetTranslationDirection();
+            this._initialSurfaceHeight = this._getSurfaceHeight();
             this._targetHalfHeight = bboxSize.y/2;
         },
 
@@ -72,7 +73,11 @@
             if(surfaceHeight === null)
                 return true;
 
-            newPosition.y = this._initialHeight + surfaceHeight;
+            /* we can't simply add the surface height, we also have to be aware of the initial
+             * surface height that might already be given. If it's not zero we have to subtract it
+             * else the object will get placed in the air higher and higher.
+             */
+            newPosition.y = this._initialHeight + (surfaceHeight - this._initialSurfaceHeight);
             this._updateTranslationDirection(newPosition);
 
             return true;
