@@ -65,8 +65,6 @@ SOFTWARE.
             this._controls = this._createControls(options);
 
             this._continuousInputProcessing = false;
-            /** map keyvalue => boolean */
-            this._currentlyPressedKeys = {};
             this._disableMovement = (options.disableMovement === true);
             this._disableRotation = (options.disableRotation === true);
         },
@@ -77,10 +75,6 @@ SOFTWARE.
                 eventDispatcher: this._createMouseEventDispatcher()
             });
             this._mouseCtrl.onDrag = this.callback("_onDrag");
-
-            this._keyCtrl = new XML3D.tools.KeyboardController();
-            this._keyCtrl.onKeyDown = this.callback("_onKeyDown");
-            this._keyCtrl.onKeyUp = this.callback("_onKeyUp");
         },
 
         _createControls: function(options) {
@@ -140,8 +134,6 @@ SOFTWARE.
         onAttach: function() {
             if(!this._disableRotation)
                 this._mouseCtrl.attach();
-            if(!this._disableMovement)
-                this._keyCtrl.attach();
             this._startInputProcessingLoop();
         },
 
@@ -152,7 +144,6 @@ SOFTWARE.
          */
         onDetach: function() {
             this._mouseCtrl.detach();
-            this._keyCtrl.detach();
             this._stopInputProcessingLoop();
         },
 
@@ -164,24 +155,6 @@ SOFTWARE.
             // we want mouse x-axis movement to map to y-axis rotation
             // so we flip the delta values
             this.behavior.rotateByAngles(-action.delta.y, -action.delta.x);
-        },
-
-        /**
-         *  @this {XML3D.tools.MouseKeyboardFlyController}
-         *  @private
-         */
-        _onKeyDown: function(evt) {
-
-            this._currentlyPressedKeys[evt.keyCode] = true;
-        },
-
-        /**
-         *  @this {XML3D.tools.MouseKeyboardFlyController}
-         *  @private
-         */
-        _onKeyUp: function(evt) {
-
-            this._currentlyPressedKeys[evt.keyCode] = false;
         },
 
         /**
@@ -211,17 +184,20 @@ SOFTWARE.
                 return;
             }
 
-            if(this._currentlyPressedKeys[this._controls.forward] === true) {
-                this.behavior.moveForward();
-            }
-            if(this._currentlyPressedKeys[this._controls.backward] === true) {
-                this.behavior.moveBackward();
-            }
-            if(this._currentlyPressedKeys[this._controls.left] === true) {
-                this.behavior.stepLeft();
-            }
-            if(this._currentlyPressedKeys[this._controls.right] === true) {
-                this.behavior.stepRight();
+            if(!this._disableMovement)
+            {
+                if(XML3D.tools.KeyboardState.isPressed(this._controls.forward)) {
+                    this.behavior.moveForward();
+                }
+                if(XML3D.tools.KeyboardState.isPressed(this._controls.backward)) {
+                    this.behavior.moveBackward();
+                }
+                if(XML3D.tools.KeyboardState.isPressed(this._controls.left)) {
+                    this.behavior.stepLeft();
+                }
+                if(XML3D.tools.KeyboardState.isPressed(this._controls.right)) {
+                    this.behavior.stepRight();
+                }
             }
 
             window.requestAnimationFrame(this.callback("_inputProcessingLoop"));
