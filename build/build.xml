@@ -51,8 +51,6 @@ SOFTWARE.
         <file name="base/Animatable.js" />
         <file name="base/KeyframeAnimation.js" />
 
-        <file name="input/KeyboardState.js" />
-
         <file name="util/xml3d_datatype_extensions.js" />
         <file name="util/util.js" />
         <file name="util/meshloading.js" />
@@ -74,6 +72,9 @@ SOFTWARE.
         <file name="util/idgenerator.js" />
         <file name="util/MouseClickEventProvider.js" />
 
+        <file name="input/KeyboardState.js" />
+        <file name="input/GamepadEventProvider.js" />
+
         <file name="animation/CombinedAnimation.js" />
 
         <file name="constraint/DefaultConstraint.js" />
@@ -92,8 +93,6 @@ SOFTWARE.
         <file name="camera/TouchFlyController.js" />
         <file name="camera/ExamineController.js" />
         <file name="camera/CameraAnimationController.js" />
-
-        <file name="gamepad/GamepadEventProvider.js" />
 
         <file name="xml3doverlay/mirroredwidgettarget.js" />
         <file name="xml3doverlay/mirroredview.js" />
