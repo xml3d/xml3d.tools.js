@@ -55,11 +55,29 @@
          */
         _createCustomTransformable: function(targetTransformable)
         {
-            var constraint = new XML3D.tools.AlongSurfaceTranslationConstraint(targetTransformable);
+            this._constraint = new XML3D.tools.AlongSurfaceTranslationConstraint(targetTransformable);
             var cascadedConstraint = new XML3D.tools.CascadedConstraint(
-                targetTransformable.constraint, constraint);
+                targetTransformable.constraint, this._constraint);
             return XML3D.tools.MotionFactory.createTransformable(
                 targetTransformable.object, cascadedConstraint);
+        },
+
+        /**
+         *  @this {XML3D.tools.interaction.behaviors.AlongSurfaceTranslater}
+         *  @public
+         */
+        enableConstraint: function()
+        {
+            this._constraint.enable();
+        },
+
+        /**
+         *  @this {XML3D.tools.interaction.behaviors.AlongSurfaceTranslater}
+         *  @public
+         */
+        disableConstraint: function()
+        {
+            this._constraint.disable();
         }
     });
 }());

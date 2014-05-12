@@ -41,6 +41,7 @@
         initialize: function(targetTransformable)
         {
             this._target = targetTransformable;
+            this._enabled = true;
             this._xml3d = XML3D.tools.util.getXml3dRoot(this._target.object);
             XML3D.tools.util.fireWhenMeshesLoaded(this._target.object, this._initWhenTargetReady.bind(this));
         },
@@ -78,11 +79,32 @@
 
         /**
          *  @this {XML3D.tools.AlongSurfaceTranslationConstraint}
+         *  @public
+         */
+        enable: function()
+        {
+            this._enabled = true;
+        },
+
+        /**
+         *  @this {XML3D.tools.AlongSurfaceTranslationConstraint}
+         *  @public
+         */
+        disable: function()
+        {
+            this._enabled = false;
+        },
+
+        /**
+         *  @this {XML3D.tools.AlongSurfaceTranslationConstraint}
          *  @override
          *  @public
          */
         constrainTranslation: function(newPosition, opts)
         {
+            if(!this._enabled)
+                return true;
+
             if(!opts.transformable)
             {
                 console.log("AlongSurfaceTranslationConstraint: no transformable given. Won't apply any constraint.");
