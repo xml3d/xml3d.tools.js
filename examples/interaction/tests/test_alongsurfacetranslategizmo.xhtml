@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+Copyright (c) 2010-2014
+      DFKI - German Research Center for Artificial Intelligence
+      www.dfki.de
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd" >
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>AlongSurfaceTranslateGizmo</title>
+    <link rel="stylesheet" type="text/css" media="all" href="../../style/default.css"/>
+
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+    <script type="text/javascript" src="../../external/xml3d.js"></script>
+    <script type="text/javascript" src="../../../build/output/xml3d.tools.js"></script>
+    <script type="text/javascript" src="../page.js"/>
+
+    <script type="text/javascript" src="test_alongsurfacetranslategizmo.js"></script>
+</head>
+<body>
+<div id="overall">
+    <div id="content">
+        <h1>AlongSurfaceTranslateGizmo</h1>
+
+        <xml3d style="width:640px;height:480px;background-color: #aaaaff;"
+               activeView="#v_camera">
+            <defs>
+                <shader id="s_cube" script="urn:xml3d:shader:phong">
+                    <float3 name="diffuseColor">0.8 0 0</float3>
+                    <float name="ambientIntensity">1</float>
+                </shader>
+                <transform id="t_cube" translation="0 2 0" />
+                <transform id="t_cubeParent" />
+
+                <lightshader id="ls_directional" script="urn:xml3d:lightshader:directional">
+                    <float3 name="intensity">0.8 0.8 0.8</float3>
+                </lightshader>
+                <transform id="t_directional" rotation="1 0 0 -0.2" />
+            </defs>
+
+            <group id="g_camera">
+                <view position="0 2 10" id="v_camera"/>
+            </group>
+
+            <group transform="#t_directional">
+                <light shader="#ls_directional"></light>
+            </group>
+
+            <group transform="#t_cubeParent">
+                <group id="g_cube" transform="#t_cube" shader="#s_cube">
+                    <mesh type="triangles" src="../../meshes.xml#d_cube" />
+                </group>
+            </group>
+        </xml3d>
+    </div>
+</div>
+</body>
+</html>

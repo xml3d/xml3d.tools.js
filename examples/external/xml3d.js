@@ -1,5 +1,5 @@
 /**
-Copyright (c) 2010-2013
+Copyright (c) 2010-2014
               DFKI - German Research Center for Artificial Intelligence
               www.dfki.de
 
@@ -21,13 +21,13 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-@version: DEVELOPMENT SNAPSHOT (18.03.2014 15:58:01 CET)
+@version: DEVELOPMENT SNAPSHOT (06.05.2014 09:20:41 CEST)
 **/
 /** @namespace * */
 var XML3D = XML3D || {};
 
 /** @define {string} */
-XML3D.version = 'DEVELOPMENT SNAPSHOT (18.03.2014 15:58:01 CET)';
+XML3D.version = 'DEVELOPMENT SNAPSHOT (06.05.2014 09:20:41 CEST)';
 /** @const */
 XML3D.xml3dNS = 'http://www.xml3d.org/2009/xml3d';
 /** @const */
@@ -181,6 +181,8 @@ XML3D.createClass = function(ctor, parent, methods) {
             return;
         }
 
+        XML3D.debug.logInfo("Configuring", xml3dElement.querySelectorAll("*").length, "elements");
+
         try {
             XML3D.config.configure(xml3dElement);
         } catch (e) {
@@ -263,7 +265,7 @@ XML3D.createClass = function(ctor, parent, methods) {
          */
         var xml3ds = document.querySelectorAll("xml3d");
 
-        debug && XML3D.debug.logInfo("Found " + xml3ds.length + " xml3d nodes...");
+        debug && XML3D.debug.logInfo("Found " + xml3ds.length + " xml3d node(s)");
 
         if (xml3ds.length && XML3D._native) {
             debug && XML3D.debug.logInfo("Using native implementation.");
@@ -11944,7 +11946,6 @@ XML3D.classInfo['data'] = {
     isOutputConnected: {m: XML3D.methods.XML3DNestedDataContainerTypeIsOutputConnected},
     getResult: {m: XML3D.methods.XML3DNestedDataContainerTypeGetResult},
     src: {a: XML3D.ReferenceHandler},
-    proto: {a: XML3D.ReferenceHandler},
     _term: undefined
 };
 /**
@@ -11967,7 +11968,7 @@ XML3D.classInfo['dataflow'] = {
 /**
  * Properties and methods for <data>
  **/
-XML3D.classInfo['datalist'] = {
+XML3D.classInfo['asset'] = {
     id: {a: XML3D.IDHandler},
     className: {a: XML3D.StringAttributeHandler, id: 'class'},
     // TODO: Handle style for data
@@ -12040,13 +12041,12 @@ XML3D.classInfo['mesh'] = {
     isOutputConnected: {m: XML3D.methods.meshIsOutputConnected},
     getResult: {m: XML3D.methods.meshGetResult},
     src: {a: XML3D.ReferenceHandler},
-    proto: {a: XML3D.ReferenceHandler},
     _term: undefined
 };
 /**
- * Properties and methods for <mesh>
+ * Properties and methods for <model>
  **/
-XML3D.classInfo['multimesh'] = {
+XML3D.classInfo['model'] = {
     id: {a: XML3D.IDHandler},
     className: {a: XML3D.StringAttributeHandler, id: 'class'},
     // TODO: Handle style for mesh
@@ -12097,7 +12097,6 @@ XML3D.classInfo['shader'] = {
     getResult: {m: XML3D.methods.XML3DShaderProviderTypeGetResult},
     script: {a: XML3D.ReferenceHandler},
     src: {a: XML3D.ReferenceHandler},
-    proto: {a: XML3D.ReferenceHandler},
     _term: undefined
 };
 /**
@@ -12140,7 +12139,6 @@ XML3D.classInfo['lightshader'] = {
     getResult: {m: XML3D.methods.XML3DShaderProviderTypeGetResult},
     script: {a: XML3D.ReferenceHandler},
     src: {a: XML3D.ReferenceHandler},
-    proto: {a: XML3D.ReferenceHandler},
     _term: undefined
 };
 /**
@@ -12156,22 +12154,20 @@ XML3D.classInfo['script'] = {
     _term: undefined
 };
 /**
- * Properties and methods for <subdata>
+ * Properties and methods for <assetmesh>
  **/
-XML3D.classInfo['subdata'] = {
+XML3D.classInfo['assetmesh'] = {
     id: {a: XML3D.IDHandler},
     className: {a: XML3D.StringAttributeHandler, id: 'class'},
     // TODO: Handle style for data
     name: {a: XML3D.StringAttributeHandler},
-    meshtype: {a: XML3D.EnumAttributeHandler, params: {e: XML3D.MeshTypes, d: 0}},
-    postcompute: {a: XML3D.StringAttributeHandler},
-    postfilter: {a: XML3D.StringAttributeHandler},
-    includes: {a: XML3D.StringAttributeHandler},
+    type: {a: XML3D.EnumAttributeHandler, params: {e: XML3D.MeshTypes, d: 0}},
     compute: {a: XML3D.StringAttributeHandler},
+    filter: {a: XML3D.StringAttributeHandler},
+    includes: {a: XML3D.StringAttributeHandler},
     shader: {a: XML3D.ReferenceHandler},
     transform: {a: XML3D.ReferenceHandler},
     platform: {a: XML3D.EnumAttributeHandler, params: {e: XML3D.PlatformTypes, d: 1}},
-    filter: {a: XML3D.StringAttributeHandler},
     getOutputNames: {m: XML3D.methods.XML3DNestedDataContainerTypeGetOutputNames},
     getOutputChannelInfo: {m: XML3D.methods.XML3DNestedDataContainerTypeGetOutputChannelInfo},
     getComputeInfo: {m: XML3D.methods.XML3DNestedDataContainerTypeGetComputeInfo},
@@ -12179,19 +12175,20 @@ XML3D.classInfo['subdata'] = {
     isOutputConnected: {m: XML3D.methods.XML3DNestedDataContainerTypeIsOutputConnected},
     getResult: {m: XML3D.methods.XML3DNestedDataContainerTypeGetResult},
     src: {a: XML3D.ReferenceHandler},
-    proto: {a: XML3D.ReferenceHandler},
     _term: undefined
 };
 /**
- * Properties and methods for <proto>
+ * Properties and methods for <assetdata>
  **/
-XML3D.classInfo['proto'] = {
+XML3D.classInfo['assetdata'] = {
     id: {a: XML3D.IDHandler},
     className: {a: XML3D.StringAttributeHandler, id: 'class'},
-    // TODO: Handle style for proto
+    // TODO: Handle style for data
+    name: {a: XML3D.StringAttributeHandler},
     compute: {a: XML3D.StringAttributeHandler},
-    platform: {a: XML3D.EnumAttributeHandler, params: {e: XML3D.PlatformTypes, d: 1}},
     filter: {a: XML3D.StringAttributeHandler},
+    includes: {a: XML3D.StringAttributeHandler},
+    platform: {a: XML3D.EnumAttributeHandler, params: {e: XML3D.PlatformTypes, d: 1}},
     getOutputNames: {m: XML3D.methods.XML3DNestedDataContainerTypeGetOutputNames},
     getOutputChannelInfo: {m: XML3D.methods.XML3DNestedDataContainerTypeGetOutputChannelInfo},
     getComputeInfo: {m: XML3D.methods.XML3DNestedDataContainerTypeGetComputeInfo},
@@ -12199,7 +12196,6 @@ XML3D.classInfo['proto'] = {
     isOutputConnected: {m: XML3D.methods.XML3DNestedDataContainerTypeIsOutputConnected},
     getResult: {m: XML3D.methods.XML3DNestedDataContainerTypeGetResult},
     src: {a: XML3D.ReferenceHandler},
-    proto: {a: XML3D.ReferenceHandler},
     _term: undefined
 };
 /**
@@ -15950,7 +15946,8 @@ RequestNode.prototype.getResult = function(resultType){
     if(this.status == Xflow.PROCESS_STATE.UNPROCESSED){
         if(resultType == Xflow.RESULT_TYPE.COMPUTE){
             var executer = getOrCreateExecuter(this, this.owner.platform);
-            executer.run();
+            if(!executer.isProcessed())
+                executer.run();
         }
         this.status = Xflow.PROCESS_STATE.PROCESSED;
     }
@@ -16046,6 +16043,7 @@ function getRequestVSResult(requestNode)
 
         this.platform = platform;
         this.mergedNodes = [];
+        this.mergedOutputNodes = [];
         this.subNodes = [];
         this.unprocessedDataNames = [];
 
@@ -16063,6 +16061,15 @@ function getRequestVSResult(requestNode)
         constructExecuter(this, ownerNode);
     }
 
+    Xflow.Executer.prototype.isProcessed = function(){
+        var i = this.mergedOutputNodes.length;
+        while(i--){
+            if(this.mergedOutputNodes[i].status != Xflow.PROCESS_STATE.PROCESSED)
+                return false;
+        }
+        return true;
+    }
+
     Xflow.Executer.prototype.run = function(){
         runSubNodes(this);
         updateIterateState(this);
@@ -16073,6 +16080,11 @@ function getRequestVSResult(requestNode)
             this.operatorList.allocateOutput(this.programData);
             this.program.run(this.programData);
         }
+        var i = this.mergedOutputNodes.length;
+        while(i--){
+            this.mergedOutputNodes[i].status = Xflow.PROCESS_STATE.PROCESSED;
+        }
+
     }
 
     Xflow.Executer.prototype.getVertexShader = function(){
@@ -16094,9 +16106,10 @@ function getRequestVSResult(requestNode)
             finalOutput: null,
             firstOperator: null
         }
-        initRequestNode(cData, executer, ownerNode);
+        var requestNode = initRequestNode(cData, executer, ownerNode);
 
-        constructPreScan(cData, ownerNode, executer.platform);
+        var noOperators = false;
+        constructPreScan(cData, ownerNode, executer.platform, noOperators);
 
         setConstructionOrderAndSubNodes(cData, executer, ownerNode);
 
@@ -16114,15 +16127,17 @@ function getRequestVSResult(requestNode)
                     cData.finalOutput[name] = channel.getDataEntry();
             }
             Xflow.nameset.add(executer.unprocessedDataNames, filter);
+            return true;
         }
+        return false;
     }
 
-    function constructPreScan(cData, node, platform){
+    function constructPreScan(cData, node, platform, noOperators){
         if(cData.blockedNodes.indexOf(node) != -1)
             return;
 
         if(node.operator){
-            if(!canOperatorMerge(cData, node.operator, platform)){
+            if(noOperators || !canOperatorMerge(cData, node.operator, platform)){
                 blockSubtree(cData, node);
                 return;
             }
@@ -16142,7 +16157,7 @@ function getRequestVSResult(requestNode)
             }
         }
         for(var i = 0; i < node.children.length; ++i){
-            constructPreScan(cData, node.children[i], platform);
+            constructPreScan(cData, node.children[i], platform, noOperators);
         }
     }
 
@@ -16199,11 +16214,13 @@ function getRequestVSResult(requestNode)
 
             constructInputConnection(executer, entry, cData, node);
 
-            constructOutputConnection(executer, entry, cData, node);
+            var isOutputNode = constructOutputConnection(executer, entry, cData, node);
 
             executer.programData.operatorData.push({});
             executer.operatorList.addEntry(entry);
             executer.mergedNodes.push(node);
+            if(isOutputNode || (i == cData.constructionOrder.length-1))
+                executer.mergedOutputNodes.push(node)
 
         }
 
@@ -16255,6 +16272,7 @@ function getRequestVSResult(requestNode)
 
     function constructOutputConnection(executer, entry, cData, node){
         var outputs = node.operator.outputs;
+        var isOutputNode = true;
         for(var i = 0; i < outputs.length; ++i){
             var slot = node.outputDataSlots[outputs[i].name];
             var finalOutputName = getFinalOutputName(slot, cData);
@@ -16266,7 +16284,11 @@ function getRequestVSResult(requestNode)
                     Xflow.nameset.remove(executer.unprocessedDataNames, finalOutputName);
                 }
             }
+            else{
+                isOutputNode = false;
+            }
         }
+        return isOutputNode;
     }
 
 
@@ -18420,8 +18442,10 @@ Xflow.registerOperator("xflow.slerpKeys", {
                 {type: 'float4', source: 'boneWeight' },
                 {type: 'float4x4', source: 'boneXform', array: true } ],
     evaluate: function(result, dir,boneIdx,boneWeight,boneXform, info) {
-        var r = XML3D.math.vec3.create();
-        var tmp =  XML3D.math.vec3.create();
+        var vec3 = XML3D.math.vec3,
+            mat4 = XML3D.math.mat4;
+        var r = vec3.create();
+        var tmp =  vec3.create();
 
         for(var i = 0; i< info.iterateCount;++i) {
             var offset = i*3;
@@ -18431,12 +18455,12 @@ Xflow.registerOperator("xflow.slerpKeys", {
                 if (weight) {
                     var mo = boneIdx[info.iterFlag[1] ? i*4+j : j]*16;
 
-                    XML3D.math.mat4.multiplyOffsetDirection(boneXform, mo, dir, offset, tmp);
-                    XML3D.math.vec3.scale(tmp, tmp, weight);
-                    XML3D.math.vec3.add(r, r, tmp);
+                    mat4.multiplyOffsetDirection(boneXform, mo, dir, offset, tmp);
+                    vec3.scale(tmp, tmp, weight);
+                    vec3.add(r, r, tmp);
                 }
             }
-            XML3D.math.vec3.normalize(r, r);
+            vec3.normalize(r, r);
             result[offset] = r[0];
             result[offset+1] = r[1];
             result[offset+2] = r[2];
@@ -18488,8 +18512,10 @@ Xflow.registerOperator("xflow.slerpKeys", {
                 {type: 'float4', source: 'boneWeight' },
                 {type: 'float4x4', source: 'boneXform', array: true } ],
     evaluate: function(result, pos,boneIdx,boneWeight,boneXform, info) {
-        var r = XML3D.math.vec3.create();
-        var tmp =  XML3D.math.vec3.create();
+        var vec3 = XML3D.math.vec3,
+            mat4 = XML3D.math.mat4;
+        var r = vec3.create();
+        var tmp =  vec3.create();
 
         for(var i = 0; i< info.iterateCount;++i) {
             var offset = i*3;
@@ -18499,9 +18525,9 @@ Xflow.registerOperator("xflow.slerpKeys", {
                 if (weight) {
                     var mo = boneIdx[info.iterFlag[1] ? i*4+j : j]*16;
 
-                    XML3D.math.mat4.multiplyOffsetVec3(boneXform, mo, pos, offset, tmp);
-                    XML3D.math.vec3.scale(tmp, tmp, weight);
-                    XML3D.math.vec3.add(r, r, tmp);
+                    mat4.multiplyOffsetVec3(boneXform, mo, pos, offset, tmp);
+                    vec3.scale(tmp, tmp, weight);
+                    vec3.add(r, r, tmp);
                 }
             }
             result[offset] = r[0];
@@ -19795,42 +19821,42 @@ Xflow.registerOperator("xflow.debug.createSkinCubes", {
 }());(function() {
 
 //----------------------------------------------------------------------------------------------------------------------
-// XML3D.base.DataList
+// XML3D.base.Asset
 //----------------------------------------------------------------------------------------------------------------------
 
-function DataListError(message, node){
+function AssetError(message, node){
     this.message = message;
     this.node = node;
 }
 
-XML3D.base.DataList = function(refNode){
-    this.srcDataList = null;
+XML3D.base.Asset = function(refNode){
+    this.srcAsset = null;
     this.children = [];
     this.pickFilter = null;
-    this.dataListResult = null;
+    this.assetResult = null;
     this.listener = [];
     this.loading = false;
     this.refNode = refNode || null;
 };
 
-XML3D.base.DataList.prototype.checkValidity = function(){
+XML3D.base.Asset.prototype.checkValidity = function(){
     if(this.isSubtreeLoading())
         return;
     checkRecursive(this);
 }
-function checkRecursive(datalist){
+function checkRecursive(asset){
     var parentNames;
-    if(datalist.srcDataList){
-        parentNames = checkRecursive(datalist.srcDataList);
+    if(asset.srcAsset){
+        parentNames = checkRecursive(asset.srcAsset);
     }
     var localNames = [];
-    for(var i = 0; i < datalist.children.length; ++i){
-        var child = datalist.children[i], name = child.name;
+    for(var i = 0; i < asset.children.length; ++i){
+        var child = asset.children[i], name = child.name;
 //        if(!name){
-//            throw new DataListError("Child subdata without a name.", child.refNode);
+//            throw new AssetError("Child subdata without a name.", child.refNode);
 //        }
         if(name && localNames.indexOf(name) != -1){
-            throw new DataListError("Two subdata elements with the same name: '" + name + "'", child.refNode);
+            throw new AssetError("Two subdata elements with the same name: '" + name + "'", child.refNode);
         }
         if(name) localNames.push(name);
     }
@@ -19838,8 +19864,8 @@ function checkRecursive(datalist){
     if(parentNames){
         Xflow.utils.setAdd(totalNames, parentNames);
     }
-    for(var i = 0; i < datalist.children.length; ++i){
-        checkIncludes(datalist.children[i], totalNames);
+    for(var i = 0; i < asset.children.length; ++i){
+        checkIncludes(asset.children[i], totalNames);
     }
 
     return totalNames;
@@ -19850,22 +19876,24 @@ function checkIncludes(subData, totalNames){
     for(var i = 0; i < subData.includes.length; ++i){
         var inclName = subData.includes[i];
         if(totalNames.indexOf(inclName) == -1){
-            throw new DataListError("Subdata '" + subData.name +
+            throw new AssetError("Subdata '" + subData.name +
                  "' includes non existing subdata of name '" + inclName + "'", subData.refNode);
         }
     }
 }
 
 
-XML3D.base.DataList.prototype.setLoading = function(loading){
+XML3D.base.Asset.prototype.setLoading = function(loading){
     if(loading != this.loading){
         this.loading = loading;
-        invalidateDataList(this);
+        invalidateAsset(this);
     }
 }
 
-XML3D.base.DataList.prototype.isSubtreeLoading = function(){
-    if(this.srcDataList && this.srcDataList.isSubtreeLoading())
+XML3D.base.Asset.prototype.isSubtreeLoading = function(){
+    if(this.loading)
+        return true;
+    if(this.srcAsset && this.srcAsset.isSubtreeLoading())
         return true;
     var i = this.children.length;
     while(i--){
@@ -19874,60 +19902,60 @@ XML3D.base.DataList.prototype.isSubtreeLoading = function(){
     return false;
 }
 
-XML3D.base.DataList.prototype.appendChild = function(child){
+XML3D.base.Asset.prototype.appendChild = function(child){
     this.children.push(child);
-    child.dataListParent = this;
-    invalidateDataList(this);
+    child.assetParent = this;
+    invalidateAsset(this);
 }
 
-XML3D.base.DataList.prototype.setPickFilter = function(pickFilter){
+XML3D.base.Asset.prototype.setPickFilter = function(pickFilter){
     this.pickFilter = pickFilter;
-    invalidateDataList(this);
+    invalidateAsset(this);
 }
 
-XML3D.base.DataList.prototype.setSrcDataList = function(dataList){
-    if(this.srcDataList)
-        this.srcDataList.removeChangeListener(this);
+XML3D.base.Asset.prototype.setSrcAsset = function(asset){
+    if(this.srcAsset)
+        this.srcAsset.removeChangeListener(this);
 
-    this.srcDataList = dataList;
+    this.srcAsset = asset;
 
-    if(this.srcDataList)
-        this.srcDataList.addChangeListener(this);
+    if(this.srcAsset)
+        this.srcAsset.addChangeListener(this);
 
-    invalidateDataList(this);
+    invalidateAsset(this);
 }
 
-XML3D.base.DataList.prototype.clearChildren = function(){
+XML3D.base.Asset.prototype.clearChildren = function(){
     var i = this.children.length;
-    while(i--) this.children[i].dataListParent = null
+    while(i--) this.children[i].assetParent = null
     this.children = [];
-    invalidateDataList(this);
+    invalidateAsset(this);
 }
 
-XML3D.base.DataList.prototype.addChangeListener = function(listener){
+XML3D.base.Asset.prototype.addChangeListener = function(listener){
     Xflow.utils.setAdd(this.listener, listener);
 }
-XML3D.base.DataList.prototype.removeChangeListener = function(listener){
+XML3D.base.Asset.prototype.removeChangeListener = function(listener){
     Xflow.utils.setRemove(this.listener, listener);
 }
 
-XML3D.base.DataList.prototype.onDataListChange = function(){
-    invalidateDataList(this);
+XML3D.base.Asset.prototype.onAssetChange = function(){
+    invalidateAsset(this);
 }
 
-XML3D.base.DataList.prototype.getResult = function(){
-    if(!this.dataListResult)
-        this.dataListResult = new XML3D.base.DataListResult(this);
+XML3D.base.Asset.prototype.getResult = function(){
+    if(!this.assetResult)
+        this.assetResult = new XML3D.base.AssetResult(this);
 
-    return this.dataListResult;
+    return this.assetResult;
 }
 
-function invalidateDataList(dataList){
-    if(dataList.dataListResult){
-        dataList.dataListResult = null;
+function invalidateAsset(asset){
+    if(asset.assetResult){
+        asset.assetResult = null;
     }
-    for(var i = 0; i < dataList.listener.length; ++i){
-        dataList.listener[i].onDataListChange(this);
+    for(var i = 0; i < asset.listener.length; ++i){
+        asset.listener[i].onAssetChange(this);
     }
 }
 
@@ -19947,7 +19975,7 @@ XML3D.base.SubData = function(xflowNodeOut, xflowNodeIn, refNode){
     this.shader = null;
     this.transform = null;
     this.meshType = null;
-    this.dataListParent = null;
+    this.assetParent = null;
     this.loading = false;
 };
 
@@ -19999,24 +20027,24 @@ XML3D.base.SubData.prototype.setMeshType = function(meshType){
 }
 
 function invalidateParent(subData){
-    if(subData.dataListParent){
-        invalidateDataList(subData.dataListParent);
+    if(subData.assetParent){
+        invalidateAsset(subData.assetParent);
     }
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-// XML3D.base.DataListResult
+// XML3D.base.AssetResult
 //----------------------------------------------------------------------------------------------------------------------
 
-XML3D.base.DataListResult = function(dataList){
+XML3D.base.AssetResult = function(asset){
     this.namedEntries = {};
     this.allEntries = [];
     this.pickFilter = null;
-    constructDataListTable(this, dataList);
+    constructAssetTable(this, asset);
 }
 
 
-XML3D.base.DataListResult.prototype.getMeshDataSets = function(){
+XML3D.base.AssetResult.prototype.getMeshDataSets = function(){
     var result = [];
 
     for(var i = 0; i < this.allEntries.length; ++i){
@@ -20028,7 +20056,8 @@ XML3D.base.DataListResult.prototype.getMeshDataSets = function(){
                 xflowNode: entry.accumulatedXflowNode,
                 type: entry.meshType,
                 shader: entry.shader,
-                transform: entry.transform
+                transform: entry.transform,
+                refNode: entry.refNode
             });
         }
     }
@@ -20076,20 +20105,20 @@ function updateAccumulatedNode(table, entry){
 }
 
 
-function constructDataListTable(table, datalist){
-    var srcData = datalist.srcDataList;
-    var children = datalist.children;
+function constructAssetTable(table, asset){
+    var srcData = asset.srcAsset;
+    var children = asset.children;
     if(srcData)
-        copySrcTable(table, srcData.getResult(), datalist.pickFilter);
+        copySrcTable(table, srcData.getResult(), asset.pickFilter);
     else
-        table.pickFilter = datalist.pickFilter;
+        table.pickFilter = asset.pickFilter;
     for(var i = 0; i < children.length; ++i){
         var child = children[i];
         var name = child.name;
         var entry;
         if(name){
             if(!table.namedEntries[name]){
-                entry = new DataListTableEntry();
+                entry = new AssetTableEntry();
                 table.namedEntries[name] = entry
                 table.allEntries.push(entry);
             }
@@ -20097,7 +20126,7 @@ function constructDataListTable(table, datalist){
                 entry = table.namedEntries[name];
         }
         else{
-            entry = new DataListTableEntry();
+            entry = new AssetTableEntry();
             table.allEntries.push(entry);
         }
         entry.pushPostEntry(child);
@@ -20111,7 +20140,7 @@ function constructDataListTable(table, datalist){
 function copySrcTable(table, srcTable, pickFilter){
     var i = srcTable.allEntries.length;
     while(i--){
-        var newEntry = new DataListTableEntry(srcTable.allEntries[i]);
+        var newEntry = new AssetTableEntry(srcTable.allEntries[i]);
         table.allEntries.push(newEntry);
         if(newEntry.name) table.namedEntries[newEntry.name] = newEntry;
     }
@@ -20129,7 +20158,7 @@ function copySrcTable(table, srcTable, pickFilter){
 }
 
 
-function DataListTableEntry (srcEntry){
+function AssetTableEntry (srcEntry){
     this.name = srcEntry && srcEntry.name;
     this.meshType = srcEntry && srcEntry.meshType || null;
 
@@ -20140,10 +20169,11 @@ function DataListTableEntry (srcEntry){
 
     this.accumulatedXflowNode = null;
     this.outOfSync = true;
+    this.refNode = null;
 
 }
 
-DataListTableEntry.prototype.pushPostEntry = function(subData){
+AssetTableEntry.prototype.pushPostEntry = function(subData){
     this.name = subData.name;
     this.postQueue.push({
         dataflow: subData.postDataflow,
@@ -20152,6 +20182,7 @@ DataListTableEntry.prototype.pushPostEntry = function(subData){
         filter: subData.postFilter,
         xflowNode: subData.xflowNodeIn
     });
+    this.refNode = subData.refNode;
     this.accumulatedXflowNode = subData.xflowNodeOut;
     Xflow.utils.setAdd(this.includes, subData.includes);
 }
@@ -20271,21 +20302,17 @@ XML3D.data.DataAdapter = function (factory, node) {
 XML3D.createClass(XML3D.data.DataAdapter, XML3D.data.BaseDataAdapter);
 
 XML3D.data.DataAdapter.prototype.init = function () {
-    //var xflow = this.resolveScript();
-    //if (xflow)
-    //    this.scriptInstance = new XML3D.data.ScriptInstance(this, xflow);
-
-    var protoNode = (this.node.localName === "proto");
-
-    this.xflowDataNode = XML3D.data.xflowGraph.createDataNode(protoNode);
+    this.xflowDataNode = XML3D.data.xflowGraph.createDataNode();
     this.xflowDataNode.userData = this.node;
 
     // Setting platform and node type information for a data sequence
     this.xflowDataNode.setPlatform(this.node.getAttribute("platform"));
 
     updateAdapterHandle(this, "src", this.node.getAttribute("src"));
-    this.xflowDataNode.setFilter(this.node.getAttribute("filter"));
-    updateCompute(this);
+    if(!this.assetData){
+        this.xflowDataNode.setFilter(this.node.getAttribute("filter"));
+        updateCompute(this);
+    }
     recursiveDataAdapterConstruction(this);
 };
 
@@ -20372,10 +20399,10 @@ XML3D.data.DataAdapter.prototype.notifyChanged = function (evt) {
     } else if (evt.type === XML3D.events.VALUE_MODIFIED) {
         var attr = evt.wrapped.attrName;
 
-        if (attr === "filter") {
+        if (attr === "filter" && !this.assetData) {
             this.xflowDataNode.setFilter(this.node.getAttribute(attr));
         }
-        else if (attr === "compute") {
+        else if (attr === "compute" && !this.assetData) {
             updateCompute(this);
         }
         else if (attr === "src") {
@@ -20628,35 +20655,35 @@ XML3D.data.ComputeDataAdapter.prototype.notifyChanged = function (evt) {
 (function() {
 
 
-XML3D.data.DataListAdapter = function(factory, node) {
+XML3D.data.AssetAdapter = function(factory, node) {
     XML3D.base.NodeAdapter.call(this, factory, node);
 
     // Node handles for src and proto
-    this.dataList = null;
+    this.asset = null;
 };
-XML3D.createClass(XML3D.data.DataListAdapter, XML3D.base.NodeAdapter);
+XML3D.createClass(XML3D.data.AssetAdapter, XML3D.base.NodeAdapter);
 
-XML3D.data.DataListAdapter.prototype.init = function() {
+XML3D.data.AssetAdapter.prototype.init = function() {
     //var xflow = this.resolveScript();
     //if (xflow)
     //    this.scriptInstance = new XML3D.data.ScriptInstance(this, xflow);
 
-    this.dataList = new XML3D.base.DataList(this.node);
+    this.asset = new XML3D.base.Asset(this.node);
     updateAdapterHandle(this, "src", this.node.getAttribute("src"));
     updatePickFilter(this);
     updateChildren(this);
 };
 
-XML3D.data.DataListAdapter.prototype.getDataList = function(){
-    return this.dataList;
+XML3D.data.AssetAdapter.prototype.getAsset = function(){
+    return this.asset;
 }
 
 function updateChildren(adapter){
-    adapter.dataList.clearChildren();
+    adapter.asset.clearChildren();
     for ( var child = adapter.node.firstElementChild; child !== null; child = child.nextElementSibling) {
         var subadapter = adapter.factory.getAdapter(child);
-        if(subadapter && subadapter.dataListEntry){
-            adapter.dataList.appendChild(subadapter.dataListEntry);
+        if(subadapter && subadapter.assetEntry){
+            adapter.asset.appendChild(subadapter.assetEntry);
         }
     }
 }
@@ -20672,37 +20699,37 @@ function updateAdapterHandle(adapter, key, url) {
     adapter.connectedAdapterChanged(key, adapterHandle ? adapterHandle.getAdapter() : null, status);
 }
 
-function updateDataListLoadState(dataAdapter){
+function updateAssetLoadState(dataAdapter){
     var loading = false, handle;
 
     handle = dataAdapter.getConnectedAdapterHandle("src");
     if (handle && handle.status === XML3D.base.AdapterHandle.STATUS.LOADING) {
         loading = true;
     }
-    dataAdapter.dataList.setLoading(loading);
+    dataAdapter.asset.setLoading(loading);
 }
 
 function updatePickFilter(adapter){
     if(!adapter.node.hasAttribute("pick"))
-        adapter.dataList.setPickFilter(null);
+        adapter.asset.setPickFilter(null);
     else{
         var value = adapter.node.getAttribute("pick");
-        adapter.dataList.setPickFilter(value.split(/\s+/))
+        adapter.asset.setPickFilter(value.split(/\s+/))
     }
 }
 
-XML3D.data.DataListAdapter.prototype.connectedAdapterChanged = function(attributeName, adapter){
+XML3D.data.AssetAdapter.prototype.connectedAdapterChanged = function(attributeName, adapter){
     if(attributeName == "src")
-        this.dataList.setSrcDataList(adapter && adapter.dataList || null);
-    updateDataListLoadState(this);
+        this.asset.setSrcAsset(adapter && adapter.getAsset() || null);
+    updateAssetLoadState(this);
 }
 
 
-XML3D.data.DataListAdapter.prototype.notifyChanged = function(evt) {
+XML3D.data.AssetAdapter.prototype.notifyChanged = function(evt) {
     if(evt.type == XML3D.events.ADAPTER_HANDLE_CHANGED){
         this.connectedAdapterChanged(evt.key, evt.adapter);
         if(evt.handleStatus == XML3D.base.AdapterHandle.STATUS.NOT_FOUND){
-            XML3D.debug.logError("Could not find <multidata> element of url '" + evt.url + "' for " + evt.key);
+            XML3D.debug.logError("Could not find <asset> element of url '" + evt.url + "' for " + evt.key);
         }
         return;
     }
@@ -20725,35 +20752,32 @@ XML3D.data.DataListAdapter.prototype.notifyChanged = function(evt) {
     }
 };
 
-XML3D.data.SubDataAdapter = function(factory, node) {
+XML3D.data.AssetDataAdapter = function(factory, node) {
+    this.assetData = true;
     XML3D.data.DataAdapter.call(this, factory, node);
 
     // Node handles for src and proto
-    this.dataListEntry = null;
+    this.assetEntry = null;
     this.outputXflowNode = null;
-    this.transformFetcher = new XML3D.data.DOMTransformFetcher(this, "transform", "transform");
 };
-XML3D.createClass(XML3D.data.SubDataAdapter, XML3D.data.DataAdapter);
+XML3D.createClass(XML3D.data.AssetDataAdapter, XML3D.data.DataAdapter);
 
-XML3D.data.SubDataAdapter.prototype.init = function() {
+XML3D.data.AssetDataAdapter.prototype.init = function() {
     //var xflow = this.resolveScript();
     //if (xflow)
     //    this.scriptInstance = new XML3D.data.ScriptInstance(this, xflow);
     XML3D.data.DataAdapter.prototype.init.call(this);
     this.outputXflowNode = XML3D.data.xflowGraph.createDataNode(false);
-    this.dataListEntry = new XML3D.base.SubData(this.outputXflowNode, this.getXflowNode(), this.node);
-    this.dataListEntry.setName(this.node.getAttribute("name"));
+    this.assetEntry = new XML3D.base.SubData(this.outputXflowNode, this.getXflowNode(), this.node);
+    this.assetEntry.setName(this.node.getAttribute("name"));
     updatePostCompute(this);
-    this.dataListEntry.setPostFilter(this.node.getAttribute("postfilter"));
-    updateIncludes(this.dataListEntry, this.node.getAttribute("includes"));
-    setShaderUrl(this);
-    this.dataListEntry.setMeshType(this.node.getAttribute("meshtype"));
-    this.transformFetcher.update();
+    this.assetEntry.setPostFilter(this.node.getAttribute("filter"));
+    updateIncludes(this.assetEntry, this.node.getAttribute("includes"));
 };
 
-XML3D.data.SubDataAdapter.prototype.connectedAdapterChanged = function(attributeName, adapter){
+XML3D.data.AssetDataAdapter.prototype.connectedAdapterChanged = function(attributeName, adapter){
     if(attributeName == "postDataflow"){
-        this.dataListEntry.setPostDataflow(adapter && adapter.getXflowNode() || null);
+        this.assetEntry.setPostDataflow(adapter && adapter.getXflowNode() || null);
         updateSubDataLoadState(this);
     }
     else{
@@ -20761,37 +20785,33 @@ XML3D.data.SubDataAdapter.prototype.connectedAdapterChanged = function(attribute
     }
 }
 
-XML3D.data.SubDataAdapter.prototype.notifyChanged = function(evt) {
+XML3D.data.AssetDataAdapter.prototype.notifyChanged = function(evt) {
     XML3D.data.DataAdapter.prototype.notifyChanged.call(this, evt);
     if (evt.type == XML3D.events.VALUE_MODIFIED) {
         var attr = evt.wrapped.attrName;
         switch(attr){
-            case "name": this.dataListEntry.setName(this.node.getAttribute("name")); break;
-            case "postcompute": updatePostCompute(this); break;
-            case "postfilter": this.dataListEntry.setPostFilter(this.node.getAttribute("postfilter")); break;
+            case "name": this.assetEntry.setName(this.node.getAttribute("name")); break;
+            case "compute": updatePostCompute(this); break;
+            case "filter": this.assetEntry.setPostFilter(this.node.getAttribute("filter")); break;
             case "includes": updateIncludes(this.node.getAttribute("includes")); break;
-            case "shader": setShaderUrl(this); break;
-            case "style":
-            case "transform": this.transformFetcher.update(); break;
-            case "meshtype": this.dataListEntry.setMeshType(this.node.getAttribute("meshtype"))
         }
         return;
     }
 };
 
-XML3D.data.SubDataAdapter.prototype.onTransformChange = function(attrName, matrix){
-    this.dataListEntry.setTransform(matrix);
+XML3D.data.AssetDataAdapter.prototype.onTransformChange = function(attrName, matrix){
+    this.assetEntry.setTransform(matrix);
 }
 
-function updateIncludes(dataListEntry, includeString){
+function updateIncludes(assetEntry, includeString){
     if(!includeString)
-        dataListEntry.setIncludes([]);
+        assetEntry.setIncludes([]);
     else
-        dataListEntry.setIncludes(includeString.split(/\s+/));
+        assetEntry.setIncludes(includeString.split(/\s+/));
 }
 
 function updatePostCompute(adapter){
-    var computeString = adapter.node.getAttribute("postcompute");
+    var computeString = adapter.node.getAttribute("compute");
     var dataflowUrl = Xflow.getComputeDataflowUrl(computeString);
     if (dataflowUrl) {
         updateAdapterHandle(adapter, "postDataflow", dataflowUrl);
@@ -20800,7 +20820,7 @@ function updatePostCompute(adapter){
         adapter.disconnectAdapterHandle("postDataflow");
         updateSubDataLoadState(adapter);
     }
-    adapter.dataListEntry.setPostCompute(computeString);
+    adapter.assetEntry.setPostCompute(computeString);
 }
 
 function updateSubDataLoadState(dataAdapter) {
@@ -20810,7 +20830,7 @@ function updateSubDataLoadState(dataAdapter) {
     if (handle && handle.status === XML3D.base.AdapterHandle.STATUS.LOADING) {
         loading = true;
     }
-    dataAdapter.dataListEntry.setLoading(loading);
+    dataAdapter.assetEntry.setLoading(loading);
 }
 
 
@@ -20819,13 +20839,38 @@ function setShaderUrl(adapter){
     var shaderUrl = node.getAttribute("shader");
     if(shaderUrl){
         var shaderId = XML3D.base.resourceManager.getAbsoluteURI(node.ownerDocument, shaderUrl);
-        adapter.dataListEntry.setShader(shaderId.toString());
+        adapter.assetEntry.setShader(shaderId.toString());
     }
     else{
-        adapter.dataListEntry.setShader(null);
+        adapter.assetEntry.setShader(null);
     }
 }
 
+XML3D.data.AssetMeshAdapter = function(factory, node) {
+    XML3D.data.AssetDataAdapter.call(this, factory, node);
+    this.transformFetcher = new XML3D.data.DOMTransformFetcher(this, "transform", "transform");
+};
+XML3D.createClass(XML3D.data.AssetMeshAdapter, XML3D.data.AssetDataAdapter);
+
+XML3D.data.AssetMeshAdapter.prototype.init = function() {
+    XML3D.data.AssetDataAdapter.prototype.init.call(this);
+    setShaderUrl(this);
+    this.assetEntry.setMeshType(this.node.getAttribute("type") || "triangles");
+    this.transformFetcher.update();
+};
+XML3D.data.AssetMeshAdapter.prototype.notifyChanged = function(evt) {
+    XML3D.data.AssetDataAdapter.prototype.notifyChanged.call(this, evt);
+    if (evt.type == XML3D.events.VALUE_MODIFIED) {
+        var attr = evt.wrapped.attrName;
+        switch(attr){
+            case "shader": setShaderUrl(this); break;
+            case "style":
+            case "transform": this.transformFetcher.update(); break;
+            case "type": this.assetEntry.setMeshType(this.node.getAttribute("type") || "triangles")
+        }
+        return;
+    }
+};
 
 }());
 // data/values.js
@@ -21551,9 +21596,10 @@ function setShaderUrl(adapter){
     reg['video']       = data.VideoDataAdapter;
     reg['script']      = data.ScriptDataAdapter;
     reg['transform']   = data.TransformDataAdapter;
-    reg['datalist']    = data.DataListAdapter;
-    reg['subdata']     = data.SubDataAdapter;
-    reg['multimesh']   = data.DataListAdapter;
+    reg['asset']       = data.AssetAdapter;
+    reg['assetdata']   = data.AssetDataAdapter;
+    reg['assetmesh']   = data.AssetMeshAdapter;
+    reg['model']       = data.AssetAdapter;
 
    /**
      * Creates a DataAdapter associated with the given node.
@@ -23008,7 +23054,7 @@ XML3D.webgl.stopEvent = function(ev) {
             var page = new Float32Array(Pager.PAGE_SIZE);
             this.pages.push(page);
             this.nextOffset = 0;
-            XML3D.debug.logInfo("adding page", this.pages.length);
+            XML3D.debug.logInfo("Adding page", this.pages.length, "(", Pager.PAGE_SIZE * Float32Array.BYTES_PER_ELEMENT * this.pages.length / 1024 ,"kB)");
         },
 
         getPageEntry : function(size) {
@@ -23074,14 +23120,16 @@ XML3D.webgl.stopEvent = function(ev) {
     var RenderNode = function(type, scene, pageEntry, opt) {
         opt = opt || {};
 
+        var visible = (opt.visible === false ? false : true);
+
         this.scene = scene;
         this.type = type;
         this.name = opt.name || "";
         this.page = pageEntry.page;
         this.offset = pageEntry.offset;
         this.entrySize = pageEntry.size;
-        this.localVisible = opt.visible;
-        this.visible = this.localVisible !== undefined ? this.localVisible : opt.parent ? opt.parent.isVisible() : true;
+        this.localVisible = visible;
+        this.visible = visible;
         this.transformDirty = true;
         this.children = [];
         this.setParent(opt.parent || scene.rootNode);
@@ -23099,6 +23147,7 @@ XML3D.webgl.stopEvent = function(ev) {
 
         setParent: function(parent) {
             this.parent = parent;
+            this.setLocalVisible(this.localVisible);
             if (parent && parent.addChild) {
                 parent.addChild(this);
             }
@@ -23142,10 +23191,7 @@ XML3D.webgl.stopEvent = function(ev) {
 
         setLocalVisible: function(newVal) {
             this.localVisible = newVal;
-            if (this.parent.isVisible()) {
-                // if parent is not visible this group is also invisible
-                this.setVisible(newVal);
-            }
+            this.setVisible(this.parent && this.parent.isVisible() && newVal);
         },
 
         setVisible: function(newVal) {
@@ -23153,6 +23199,8 @@ XML3D.webgl.stopEvent = function(ev) {
             if (this.localVisible === false) {
                 downstream = false;
             }
+            if(this.visible == downstream)
+                return;
             this.visible = downstream;
             this.children.forEach(function(obj) {
                 obj.setVisible(downstream);
@@ -23600,11 +23648,8 @@ XML3D.webgl.stopEvent = function(ev) {
 
         setLocalVisible: function(newVal) {
             this.localVisible = newVal;
-            if (this.parent.isVisible()) {
-                // if parent is not visible this group is also invisible
-                this.setVisible(newVal);
-                this.setBoundingBoxDirty();
-            }
+            this.setVisible(this.parent && this.parent.isVisible() && newVal);
+            this.setBoundingBoxDirty();
         },
 
         getProgram: function() {
@@ -23783,7 +23828,7 @@ XML3D.webgl.stopEvent = function(ev) {
                 return;
             }
             this.children.forEach(function(obj) {
-                obj.setShader(newHandle);
+                obj.setShader && obj.setShader(newHandle);
             });
         },
 
@@ -23803,11 +23848,8 @@ XML3D.webgl.stopEvent = function(ev) {
 
         setLocalVisible: function(newVal) {
             this.localVisible = newVal;
-            if (this.parent.isVisible()) {
-                // if parent is not visible this group is also invisible
-                this.setVisible(newVal);
-                this.setBoundingBoxDirty();
-            }
+            this.setVisible(this.parent && this.parent.isVisible() && newVal);
+            this.setBoundingBoxDirty();
         },
 
         findRayIntersections: (function() {
@@ -23941,7 +23983,10 @@ XML3D.webgl.stopEvent = function(ev) {
         removeLightFromScene : function() {
             var container = this.scene.lights[this.light.type];
             if (Array.isArray(container)) {
-                container = container.splice(this);
+                var index = container.indexOf(this);
+                if (index > -1) {
+                    container.splice(container.indexOf(this), 1);
+                }
                 this.lightStructureChanged(true);
             }
         },
@@ -24087,19 +24132,10 @@ XML3D.webgl.stopEvent = function(ev) {
             return [newVec[0], newVec[1], newVec[2]];
         },
 
-        setLocalVisible: function(newVal) {
-            this.localVisible = newVal;
-            if (newVal === false) {
-                this.visible = false;
-                this.lightValueChanged();
-            } else {
-                this.setVisible(this.parent.isVisible());
-            }
-        },
-
         setVisible: function(newVal) {
-            if (this.localVisible !== false) {
-                this.visible = newVal;
+            var visible = (this.localVisible && newVal);
+            if(this.visible != visible){
+                this.visible = visible;
                 this.lightValueChanged();
             }
         },
@@ -29364,7 +29400,7 @@ XML3D.webgl.stopEvent = function(ev) {
             this.changeState |= state == Xflow.RESULT_STATE.CHANGED_STRUCTURE ? CHANGE_STATE.STRUCTURE_CHANGED : CHANGE_STATE.TYPE_DATA_CHANGED;
             this.dispatchEvent({ type: webgl.Scene.EVENT_TYPE.SCENE_SHAPE_CHANGED });
             this.context.requestRedraw("Mesh Type Data Change");
-            XML3D.debug.logInfo("MeshClosure: Type data changed", request, state, this.changeState);
+            XML3D.debug.logDebug("MeshClosure: Type data changed", request, state, this.changeState);
         },
         getMesh: function () {
             return this.mesh;
@@ -29538,7 +29574,7 @@ XML3D.webgl.stopEvent = function(ev) {
             // TODO: We don't know if the change of data only influences the surface shading or the actual mesh shape
             this.dispatchEvent({ type: webgl.Scene.EVENT_TYPE.SCENE_SHAPE_CHANGED });
             this.context.requestRedraw("Mesh Attribute Data Changed");
-            XML3D.debug.logInfo("MeshClosure: Attribute data changed", request, state, this.changeState);
+            XML3D.debug.logDebug("MeshClosure: Attribute data changed", request, state, this.changeState);
         },
 
         shaderChanged: function(){
@@ -30177,9 +30213,9 @@ XML3D.webgl.MAX_MESH_INDEX_COUNT = 65535;
     /**
      * @constructor
      */
-    var MultiMeshRenderAdapter = function (factory, node) {
+    var ModelRenderAdapter = function (factory, node) {
         webgl.TransformableAdapter.call(this, factory, node, true);
-        this.dataList = null;
+        this.asset = null;
         this.renderObjects = [];
         this.initializeEventAttributes();
         this.createRenderNode();
@@ -30187,13 +30223,13 @@ XML3D.webgl.MAX_MESH_INDEX_COUNT = 65535;
 
     var c_IDENTITY = XML3D.math.mat4.create();
 
-    XML3D.createClass(MultiMeshRenderAdapter, webgl.TransformableAdapter, {
+    XML3D.createClass(ModelRenderAdapter, webgl.TransformableAdapter, {
 
         createRenderNode: function () {
             var dataAdapter = XML3D.base.resourceManager.getAdapter(this.node, XML3D.data);
-            this.dataList = dataAdapter.getDataList();
+            this.asset = dataAdapter.getAsset();
 
-            this.dataList.addChangeListener(this);
+            this.asset.addChangeListener(this);
 
             var parent = this.getParentRenderAdapter();
             var parentNode = parent.getRenderNode && parent.getRenderNode();
@@ -30218,15 +30254,15 @@ XML3D.webgl.MAX_MESH_INDEX_COUNT = 65535;
         },
         createSubRenderObjects: function(){
             this.clearSubRenderObjects();
-            if(!this.dataList.isSubtreeLoading()){
+            if(!this.asset.isSubtreeLoading()){
                 try{
-                    this.dataList.checkValidity();
-                    var dataListResult = this.dataList.getResult();
-                    var meshSets = dataListResult.getMeshDataSets();
+                    this.asset.checkValidity();
+                    var assetResult = this.asset.getResult();
+                    var meshSets = assetResult.getMeshDataSets();
                     for(var i = 0; i < meshSets.length; ++i){
                         var renderNode = this.getScene().createRenderObject({
                             parent: this.renderNode,
-                            node: this.node,
+                            node: meshSets[i].refNode || this.node,
                             object: {
                                 data: meshSets[i].xflowNode,
                                 type: meshSets[i].type
@@ -30240,7 +30276,7 @@ XML3D.webgl.MAX_MESH_INDEX_COUNT = 65535;
                     }
                 }
                 catch(e){
-                    XML3D.debug.logError("DataList Error: " + e.message, e.node || this.node);
+                    XML3D.debug.logError("Asset Error: " + e.message, e.node || this.node);
                     this.clearSubRenderObjects();
                 }
             }
@@ -30271,11 +30307,11 @@ XML3D.webgl.MAX_MESH_INDEX_COUNT = 65535;
                     return;
             }
         },
-        onDataListChange: function(){
+        onAssetChange: function(){
             this.createSubRenderObjects();
         },
         dispose: function () {
-            this.dataList.removeChangeListener(this);
+            this.asset.removeChangeListener(this);
             this.clearSubRenderObjects();
             this.getRenderNode().remove();
             this.clearAdapterHandles();
@@ -30286,14 +30322,14 @@ XML3D.webgl.MAX_MESH_INDEX_COUNT = 65535;
 
     // Interface methods
 
-    XML3D.extend(MultiMeshRenderAdapter.prototype, {
+    XML3D.extend(ModelRenderAdapter.prototype, {
         /**
          * @return {window.XML3DBox}
          */
         getBoundingBox: function () {
             if (this.renderNode) {
             var bbox = new XML3D.math.bbox.create();
-            this.renderNode.getObjectSpaceBoundingBox(bbox);
+            this.renderNode.getWorldSpaceBoundingBox(bbox);
             return XML3D.math.bbox.asXML3DBox(bbox);
             }
 
@@ -30314,7 +30350,7 @@ XML3D.webgl.MAX_MESH_INDEX_COUNT = 65535;
     });
 
     // Export to XML3D.webgl namespace
-    webgl.MultiMeshRenderAdapter = MultiMeshRenderAdapter;
+    webgl.ModelRenderAdapter = ModelRenderAdapter;
 
 }(XML3D.webgl));
 // Adapter for <group>
@@ -30575,8 +30611,7 @@ XML3D.webgl.MAX_MESH_INDEX_COUNT = 65535;
             view:           ns.ViewRenderAdapter,
             defs:           ns.DefsRenderAdapter,
             mesh:           ns.MeshRenderAdapter,
-            multimesh:      ns.MultiMeshRenderAdapter,
-            data:           ns.DataRenderAdapter,
+            model:          ns.ModelRenderAdapter,
             shader:         ns.ShaderRenderAdapter,
             group:          ns.GroupRenderAdapter,
             img:            ns.ImgRenderAdapter,
