@@ -62,6 +62,11 @@ XML3DRotation.setQuaternion = function(vec, s){};
 /**
  * @constructor
  */
+function XML3DRay() {};
+
+/**
+ * @constructor
+ */
 function quat4(){};
 
 /**
