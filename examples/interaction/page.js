@@ -44,6 +44,12 @@ var EXAMPLE_LIST = [
     // --- Behaviors ---
     {
         cat: "behaviors",
+        name: "AlongSurfaceTranslater",
+        href: "tests/test_alongsurfacetranslater.xhtml",
+        info: "A behavior for translating a node along the surface it is placed on."
+    },
+    {
+        cat: "behaviors",
         name: "Translatable",
         href: "tests/test_translatable.xhtml",
         info: "A behavior for translating a node inside a plane."
