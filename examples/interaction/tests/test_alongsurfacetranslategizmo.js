@@ -31,6 +31,9 @@ function onLoad()
 {
     xml3d = $("xml3d")[0];
 
+    XML3D.options.setValue("renderer-ssao", true);
+    XML3D.options.setValue("renderer-ssao-intensity", 5);
+
     generateSurface();
 
     cameraCtrl = new XML3D.tools.MouseKeyboardFlyController($("#g_camera")[0], {
@@ -78,6 +81,7 @@ function generateSurface()
         transform: "#t_bottom",
         shader: "#s_bottom"
     });
+    xml3d.appendChild(rootGrp);
 
     for(var x = -50; x <= 50; x += 3.9)
     {
@@ -98,5 +102,32 @@ function generateSurface()
         }
     }
 
-    xml3d.appendChild(rootGrp);
+    defs.appendChild(cns.element("shader", {
+        id: "s_box",
+        script: "urn:xml3d:shader:phong",
+        children: [
+            cns.dataSrc("float3", {
+                name: "diffuseColor",
+                val: "0.8 0.8 0"
+            }),
+            cns.dataSrc("float", {
+                name: "ambientIntensity",
+                val: "1"
+            })
+        ]
+    }));
+
+    var boxTransformId = "t_box";
+    defs.appendChild(cns.element("transform", {
+        id: boxTransformId,
+        translation: "0 50 0",
+        scale: "50 25 4"
+    }));
+    rootGrp.appendChild(cns.element("group", {
+        transform: "#" + boxTransformId,
+        shader: "#s_box",
+        children: [
+            cns.box(xml3d)
+        ]
+    }));
 }

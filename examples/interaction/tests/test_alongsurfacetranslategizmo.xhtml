@@ -25,7 +25,7 @@ SOFTWARE.
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd" >
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <title>AlongSurfaceTranslater</title>
+    <title>AlongSurfaceTranslateGizmo</title>
     <link rel="stylesheet" type="text/css" media="all" href="../../style/default.css"/>
 
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
@@ -38,7 +38,7 @@ SOFTWARE.
 <body>
 <div id="overall">
     <div id="content">
-        <h1>AlongSurfaceTranslater</h1>
+        <h1>AlongSurfaceTranslateGizmo</h1>
 
         <xml3d style="width:640px;height:480px;background-color: #aaaaff;"
                activeView="#v_camera">
@@ -49,10 +49,19 @@ SOFTWARE.
                 </shader>
                 <transform id="t_cube" translation="0 2 0" />
                 <transform id="t_cubeParent" />
+
+                <lightshader id="ls_directional" script="urn:xml3d:lightshader:directional">
+                    <float3 name="intensity">0.8 0.8 0.8</float3>
+                </lightshader>
+                <transform id="t_directional" rotation="1 0 0 -0.2" />
             </defs>
 
             <group id="g_camera">
                 <view position="0 2 10" id="v_camera"/>
+            </group>
+
+            <group transform="#t_directional">
+                <light shader="#ls_directional"></light>
             </group>
 
             <group transform="#t_cubeParent">
