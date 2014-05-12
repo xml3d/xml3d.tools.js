@@ -52,8 +52,8 @@ SOFTWARE.
          *  By default, the view can be rotated using the left mouse button,
          *  and movement can be done using W,A,S,D keys.
          */
-        initialize: function(targetViewGroup, options) {
-
+        initialize: function(targetViewGroup, options)
+        {
             this.callSuper();
 
             var options = options || {};
@@ -65,26 +65,20 @@ SOFTWARE.
             this._controls = this._createControls(options);
 
             this._continuousInputProcessing = false;
-            /** map keyvalue => boolean */
-            this._currentlyPressedKeys = {};
             this._disableMovement = (options.disableMovement === true);
             this._disableRotation = (options.disableRotation === true);
         },
 
-        _initControllers: function() {
-
+        _initControllers: function()
+        {
             this._mouseCtrl = new XML3D.tools.MouseController(this.target, {
                 eventDispatcher: this._createMouseEventDispatcher()
             });
             this._mouseCtrl.onDrag = this.callback("_onDrag");
-
-            this._keyCtrl = new XML3D.tools.KeyboardController(this.target);
-            this._keyCtrl.onKeyDown = this.callback("_onKeyDown");
-            this._keyCtrl.onKeyUp = this.callback("_onKeyUp");
         },
 
-        _createControls: function(options) {
-
+        _createControls: function(options)
+        {
             var controls = {
                 forward: options.controls.forward || XML3D.tools.KEY_W,
                 left: options.controls.left || XML3D.tools.KEY_A,
@@ -100,35 +94,40 @@ SOFTWARE.
             return controls;
         },
 
-        lookAt: function(point) {
+        lookAt: function(point)
+        {
             this.behavior.lookAt(point);
         },
 
         /**
          *  @this {XML3D.tools.MouseKeyboardFlyController}
          */
-        getMoveSpeed: function() {
+        getMoveSpeed: function()
+        {
             return this.behavior.getMoveSpeed();
         },
 
         /**
          *  @this {XML3D.tools.MouseKeyboardFlyController}
          */
-        setMoveSpeed: function(speed) {
+        setMoveSpeed: function(speed)
+        {
             this.behavior.setMoveSpeed(speed);
         },
 
         /**
          *  @this {XML3D.tools.MouseKeyboardFlyController}
          */
-        getRotationSpeed: function() {
+        getRotationSpeed: function()
+        {
             return this.behavior.getRotationSpeed();
         },
 
         /**
          *  @this {XML3D.tools.MouseKeyboardFlyController}
          */
-        setRotationSpeed: function(speed) {
+        setRotationSpeed: function(speed)
+        {
             this.behavior.setRotationSpeed(speed);
         },
 
@@ -137,11 +136,10 @@ SOFTWARE.
          *  @protected
          *  @override
          */
-        onAttach: function() {
+        onAttach: function()
+        {
             if(!this._disableRotation)
                 this._mouseCtrl.attach();
-            if(!this._disableMovement)
-                this._keyCtrl.attach();
             this._startInputProcessingLoop();
         },
 
@@ -150,9 +148,9 @@ SOFTWARE.
          *  @protected
          *  @override
          */
-        onDetach: function() {
+        onDetach: function()
+        {
             this._mouseCtrl.detach();
-            this._keyCtrl.detach();
             this._stopInputProcessingLoop();
         },
 
@@ -160,7 +158,8 @@ SOFTWARE.
          *  @this {XML3D.tools.MouseKeyboardFlyController}
          *  @private
          */
-        _onDrag: function(action) {
+        _onDrag: function(action)
+        {
             // we want mouse x-axis movement to map to y-axis rotation
             // so we flip the delta values
             this.behavior.rotateByAngles(-action.delta.y, -action.delta.x);
@@ -170,25 +169,8 @@ SOFTWARE.
          *  @this {XML3D.tools.MouseKeyboardFlyController}
          *  @private
          */
-        _onKeyDown: function(evt) {
-
-            this._currentlyPressedKeys[evt.keyCode] = true;
-        },
-
-        /**
-         *  @this {XML3D.tools.MouseKeyboardFlyController}
-         *  @private
-         */
-        _onKeyUp: function(evt) {
-
-            this._currentlyPressedKeys[evt.keyCode] = false;
-        },
-
-        /**
-         *  @this {XML3D.tools.MouseKeyboardFlyController}
-         *  @private
-         */
-        _startInputProcessingLoop: function() {
+        _startInputProcessingLoop: function()
+        {
             this._continuousInputProcessing = true;
             this._inputProcessingLoop();
         },
@@ -197,7 +179,8 @@ SOFTWARE.
          *  @this {XML3D.tools.MouseKeyboardFlyController}
          *  @private
          */
-        _stopInputProcessingLoop: function() {
+        _stopInputProcessingLoop: function()
+        {
             this._continuousInputProcessing = false;
         },
 
@@ -205,23 +188,21 @@ SOFTWARE.
          *  @this {XML3D.tools.MouseKeyboardFlyController}
          *  @private
          */
-        _inputProcessingLoop: function() {
-
-            if(!this._continuousInputProcessing) {
+        _inputProcessingLoop: function()
+        {
+            if(!this._continuousInputProcessing)
                 return;
-            }
 
-            if(this._currentlyPressedKeys[this._controls.forward] === true) {
-                this.behavior.moveForward();
-            }
-            if(this._currentlyPressedKeys[this._controls.backward] === true) {
-                this.behavior.moveBackward();
-            }
-            if(this._currentlyPressedKeys[this._controls.left] === true) {
-                this.behavior.stepLeft();
-            }
-            if(this._currentlyPressedKeys[this._controls.right] === true) {
-                this.behavior.stepRight();
+            if(!this._disableMovement)
+            {
+                if(XML3D.tools.KeyboardState.isPressed(this._controls.forward))
+                    this.behavior.moveForward();
+                if(XML3D.tools.KeyboardState.isPressed(this._controls.backward))
+                    this.behavior.moveBackward();
+                if(XML3D.tools.KeyboardState.isPressed(this._controls.left))
+                    this.behavior.stepLeft();
+                if(XML3D.tools.KeyboardState.isPressed(this._controls.right))
+                    this.behavior.stepRight();
             }
 
             window.requestAnimationFrame(this.callback("_inputProcessingLoop"));
@@ -231,8 +212,8 @@ SOFTWARE.
          *  @this {XML3D.tools.MouseKeyboardFlyController}
          *  @private
          */
-        _createMouseEventDispatcher: function() {
-
+        _createMouseEventDispatcher: function()
+        {
             var disp = new XML3D.tools.util.EventDispatcher();
             disp.registerCustomHandler("mousedown", function(evt){
                 if(!this._controls.useRotationActivator)
