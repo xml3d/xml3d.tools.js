@@ -51,6 +51,8 @@ SOFTWARE.
         <file name="base/Animatable.js" />
         <file name="base/KeyframeAnimation.js" />
 
+        <file name="input/KeyboardState.js" />
+
         <file name="util/xml3d_datatype_extensions.js" />
         <file name="util/util.js" />
         <file name="util/meshloading.js" />
