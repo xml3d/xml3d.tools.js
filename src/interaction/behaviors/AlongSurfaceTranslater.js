@@ -27,7 +27,9 @@
 
     XML3D.tools.namespace("XML3D.tools.interaction.behaviors");
 
-    /**
+    /** A translater which permits movement along the surface only. It does this by
+     *  attaching a XML3D.tools.AlongSurfaceTranslationConstraint to the target
+     *  transformable.
      *
      *  @extends XML3D.tools.interaction.behaviors.Translater
      */
