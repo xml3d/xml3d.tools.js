@@ -23,7 +23,10 @@
  */
 (function(){
 
-    /**
+    /** This constraint will make sure that the target is translated along the surface only.
+     *  For that a ray will be casted in front of the object to find the surface height and then
+     *  the height of the target will be set to the height of the surface.
+     *
      *  @constructor
      *  @extends {XML3D.tools.DefaultConstraint}
      */
