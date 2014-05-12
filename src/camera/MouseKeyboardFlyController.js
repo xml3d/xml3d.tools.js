@@ -78,7 +78,7 @@ SOFTWARE.
             });
             this._mouseCtrl.onDrag = this.callback("_onDrag");
 
-            this._keyCtrl = new XML3D.tools.KeyboardController(this.target);
+            this._keyCtrl = new XML3D.tools.KeyboardController();
             this._keyCtrl.onKeyDown = this.callback("_onKeyDown");
             this._keyCtrl.onKeyUp = this.callback("_onKeyUp");
         },

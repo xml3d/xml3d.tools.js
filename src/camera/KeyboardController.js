@@ -46,14 +46,10 @@ SOFTWARE.
          *  options:
          *  o eventDispatcher
          */
-        initialize: function(targetViewGroup, options) {
+        initialize: function(options) {
+
 
             var options = options || {};
-
-            this.target = XML3D.tools.util.getOrCreateTransformable(targetViewGroup);
-
-            /** @private */
-            this._targetXml3d = XML3D.tools.util.getXml3dRoot(this.target.object);
 
             /** @private */
             if(options.eventDispatcher)
