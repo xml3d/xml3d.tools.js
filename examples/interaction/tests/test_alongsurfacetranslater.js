@@ -67,7 +67,8 @@ function generateSurface()
 
     defs.appendChild(cns.element("transform", {
         id: "t_bottom",
-        rotation: "1 0 0 -1.47"
+        rotation: "1 0 0 -1.57",
+        translation: "0 1 0"
     }));
 
     var rootGrp = cns.element("group", {
@@ -75,9 +76,9 @@ function generateSurface()
         shader: "#s_bottom"
     });
 
-    for(var x = -50; x <= 50; x += 4)
+    for(var x = -50; x <= 50; x += 3.9)
     {
-        for(var y = -50; y <= 50; y += 4)
+        for(var y = -50; y <= 50; y += 3.9)
         {
             var transformId = "t_" + x + "_" + y;
             defs.appendChild(cns.element("transform", {
