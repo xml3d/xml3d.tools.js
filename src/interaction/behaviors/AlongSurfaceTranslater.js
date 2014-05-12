@@ -36,6 +36,11 @@
     XML3D.tools.interaction.behaviors.AlongSurfaceTranslater = new XML3D.tools.Class(
         XML3D.tools.interaction.behaviors.Translater,
     {
+        /**
+         *  @this {XML3D.tools.interaction.behaviors.AlongSurfaceTranslater}
+         *  @override
+         *  @public
+         */
         initialize: function(id, pickGrps, targetTransformable, eventDispatcher)
         {
             if(!targetTransformable)
@@ -44,6 +49,10 @@
             this.callSuper(id, pickGrps, targetTransformable, new XML3DVec3(0, 1, 0), eventDispatcher);
         },
 
+        /**
+         *  @this {XML3D.tools.interaction.behaviors.AlongSurfaceTranslater}
+         *  @private
+         */
         _createCustomTransformable: function(targetTransformable)
         {
             var constraint = new XML3D.tools.AlongSurfaceTranslationConstraint(targetTransformable);

@@ -33,6 +33,11 @@
     XML3D.tools.AlongSurfaceTranslationConstraint = new XML3D.tools.Class(
         XML3D.tools.DefaultConstraint,
     {
+        /**
+         *  @this {XML3D.tools.AlongSurfaceTranslationConstraint}
+         *  @override
+         *  @public
+         */
         initialize: function(targetTransformable)
         {
             this._target = targetTransformable;
@@ -40,6 +45,10 @@
             XML3D.tools.util.fireWhenMeshesLoaded(this._target.object, this._initWhenTargetReady.bind(this));
         },
 
+        /**
+         *  @this {XML3D.tools.AlongSurfaceTranslationConstraint}
+         *  @private
+         */
         _initWhenTargetReady: function()
         {
             this._sceneHeight = this._xml3d.getBoundingBox().max.y;
@@ -58,12 +67,20 @@
             this._initialSurfaceHeight = this._getSurfaceHeight();
         },
 
+        /**
+         *  @this {XML3D.tools.AlongSurfaceTranslationConstraint}
+         *  @private
+         */
         _resetTranslationDirection: function()
         {
             this._translationDirection = new XML3DVec3(0, 0, 1);
         },
 
-        /** @inheritDoc */
+        /**
+         *  @this {XML3D.tools.AlongSurfaceTranslationConstraint}
+         *  @override
+         *  @public
+         */
         constrainTranslation: function(newPosition, opts)
         {
             if(!opts.transformable)
@@ -86,6 +103,10 @@
             return true;
         },
 
+        /**
+         *  @this {XML3D.tools.AlongSurfaceTranslationConstraint}
+         *  @private
+         */
         _getSurfaceHeight: function()
         {
             var rayOrigin = this._getRayOrigin();
@@ -105,6 +126,10 @@
             return hitPoint.y;
         },
 
+        /**
+         *  @this {XML3D.tools.AlongSurfaceTranslationConstraint}
+         *  @private
+         */
         _getRayOrigin: function()
         {
             // offset the origin to be outside the target in the translation direction
@@ -116,6 +141,10 @@
             return objectCenter.add(rayOriginOffset);
         },
 
+        /**
+         *  @this {XML3D.tools.AlongSurfaceTranslationConstraint}
+         *  @private
+         */
         _updateTranslationDirection: function(newPosition)
         {
             if(!this._oldPosition)
