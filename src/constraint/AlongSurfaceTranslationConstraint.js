@@ -39,6 +39,7 @@
 
         _initWhenTargetReady: function()
         {
+            this._sceneHeight = this._xml3d.getBoundingBox().max.y;
             this._oldPosition = null;
             this._rayDirection = new XML3DVec3(0, -1, 0);
             this._initialHeight = this._target.getPosition().y;
@@ -52,7 +53,6 @@
 
             this._resetTranslationDirection();
             this._initialSurfaceHeight = this._getSurfaceHeight();
-            this._targetHalfHeight = bboxSize.y/2;
         },
 
         _resetTranslationDirection: function()
@@ -105,9 +105,8 @@
         _getRayOrigin: function()
         {
             // offset the origin to be outside the target in the translation direction
-            var rayOriginOffset = this._translationDirection.scale(this._boundingSphereRadius + 0.5);
-            // place it at height of the model to be sure to be above the surface
-            rayOriginOffset.y += this._targetHalfHeight; // added to target center, so half height
+            var rayOriginOffset = this._translationDirection.scale(this._boundingSphereRadius + 0.1);
+            rayOriginOffset.y += this._sceneHeight;
 
             // add the offset to the position of the target
             var objectCenter = XML3D.tools.util.getWorldBBox(this._target.object).center();
