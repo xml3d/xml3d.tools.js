@@ -85,7 +85,6 @@ SOFTWARE.
         <file name="camera/CameraBehavior.js" />
         <file name="camera/ExamineBehavior.js" />
         <file name="camera/MouseController.js" />
-        <file name="camera/KeyboardController.js" />
         <file name="camera/TouchController.js" />
         <file name="camera/MouseExamineController.js" />
         <file name="camera/FlyBehavior.js" />
