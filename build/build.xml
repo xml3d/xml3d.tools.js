@@ -82,6 +82,7 @@ SOFTWARE.
         <file name="constraint/SimpleConstraint.js" />
         <file name="constraint/ProhibitAxisMovementConstraint.js" />
         <file name="constraint/BoxedTranslationConstraint.js" />
+        <file name="constraint/CascadedConstraint.js" />
 
         <file name="camera/CameraBehavior.js" />
         <file name="camera/ExamineBehavior.js" />
