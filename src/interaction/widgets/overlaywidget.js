@@ -71,8 +71,6 @@ SOFTWARE.
 
             this._mirror.attach();
 
-            options.isEmptyTarget = true;
-
             this.callSuper(id, this._mirror.mirroredTarget(), options);
         },
 

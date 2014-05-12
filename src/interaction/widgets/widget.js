@@ -59,10 +59,6 @@ SOFTWARE.
          *
          *  Options:
          *  o geometry: options given to the instanciated geometry class
-         *  o isEmptyTarget: tell the widget that the target group will be left empty for unknown reason
-         *      The widget will usually wait, until the bbox of the target is not empty, before it
-         *      performs certain actions. If this option is true, the widget will carry out those
-         *      actions immediately.
          *
          *  IMPORTANT: the target's corresponding transform node (for a group: the attached
          *  transform node and for a mesh that of it's parent node) is modified. If the target's
@@ -82,9 +78,6 @@ SOFTWARE.
 
             this.geometry = new this.GeometryType(this, options.geometry);
             this.behavior = {}; // localID -> behavior, storage for all sensors and alike
-
-            /** @private */
-            this._isEmptyTarget = options.isEmptyTarget === true;
 
             this._isAttached = false;
         },
