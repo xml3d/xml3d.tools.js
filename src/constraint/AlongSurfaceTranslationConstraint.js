@@ -40,7 +40,6 @@
         _initWhenTargetReady: function()
         {
             this._oldPosition = null;
-            this._translationDirection = new XML3DVec3(0, 0, 1);
             this._rayDirection = new XML3DVec3(0, -1, 0);
             this._initialHeight = this._target.getPosition().y;
 
@@ -50,7 +49,14 @@
             // take bbox half of diagonal of xz-plane as radius
             // xz-plane: gonna translate along that plane only
             this._boundingSphereRadius = Math.sqrt(bboxSize.x*bboxSize.x + bboxSize.z*bboxSize.z) / 2;
+
+            this._resetTranslationDirection();
             this._targetHalfHeight = bboxSize.y/2;
+        },
+
+        _resetTranslationDirection: function()
+        {
+            this._translationDirection = new XML3DVec3(0, 0, 1);
         },
 
         /** @inheritDoc */
@@ -108,6 +114,12 @@
             if(!this._oldPosition)
             {
                 this._oldPosition = new XML3DVec3(newPosition);
+                return;
+            }
+
+            if(newPosition.equals(this._oldPosition))
+            {
+                this._resetTranslationDirection();
                 return;
             }
 
