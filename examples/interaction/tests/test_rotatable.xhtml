@@ -64,6 +64,8 @@ SOFTWARE.
         </group>
     </xml3d>
 
+    <div class="separator" />
+
     <div class="actions">
         <input type="button" class="test-button" value="Activate Rotatable" id="toggleactivation" onclick="toggleActivation();"/>
         <input type="button" class="test-button" value="Reset Rotation" onclick="resetRotation();"/>
@@ -88,19 +90,15 @@ SOFTWARE.
             </span>
         </div>
     </div>
+
+    <div class="separator" />
+
     <div class="description">
         <div class="paragraph">
-            Upon activation the rotation of the rectangle can be controlled by dragging it.
-            This is done using the Rotatable class.
-        </div>
-
-        <div class="separator" />
-
-        <div class="paragraph">
-            The status can be reviewed below.
+            The <b>Rotatable</b> is used to rotate a target group. The status can be reviewed below.
             <ul>
-                <li><b>Dragging:</b> whether Rotatable reports that it is dragging and thus rotating.</li>
-                <li><b>Rotation:</b> the rotation attribute of the target element's transform node.</li>
+                <li><em>Dragging:</em> whether Rotatable reports that it is dragging and thus rotating.</li>
+                <li><em>Rotation:</em> the rotation attribute of the target element's transform node.</li>
             </ul>
         </div>
         <div class="paragraph"><b>Dragging:</b> <span id="dragstatus">false</span></div>

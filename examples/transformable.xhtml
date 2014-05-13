@@ -24,6 +24,7 @@ SOFTWARE.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
+    <title>Transformable</title>
     <link href="http://www.xml3d.org/xml3d/script/xml3d.css" media="all" rel="stylesheet" type="text/css"/>
 
     <link rel="stylesheet" type="text/css" media="all" href="style/default.css"/>
@@ -158,12 +159,19 @@ SOFTWARE.
             </group>
         </xml3d>
 
-        <div>Status: <span id="notification">Nothing happened ... yet ...</span></div>
-        <button type="button" class="test-button" onclick="moveCube()">Move Cube</button>
-        <button type="button" class="test-button" onclick="rotateCube()">Rotate Cube</button>
-        <button type="button" class="test-button" onclick="translateCube()">Translate Cube</button>
-        <button type="button" class="test-button" onclick="moveCubeTo()">Move Cube To</button>
-        <button type="button" class="test-button" onclick="stop()">Stop Cube</button>
+        <div class="separator" />
+
+        <div class="actions">
+            <button type="button" class="test-button" onclick="moveCube()">Move Cube</button>
+            <button type="button" class="test-button" onclick="rotateCube()">Rotate Cube</button>
+            <button type="button" class="test-button" onclick="translateCube()">Translate Cube</button>
+            <button type="button" class="test-button" onclick="moveCubeTo()">Move Cube To</button>
+            <button type="button" class="test-button" onclick="stop()">Stop Cube</button>
+        </div>
+
+        <div class="description">
+            <b>Status:</b> <span id="notification">Nothing happened ... yet ...</span>
+        </div>
     </div>
 </div>
 </body>
