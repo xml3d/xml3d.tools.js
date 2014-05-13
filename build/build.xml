@@ -129,15 +129,17 @@ SOFTWARE.
     <target name="develop" depends="init">
         <tstamp />
         <concatScripts version="DEVELOPMENT SNAPSHOT 0.2.0 (${TODAY})"/>
+        <copyBuiltScriptToExamples />
     </target>
 
     <target name="develop-min" depends="init">
         <tstamp />
         <compileScripts version="DEVELOPMENT SNAPSHOT (${TODAY})" extension="" level="simple">
             <args>
-                   <define name="XMOT.version" value="@{version}"/>
+                   <define name="XML3D.tools.version" value="@{version}"/>
             </args>
         </compileScripts>
+        <copyBuiltScriptToExamples />
     </target>
 
    <target name="lastTag" depends="init, windowsGit, linuxGit">
@@ -152,9 +154,10 @@ SOFTWARE.
         <concatScripts version="${git.output}" extension="-${git.output}"/>
         <compileScripts version="${git.output}" extension="-${git.output}-min">
             <args>
-                <define name="XMOT.version" value="@{version}"/>
+                <define name="XML3D.tools.version" value="@{version}"/>
             </args>
         </compileScripts>
+        <copyBuiltScriptToExamples />
     </target>
 
     <target name="continuous" depends="init, windowsGit, linuxGit">
@@ -169,11 +172,12 @@ SOFTWARE.
         <concatScripts version="DEVELOPMENT SNAPSHOT / ${git.output}" extension="-${continuous.extension}"/>
         <compileScripts version="DEVELOPMENT SNAPSHOT / ${git.output}" extension="-${continuous.extension}-min">
             <args>
-                    <define name="XMOT.version" value="@{version}"/>
+                    <define name="XML3D.tools.version" value="@{version}"/>
             </args>
         </compileScripts>
         <upload extension="-${continuous.extension}"/>
         <upload extension="-${continuous.extension}-min"/>
+        <copyBuiltScriptToExamples />
     </target>
 
 </project>

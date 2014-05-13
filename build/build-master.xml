@@ -127,6 +127,13 @@ SOFTWARE.
         </sequential>
     </macrodef>
 
+    <macrodef name="copyBuiltScriptToExamples">
+        <sequential>
+            <property name="finalScript" value="${buildDir}/${script.start}@{extension}.js" />
+            <copy file="${finalScript}" todir="${basedir}/../examples/external" />
+        </sequential>
+    </macrodef>
+
     <target name="clean">
         <delete dir="${buildDir}">
         </delete>
