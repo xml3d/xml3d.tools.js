@@ -4400,7 +4400,7 @@ SOFTWARE.
     var _rect = {};
     _rect.id = "XML3D.tools.creation._rect";
     _rect.index = "0 1 2 1 3 2";
-    _rect.position = " -1.0 -1.0 0.0 1.0 -1.0 0.0 -1.0 1.0 0.0 1.0 1.0 0.0";
+    _rect.position = "-1.0 -1.0 0.0 1.0 -1.0 0.0 -1.0 1.0 0.0 1.0 1.0 0.0";
     _rect.normal = "0.0 0.0 1.0 0.0 0.0 1.0 0.0 0.0 1.0 0.0 0.0 1.0";
     _rect.texcoord = "0.0 0.0 1.0 0.0 0.0 1.0 1.0 1.0";
 
