@@ -54,10 +54,19 @@ function onChangeGizmoType()
     {
     case "translate":
         createGizmosTranslate();
+        $("#translate-description").show();
+        $("#rotate-description").hide();
         break;
 
     case "rotate":
         createGizmosRotate();
+        $("#rotate-description").show();
+        $("#translate-description").hide();
+        break;
+
+    default:
+        $("#rotate-description").hide();
+        $("#translate-description").hide();
         break;
     }
 };
