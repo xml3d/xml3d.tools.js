@@ -43,7 +43,7 @@ SOFTWARE.
         <file name="contrib/Tween.js" />
         <file name="contrib/toolsEyelightShader.js" />
         <!-- our sources -->
-        <file name="base/class.js" />
+        <file name="base/Class.js" />
         <file name="base/util.js" />
         <file name="base/math.js" />
         <file name="base/Transformable.js" />
@@ -58,18 +58,18 @@ SOFTWARE.
         <file name="util/transformablehelpers.js" />
         <file name="util/graphtraversal.js" />
 
-        <file name="util/attachable.js" />
+        <file name="util/Attachable.js" />
         <file name="util/creation.js" />
         <file name="util/input.js" />
-        <file name="util/geoobject.js" />
-        <file name="util/observable.js" />
-        <file name="util/eventdispatcher.js" />
-        <file name="util/plane.js" />
-        <file name="util/transformtracker.js" />
-        <file name="util/viewtracker.js" />
-        <file name="util/transformsensor.js" />
-        <file name="util/map.js" />
-        <file name="util/idgenerator.js" />
+        <file name="util/GeoObject.js" />
+        <file name="util/Observable.js" />
+        <file name="util/EventDispatcher.js" />
+        <file name="util/Plane.js" />
+        <file name="util/TransformTracker.js" />
+        <file name="util/ViewTracker.js" />
+        <file name="util/TransformSensor.js" />
+        <file name="util/Map.js" />
+        <file name="util/IDGenerator.js" />
         <file name="util/MouseClickEventProvider.js" />
 
         <file name="input/KeyboardState.js" />
@@ -96,29 +96,29 @@ SOFTWARE.
         <file name="camera/ExamineController.js" />
         <file name="camera/CameraAnimationController.js" />
 
-        <file name="xml3doverlay/mirroredwidgettarget.js" />
-        <file name="xml3doverlay/mirroredview.js" />
-        <file name="xml3doverlay/groupmirror.js" />
-        <file name="xml3doverlay/xml3doverlay.js" />
+        <file name="xml3doverlay/MirroredWidgetTarget.js" />
+        <file name="xml3doverlay/MirroredView.js" />
+        <file name="xml3doverlay/GroupMirror.js" />
+        <file name="xml3doverlay/XML3DOverlay.js" />
 
-        <file name="interaction/geometry/geometry.js" />
-        <file name="interaction/geometry/viewedconstantsizegeometry.js" />
-        <file name="interaction/geometry/targetscaledgeometry.js" />
-        <file name="interaction/geometry/translategizmo.js" />
-        <file name="interaction/geometry/rotategizmo.js" />
+        <file name="interaction/geometry/Geometry.js" />
+        <file name="interaction/geometry/ViewedConstantSizeGeometry.js" />
+        <file name="interaction/geometry/TargetScaledGeometry.js" />
+        <file name="interaction/geometry/TranslateGizmo.js" />
+        <file name="interaction/geometry/RotateGizmo.js" />
 
-        <file name="interaction/behaviors/pdsensor.js" />
-        <file name="interaction/behaviors/planesensor.js" />
-        <file name="interaction/behaviors/scaler.js" />
-        <file name="interaction/behaviors/trackball.js" />
-        <file name="interaction/behaviors/rotater.js" />
-        <file name="interaction/behaviors/translater.js" />
+        <file name="interaction/behaviors/PDSensor.js" />
+        <file name="interaction/behaviors/PlaneSensor.js" />
+        <file name="interaction/behaviors/Scaler.js" />
+        <file name="interaction/behaviors/TrackBall.js" />
+        <file name="interaction/behaviors/Rotater.js" />
+        <file name="interaction/behaviors/Translater.js" />
         <file name="interaction/behaviors/AlongSurfaceTranslater.js" />
 
-        <file name="interaction/widgets/widget.js" />
-        <file name="interaction/widgets/overlaywidget.js" />
-        <file name="interaction/widgets/translategizmo.js" />
-        <file name="interaction/widgets/rotategizmo.js" />
+        <file name="interaction/widgets/Widget.js" />
+        <file name="interaction/widgets/OverlayWidget.js" />
+        <file name="interaction/widgets/TranslateGizmo.js" />
+        <file name="interaction/widgets/RotateGizmo.js" />
         <file name="interaction/widgets/AlongSurfaceTranslateGizmo.js" />
     </filelist>
 
