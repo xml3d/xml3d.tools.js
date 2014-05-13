@@ -127,6 +127,13 @@ SOFTWARE.
         </sequential>
     </macrodef>
 
+    <macrodef name="copyBuiltScriptToExamples">
+        <sequential>
+            <property name="finalScript" value="${buildDir}/${script.start}@{extension}.js" />
+            <copy file="${finalScript}" todir="${basedir}/../examples/external" />
+        </sequential>
+    </macrodef>
+
     <target name="clean">
         <delete dir="${buildDir}">
         </delete>
@@ -161,15 +168,5 @@ SOFTWARE.
             <classpath refid="build.classpath" />
         </javac>
     </target>
-
-    <!-- <target name="physics" depends="init" description="description">
-        <concat destfile="${buildDir}/${physicsScriptName}">
-            <fileset file="${basedir}/preamble.txt" />
-            <fileset file="${physicsDir}/xml3d_physics.js" />
-            <fileset file="${physicsDir}/xml3d_physics_interaction.js" />
-        </concat>
-        <replaceregexp file="${buildDir}/${physicsScriptName}" match="%VERSION%" replace="${version}" byline="true" />
-
-    </target>-->
     <target name="deploy" />
 </project>
