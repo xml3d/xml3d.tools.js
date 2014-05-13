@@ -1,9 +1,10 @@
-xml3d.tools.js
-===============
+# xml3d.tools.js
 
-A Toolkit Library for XML3D.
+A Toolkit Library for XML3D. For an overview checkout the [examples page](http://xml3d.github.io/xml3d.tools.js/index.xhtml)
 
-### Build Instructions for Eclipse ###
+## Build Instructions
+
+### Eclipse
 
 1. Download the standard version of Eclipse.
 2. In Eclipse go to File -> Import.
@@ -24,13 +25,9 @@ By default Eclipse doesn't support Javascript in the editor. You can change that
 6. Now search for "web developer" and mark the "Eclipse Web Developer Tools" for install.
 7. Click next and follow the install process.
 
-### Build Instructions on the Command Line ###
+### Command Line
 
 1. Make sure Ant is installed and accessible on the command-line
 2. open a command-line and go to the build directory
 3. type:
     ant develop
-
-### Usage ###
-
-1. Checkout examples :)
