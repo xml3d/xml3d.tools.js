@@ -1,6 +1,8 @@
 xml3d.tools.js
 ===============
 
+A Toolkit Library for XML3D.
+
 ### Build Instructions for Eclipse ###
 
 1. Download the standard version of Eclipse.
@@ -26,7 +28,8 @@ By default Eclipse doesn't support Javascript in the editor. You can change that
 
 1. Make sure Ant is installed and accessible on the command-line
 2. open a command-line and go to the build directory
-3. Run ant
+3. type:
+    ant develop
 
 ### Usage ###
 
