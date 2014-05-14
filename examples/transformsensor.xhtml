@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+Copyright (c) 2010-2014
+      DFKI - German Research Center for Artificial Intelligence
+      www.dfki.de
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd" >
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>TransformSensor</title>
+    <link rel="stylesheet" type="text/css" media="all" href="style/default.css"/>
+
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+    <script type="text/javascript" src="external/xml3d.js"></script>
+    <script type="text/javascript" src="external/xml3d.tools.js"></script>
+    <script type="text/javascript" src="page.js"/>
+
+    <script type="text/javascript" src="transformsensor.js"></script>
+</head>
+
+<body onload="initScene()">
+<div id="overall">
+<div id="content">
+    <h1>TransformSensor</h1>
+
+    <xml3d id="MyXml3d"
+           xmlns="http://www.xml3d.org/2009/xml3d"
+           activeView="#controller_view"
+    >
+        <view id="controller_view" position="0 0 10"/>
+
+        <defs>
+            <lightshader id="s_light" script="urn:xml3d:lightshader:point">
+                <float3 name="intensity">0.6 0.6 0.6</float3>
+                <float3 name="attenuation">1.0 0.01 0.0</float3>
+            </lightshader>
+            <transform id="t_light" translation="0 2 5"/>
+        </defs>
+
+        <group transform="#t_light">
+            <light shader="#s_light"/>
+        </group>
+    </xml3d>
+
+    <div class="separator" />
+
+    <div class="description">
+        <div class="paragraph">
+            The TransformSensor is similar to X3D's
+            <a href="http://www.web3d.org/x3d/specifications/ISO-IEC-19775-1.2-X3D-AbstractSpecification/Part01/components/envsensor.html#TransformSensor">
+                TransformSensor
+            </a>.
+            You give it a bounding box and target node. The sensor tracks
+            transformation changes in the target node and notifies the listeners
+            as soon as the bounding box of the target node intersects with the given
+            bounding box.
+        </div>
+        <div class="paragraph">
+            In this example the bounding box is visualized by the red cube.
+            The target node is the blue cube. Dragging the blue cube near the
+            red one triggers an intersection that causes the red cube to change
+            the color to green.
+        </div>
+    </div>
+</div>
+</div>
+</body>
+</html>
