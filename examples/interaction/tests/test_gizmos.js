@@ -32,6 +32,8 @@ var gizmoRadios = null;
 
 function onLoad() {
 
+    XML3D.options.setValue("renderer-faceculling", "back");
+
     var targetGroup = $("#g_mainTarget")[0];
     targetTransformable = XML3D.tools.MotionFactory.createTransformable(targetGroup);
 
