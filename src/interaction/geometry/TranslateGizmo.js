@@ -81,12 +81,24 @@ SOFTWARE.
                 this._createAxisArrowDefs("yaxis", "1 0 0 -1.57", "0.8 0 0");
             if(0 > this.disabledComponents.indexOf("zaxis"))
                 this._createAxisArrowDefs("zaxis", "0 0 1 0", "0 0 0.8");
-            if(0 > this.disabledComponents.indexOf("yzplane"))
-                this._createAxisPlaneDefs("yzplane", "0 0.8 0", "0 1 0 -1.57", "0 1 1");
-            if(0 > this.disabledComponents.indexOf("xzplane"))
-                this._createAxisPlaneDefs("xzplane", "0.8 0 0", "1 0 0 1.57", "1 0 1");
-            if(0 > this.disabledComponents.indexOf("xyplane"))
-                this._createAxisPlaneDefs("xyplane", "0 0 0.8", "0 0 1 0", "1 1 0");
+            if(0 > this.disabledComponents.indexOf("yzplane")) {
+                var color = "0 0.8 0";
+                var translation = "0 1 1";
+                this._createAxisPlaneDefs("yzplane", color, "0 1 0 -1.57", translation);
+                this._createAxisPlaneDefs("yzplane-inverse", color, "0 1 0 1.57", translation);
+            }
+            if(0 > this.disabledComponents.indexOf("xzplane")) {
+                var color = "0.8 0 0";
+                var translation = "1 0 1";
+                this._createAxisPlaneDefs("xzplane", color, "1 0 0 1.57", translation);
+                this._createAxisPlaneDefs("xzplane-inverse", color, "1 0 0 -1.57", translation);
+            }
+            if(0 > this.disabledComponents.indexOf("xyplane")) {
+                var color = "0 0 0.8";
+                var translation = "1 1 0";
+                this._createAxisPlaneDefs("xyplane", color, "0 1 0 0", translation);
+                this._createAxisPlaneDefs("xyplane-inverse", color, "0 1 0 3.14", translation);
+            }
         },
 
         /**
@@ -102,12 +114,18 @@ SOFTWARE.
                 this._createAxisArrowGroup("yaxis");
             if(0 > this.disabledComponents.indexOf("zaxis"))
                 this._createAxisArrowGroup("zaxis");
-            if(0 > this.disabledComponents.indexOf("yzplane"))
+            if(0 > this.disabledComponents.indexOf("yzplane")) {
                 this._createAxisPlaneGroup("yzplane");
-            if(0 > this.disabledComponents.indexOf("xzplane"))
+                this._createAxisPlaneGroup("yzplane-inverse");
+            }
+            if(0 > this.disabledComponents.indexOf("xzplane")) {
                 this._createAxisPlaneGroup("xzplane");
-            if(0 > this.disabledComponents.indexOf("xyplane"))
+                this._createAxisPlaneGroup("xzplane-inverse");
+            }
+            if(0 > this.disabledComponents.indexOf("xyplane")) {
                 this._createAxisPlaneGroup("xyplane");
+                this._createAxisPlaneGroup("xyplane-inverse");
+            }
         },
 
         _createAxisArrowDefs: function(id, rotation, color)
