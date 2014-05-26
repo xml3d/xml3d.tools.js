@@ -119,7 +119,6 @@ SOFTWARE.
             var targetWidth = this.xml3dTarget.offsetWidth;
             var targetHeight = this.xml3dTarget.offsetHeight;
             var targetOffset = {top : this._canvasTarget.offsetTop, left: this._canvasTarget.offsetLeft};
-            console.log("offset: " + targetOffset.top + "x" + targetOffset.left);
             var zIndex = this._getTargetZIndex();
 
             var styleAttrib = "width:" + targetWidth + "px;height:" + targetHeight + "px;";
