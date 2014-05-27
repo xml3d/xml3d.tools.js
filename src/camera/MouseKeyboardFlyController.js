@@ -46,6 +46,7 @@ SOFTWARE.
          *  o forward/backward/left/right: keys for movement, default w/s/a/d
          *  o useRotationActivator: whether to use a mouse button to activate view rotation
          *  o rotationActivator: the mouse button used to activate view rotation
+         *  o fastMovementActivator: which key to press to move faster. Default ctrl
          *
          *  For other options see FlyBehavior.
          *
@@ -85,7 +86,8 @@ SOFTWARE.
                 right: options.controls.right || XML3D.tools.KEY_D,
                 backward: options.controls.backward || XML3D.tools.KEY_S,
                 useRotationActivator: true,
-                rotationActivator: options.controls.rotationActivator || XML3D.tools.MOUSEBUTTON_LEFT
+                rotationActivator: options.controls.rotationActivator || XML3D.tools.MOUSEBUTTON_LEFT,
+                fastMovementActivator: options.controls.fastMovementActivator || XML3D.tools.KEY_CTRL
             };
 
             if(options.useRotationActivator !== undefined)
@@ -195,14 +197,15 @@ SOFTWARE.
 
             if(!this._disableMovement)
             {
+                var fastMove = XML3D.tools.KeyboardState.isPressed(this._controls.fastMovementActivator);
                 if(XML3D.tools.KeyboardState.isPressed(this._controls.forward))
-                    this.behavior.moveForward();
+                    this.behavior.moveForward(fastMove);
                 if(XML3D.tools.KeyboardState.isPressed(this._controls.backward))
-                    this.behavior.moveBackward();
+                    this.behavior.moveBackward(fastMove);
                 if(XML3D.tools.KeyboardState.isPressed(this._controls.left))
-                    this.behavior.stepLeft();
+                    this.behavior.stepLeft(fastMove);
                 if(XML3D.tools.KeyboardState.isPressed(this._controls.right))
-                    this.behavior.stepRight();
+                    this.behavior.stepRight(fastMove);
             }
 
             window.requestAnimationFrame(this.callback("_inputProcessingLoop"));
