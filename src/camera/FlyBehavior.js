@@ -46,42 +46,47 @@ SOFTWARE.
          *  options:
          *  o rotateSpeed
          *  o moveSpeed
+         *  o fastMovementMultiplier: how much faster movement during fast movement should be. Default: 3.
          */
         initialize: function(targetViewGroup, options) {
 
             this.callSuper(targetViewGroup, options);
 
-            this._moveSpeed = 1;
-            if(options !== undefined && options.moveSpeed !== undefined)
-                this._moveSpeed = options.moveSpeed;
+            options = options || {};
+            this._moveSpeed = options.moveSpeed || 1;
+            this._fastMovementMultiplier = options.fastMovementMultiplier || 3;
         },
 
         /**
          *  @this {XML3D.tools.FlyBehavior}
+         *  @param {boolean} moveFast
          */
-        moveForward: function() {
-            this._moveInCamDirection();
+        moveForward: function(moveFast) {
+            this._moveInCamDirection(false, moveFast === true);
         },
 
         /**
          *  @this {XML3D.tools.FlyBehavior}
+         *  @param {boolean} moveFast
          */
-        moveBackward: function() {
-            this._moveInCamDirection(true);
+        moveBackward: function(moveFast) {
+            this._moveInCamDirection(true, moveFast === true);
         },
 
         /**
          *  @this {XML3D.tools.FlyBehavior}
+         *  @param {boolean} moveFast
          */
-        stepRight: function() {
-            this._stepRight();
+        stepRight: function(moveFast) {
+            this._stepRight(false, moveFast === true);
         },
 
         /**
          *  @this {XML3D.tools.FlyBehavior}
+         *  @param {boolean} moveFast
          */
-        stepLeft: function() {
-            this._stepRight(true);
+        stepLeft: function(moveFast) {
+            this._stepRight(true, moveFast === true);
         },
 
         /**
@@ -102,10 +107,27 @@ SOFTWARE.
 
         /**
          *  @this {XML3D.tools.FlyBehavior}
+         *  @return {number}
+         */
+        getFastMovementMultiplier: function() {
+            return this._fastMovementMultiplier;
+        },
+
+        /**
+         *  @this {XML3D.tools.FlyBehavior}
+         *  @param {number} speed
+         */
+        setFastMovementMultiplier: function(speed) {
+            this._fastMovementMultiplier = speed;
+        },
+
+        /**
+         *  @this {XML3D.tools.FlyBehavior}
          *  @param {boolean} doInvertDirection
+         *  @param {boolean} moveFast
          *  @private
          */
-        _stepRight: function(doInvertDirection) {
+        _stepRight: function(doInvertDirection, moveFast) {
 
             var lookDirection = this.getLookDirection();
 
@@ -115,15 +137,16 @@ SOFTWARE.
                 stepDirection = stepDirection.scale(-1);
             }
 
-            this._translateCamera(stepDirection);
+            this._translateCamera(stepDirection, moveFast);
         },
 
         /**
          *  @this {XML3D.tools.FlyBehavior}
          *  @param {boolean} doInvertDirection
+         *  @param {boolean} moveFast
          *  @private
          */
-        _moveInCamDirection: function(doInvertDirection) {
+        _moveInCamDirection: function(doInvertDirection, moveFast) {
 
             var moveDirection = this.getLookDirection();
 
@@ -131,17 +154,21 @@ SOFTWARE.
                 moveDirection = moveDirection.scale(-1);
             }
 
-            this._translateCamera(moveDirection);
+            this._translateCamera(moveDirection, moveFast);
         },
 
         /**
          *  @this {XML3D.tools.FlyBehavior}
          *  @param {window.XML3DVec3} direction
+         *  @param {boolean} moveFast
          *  @private
          */
-        _translateCamera: function(direction) {
+        _translateCamera: function(direction, moveFast) {
 
-            var transl = direction.scale(this._moveSpeed);
+            var speed = this._moveSpeed;
+            if(moveFast)
+                speed *= this._fastMovementMultiplier;
+            var transl = direction.scale(speed);
             this.target.translate(transl);
         }
     });
