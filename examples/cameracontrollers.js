@@ -57,7 +57,10 @@ function onChangeCamType()
         break;
 
     case "fly":
-        options = {moveSpeed: 0.2, rotateSpeed: 2};
+        options = {
+            moveSpeed: 0.2,
+            rotateSpeed: 2
+        };
         CamType = XML3D.tools.MouseKeyboardFlyController;
         break;
 
@@ -69,12 +72,12 @@ function onChangeCamType()
     case "customfly":
         CamType = XML3D.tools.MouseKeyboardFlyController;
         options = {
-            behavior: {
-                rotateSpeed: 0.5,
-                moveSpeed: 0.5
-            },
+            rotateSpeed: 0.5,
+            moveSpeed: 0.5,
+            fastMovementMultiplier: 10,
             controls: {
                 rotationActivator: XML3D.tools.MOUSEBUTTON_RIGHT,
+                fastMovementActivator: XML3D.tools.KEY_F,
                 left: XML3D.tools.KEY_LEFT,
                 right: XML3D.tools.KEY_RIGHT,
                 forward: XML3D.tools.KEY_UP,
