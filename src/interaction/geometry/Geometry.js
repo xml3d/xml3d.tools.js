@@ -41,6 +41,12 @@ SOFTWARE.
      */
     XML3D.tools.interaction.geometry.Geometry = new XML3D.tools.Class({
 
+        /** When a highlighting is applied using addHighlight() the diffuse color
+         *  of the target object is multiplied with the factor below. Redefine it in
+         *  derived classes to override it.
+         */
+        highlightColorMultiplier: 1.2,
+
         /**
          *  @this {XML3D.tools.interaction.geometry.Geometry}
          *  @param {XML3D.tools.interaction.widgets.Widget} widget
@@ -147,10 +153,15 @@ SOFTWARE.
         {
             var shaderEl = this.geo.defs["s_" + geometryId];
             if(!shaderEl)
-                throw new Error("RotateGizmo.addHighlight(): given shader does not exist: " + geometryId);
+                throw new Error("Geometry.addHighlight(): given shader does not exist: " + geometryId);
 
-            shaderEl.__oldHighlightValue = XML3D.tools.util.setShaderAttribute(
-                shaderEl, "ambientIntensity", "1");
+            var diffCol = XML3D.tools.util.shaderAttribute(shaderEl, "diffuseColor");
+            var diffColVec = new XML3DVec3();
+            diffColVec.setVec3Value(diffCol);
+            diffColVec = diffColVec.scale(this.highlightColorMultiplier);
+            shaderEl.__oldHighlightValue = XML3D.tools.util.shaderAttribute(
+                shaderEl, "diffuseColor", diffColVec.str());
+            console.log("highlight: " + diffColVec.str());
         },
 
         /**
@@ -166,8 +177,7 @@ SOFTWARE.
             if(!shaderEl)
                 throw new Error("RotateGizmo.removeHighlight(): given shader does not exist: " + geometryId);
 
-            XML3D.tools.util.setShaderAttribute(
-                shaderEl, "ambientIntensity", shaderEl.__oldHighlightValue);
+            XML3D.tools.util.shaderAttribute(shaderEl, "diffuseColor", shaderEl.__oldHighlightValue);
             shaderEl.__oldHighlightValue = undefined;
         },
 

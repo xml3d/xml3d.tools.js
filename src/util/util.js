@@ -159,15 +159,15 @@ SOFTWARE.
     /**
      * A shader is actually a node with a number of children, each of which defines
      * an attribute 'name' and has a TextNode child. This method searches for the child
-     * of the given element, that has the 'name' attribute with the given name, replaces the
-     * TextNode content with the given value and returns the old value.
+     * of the given element, that has the 'name' attribute with the given name, optionally
+     * replaces the TextNode content with the given value, and returns the old value.
      *
-     * @param shaderElement
-     * @param attributeName
-     * @param attributeValue
+     * @param {Object} shaderElement
+     * @param {string} attributeName
+     * @param {string=} attributeValue
      * @return {string} the old value of the shader attribute
      */
-    u.setShaderAttribute = function(shaderElement, attributeName, attributeValue)
+    u.shaderAttribute = function(shaderElement, attributeName, attributeValue)
     {
         for(var i = 0; i < shaderElement.childNodes.length; i++)
         {
@@ -175,7 +175,8 @@ SOFTWARE.
             if(node.name === attributeName)
             {
                 var oldValue = node.childNodes[0].nodeValue;
-                node.childNodes[0].nodeValue = attributeValue;
+                if(attributeValue !== undefined)
+                    node.childNodes[0].nodeValue = attributeValue;
                 return oldValue;
             }
         }

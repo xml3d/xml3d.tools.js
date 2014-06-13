@@ -40,6 +40,7 @@ SOFTWARE.
         XML3D.tools.interaction.geometry.ViewedConstantSizeGeometry, {
 
         disabledComponents: [],
+        highlightColorMultiplier: 1.2,
 
         /**
          *  @this {XML3D.tools.interaction.geometry.TranslateGizmo}
@@ -137,8 +138,7 @@ SOFTWARE.
 
             this.geo.addShaders("s_" + id, {
                 shaderType: "urn:xml3d:shader:toolsmatte",
-                diffuseColor: color,
-                ambientIntensity: "0.3"
+                diffuseColor: color
             });
         },
 
@@ -172,7 +172,6 @@ SOFTWARE.
             this.geo.addShaders("s_" + id, {
                 shaderType: "urn:xml3d:shader:toolsmatte",
                 diffuseColor: color,
-                ambientIntensity: "0.3",
                 transparency: "0.5"
             });
         },
