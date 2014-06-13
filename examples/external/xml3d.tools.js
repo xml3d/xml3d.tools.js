@@ -21,7 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-@version: DEVELOPMENT SNAPSHOT 0.2.0 (May 27 2014) 
+@version: DEVELOPMENT SNAPSHOT 0.2.0 (June 5 2014) 
 */
                     
 /*
@@ -51,7 +51,7 @@ SOFTWARE.
 XML3D.tools = XML3D.tools || {};
 
 /** @define {string} */
-XML3D.tools.version = 'DEVELOPMENT SNAPSHOT 0.2.0 (May 27 2014)';
+XML3D.tools.version = 'DEVELOPMENT SNAPSHOT 0.2.0 (June 5 2014)';
 
 (function() {
 
@@ -934,100 +934,47 @@ TWEEN.Interpolation = {
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
  */
-/** This is the usual eyelight shader. But to prevent collisions with possible
- *  uses in pages, that include this library and the eyelight shader itself
- *  we give it a unique name.
- */
-XML3D.shaders.register("tools-eyelight", {
 
-    vertex : [
+XML3D.shaders.register("toolsmatte", {
+
+    vertex: [
         "attribute vec3 position;",
-        "attribute vec3 normal;",
         "attribute vec3 color;",
-        "attribute vec2 texcoord;",
 
-        "varying vec3 fragNormal;",
-        "varying vec3 fragVertexPosition;",
-        "varying vec2 fragTexCoord;",
+        "varying vec3 fragVertexColor;",
 
         "uniform mat4 modelViewProjectionMatrix;",
-        "uniform mat4 modelViewMatrix;",
-        "uniform mat3 normalMatrix;",
 
         "void main(void) {",
-        "    gl_Position = modelViewProjectionMatrix * vec4(position, 1.0);",
-        "    fragNormal = normalize(normalMatrix * normal);",
-        "    fragVertexPosition = (modelViewMatrix * vec4(position, 1.0)).xyz;",
-        "    fragTexCoord = texcoord;",
+        "   fragVertexColor = color;",
+        "   gl_Position = modelViewProjectionMatrix * vec4(position, 1.0);",
         "}"
     ].join("\n"),
 
-    fragment : [
-        "#ifdef GL_ES",
-          "precision highp float;",
-        "#endif",
-
-        "uniform float ambientIntensity;",
+    fragment: [
         "uniform vec3 diffuseColor;",
-        "uniform vec3 emissiveColor;",
-        "uniform float shininess;",
-        "uniform vec3 specularColor;",
+        "uniform bool useVertexColor;",
         "uniform float transparency;",
-        "uniform mat4 viewMatrix;",
 
-        "#if HAS_DIFFUSETEXTURE",
-        "  uniform sampler2D diffuseTexture;",
-        "#endif",
-
-        "varying vec3 fragNormal;",
-        "varying vec3 fragVertexPosition;",
-        "varying vec2 fragTexCoord;",
+        "varying vec3 fragVertexColor;",
 
         "void main(void) {",
-        "  vec3 objDiffuse = diffuseColor;",
-        "  float alpha = max(0.0, 1.0 - transparency);",
-        "  #if HAS_DIFFUSETEXTURE",
-        "    vec4 texDiffuse = texture2D(diffuseTexture, fragTexCoord);",
-        "    objDiffuse *= texDiffuse.rgb;",
-        "    alpha *= texDiffuse.a;",
-        "  #endif",
-
-        "  if (alpha < 0.005) discard;",
-
-        "  vec3 color = emissiveColor + (ambientIntensity * objDiffuse);\n",
-
-        "  vec3 eyeVec = normalize(-fragVertexPosition);",
-        "  vec3 lightVec = eyeVec;",
-        "  float diffuse = max(0.0, dot(fragNormal, lightVec)) ;",
-        "  float specular = pow(max(0.0, dot(fragNormal, eyeVec)), shininess*128.0);",
-
-        "  color = color + diffuse*objDiffuse + specular*specularColor;",
-        "  gl_FragColor = vec4(color, alpha);",
+        "    float alpha =  max(0.0, 1.0 - transparency);",
+        "    if (alpha < 0.05) discard;",
+        "    vec3 color = diffuseColor;",
+        "    if (useVertexColor)",
+        "       color *=  fragVertexColor;",
+        "    gl_FragColor = vec4(color, alpha);",
         "}"
     ].join("\n"),
-
-    addDirectives: function(directives, lights, params) {
-        directives.push("HAS_DIFFUSETEXTURE " + ('diffuseTexture' in params ? "1" : "0"));
-    },
 
     uniforms: {
         diffuseColor    : [1.0, 1.0, 1.0],
-        emissiveColor   : [0.0, 0.0, 0.0],
-        specularColor   : [1.0, 1.0, 1.0],
-        transparency    : 0.0,
-        shininess       : 0.5,
-        ambientIntensity: 0.0,
-        useVertexColor : false
+        useVertexColor  : false,
+        transparency    : 0.0
     },
-
-    samplers: {
-        diffuseTexture : null
-    },
-	    attributes: {
-        normal : {
-            required: true
-        },
-        texcoord: null
+    attributes: {
+        color: null
     }
 });
 /*
@@ -3324,15 +3271,15 @@ SOFTWARE.
     /**
      * A shader is actually a node with a number of children, each of which defines
      * an attribute 'name' and has a TextNode child. This method searches for the child
-     * of the given element, that has the 'name' attribute with the given name, replaces the
-     * TextNode content with the given value and returns the old value.
+     * of the given element, that has the 'name' attribute with the given name, optionally
+     * replaces the TextNode content with the given value, and returns the old value.
      *
-     * @param shaderElement
-     * @param attributeName
-     * @param attributeValue
+     * @param {Object} shaderElement
+     * @param {string} attributeName
+     * @param {string=} attributeValue
      * @return {string} the old value of the shader attribute
      */
-    u.setShaderAttribute = function(shaderElement, attributeName, attributeValue)
+    u.shaderAttribute = function(shaderElement, attributeName, attributeValue)
     {
         for(var i = 0; i < shaderElement.childNodes.length; i++)
         {
@@ -3340,7 +3287,8 @@ SOFTWARE.
             if(node.name === attributeName)
             {
                 var oldValue = node.childNodes[0].nodeValue;
-                node.childNodes[0].nodeValue = attributeValue;
+                if(attributeValue !== undefined)
+                    node.childNodes[0].nodeValue = attributeValue;
                 return oldValue;
             }
         }
@@ -10721,6 +10669,12 @@ SOFTWARE.
      */
     XML3D.tools.interaction.geometry.Geometry = new XML3D.tools.Class({
 
+        /** When a highlighting is applied using addHighlight() the diffuse color
+         *  of the target object is multiplied with the factor below. Redefine it in
+         *  derived classes to override it.
+         */
+        highlightColorMultiplier: 1.2,
+
         /**
          *  @this {XML3D.tools.interaction.geometry.Geometry}
          *  @param {XML3D.tools.interaction.widgets.Widget} widget
@@ -10827,10 +10781,15 @@ SOFTWARE.
         {
             var shaderEl = this.geo.defs["s_" + geometryId];
             if(!shaderEl)
-                throw new Error("RotateGizmo.addHighlight(): given shader does not exist: " + geometryId);
+                throw new Error("Geometry.addHighlight(): given shader does not exist: " + geometryId);
 
-            shaderEl.__oldHighlightValue = XML3D.tools.util.setShaderAttribute(
-                shaderEl, "ambientIntensity", "1");
+            var diffCol = XML3D.tools.util.shaderAttribute(shaderEl, "diffuseColor");
+            var diffColVec = new XML3DVec3();
+            diffColVec.setVec3Value(diffCol);
+            diffColVec = diffColVec.scale(this.highlightColorMultiplier);
+            shaderEl.__oldHighlightValue = XML3D.tools.util.shaderAttribute(
+                shaderEl, "diffuseColor", diffColVec.str());
+            console.log("highlight: " + diffColVec.str());
         },
 
         /**
@@ -10846,8 +10805,7 @@ SOFTWARE.
             if(!shaderEl)
                 throw new Error("RotateGizmo.removeHighlight(): given shader does not exist: " + geometryId);
 
-            XML3D.tools.util.setShaderAttribute(
-                shaderEl, "ambientIntensity", shaderEl.__oldHighlightValue);
+            XML3D.tools.util.shaderAttribute(shaderEl, "diffuseColor", shaderEl.__oldHighlightValue);
             shaderEl.__oldHighlightValue = undefined;
         },
 
@@ -11175,6 +11133,7 @@ SOFTWARE.
         XML3D.tools.interaction.geometry.ViewedConstantSizeGeometry, {
 
         disabledComponents: [],
+        highlightColorMultiplier: 1.2,
 
         /**
          *  @this {XML3D.tools.interaction.geometry.TranslateGizmo}
@@ -11271,9 +11230,8 @@ SOFTWARE.
             });
 
             this.geo.addShaders("s_" + id, {
-                shaderType: "urn:xml3d:shader:tools-eyelight",
-                diffuseColor: color,
-                ambientIntensity: "0.3"
+                shaderType: "urn:xml3d:shader:toolsmatte",
+                diffuseColor: color
             });
         },
 
@@ -11305,9 +11263,8 @@ SOFTWARE.
             });
 
             this.geo.addShaders("s_" + id, {
-                shaderType: "urn:xml3d:shader:tools-eyelight",
+                shaderType: "urn:xml3d:shader:toolsmatte",
                 diffuseColor: color,
-                ambientIntensity: "0.3",
                 transparency: "0.5"
             });
         },
@@ -11369,6 +11326,7 @@ SOFTWARE.
         XML3D.tools.interaction.geometry.ViewedConstantSizeGeometry, {
 
         bandWidth: 1,
+        highlightColorMultiplier: 1.5,
 
         /**
          *  @this {XML3D.tools.interaction.geometry.RotateGizmo}
@@ -11453,9 +11411,8 @@ SOFTWARE.
             });
 
             this.geo.addShaders("s_" + id, {
-                shaderType: "urn:xml3d:shader:tools-eyelight",
+                shaderType: "urn:xml3d:shader:toolsmatte",
                 diffuseColor: color,
-                ambientIntensity: "0.3",
                 transparency: "0.5"
             });
         },
@@ -13292,11 +13249,20 @@ SOFTWARE.
         _setup2DTranslaters: function()
         {
             if(0 > this.disabledComponents.indexOf("xyplane"))
+            {
                 this.behavior["xyplane"] = this._create2DTranslater("xyplane");
+                this.behavior["xyplane-inverse"] = this._create2DTranslater("xyplane-inverse");
+            }
             if(0 > this.disabledComponents.indexOf("yzplane"))
+            {
                 this.behavior["yzplane"] = this._create2DTranslater("yzplane");
+                this.behavior["yzplane-inverse"] = this._create2DTranslater("yzplane-inverse");
+            }
             if(0 > this.disabledComponents.indexOf("xzplane"))
+            {
                 this.behavior["xzplane"] = this._create2DTranslater("xzplane");
+                this.behavior["xzplane-inverse"] = this._create2DTranslater("xzplane-inverse");
+            }
         },
 
         /** Sets up a XML3D.tools.interaction.behaviors.Translater for 1D translation.
@@ -13361,6 +13327,7 @@ SOFTWARE.
 
             translater.addListener("dragstart", function() {
                 this.geometry.addHighlight(id);
+                console.log("highlight: " + id);
             }.bind(this));
             translater.addListener("dragend", function() {
                 this.geometry.removeHighlight(id);
