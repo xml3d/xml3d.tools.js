@@ -40,6 +40,7 @@ SOFTWARE.
         XML3D.tools.interaction.geometry.ViewedConstantSizeGeometry, {
 
         bandWidth: 1,
+        highlightColorMultiplier: 1.5,
 
         /**
          *  @this {XML3D.tools.interaction.geometry.RotateGizmo}
@@ -124,9 +125,8 @@ SOFTWARE.
             });
 
             this.geo.addShaders("s_" + id, {
-                shaderType: "urn:xml3d:shader:tools-eyelight",
+                shaderType: "urn:xml3d:shader:toolsmatte",
                 diffuseColor: color,
-                ambientIntensity: "0.3",
                 transparency: "0.5"
             });
         },
