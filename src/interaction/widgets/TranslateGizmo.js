@@ -116,11 +116,20 @@ SOFTWARE.
         _setup2DTranslaters: function()
         {
             if(0 > this.disabledComponents.indexOf("xyplane"))
+            {
                 this.behavior["xyplane"] = this._create2DTranslater("xyplane");
+                this.behavior["xyplane-inverse"] = this._create2DTranslater("xyplane-inverse");
+            }
             if(0 > this.disabledComponents.indexOf("yzplane"))
+            {
                 this.behavior["yzplane"] = this._create2DTranslater("yzplane");
+                this.behavior["yzplane-inverse"] = this._create2DTranslater("yzplane-inverse");
+            }
             if(0 > this.disabledComponents.indexOf("xzplane"))
+            {
                 this.behavior["xzplane"] = this._create2DTranslater("xzplane");
+                this.behavior["xzplane-inverse"] = this._create2DTranslater("xzplane-inverse");
+            }
         },
 
         /** Sets up a XML3D.tools.interaction.behaviors.Translater for 1D translation.
