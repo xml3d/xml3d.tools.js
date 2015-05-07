@@ -4,19 +4,7 @@ var del = require('del');
 var uglify = require('gulp-uglify');
 
 var srcFiles = [
-		"./src/animation/*.js",
-		"./src/base/*.js",
-		"./src/camera/*.js",
-		"./src/constraint/*.js",
-		"./src/contrib/*.js",
-		"./src/input/*.js",
-		"./src/interaction/behaviors/*.js",
-		"./src/interaction/geometry/*.js",
-		"./src/interaction/widgets/*.js",
-		"./src/interaction/*.js",
-		"./src/util/*.js",
-		"./src/xml3doverlay/*.js",
-		"./src/*.js"
+		"./src/**/*.js"
 	];
 
 gulp.task("default", function(){
