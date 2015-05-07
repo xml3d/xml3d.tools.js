@@ -7,9 +7,10 @@ var srcFiles = [
 		"./src/**/*.js"
 	];
 
+var destination = "./build";
+
 gulp.task("default", function(){
 	var outputName = "xml3d.tools.js";
-	var destination = "./build";
 
 	gulp.src(srcFiles)
 			.pipe(concat(outputName))
@@ -18,7 +19,6 @@ gulp.task("default", function(){
 
 gulp.task("uglify", function(){
 	var outputName = "xml3d.tools.min.js";
-	var destination = "./build";
 
 	gulp.src(srcFiles)
 			.pipe(concat(outputName))
