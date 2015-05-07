@@ -3,6 +3,8 @@ var concat = require('gulp-concat');
 var del = require('del');
 var uglify = require('gulp-uglify');
 var version = require("gulp-version-number");
+var header = require("gulp-header");
+var fileSystem = require("fs");
 var pkg = require("./package.json");
 
 var srcFiles = [
@@ -22,6 +24,7 @@ gulp.task("default", function(){
 	gulp.src(srcFiles)
 			.pipe(concat(outputName))
 			.pipe(version(versionConfig))
+			.pipe(header(fileSystem.readFileSync("gulp-license-header"), {version: versionString}))
 			.pipe(gulp.dest(destination));
 });
 
@@ -37,6 +40,7 @@ gulp.task("release", function(){
 			.pipe(concat(outputName))
 			.pipe(version(versionConfig))
 			.pipe(uglify())
+			.pipe(header(fileSystem.readFileSync("gulp-license-header"), {version: versionString}))
 			.pipe(gulp.dest(destination));
 });
 
@@ -44,3 +48,4 @@ gulp.task('clean', function(cb) {
   // You can use multiple globbing patterns as you would with `gulp.src`
   del(['build/*'], cb);
 });
+

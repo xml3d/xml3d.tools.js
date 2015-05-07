@@ -20,6 +20,8 @@
   },
   "homepage": "https://github.com/xml3d/xml3d.tools.js",
   "devDependencies": {
+    "fs": "0.0.2",
+    "gulp-header": "^1.2.2",
     "gulp-jshint": "^1.10.0"
   },
   "dependencies": {
