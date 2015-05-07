@@ -20,15 +20,15 @@
   },
   "homepage": "https://github.com/xml3d/xml3d.tools.js",
   "devDependencies": {
+	"del": "^1.1.1",
+    "gulp-concat": "^2.5.2",
+    "gulp-uglify": "^1.2.0",
+    "gulp-version-number": "^0.1.4",
     "fs": "0.0.2",
     "gulp-header": "^1.2.2",
     "gulp-rename": "^1.2.2",
     "gulp-replace": "^0.5.3"
   },
   "dependencies": {
-    "del": "^1.1.1",
-    "gulp-concat": "^2.5.2",
-    "gulp-uglify": "^1.2.0",
-    "gulp-version-number": "^0.1.4"
   }
 }
