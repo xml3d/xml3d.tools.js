@@ -2,6 +2,7 @@ var gulp = require("gulp");
 var concat = require('gulp-concat');
 var del = require('del');
 var uglify = require('gulp-uglify');
+var pkg = require("./package.json");
 
 var srcFiles = [
 		"./src/**/*.js"
@@ -10,7 +11,7 @@ var srcFiles = [
 var destination = "./build";
 
 gulp.task("default", function(){
-	var outputName = "xml3d.tools.js";
+	var outputName = "xml3d.tools." + pkg.version + ".js";
 
 	gulp.src(srcFiles)
 			.pipe(concat(outputName))
@@ -18,7 +19,7 @@ gulp.task("default", function(){
 });
 
 gulp.task("release", function(){
-	var outputName = "xml3d.tools.min.js";
+	var outputName = "xml3d.tools." + pkg.version + ".min.js";
 
 	gulp.src(srcFiles)
 			.pipe(concat(outputName))
