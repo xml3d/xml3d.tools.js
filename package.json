@@ -21,5 +21,8 @@
   "homepage": "https://github.com/xml3d/xml3d.tools.js",
   "devDependencies": {
     "gulp-jshint": "^1.10.0"
+  },
+  "dependencies": {
+    "gulp-concat": "^2.5.2"
   }
 }
