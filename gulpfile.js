@@ -24,9 +24,20 @@ gulp.task("default", function(){
 	gulp.src(srcFiles)
 			.pipe(concat(outputName))
 			.pipe(version(versionConfig))
+			.pipe(header(buildLicenseHeader(), {version: versionString}))
 			.pipe(header(fileSystem.readFileSync("gulp-license-header"), {version: versionString}))
 			.pipe(gulp.dest(destination));
 });
+
+
+var buildLicenseHeader = function(){
+	var header = "/*" + "\n"
+			+ fileSystem.readFileSync("LICENSE") + "\n"
+			+ "Version: <%= version %>" + "\n"
+			+ "Full source at https://github.com/xml3d/xml3d.tools.js" + "\n"
+			+ "*/" + "\n" + "\n";
+	return header;
+};
 
 gulp.task("release", function(){
 	var versionString = pkg.version;
@@ -39,6 +50,7 @@ gulp.task("release", function(){
 	gulp.src(srcFiles)
 			.pipe(concat(outputName))
 			.pipe(version(versionConfig))
+			.pipe(header(buildLicenseHeader(), {version: versionString}))
 			.pipe(uglify())
 			.pipe(header(fileSystem.readFileSync("gulp-license-header"), {version: versionString}))
 			.pipe(gulp.dest(destination));
