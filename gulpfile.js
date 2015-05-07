@@ -25,12 +25,18 @@ gulp.task("default", function(){
 
 	gulp.src(srcFiles)
 			.pipe(concat(outputName))
+			.pipe(replace(buildInCodeLicenseHeader(), ""))
 			.pipe(version(versionConfig))
 			.pipe(header(buildLicenseHeader(), {version: versionString}))
-			.pipe(header(fileSystem.readFileSync("gulp-license-header"), {version: versionString}))
 			.pipe(gulp.dest(destination));
 });
 
+var buildInCodeLicenseHeader = function(){
+	var header = "/*" + "\n"
+			+ fileSystem.readFileSync("LICENSE")
+			+ "*/" + "\n";
+	return header;
+};
 
 var buildLicenseHeader = function(){
 	var header = "/*" + "\n"
@@ -43,7 +49,7 @@ var buildLicenseHeader = function(){
 
 gulp.task("release", function(){
 	var versionString = pkg.version;
-	var outputName = "xml3d.tools." + versionString + ".min.js";
+	var outputName = "xml3d.tools." + versionString + ".js";
 	var versionConfig = {
 		"value" : versionString,
 		"replaces" : ["%VERSION%"]
@@ -51,10 +57,10 @@ gulp.task("release", function(){
 
 	gulp.src(srcFiles)
 			.pipe(concat(outputName))
+			.pipe(replace(buildInCodeLicenseHeader(), ""))
 			.pipe(version(versionConfig))
 			.pipe(header(buildLicenseHeader(), {version: versionString}))
 			.pipe(uglify())
-			.pipe(header(fileSystem.readFileSync("gulp-license-header"), {version: versionString}))
 			.pipe(gulp.dest(destination));
 });
 
