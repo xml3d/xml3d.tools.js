@@ -12,9 +12,10 @@ var srcFiles = [
 var destination = "./build";
 
 gulp.task("default", function(){
-	var outputName = "xml3d.tools." + pkg.version + ".js";
+	var versionString = pkg.version + "-dev-snapshot";
+	var outputName = "xml3d.tools." + versionString + ".js";
 	var versionConfig = {
-		"value" : pkg.version + "-dev",
+		"value" : versionString,
 		"replaces" : ["%VERSION%"]
 	};
 
@@ -25,9 +26,10 @@ gulp.task("default", function(){
 });
 
 gulp.task("release", function(){
-	var outputName = "xml3d.tools." + pkg.version + ".min.js";
+	var versionString = pkg.version;
+	var outputName = "xml3d.tools." + versionString + ".min.js";
 	var versionConfig = {
-		"value" : pkg.version,
+		"value" : versionString,
 		"replaces" : ["%VERSION%"]
 	};
 
