@@ -8,6 +8,9 @@ var header = require("gulp-header");
 var uglify = require('gulp-uglify');
 var rename = require("gulp-rename");
 var del = require('del');
+var os = require('os');
+
+var isWindows = /^win/.test(os.platform());
 
 var srcFiles = [
 		"./src/**/*.js"
@@ -32,18 +35,26 @@ gulp.task("default", function(){
 });
 
 var buildInCodeLicenseHeader = function(){
-	var header = "/*" + "\n"
+	var header = "/*" + getSystemLineBreak()
 			+ fileSystem.readFileSync("LICENSE")
-			+ "*/" + "\n";
+			+ "*/" + getSystemLineBreak();
 	return header;
 };
 
+var getSystemLineBreak = function(){
+	if (isWindows) {
+		return "\r\n";
+	} else {
+		return "\n";
+	}
+};
+
 var buildLicenseHeader = function(){
-	var header = "/*" + "\n"
-			+ fileSystem.readFileSync("LICENSE") + "\n"
-			+ "Version: <%= version %>" + "\n"
-			+ "Full source at https://github.com/xml3d/xml3d.tools.js" + "\n"
-			+ "*/" + "\n" + "\n";
+	var header = "/*" + getSystemLineBreak()
+			+ fileSystem.readFileSync("LICENSE") + getSystemLineBreak()
+			+ "Version: <%= version %>" + getSystemLineBreak()
+			+ "Full source at https://github.com/xml3d/xml3d.tools.js" + getSystemLineBreak()
+			+ "*/" + getSystemLineBreak() + getSystemLineBreak();
 	return header;
 };
 
