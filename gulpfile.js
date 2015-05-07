@@ -20,19 +20,24 @@ var destination = "./build";
 
 gulp.task("default", function(){
 	var versionString = pkg.version + "-dev-snapshot";
-	var outputName = "xml3d.tools." + versionString + ".js";
-	var versionConfig = {
-		"value" : versionString,
-		"replaces" : ["%VERSION%"]
-	};
-
 	gulp.src(srcFiles)
-			.pipe(concat(outputName))
+			.pipe(concat(buildOutputName(versionString)))
 			.pipe(replace(buildInCodeLicenseHeader(), ""))
-			.pipe(version(versionConfig))
+			.pipe(version(buildVersionConfig(versionString)))
 			.pipe(header(buildLicenseHeader(), {version: versionString}))
 			.pipe(gulp.dest(destination));
 });
+
+var buildOutputName = function(versionString){
+	return "xml3d.tools." + versionString + ".js";
+};
+
+var buildVersionConfig = function(versionString){
+	return {
+		"value" : versionString,
+		"replaces" : ["%VERSION%"]
+	};
+};
 
 var buildInCodeLicenseHeader = function(){
 	var header = "/*" + getSystemLineBreak()
@@ -60,16 +65,10 @@ var buildLicenseHeader = function(){
 
 gulp.task("release", function(){
 	var versionString = pkg.version;
-	var outputName = "xml3d.tools." + versionString + ".js";
-	var versionConfig = {
-		"value" : versionString,
-		"replaces" : ["%VERSION%"]
-	};
-
 	gulp.src(srcFiles)
-			.pipe(concat(outputName))
+			.pipe(concat(buildOutputName(versionString)))
 			.pipe(replace(buildInCodeLicenseHeader(), ""))
-			.pipe(version(versionConfig))
+			.pipe(version(buildVersionConfig(versionString)))
 			.pipe(header(buildLicenseHeader(), {version: versionString}))
 			.pipe(gulp.dest(destination))
 			.pipe(uglify())
