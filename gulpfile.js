@@ -1,6 +1,7 @@
 var gulp = require("gulp");
 var concat = require('gulp-concat');
 var del = require('del');
+var uglify = require('gulp-uglify');
 
 var srcFiles = [
 		"./src/animation/*.js",
@@ -24,6 +25,16 @@ gulp.task("default", function(){
 
 	gulp.src(srcFiles)
 			.pipe(concat(outputName))
+			.pipe(gulp.dest(destination));
+});
+
+gulp.task("uglify", function(){
+	var outputName = "xml3d.tools.min.js";
+	var destination = "./build";
+
+	gulp.src(srcFiles)
+			.pipe(concat(outputName))
+			.pipe(uglify())
 			.pipe(gulp.dest(destination));
 });
 
