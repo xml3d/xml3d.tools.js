@@ -4,3 +4,4 @@ build/output
 .settings
 .project
 /nbproject
+/node_modules
