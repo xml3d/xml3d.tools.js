@@ -1,11 +1,13 @@
 var gulp = require("gulp");
+var pkg = require("./package.json");
 var concat = require('gulp-concat');
-var del = require('del');
-var uglify = require('gulp-uglify');
+var replace = require('gulp-replace');
+var fileSystem = require("fs");
 var version = require("gulp-version-number");
 var header = require("gulp-header");
-var fileSystem = require("fs");
-var pkg = require("./package.json");
+var uglify = require('gulp-uglify');
+var rename = require("gulp-rename");
+var del = require('del');
 
 var srcFiles = [
 		"./src/**/*.js"
