@@ -78,7 +78,6 @@ gulp.task("release", function(){
 });
 
 gulp.task('clean', function(cb) {
-  // You can use multiple globbing patterns as you would with `gulp.src`
-  del(['build/*'], cb);
+	del(['build/*'], cb);
 });
 
