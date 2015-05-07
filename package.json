@@ -23,6 +23,5 @@
     "gulp-jshint": "^1.10.0"
   },
   "dependencies": {
-    "gulp-concat": "^2.5.2"
   }
 }
