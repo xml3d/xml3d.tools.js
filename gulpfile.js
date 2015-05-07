@@ -1,14 +1,16 @@
 var gulp = require("gulp");
-var pkg = require("./package.json");
 var concat = require('gulp-concat');
 var replace = require('gulp-replace');
-var fileSystem = require("fs");
 var version = require("gulp-version-number");
 var header = require("gulp-header");
 var uglify = require('gulp-uglify');
 var rename = require("gulp-rename");
+
 var del = require('del');
 var os = require('os');
+var fileSystem = require("fs");
+
+var pkg = require("./package.json");
 
 var isWindows = /^win/.test(os.platform());
 
