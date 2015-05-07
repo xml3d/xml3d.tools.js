@@ -1,6 +1,6 @@
 {
   "name": "xml3d.tools.js",
-  "version": "1.0.0",
+  "version": "0.1",
   "description": "Tools for a better life with XML3D.",
   "main": "index.js",
   "directories": {
