@@ -17,7 +17,7 @@ gulp.task("default", function(){
 			.pipe(gulp.dest(destination));
 });
 
-gulp.task("uglify", function(){
+gulp.task("release", function(){
 	var outputName = "xml3d.tools.min.js";
 
 	gulp.src(srcFiles)
