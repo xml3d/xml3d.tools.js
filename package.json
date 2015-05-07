@@ -1,0 +1,25 @@
+{
+  "name": "xml3d.tools.js",
+  "version": "1.0.0",
+  "description": "Tools for a better life with XML3D.",
+  "main": "index.js",
+  "directories": {
+    "example": "examples"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/xml3d/xml3d.tools.js.git"
+  },
+  "author": "",
+  "license": "Apache 2",
+  "bugs": {
+    "url": "https://github.com/xml3d/xml3d.tools.js/issues"
+  },
+  "homepage": "https://github.com/xml3d/xml3d.tools.js",
+  "devDependencies": {
+    "gulp-jshint": "^1.10.0"
+  }
+}
