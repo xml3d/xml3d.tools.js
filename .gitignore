@@ -3,3 +3,6 @@ build/output
 .metadata
 .settings
 .project
+/nbproject
+/node_modules
+/build

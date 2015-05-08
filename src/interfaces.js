@@ -24,9 +24,6 @@ SOFTWARE.
 /** @namespace **/
 XML3D.tools = XML3D.tools || {};
 
-/** @define {string} */
-XML3D.tools.version = '%VERSION%';
-
 (function() {
 
     /**
