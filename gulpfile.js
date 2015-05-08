@@ -74,6 +74,7 @@ gulp.task("release", function(){
 			.pipe(header(buildLicenseHeader(), {version: versionString}))
 			.pipe(gulp.dest(destination))
 			.pipe(uglify())
+			.pipe(header(buildLicenseHeader(), {version: versionString}))
 			.pipe(rename({extname: ".min.js"}))
 			.pipe(gulp.dest(destination));
 });
